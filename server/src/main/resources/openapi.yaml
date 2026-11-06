@@ -1,0 +1,232 @@
+openapi: 3.0.3
+info: { title: Astrid pilot API, version: 0.1.0 }
+servers: [{ url: 'http://localhost:8088' }]
+paths:
+  /api/v1/development-session:
+    post:
+      operationId: createDevelopmentSession
+      parameters: [{ $ref: '#/components/parameters/Client' }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false } } } }
+      responses:
+        '200': { description: Session, content: { application/json: { schema: { $ref: '#/components/schemas/DevelopmentSession' } } } }
+        '400': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '415': { $ref: '#/components/responses/Problem' }
+  /api/v1/catalog:
+    get:
+      operationId: getCatalog
+      responses:
+        '200': { description: Catalog, content: { application/json: { schema: { $ref: '#/components/schemas/Catalog' } } } }
+        '401': { $ref: '#/components/responses/Problem' }
+  /api/v1/exercises:
+    post:
+      operationId: createExercise
+      parameters: [{ $ref: '#/components/parameters/Client' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ExerciseRequest' } } } }
+      responses:
+        '201': { description: Exercise, content: { application/json: { schema: { $ref: '#/components/schemas/Exercise' } } } }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }
+        '415': { $ref: '#/components/responses/Problem' }
+  /api/v1/exercises/{id}:
+    get:
+      operationId: getExercise
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200': { description: Exercise, content: { application/json: { schema: { $ref: '#/components/schemas/Exercise' } } } }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+  /api/v1/attempts:
+    post:
+      operationId: submitAttempt
+      parameters: [{ $ref: '#/components/parameters/Client' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AttemptRequest' } } } }
+      responses:
+        '200': { description: Attempt, content: { application/json: { schema: { $ref: '#/components/schemas/Attempt' } } } }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }
+        '415': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Problem' }
+  /api/v1/attempts/{id}:
+    get:
+      operationId: getAttempt
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200': { description: Attempt, content: { application/json: { schema: { $ref: '#/components/schemas/Attempt' } } } }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+  /api/v1/dev/exercises/{id}:
+    get:
+      operationId: inspectExercise
+      parameters:
+        - { $ref: '#/components/parameters/Id' }
+        - { name: X-Astrid-Inspector-Key, in: header, required: true, schema: { type: string, minLength: 32 } }
+      responses:
+        '200': { description: Inspector, content: { application/json: { schema: { $ref: '#/components/schemas/Inspector' } } } }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+  /api/v1/health:
+    get:
+      responses: { '200': { description: Live, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } } }
+  /api/v1/ready:
+    get:
+      responses:
+        '200': { description: Ready, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } }
+        '503': { description: Unavailable, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } }
+components:
+  parameters:
+    Client: { name: X-Astrid-Client, in: header, required: true, schema: { type: string, enum: [playground] } }
+    Id: { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+  responses:
+    Problem: { description: Safe problem, content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+  schemas:
+    DevelopmentSession:
+      type: object
+      additionalProperties: false
+      required: [mode, inspectorEnabled, contentRevision, generatorRevision, evaluationRevision]
+      properties:
+        mode: { type: string, enum: [development] }
+        inspectorEnabled: { type: boolean }
+        contentRevision: { type: string, enum: [pilot-1] }
+        generatorRevision: { type: string, enum: [generator-1] }
+        evaluationRevision: { type: string, enum: [evaluation-1] }
+    Catalog:
+      type: object
+      additionalProperties: false
+      required: [contentRevision, generatorRevision, evaluationRevision, skills, formats, sentenceCount]
+      properties:
+        contentRevision: { type: string }
+        generatorRevision: { type: string }
+        evaluationRevision: { type: string }
+        sentenceCount: { type: integer, enum: [99] }
+        skills: { type: array, items: { $ref: '#/components/schemas/Skill' } }
+        formats: { type: array, items: { $ref: '#/components/schemas/Format' } }
+    Skill:
+      type: object
+      additionalProperties: false
+      required: [id, title, explanation, prerequisiteIds]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        explanation: { type: string }
+        prerequisiteIds: { type: array, items: { type: string } }
+    Format:
+      type: object
+      additionalProperties: false
+      required: [id, title, targetSkillId]
+      properties: { id: { type: string }, title: { type: string }, targetSkillId: { type: string } }
+    ExerciseRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      properties:
+        formatId: { type: string, maxLength: 32 }
+        targetSkillId: { type: string, maxLength: 32 }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, maxLength: 64 }
+        generatorRevision: { type: string, maxLength: 64 }
+    Exercise:
+      type: object
+      additionalProperties: false
+      required: [id, formatId, targetSkillId, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      properties:
+        id: { type: string, format: uuid }
+        formatId: { type: string }
+        targetSkillId: { type: string }
+        supportSkillIds: { type: array, items: { type: string } }
+        contentRevision: { type: string }
+        generatorRevision: { type: string }
+        instruction: { type: string }
+        context: { type: string }
+        prompt: { $ref: '#/components/schemas/Prompt' }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        hint: { type: string }
+    Prompt:
+      type: object
+      additionalProperties: false
+      required: [before, after, choices, blocks, punctuation]
+      properties:
+        before: { type: string }
+        after: { type: string, description: Includes final punctuation for text and choice exercises. }
+        choices: { type: array, items: { type: string } }
+        blocks: { type: array, items: { $ref: '#/components/schemas/Block' } }
+        punctuation: { type: string, description: Supplied separately for the ordering exercise only. }
+    Block: { type: object, additionalProperties: false, required: [id, text], properties: { id: { type: string }, text: { type: string } } }
+    Introduction: { type: object, additionalProperties: false, required: [title, body], properties: { title: { type: string }, body: { type: string } } }
+    AttemptRequest:
+      type: object
+      additionalProperties: false
+      required: [attemptId, exerciseId, answer, hintUsed]
+      properties:
+        attemptId: { type: string, format: uuid }
+        exerciseId: { type: string, format: uuid }
+        answer:
+          oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }]
+        hintUsed: { type: boolean }
+    TextAnswer:
+      type: object
+      additionalProperties: false
+      required: [kind, text]
+      properties: { kind: { type: string, enum: [text] }, text: { type: string, maxLength: 512 } }
+    OrderAnswer:
+      type: object
+      additionalProperties: false
+      required: [kind, blockIds]
+      properties:
+        kind: { type: string, enum: [order] }
+        blockIds: { type: array, maxItems: 16, items: { type: string, maxLength: 64 } }
+    Attempt:
+      type: object
+      additionalProperties: false
+      required: [attemptId, exerciseId, targetSatisfaction, linguisticStatus, issues, feedback, completedSentence, evaluationRevision, hintUsed, retryNumber, createdAt]
+      properties:
+        attemptId: { type: string, format: uuid }
+        exerciseId: { type: string, format: uuid }
+        targetSatisfaction: { type: string, enum: [met, not-met, unevaluable] }
+        linguisticStatus: { type: string, enum: [acceptable, known-issue, unknown] }
+        issues: { type: array, items: { $ref: '#/components/schemas/Issue' } }
+        feedback: { type: string }
+        completedSentence: { type: string }
+        evaluationRevision: { type: string }
+        hintUsed: { type: boolean }
+        retryNumber: { type: integer, minimum: 1 }
+        createdAt: { type: integer, format: int64 }
+    Issue: { type: object, additionalProperties: false, required: [code, message], properties: { code: { type: string }, message: { type: string } } }
+    Inspector:
+      type: object
+      additionalProperties: false
+      required: [exercise, seed, index, canonicalSentenceId, constructionId, lexicalIds, clauseRoles, canonicalSentence]
+      properties:
+        exercise: { $ref: '#/components/schemas/Exercise' }
+        seed: { type: integer }
+        index: { type: integer }
+        canonicalSentenceId: { type: string }
+        constructionId: { type: string }
+        lexicalIds: { type: array, items: { type: string } }
+        clauseRoles: { type: array, items: { type: string } }
+        canonicalSentence: { type: string }
+    Problem:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, detail, code]
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string, nullable: true }
+        code: { type: string }
+    Health: { type: object, additionalProperties: false, required: [status], properties: { status: { type: string } } }

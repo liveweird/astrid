@@ -1,0 +1,35 @@
+# The Flow zero-findings policy, scoped to the smaller Astrid application.
+build:
+  maxIssues: 0
+
+complexity:
+  LongMethod:
+    excludes: ['**/src/test/**']
+    threshold: 80
+  LongParameterList:
+    excludes: ['**/src/test/**']
+    functionThreshold: 10
+    constructorThreshold: 14
+    ignoreDataClasses: true
+  TooManyFunctions:
+    # Catalogues and cohesive boundary services expose several small operations.
+    active: false
+  LargeClass:
+    excludes: ['**/src/test/**']
+
+style:
+  WildcardImport:
+    # Ktor route registration convention, inherited from the donor.
+    active: false
+  MaxLineLength:
+    maxLineLength: 140
+  MagicNumber:
+    # Reviewed content IDs/counts and fixture seeds are intentional data.
+    excludes: ['**/src/test/**', '**/PilotContent.kt']
+  UnusedImports:
+    active: true
+
+naming:
+  MatchingDeclarationName:
+    # A cohesive model file can contain several related data shapes.
+    active: false
