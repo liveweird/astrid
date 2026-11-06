@@ -2,7 +2,7 @@
 
 ## Recommendation and status
 
-Reuse Flow's general application foundation: Kotlin and Ktor, PostgreSQL and Flyway, React and TypeScript, its API contract workflow, test infrastructure, and enforceable quality rules. Adapt the application boundaries, learning interface, exercise contracts, and deployment size to Astrid. Following the assessment, the user confirmed retaining Kubernetes and Docker Compose. Other technology choices remain proposals, and application implementation has not been authorized.
+Reuse Flow's general application foundation: Kotlin and Ktor, PostgreSQL and Flyway, React and TypeScript, its API contract workflow, test infrastructure, and enforceable quality rules. Adapt the application boundaries, learning interface, exercise contracts, and deployment size to Astrid. Following the assessment, the user confirmed retaining Kubernetes and Docker Compose. The user subsequently authorized the engine playground on 7 November 2026. Its concrete stack and reuse boundaries are now recorded in the [reuse manifest](flow-reuse-manifest.md) and [implementation decisions](implementation-decisions.md); the assessment below preserves the original evidence and recommendations.
 
 The user explicitly prefers reuse where it makes sense. Favor a selective port of proven foundation code and conventions over copying Flow's full domain or building a shared framework in advance.
 

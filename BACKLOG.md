@@ -1,12 +1,14 @@
 # Project Backlog
 
-Work planning for the Danish learning app. Updated 7 November 2026. Current delivery is the authorized language-foundation design pass; application implementation has not started.
+Work planning for the Danish learning app. Updated 7 November 2026. Current delivery is the user-authorized engine playground; implementation and verification are in progress.
 
 Statuses follow the [working agreement](docs/knowledge/working-agreement.md). The ordering below is an initial proposed sequence; it does not imply the user has approved the assistant's design proposals.
 
 ## [next]
 
 - **BL-020 — Agree the Flow reuse boundary.** Use the [stack assessment](docs/knowledge/flow-stack-assessment.md) and [beginner slice specification](docs/knowledge/beginner-slice-spec.md) to record a keep/adapt/omit donor manifest, concrete implementation boundaries, and required validation. Kubernetes and Docker Compose are confirmed: include adapted manifests and local-stack checks. Preserve the shared sibling UI/layout and online/web-reuse mobile preference. Resolve the development-session, persistence/API, and initial runtime choices needed for the playground; production hosting and public onboarding can remain later work.
+
+- **BL-012 — Build and deliver the engine playground.** Authorized 7 November 2026. Implement the pure engine, isolated development sessions, persisted attempts, three exercise interactions, explicit inspector, Flow-family red shell, Docker Compose, Kubernetes, CI and meaningful validation. Complete after independent review, runnable-stack verification and merge/push. See [implementation decisions](docs/knowledge/implementation-decisions.md).
 
 ## [todo]
 
@@ -26,7 +28,6 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [parked]
 
-- **BL-012 — Select architecture and begin implementation.** The [Flow assessment](docs/knowledge/flow-stack-assessment.md) and [first slice specification](docs/knowledge/beginner-slice-spec.md) are available. Implement the engine playground as the following milestone after this language/design delivery and the concrete reuse plan. Complete with recorded technical choices and a working tested slice; coordinate with BL-020.
 - **BL-013 — Build the mobile version.** Revisit after the initial web engine is satisfactory. The user confirmed that online operation and web-interface reuse are acceptable; native UI and offline lessons are not current requirements. Choose packaging/distribution later and retain mobile input and responsive testing requirements.
 - **BL-014 — Add listening and speaking.** Explicitly postponed by the user. Revisit when the reading and writing engine is satisfactory and scope is reopened.
 - **BL-015 — Produce images, sounds, and other production media.** Revisit once the engine is satisfactory. Linguistic examples and vocabulary needed to validate the engine belong in current foundation work.

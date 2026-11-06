@@ -4,7 +4,7 @@
 
 Build a language learning app for English-speaking learners, with Danish as the first priority. Future target languages may follow, while English remains the learners' source language.
 
-**6 November 2026 — Initial learner and purpose:** The user selected complete beginners and general everyday Danish as the initial content focus. Exact learning outcomes and the first implementation subset remain to be specified.
+**6 November 2026 — Initial learner and purpose:** The user selected complete beginners and general everyday Danish as the initial content focus. The [beginner slice](beginner-slice-spec.md) now specifies the first implementation subset and observable grammar targets; broader proficiency and effectiveness measures remain open.
 
 The initial version focuses on reading and writing, including grammar and vocabulary. Listening and speaking are postponed. Start with a web version; a mobile version is intended to follow.
 

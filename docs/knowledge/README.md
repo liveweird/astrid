@@ -28,8 +28,8 @@ Update the relevant notes as planning continues. Promote a proposal to a confirm
 
 The user has established continuous documentation as a standing project rule. Capture assumptions, requirements, constraints, open points, questions, decisions, rules, conventions, principles, and tenets as they arise. Follow the [working agreement](working-agreement.md) for record locations and maintenance.
 
-## Proposed next work
+## Current implementation
 
-The [backlog](../../BACKLOG.md) owns work status and priority. The first grammar map and construction catalogue are drafted, with a connected beginner seed and worked exercise specification. Next, validate the language and content boundaries, settle remaining implementation choices in the Flow reuse plan, and proceed to the engine playground as the following milestone.
+The [backlog](../../BACKLOG.md) owns work status and priority. The first grammar map and construction catalogue are drafted, with a connected beginner seed and worked exercise specification. The user has now authorized the engine playground. Its scope and operational boundaries are recorded in [implementation decisions](implementation-decisions.md), with the concrete [Flow reuse manifest](flow-reuse-manifest.md). Linguistic teaching review remains separate from software validation.
 
 The broad language map and the small validation subset serve different purposes. A complete language implementation is not a prerequisite for validating the engine.

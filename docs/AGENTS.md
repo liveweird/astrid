@@ -6,4 +6,4 @@ Capture assumptions, requirements, constraints, open points, questions, decision
 
 Use the backlog statuses `[next]`, `[todo]`, `[new]`, `[parked]`, and `[blocked]` according to the working agreement. Record completed work separately from active items. Keep work priorities and dependencies consistent with the knowledge base.
 
-The project remains in discovery. Do not begin application implementation until the user changes that constraint.
+The user authorized the engine-playground implementation on 7 November 2026. Keep implementation within the connected beginner slice and private development playground; broader course features remain backlog work.

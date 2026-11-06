@@ -4,7 +4,7 @@
 
 The user authorized proceeding with the language/engine design pass on 6 November 2026 and requested reasonably sized commits followed by merge/push to GitHub. The first drafts are now available: [grammar inventory](danish-grammar-map.md), [construction catalogue](danish-sentence-catalogue.md), [vocabulary seed](danish-vocabulary-seed.md), and [beginner slice specification](beginner-slice-spec.md). They make the first end-to-end engine milestone reviewable.
 
-This delivery completes the initial draft step in the proposed sequence. It does not claim that the language content is specialist-reviewed, that a final stack has been adopted beyond explicit decisions, or that application implementation is already complete. The engine playground remains the following milestone.
+This delivery completes the initial draft step in the proposed sequence. It does not claim that the language content is specialist-reviewed, that a final stack has been adopted beyond explicit decisions, or that application implementation is already complete. The user authorized that following engine-playground milestone on 7 November 2026; see [implementation decisions](implementation-decisions.md).
 
 ## Confirmed initial scope
 
@@ -24,11 +24,11 @@ These are confirmed requirements. No further broad product questionnaire is need
 
 These activities develop BL-002 through BL-008 and BL-020; they do not replace the broader language-foundation work.
 
-## Proposed first implementation
+## Authorized first implementation
 
 Build an engine playground inside the shared sibling application layout. It should let a reviewer choose a grammar target and exercise type, generate multiple variations, answer them, see feedback, and inspect the linguistic structure and generation details through a development-only view. Learner-facing text should remain clear and free of internal engine details.
 
-Use the preferred red branding direction with provisional styling; the final logo and palette remain later visual work. Retain the confirmed Docker Compose and Kubernetes scope and port the smallest useful Flow foundation. A pure Kotlin engine, Ktor API, PostgreSQL, and React/Mantine interface remain the recommended stack, pending adoption decisions.
+Use the preferred red branding direction with provisional styling; the final logo and palette remain later visual work. Retain the confirmed Docker Compose and Kubernetes scope and port the smallest useful Flow foundation. The authorized implementation now uses a pure Kotlin engine, Ktor API, PostgreSQL, and React/Mantine interface, with the concrete [Flow reuse boundary](flow-reuse-manifest.md).
 
 ## Proposed completion criteria
 
