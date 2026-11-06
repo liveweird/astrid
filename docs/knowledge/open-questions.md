@@ -1,19 +1,19 @@
 # Open Questions
 
-This register tracks open and resolved questions as of 6 November 2026. Resolved entries are marked explicitly. Remaining questions are planning work; their presence does not mean every question blocks current progress.
+This register tracks open and resolved questions through the first foundation drafts on 7 November 2026. Resolved entries are marked explicitly. Remaining questions are planning work; their presence does not mean every question blocks current progress.
 
 | ID | Question or open point | Related work |
 | --- | --- | --- |
 | Q01 | **Resolved:** The initial material targets English-speaking complete beginners. See [Product direction](product-direction.md). | BL-001 |
-| Q02 | **Partly resolved:** General everyday Danish is the confirmed initial priority. Exact reading/writing outcomes, proficiency range, success measures, and use of CEFR remain open. | BL-001, BL-008 |
+| Q02 | **Partly resolved:** General everyday Danish is the confirmed initial priority. The [first slice](beginner-slice-spec.md) proposes observable present-statement/article/form outcomes; final learning-success measures, proficiency range, and use of CEFR remain open. | BL-001, BL-008 |
 | Q03 | What does coverage of sentence variants include: register, colloquial forms, exceptional constructions, and advanced grammar? | BL-001, BL-003 |
 | Q04 | What session structure, progression, topic choice, and learner control do we want? | BL-009 |
-| Q05 | How will we establish prerequisite relationships and review the proposed grammar teaching order? | BL-002 |
-| Q06 | Which vocabulary meanings and constructions are sufficient, and what frequency, usage, and data sources should guide selection? | BL-004, BL-005 |
-| Q07 | How should grading handle valid alternatives, spelling, punctuation, capitalization, Danish letters, and partial correctness? | BL-007 |
+| Q05 | The [grammar draft](danish-grammar-map.md) defines 58 skills and prerequisite relationships. How will a Danish teaching specialist validate the sequence and coverage? | BL-022 |
+| Q06 | The [pilot seed](danish-vocabulary-seed.md) defines 23 entries and licensed senses/combinations. Which broader vocabulary, frequency/usage evidence, and reusable data sources should guide expansion? | BL-004, BL-005 |
+| Q07 | The [pilot specification](beginner-slice-spec.md) proposes explicit grading and normalization cases. Which policies should extend to later formats and free writing, including partial correctness? | BL-007, BL-022 |
 | Q08 | Which generation and evaluation methods should we use, and what role, if any, should AI play? | BL-010 |
 | Q09 | How should progress, mastery, review timing, and uncertainty about error causes be represented? | BL-011 |
-| Q10 | What is the scope of the manual validation subset, and what teacher review or learner evidence is needed before implementation? | BL-008 |
+| Q10 | A six-skill, three-construction, 23-entry slice with three exercise formats is drafted. What specialist review, sampling, and learner evidence should establish its readiness and effectiveness? | BL-008, BL-022 |
 | Q11 | Which proposed engine principles should become agreed design rules? | BL-006, BL-007, BL-008 |
 | Q12 | What architecture, storage, and platform technologies should be chosen after the learning requirements are clearer? | BL-012 |
 | Q13 | Which specific mobile distribution approach should deliver the online web interface: browser installation, a web wrapper, or another approach? | BL-013 |

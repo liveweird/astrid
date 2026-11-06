@@ -10,7 +10,7 @@ The initial version focuses on reading and writing, including grammar and vocabu
 
 The user clarified on 6 November 2026 that online mobile apps with reuse of the web interface are acceptable. Native UI and offline lessons are not current requirements. The mobile packaging and distribution technology remains undecided.
 
-The initial development priority is the learning engine: exercise types, a vocabulary database, and a mechanism for exercise variability. Images, sounds, and other production media follow once the engine is satisfactory. The current phase is planning; the user explicitly requested no application code yet.
+The initial development priority is the learning engine: exercise types, a vocabulary database, and a mechanism for exercise variability. Images, sounds, and other production media follow once the engine is satisfactory. The user authorized the first language/engine design pass and requested commit-sized delivery with merge/push. That pass has produced drafts; the application playground is the subsequent step in the agreed sequence.
 
 ## Confirmed learning priorities
 

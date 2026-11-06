@@ -2,9 +2,9 @@
 
 ## Readiness recommendation
 
-The product direction is sufficient to begin concrete language and engine design. The grammar inventory, sentence-construction catalogue, and vocabulary subset are still requirements rather than authored resources. Propose one short design pass to make a small end-to-end engine milestone reviewable, then begin implementation once the user authorizes application code.
+The user authorized proceeding with the language/engine design pass on 6 November 2026 and requested reasonably sized commits followed by merge/push to GitHub. The first drafts are now available: [grammar inventory](danish-grammar-map.md), [construction catalogue](danish-sentence-catalogue.md), [vocabulary seed](danish-vocabulary-seed.md), and [beginner slice specification](beginner-slice-spec.md). They make the first end-to-end engine milestone reviewable.
 
-The user asked whether more information is needed or building should begin. This is a readiness discussion; the earlier planning-only constraint remains in effect. The milestone below is a proposal.
+This delivery completes the initial draft step in the proposed sequence. It does not claim that the language content is specialist-reviewed, that a final stack has been adopted beyond explicit decisions, or that application implementation is already complete. The engine playground remains the following milestone.
 
 ## Confirmed initial scope
 
@@ -41,7 +41,7 @@ Use the preferred red branding direction with provisional styling; the final log
 - Reviewed language examples and automated engine/API/UI checks support the slice.
 - Retrying a recorded answer does not create a duplicate attempt.
 
-Numeric content targets, sampling requirements, and the linguistic review process still need definition. Demonstrating software behavior is separate from establishing that learners retain and transfer the knowledge.
+The current slice defines six foundational skills, three construction families, 23 vocabulary entries, three exercise formats, and 99 licensed abstract sentence combinations. Sampling/retention requirements and the linguistic review process still need definition. Demonstrating software behavior is separate from establishing that learners retain and transfer the knowledge.
 
 ## Decisions that can follow
 

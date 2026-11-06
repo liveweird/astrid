@@ -10,6 +10,8 @@ These references were consulted during the initial planning discussion. They sup
 
 Use these as reference starting points. The proposed structural inventory requires broader coverage and linguistic review.
 
+The [grammar map](danish-grammar-map.md#source-register) now records 15 grammatical reference sources, including Danish Language Council material and university research on word order and conditionals. The [construction catalogue](danish-sentence-catalogue.md#source-basis) distinguishes neutral beginner models from later spoken/register variation. Their teaching order and original examples remain drafts requiring specialist review.
+
 ## Vocabulary and morphology data
 
 [Det Centrale Ordregister documentation](https://ordregister.dk/doc/COR.html) describes Danish lemma and word-form identifiers, morphological information, and accepted form variants. The base resource is freely available for reuse. Other COR resources can have different terms, so record the exact resource, version, provenance, and licence when selecting data.
@@ -18,6 +20,8 @@ The [COR resource catalogue](https://ordregister.dk/) provides downloads and inf
 
 No dataset has been imported or selected as the definitive vocabulary source. A downloadable resource and a pedagogically sufficient vocabulary subset are separate deliverables.
 
+For the first [23-entry vocabulary seed](danish-vocabulary-seed.md), Den Danske Ordbog entries were consulted for selected noun genders, inflected forms, verb forms, and meanings/frames. The seed links each noun/verb to its lookup and distinguishes homonyms and senses. English glosses, semantic allowlists, and examples are original teaching proposals; no dictionary definitions, corpus quotations, images, or audio were imported. A corpus-based frequency selection and dataset-licensing decision are still outstanding.
+
 ## Learning and outcomes
 
 - [Council of Europe CEFR Companion Volume](https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-companion-volume-and-its-language-versions): reading and written-production descriptors can help define outcomes. CEFR alignment and a target level have not been decided.
@@ -25,7 +29,7 @@ No dataset has been imported or selected as the definitive vocabulary source. A 
 
 ## Research still needed
 
-- A comprehensive grammar reference and inventory suitable for Danish learners.
+- Extend and validate the first broad grammar/construction inventory, including its documented coverage gaps.
 - A reviewed prerequisite structure and teaching sequence for English speakers.
 - Appropriate frequency and usage evidence for selecting vocabulary.
 - Sources for English equivalents, verb constructions, and semantic compatibility.

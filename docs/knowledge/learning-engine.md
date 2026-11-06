@@ -2,6 +2,8 @@
 
 The following design ideas support the [confirmed product requirements](product-direction.md). They remain proposals; no architecture, framework, or algorithm has been selected.
 
+The [beginner slice specification](beginner-slice-spec.md) now makes the first three exercise formats, generation boundaries, normalization, feedback, and attempt handling concrete enough to review. The broader ideas below remain design direction rather than implemented behavior.
+
 ## Learning targets and progression
 
 Give each exercise an explicit target, its prerequisites, and the knowledge assumed by its surrounding material. A tense exercise should use familiar vocabulary and enough context to establish which tense is appropriate.
@@ -47,6 +49,8 @@ Feedback should explain the relevant error and support another attempt. Record e
 ## Validation and architecture questions
 
 An earlier suggested trial size was 40–60 vocabulary entries, three grammar concepts, and four or five exercise formats. These numbers are illustrative, not agreed scope, and do not replace the broader language map.
+
+The current draft instead defines a deliberately small, connected test space: six foundational skill records, three construction families, 23 vocabulary entries, and three exercise formats. Its allowlists yield 99 abstract sentence combinations. This establishes a bounded engine test fixture rather than sufficient variety for a full course.
 
 Before implementation, manually test a connected subset containing sentence structures, vocabulary, exercise variants, valid answers, likely mistakes, and feedback. Include unseen examples and delayed practice when evaluating learners.
 
