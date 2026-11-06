@@ -1,0 +1,24 @@
+.appMain {
+  background: var(--astrid-canvas);
+  min-height: 100vh;
+}
+
+.appHeader,
+.appNavbar {
+  background: var(--astrid-surface);
+  border-color: var(--astrid-border);
+}
+
+.navLink[data-active] {
+  color: var(--astrid-nav-ink);
+  border-left: 3px solid var(--astrid-nav-border);
+  background: var(--astrid-nav-fill);
+}
+
+.railLink :global(.mantine-NavLink-section) {
+  margin-inline: auto;
+}
+
+.brandText {
+  letter-spacing: -0.02em;
+}

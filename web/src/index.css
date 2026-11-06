@@ -1,0 +1,46 @@
+:root,
+:root[data-mantine-color-scheme="light"] {
+  color-scheme: light;
+  --astrid-canvas: #f8f9fb;
+  --astrid-surface: #ffffff;
+  --astrid-border: #dee2e6;
+  --astrid-nav-ink: #7c1728;
+  --astrid-nav-border: #b21f36;
+  --astrid-nav-fill: #fff0f1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mantine-color-scheme]) {
+    color-scheme: dark;
+    --astrid-canvas: #1f1f1f;
+    --astrid-surface: #242424;
+    --astrid-border: #424242;
+    --astrid-nav-ink: #ffbcc4;
+    --astrid-nav-border: #ee5b70;
+    --astrid-nav-fill: rgba(238, 91, 112, 0.12);
+  }
+}
+
+:root[data-mantine-color-scheme="dark"] {
+  color-scheme: dark;
+  --astrid-canvas: #1f1f1f;
+  --astrid-surface: #242424;
+  --astrid-border: #424242;
+  --astrid-nav-ink: #ffbcc4;
+  --astrid-nav-border: #ee5b70;
+  --astrid-nav-fill: rgba(238, 91, 112, 0.12);
+}
+
+body { margin: 0; background: var(--astrid-canvas); }
+button, input { font: inherit; }
+.skip-link {
+  position: fixed;
+  left: 12px;
+  top: -60px;
+  z-index: 1000;
+  background: #fff;
+  color: #1f2328;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+.skip-link:focus { top: 8px; }
