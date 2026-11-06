@@ -159,7 +159,7 @@ private fun Route.inspectorRoute(
         requireInspectorKey(call, config.inspectorKey!!)
         val session = requireSession(call, config, repository, clock)
         val stored = repository.findExercise(session.id, call.uuidParameter("id")) ?: throw NotFound()
-        call.respond(regenerate(engine, stored).toInspector(stored.id.toString()))
+        call.respond(regenerateVerified(engine, stored).toInspector(stored.id.toString()))
     }
 }
 
@@ -192,10 +192,7 @@ private suspend fun evaluateAttempt(
     retry: Int,
     createdAt: Long,
 ): AttemptResponse {
-    val generated = regenerate(engine, stored)
-    if (generated.reproductionFingerprint() != stored.reproductionFingerprint) {
-        throw Conflict("Exercise reproduction no longer matches its stored presentation")
-    }
+    val generated = regenerateVerified(engine, stored)
     request.answer.validateFor(generated.formatId, generated.prompt.blocks.map { it.id }.toSet())
     val evaluation = try {
         engine.evaluate(generated, request.answer.toEngineAnswer())
@@ -305,6 +302,12 @@ private fun regenerate(engine: PilotEngine, stored: StoredExercise) = try {
     engine.generate(stored.toGenerationRequest())
 } catch (cause: IllegalArgumentException) {
     throw Conflict("Exercise revision is no longer supported").apply { initCause(cause) }
+}
+
+private fun regenerateVerified(engine: PilotEngine, stored: StoredExercise) = regenerate(engine, stored).also { generated ->
+    if (generated.reproductionFingerprint() != stored.reproductionFingerprint) {
+        throw Conflict("Exercise reproduction no longer matches its stored presentation")
+    }
 }
 
 private fun ExerciseRequest.toGenerationRequest() =

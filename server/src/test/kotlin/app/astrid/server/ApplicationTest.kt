@@ -157,10 +157,25 @@ class ApplicationTest {
     @Test
     fun `fingerprint drift conflicts without persisting an attempt`() = testApplication {
         val repository = InMemoryAstridRepository()
-        application { astridModule(testConfig(), repository) }
+        application { astridModule(testConfig(inspectorKey = "k".repeat(32)), repository) }
         val cookie = createSession()
         val exerciseId = createExercise(cookie)
+        val publicBefore = client.get("/api/v1/exercises/$exerciseId") {
+            trustedHost()
+            cookie(SESSION_COOKIE_FOR_TEST, cookie)
+        }.bodyAsText()
         repository.tamperFingerprint(UUID.fromString(exerciseId))
+        val inspector = client.get("/api/v1/dev/exercises/$exerciseId") {
+            trustedHost()
+            cookie(SESSION_COOKIE_FOR_TEST, cookie)
+            header("X-Astrid-Inspector-Key", "k".repeat(32))
+        }
+        assertEquals(HttpStatusCode.Conflict, inspector.status)
+        val publicAfter = client.get("/api/v1/exercises/$exerciseId") {
+            trustedHost()
+            cookie(SESSION_COOKIE_FOR_TEST, cookie)
+        }.bodyAsText()
+        assertEquals(publicBefore, publicAfter)
         val attemptId = UUID.randomUUID().toString()
         val body =
             """{"attemptId":"$attemptId","exerciseId":"$exerciseId","answer":{"kind":"text","text":"læser"},"hintUsed":false}"""
