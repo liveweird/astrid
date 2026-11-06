@@ -11,6 +11,9 @@ This is the repository record of the Danish learning app's requirements, design 
 - [Working agreement](working-agreement.md): standing documentation rule, decision conventions, and backlog statuses.
 - [Assumptions and principles](assumptions-and-principles.md): working assumptions, confirmed product tenets, and proposed design principles.
 - [Open questions](open-questions.md): central register of unresolved questions and other open points.
+- [Flow stack assessment](flow-stack-assessment.md): evaluated donor stack, reuse boundaries, recommendations, and gaps.
+- [Visual identity](visual-identity.md): shared sibling UI style/layout, preferred red accent, and Denmark/Astrid logo brief.
+- [First engine milestone](first-engine-milestone.md): readiness recommendation, proposed design pass, engine playground, and completion criteria.
 - [Project backlog](../../BACKLOG.md): separate work plan using `[next]`, `[todo]`, `[new]`, `[parked]`, and `[blocked]`.
 
 ## Status conventions

@@ -13,6 +13,7 @@ Update the relevant records as discussion or work changes the project. Documenta
 | Product requirements and scope constraints | [Product direction](product-direction.md) |
 | Engine proposals and design details | [Learning engine](learning-engine.md) |
 | Curriculum, structural grammar, and vocabulary requirements | [Language foundations](language-foundations.md) |
+| Shared UI conventions, brand direction, and logo requirements | [Visual identity](visual-identity.md) |
 | Assumptions, proposed principles, and tenets | [Assumptions and principles](assumptions-and-principles.md) |
 | Unresolved questions and other open points | [Open questions](open-questions.md) |
 | Sources and research needs | [Research and sources](research-and-sources.md) |
@@ -47,15 +48,15 @@ Move completed items into a dated completion history with a result or evidence r
 - **6 November 2026 — Repository documentation:** Keep the project knowledge base in `docs/knowledge/`; the user subsequently established continuous documentation as a standing requirement.
 - **6 November 2026 — Separate backlog:** Use root-level `BACKLOG.md` with the five requested statuses. The location and detailed status meanings are initial working conventions chosen to implement the user's request.
 - **6 November 2026 — Git initialization:** The user authorized initialization, then initialized the repository locally after the session's attempt was blocked. Verified the local repository and the configured GitHub origin, `https://github.com/liveweird/astrid.git`.
-- **6 November 2026 — Commit and push authorization:** The user authorized pushing the project. Staging the documentation failed because this session cannot create `.git/index.lock`. No commit or push has been performed; [BL-018](../../BACKLOG.md) tracks the blocker.
+- **6 November 2026 — Commit and push authorization:** The user authorized pushing the project. The agent's staging attempt failed because the session could not create `.git/index.lock`. The user subsequently reported completing the push. Local `master` and the tracking reference `origin/master` both point to `e9521ee`; BL-018 is complete in the [backlog](../../BACKLOG.md).
 - **Continuing constraint:** Remain in discovery and write no application code until the user changes that instruction.
 
 The existing root `AGENTS.md` remains unchanged under the earlier instruction not to modify it. Its initial empty-directory description is historical; consult the knowledge index and backlog for current project state.
 
 ## Git access troubleshooting
 
-The current execution policy permits project-file edits but protects `.git` as read-only and disables sandbox approval requests. User authorization to commit and push is already recorded; the remaining blocker is the execution policy. GitHub authentication and remote connectivity have not yet been tested.
+The current execution policy permits project-file edits but protects `.git` as read-only and disables sandbox approval requests. User authorization to commit and push is already recorded. The user completed the initial push locally; authentication and remote connectivity from agent-run commands have not been tested.
 
 The [official sandbox guidance](https://learn.chatgpt.com/docs/agent-approvals-security) confirms that `.git` remains protected under workspace-write. The [permission-mode guidance](https://learn.chatgpt.com/docs/permission-modes) describes the permissions control below the composer and `/permissions` in the CLI. An approval-enabled mode can permit requests for otherwise restricted operations; Full access removes the sandbox boundary more broadly. Available modes depend on the app, configuration, and managed requirements. [Custom permission profiles](https://learn.chatgpt.com/docs/permissions) can provide narrower filesystem and network access where supported.
 
-The user has asked how to grant the required access; no permission-mode change has been confirmed. Once the effective policy changes, retry the authorized Git work and update BL-018 based on the actual result. Do not interpret a UI setting alone as proof of effective access.
+No permission-mode change has been confirmed. The initial push no longer requires action, but future agent-run staging and commits still require an effective permission change. Do not interpret either the user's successful local push or a UI setting alone as proof of agent access. Subsequent documentation edits remain local until committed and pushed.
