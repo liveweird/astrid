@@ -1,0 +1,14 @@
+.git
+.gradle
+.kotlin
+**/build
+**/node_modules
+**/dist
+**/coverage
+**/playwright-report
+**/test-results
+.env
+.env.*
+.local
+docs
+BACKLOG.md

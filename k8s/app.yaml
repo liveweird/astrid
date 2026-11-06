@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: astrid
+spec:
+  selector:
+    app: astrid
+  ports:
+    - port: 8088
+      targetPort: 8088
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: astrid
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: astrid
+  template:
+    metadata:
+      labels:
+        app: astrid
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: astrid
+          image: astrid:local
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: astrid
+            - secretRef:
+                name: astrid-secrets
+          ports:
+            - containerPort: 8088
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          startupProbe:
+            httpGet:
+              path: /api/v1/ready
+              port: 8088
+              httpHeaders:
+                - name: Host
+                  value: localhost:8088
+            failureThreshold: 30
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ready
+              port: 8088
+              httpHeaders:
+                - name: Host
+                  value: localhost:8088
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8088
+              httpHeaders:
+                - name: Host
+                  value: localhost:8088
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 768Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 128Mi
