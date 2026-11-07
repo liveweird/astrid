@@ -55,3 +55,7 @@ The current draft instead defines a deliberately small, connected test space: si
 The authorized pilot has completed implementation and software checks. For future expansion, manually review a connected subset containing sentence structures, vocabulary, exercise variants, valid answers, likely mistakes, and feedback before activating it. Include unseen examples and delayed practice when evaluating learners; those learner studies remain outstanding.
 
 Keep learning rules and content independent of web screens, account for phone input, and isolate Danish-specific rules so future languages can be added. The pilot uses typed content, persisted PostgreSQL attempts and explicit grading; storage beyond that subset, mobile distribution, scheduling and broader generation/grading remain open.
+
+## Vocabulary assessment implementation
+
+The user-authorized [vocabulary contract](vocabulary-assessment.md) adds meaning recognition and introduced-headword recall for three existing senses, bringing the catalog to eight entries. Lexical targets are distinct from grammar skills, and response constraints are assessed separately from identifying a headword. The initial three-format description above is historical; [delivery evidence](vocabulary-delivery.md) tracks the current iteration. Mixed sessions and progression remain proposals.

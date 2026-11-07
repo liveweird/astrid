@@ -61,3 +61,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Recall and guided repair delivery](recall-repair-delivery.md): selected operations, compatibility safeguards and observed verification for BL-034.
 
 - [Vocabulary assessment contract](vocabulary-assessment.md): authorized recognition/headword-recall targets, feedback facets, revision and migration safeguards, and acceptance evidence.
+
+- [Vocabulary delivery](vocabulary-delivery.md): observed compatibility, migration, inspector, grading and browser verification for BL-036.
