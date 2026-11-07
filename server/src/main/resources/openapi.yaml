@@ -193,7 +193,12 @@ components:
       type: object
       additionalProperties: false
       required: [kind, text]
-      properties: { kind: { type: string, enum: [text] }, text: { type: string, maxLength: 512 } }
+      properties:
+        kind: { type: string, enum: [text] }
+        text:
+          type: string
+          maxLength: 512
+          description: Must be well-formed Unicode. The maximum length is counted in Unicode code points.
     OrderAnswer:
       type: object
       additionalProperties: false

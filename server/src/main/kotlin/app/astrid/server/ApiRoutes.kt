@@ -23,6 +23,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import java.io.File
+import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
@@ -281,7 +282,14 @@ private fun AttemptRequest.validated(): AttemptRequest {
     parseStrictUuid(attemptId, "attemptId")
     parseStrictUuid(exerciseId, "exerciseId")
     when (val value = answer) {
-        is AttemptAnswerDto.Text -> if (value.text.length > MAX_TEXT_LENGTH) throw BadRequest("Text answer is too long")
+        is AttemptAnswerDto.Text -> {
+            if (!StandardCharsets.UTF_8.newEncoder().canEncode(value.text)) {
+                throw BadRequest("Text answer must contain well-formed Unicode")
+            }
+            if (value.text.codePointCount(0, value.text.length) > MAX_TEXT_LENGTH) {
+                throw BadRequest("Text answer is too long")
+            }
+        }
         is AttemptAnswerDto.Order -> if (value.blockIds.size > MAX_BLOCK_COUNT ||
             value.blockIds.any { it.length !in 1..MAX_REVISION_LENGTH }) throw BadRequest("Invalid block answer")
     }

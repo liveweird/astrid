@@ -233,6 +233,7 @@ export interface components {
         TextAnswer: {
             /** @enum {string} */
             kind: "text";
+            /** @description Must be well-formed Unicode. The maximum length is counted in Unicode code points. */
             text: string;
         };
         OrderAnswer: {

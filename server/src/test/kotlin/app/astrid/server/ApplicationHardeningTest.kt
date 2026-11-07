@@ -215,6 +215,100 @@ class ApplicationHardeningTest {
         }.status)
     }
 
+    @Test
+    fun `malformed unicode is rejected without consuming attempt identity`() = testApplication {
+        application { astridModule(config(), InMemoryAstridRepository()) }
+        val cookie = createSession()
+        val malformedJsonStrings = listOf(
+            "\"\\uD800\"",
+            "\"\\uDC00\"",
+            "\"\\uD800\\uD800\"",
+            "\"\\uDC00\\uD800\"",
+        )
+
+        malformedJsonStrings.forEach { malformedText ->
+            val exerciseId = createExercise(cookie).id
+            val attemptId = UUID.randomUUID().toString()
+            assertEquals(
+                HttpStatusCode.BadRequest,
+                submit(cookie, attemptBodyWithJsonText(attemptId, exerciseId, malformedText)).status,
+            )
+            assertEquals(HttpStatusCode.NotFound, getAttempt(cookie, attemptId).status)
+
+            val recovered = submit(cookie, attemptBody(attemptId, exerciseId, "læser"))
+            assertEquals(HttpStatusCode.OK, recovered.status)
+            assertEquals(1, wireJson.decodeFromString<AttemptResponse>(recovered.bodyAsText()).retryNumber)
+        }
+    }
+
+    @Test
+    fun `valid unicode preserves stable attempt replay and readback`() = testApplication {
+        application { astridModule(config(), InMemoryAstridRepository()) }
+        val cookie = createSession()
+        val exerciseId = createExercise(cookie).id
+        val validJsonStrings = listOf(
+            "\"et\"",
+            "\"e\\u0301\"",
+            "\"\\uD83D\\uDE00\"",
+            "\"a\\u0000b\"",
+        )
+
+        validJsonStrings.forEach { validText ->
+            val attemptId = UUID.randomUUID().toString()
+            val body = attemptBodyWithJsonText(attemptId, exerciseId, validText)
+            val created = submit(cookie, body)
+            assertEquals(HttpStatusCode.OK, created.status)
+            val createdBody = created.bodyAsText()
+
+            val replay = submit(cookie, body)
+            assertEquals(HttpStatusCode.OK, replay.status)
+            assertEquals(createdBody, replay.bodyAsText())
+            val reread = getAttempt(cookie, attemptId)
+            assertEquals(HttpStatusCode.OK, reread.status)
+            assertEquals(createdBody, reread.bodyAsText())
+        }
+    }
+
+    @Test
+    fun `text answer limit counts unicode code points`() = testApplication {
+        application { astridModule(config(), InMemoryAstridRepository()) }
+        val cookie = createSession()
+        val codePoints = listOf("x", "\\uD83D\\uDE00")
+
+        codePoints.forEach { encodedCodePoint ->
+            val acceptedExerciseId = createExercise(cookie).id
+            assertEquals(
+                HttpStatusCode.OK,
+                submit(
+                    cookie,
+                    attemptBodyWithJsonText(
+                        UUID.randomUUID().toString(),
+                        acceptedExerciseId,
+                        "\"${encodedCodePoint.repeat(512)}\"",
+                    ),
+                ).status,
+            )
+
+            val rejectedExerciseId = createExercise(cookie).id
+            val rejectedId = UUID.randomUUID().toString()
+            assertEquals(
+                HttpStatusCode.BadRequest,
+                submit(
+                    cookie,
+                    attemptBodyWithJsonText(
+                        rejectedId,
+                        rejectedExerciseId,
+                        "\"${encodedCodePoint.repeat(513)}\"",
+                    ),
+                ).status,
+            )
+            assertEquals(HttpStatusCode.NotFound, getAttempt(cookie, rejectedId).status)
+            val recovered = submit(cookie, attemptBody(rejectedId, rejectedExerciseId, "læser"))
+            assertEquals(HttpStatusCode.OK, recovered.status)
+            assertEquals(1, wireJson.decodeFromString<AttemptResponse>(recovered.bodyAsText()).retryNumber)
+        }
+    }
+
     private suspend fun ApplicationTestBuilder.createSession(): String {
         val response = sessionRequest("{}")
         assertEquals(HttpStatusCode.OK, response.status)
@@ -255,6 +349,12 @@ class ApplicationHardeningTest {
         setBody(body)
     }
 
+    private suspend fun ApplicationTestBuilder.getAttempt(cookieValue: String, attemptId: String) =
+        client.get("/api/v1/attempts/$attemptId") {
+            trustedHost()
+            cookie(SESSION_COOKIE, cookieValue)
+        }
+
     private suspend fun ApplicationTestBuilder.submitText(
         cookieValue: String,
         exerciseId: String,
@@ -286,6 +386,9 @@ class ApplicationHardeningTest {
 
     private fun attemptBody(attemptId: String, exerciseId: String, text: String) =
         """{"attemptId":"$attemptId","exerciseId":"$exerciseId","answer":{"kind":"text","text":"$text"},"hintUsed":false}"""
+
+    private fun attemptBodyWithJsonText(attemptId: String, exerciseId: String, jsonText: String) =
+        """{"attemptId":"$attemptId","exerciseId":"$exerciseId","answer":{"kind":"text","text":$jsonText},"hintUsed":false}"""
 
     private fun io.ktor.client.request.HttpRequestBuilder.trustedHost() {
         header(HttpHeaders.Host, "localhost:8088")
