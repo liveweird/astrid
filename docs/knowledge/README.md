@@ -59,3 +59,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Beginner outcome references](beginner-outcome-reference.md): official framework reference points and proposed reading/writing evidence, without selecting a CEFR level or exam pathway.
 
 - [Recall and guided repair delivery](recall-repair-delivery.md): selected operations, compatibility safeguards and observed verification for BL-034.
+
+- [Vocabulary assessment contract](vocabulary-assessment.md): authorized recognition/headword-recall targets, feedback facets, revision and migration safeguards, and acceptance evidence.

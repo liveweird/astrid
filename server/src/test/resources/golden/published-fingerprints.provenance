@@ -1,0 +1,9 @@
+baselineCommit=86a9e07
+publishedImplementationCommit=79c7c51
+captureDate=2026-11-07
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=978
+fixtureSha256=2833d9891daa1bde37f58cc8bee74558e519118c48d455339175af7eb1497cd2
+engineArtifactSha256=7c4d326d19fe96601720ca7ad06ef32adc22cf20a11911b5c0e1ef00d8a98173
+serverArtifactSha256=7f4a62ce948fb73caa5e36b873806f5bf04c297c17907e701aa5358237482f31
+description=Both published revision pairs: complete generation cycles and boundary inputs; original server reproduction fingerprint.

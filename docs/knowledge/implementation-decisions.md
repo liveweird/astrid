@@ -34,3 +34,7 @@ The pilot remains draft linguistic content awaiting appropriate Danish teaching 
 ## Recall and repair revision contract
 
 The user authorized typed present recall and guided single-word verb/article repair on 7 November 2026. BL-034 adds E004–E006 on `pilot-2/generator-2/evaluation-2`, retaining exact legacy `pilot-1/generator-1/evaluation-1` behavior and the same language inventory. The [extension contract](exercise-extension-proposal.md) defines controlled corruption, narrow licensed alternatives, optional prompt metadata, unchanged historical fingerprints/replay, and the compatible-reader rollback requirement. The [delivery record](recall-repair-delivery.md) records the verified implementation and retained legacy behavior.
+
+## Vocabulary target expansion
+
+BL-036 is user-authorized and in progress. The [vocabulary contract](vocabulary-assessment.md) adds meaning recognition and introduced-headword recall for three existing senses, independently of G skill IDs. Publish a third revision pair while preserving both earlier pairs; a forward migration permits a null grammar target, with lexical target metadata in the persisted presentation. Distinguish headword identification, bounded language diagnosis and response constraints. No broader vocabulary, mixed-session scheduler or unrestricted translation is activated.
