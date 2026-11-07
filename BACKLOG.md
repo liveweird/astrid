@@ -6,8 +6,6 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [next]
 
-- **BL-040 — Port Flow application versioning and changelog (authorized, in progress).** Add an application version source, linked build stamp, lazy English changelog and device-local unseen indicator, with build metadata and version/entry/OpenAPI consistency checks. Preserve learning revisions and recovery. See the [contract](docs/knowledge/app-versioning.md); complete after independent review, packaged verification and focused merge/push.
-
 - **BL-035 — Review the expanded playground, guided practice and targeted reviews.** Proposed next step: try `/practice` for an eight-part session, then all eight standalone entries under “Generation controls.” Assess pacing, instruction/feedback clarity, typed Danish input, repair, response constraints, support, recovery, summaries and repetition before choosing the next bounded engine/content iteration. From a completed summary, try selecting a single vocabulary direction and a grammar target for separate follow-up runs; assess selection, source links and possible earlier exposure. Record reproducible coordinates for corrections. The [review guide](docs/knowledge/pilot-review-guide.md) covers both flows; specialist validation remains BL-022.
 
 ## [todo]
@@ -40,6 +38,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 No active work is currently blocked. Git writes and remote access succeeded through approved escalated commands; the foundation delivery is complete. Use the applicable approval mechanism for future Git operations that exceed the workspace sandbox.
 
 ## Completed work
+
+- **7 November 2026 — BL-040, Flow application versioning and changelog:** Delivered `0.2.0` with a linked version/SHA/commit-time stamp, lazy English release notes and reactive device-local unread state. Added API/version consistency, safe storage and route recovery, plus a verified WebKit preload workaround. Independent review, all five [source CI jobs](https://github.com/liveweird/astrid/actions/runs/42395355408), 148 native and 148 Linux browser journeys passed without retries/flakies. The backed-up preview passed 24 smoke journeys, preserved all five immutable histories, database process/mounts and all three evaluators; owned QA resources were removed. See the [contract and delivery evidence](docs/knowledge/app-versioning.md#observed-delivery--7-november-2026). This completion record accompanies focused merge/push; no tag/release publication was requested.
 
 - **7 November 2026 — BL-039, targeted follow-up practice:** Added learner-selected, source-linked review runs with truthful one-to-eight-item plans, separate lexical directions, frozen ancestral exposure and atomic browser recovery. Independent review, all five [source CI jobs](https://github.com/liveweird/astrid/actions/runs/42388919244), 130 native and 130 Linux browser journeys passed without retries/flakies. The backed-up preview passed 22 smoke journeys, preserved all five immutable histories, PostgreSQL process/mounts and all three evaluators. Owned QA resources were removed. See the [contract and delivery evidence](docs/knowledge/targeted-follow-up.md#observed-delivery--7-november-2026). This completion record accompanies focused merge/push; BL-035 remains user review.
 

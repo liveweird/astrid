@@ -44,7 +44,7 @@ For the complete inventory, run `./gradlew :engine:exportPilotReview` and read `
 
 ## Record feedback
 
-Capture the coordinates, answer and expected result when something seems wrong. For guided practice, include the session URL, part number and which support was opened. Separate:
+Capture the coordinates, answer and expected result when something seems wrong. Include the application version and source commit from the navigation footer; its link opens the changelog for that build. For guided practice, include the session URL, part number and which support was opened. Separate:
 
 - whether the exercise isolates the intended grammar or vocabulary target;
 - whether explanations and feedback are understandable;

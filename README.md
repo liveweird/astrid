@@ -67,6 +67,14 @@ From a completed summary, select individual grammar or vocabulary targets and ch
 
 The [session contract](docs/knowledge/practice-sessions.md) and [follow-up contract](docs/knowledge/targeted-follow-up.md) record the pinned plans, ownership, frozen exposure and persistence rules. Both use existing beginner content, without adaptive scheduling or new language material.
 
+## Application version and changelog
+
+The navigation footer shows the running app version, source commit and commit time; its link and **Changelog** open the release notes. A device-local indicator marks an unread version. Reading notes does not start or renew a learning session.
+
+Use a regular Git checkout when building the Docker image: the web builder reads `.git` for identity, and the runtime receives only the compiled stamp. Local Vite builds show `+dirty` for uncommitted work. `GIT_SHA` and `GIT_COMMIT_TIME` can explicitly supply build metadata.
+
+For a user-visible feature, bump the minor application version; for a fix, bump the patch. In the same commit, update `web/src/changelog/version.ts`, prepend an authored English entry in `web/src/changelog/entries.ts`, and match `info.version` in `server/src/main/resources/openapi.yaml`. Tests guard consistency. Keep old entries unchanged. Documentation/test/CI/dependency-only changes may retain the version. Gradle/npm package and learning-content revision numbers are separate. See the [versioning contract](docs/knowledge/app-versioning.md) for explicit tag/release publication.
+
 ## Structure and conventions
 
 | Path | Responsibility |
