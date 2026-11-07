@@ -1,6 +1,6 @@
 # Project Knowledge Base
 
-This is the repository record of the Danish learning app's requirements, design proposals, research, and unresolved questions. It captures planning and the first language-foundation drafts through 7 November 2026. The project is in the initial design pass; application implementation has not started.
+This is the repository record of the Danish learning app's requirements, design proposals, research, and unresolved questions. The private engine playground is implemented; language content remains a draft awaiting Danish teaching review. Records below distinguish delivered behavior from future proposals.
 
 ## Contents
 
@@ -30,9 +30,15 @@ The user has established continuous documentation as a standing project rule. Ca
 
 ## Current implementation
 
-The [backlog](../../BACKLOG.md) owns work status and priority. The first grammar map and construction catalogue are drafted, with a connected beginner seed and worked exercise specification. The user has now authorized the engine playground. Its scope and operational boundaries are recorded in [implementation decisions](implementation-decisions.md), with the concrete [Flow reuse manifest](flow-reuse-manifest.md). Linguistic teaching review remains separate from software validation.
+The [backlog](../../BACKLOG.md) owns work status and priority. The first grammar map and construction catalogue are drafted, with a connected beginner seed and worked exercise specification. The authorized engine playground is delivered. Its scope and operational boundaries are recorded in [implementation decisions](implementation-decisions.md), with the concrete [Flow reuse manifest](flow-reuse-manifest.md). Linguistic teaching review remains separate from software validation.
 
 The broad language map and the small validation subset serve different purposes. A complete language implementation is not a prerequisite for validating the engine.
 
 - [Playground delivery](playground-delivery.md): observed baseline implementation and validation evidence.
 - [Pilot hardening plan](pilot-hardening-plan.md): authorized overnight reliability, content-integrity and accessibility work.
+
+- [Danish resource assessment](danish-resource-assessment.md): primary evidence for morphology, sense identity, access and published reuse terms; no imported data.
+
+- [Proposed COR pilot crosswalk](cor-pilot-crosswalk.md): record-level candidate morphology identities and homograph safeguards; not an adopted import.
+- [Pilot source review](pilot-source-review.md): bounded linguistic source checks, precise locator gaps and qualifications.
+- [Hardening delivery](hardening-delivery.md): observed compatibility, transaction, accessibility and local Kubernetes evidence.

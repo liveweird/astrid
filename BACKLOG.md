@@ -1,21 +1,19 @@
 # Project Backlog
 
-Work planning for the Danish learning app. Updated 7 November 2026. Current delivery is the user-authorized engine playground; implementation and verification are in progress.
+Work planning for the Danish learning app. Updated 7 November 2026. The engine playground baseline is delivered and pushed. Current work is the user-authorized overnight pilot hardening pass.
 
 Statuses follow the [working agreement](docs/knowledge/working-agreement.md). The ordering below is an initial proposed sequence; it does not imply the user has approved the assistant's design proposals.
 
 ## [next]
 
-- **BL-020 — Agree the Flow reuse boundary.** Use the [stack assessment](docs/knowledge/flow-stack-assessment.md) and [beginner slice specification](docs/knowledge/beginner-slice-spec.md) to record a keep/adapt/omit donor manifest, concrete implementation boundaries, and required validation. Kubernetes and Docker Compose are confirmed: include adapted manifests and local-stack checks. Preserve the shared sibling UI/layout and online/web-reuse mobile preference. Resolve the development-session, persistence/API, and initial runtime choices needed for the playground; production hosting and public onboarding can remain later work.
+- **BL-024 — Harden the pilot after its first delivery.** Authorized overnight continuation through at least 08:00 Europe/Warsaw on 7 November. Execute the [bounded hardening plan](docs/knowledge/pilot-hardening-plan.md): frozen content compatibility, negative content validation and review export, historical replay/transaction failure evidence, and measured accessibility. Complete with independent review, focused commits, relevant checks and observed Git delivery.
 
-- **BL-012 — Build and deliver the engine playground.** Authorized 7 November 2026. Implement the pure engine, isolated development sessions, persisted attempts, three exercise interactions, explicit inspector, Flow-family red shell, Docker Compose, Kubernetes, CI and meaningful validation. Complete after independent review, runnable-stack verification and merge/push. See [implementation decisions](docs/knowledge/implementation-decisions.md).
+
 
 ## [todo]
 
-- **BL-024 — Harden the pilot after its first delivery.** Authorized overnight continuation through at least 08:00 Europe/Warsaw on 7 November. Close measured accessibility and interaction gaps, exercise engine/API edge cases and historical replay, strengthen content validation and reproducible quality gates. Preserve the pilot scope and independent review; complete with focused commits and observed validation evidence.
 
 - **BL-004 — Define the teaching vocabulary subset.** A [23-entry pilot seed](docs/knowledge/danish-vocabulary-seed.md) now records selected meanings, forms, gender, English glosses, and construction compatibility. Expand toward the broader curriculum using usage/frequency evidence and reviewed forms; preserve sources, stable IDs, review state, and versioning. Complete when vocabulary supports useful variation for the selected course coverage; use BL-005 and BL-022.
-- **BL-005 — Assess language resources.** Evaluate morphology, frequency, meanings, English equivalents, and usage sources, including COR. Record coverage gaps, resource versions, and specific reuse terms. Complete with a source recommendation and unresolved data needs.
 - **BL-006 — Specify exercise families.** Three pilot formats now have targets, prerequisites, original examples, valid answers, related alternatives, and variation rules in the [slice specification](docs/knowledge/beginner-slice-spec.md). Expand the catalogue for transformations, correction, comprehension, and constrained writing as their grammar becomes active. Keep format-specific evidence and review criteria explicit.
 - **BL-007 — Define answer evaluation and feedback.** The pilot specifies normalization, separate target-satisfaction/linguistic-status facets, and correct/incorrect/valid-but-off-target/unavailable cases. Extend policies to partial credit, later grammar, and freer writing; retain raw input and avoid unsupported grammaticality claims. See [worked cases](docs/knowledge/beginner-slice-spec.md#concrete-worked-cases).
 - **BL-008 — Finalize the engine validation subset.** A [connected draft](docs/knowledge/beginner-slice-spec.md) now links six skills, three constructions, 23 vocabulary entries, three formats, and 99 licensed abstract sentence combinations. Validate naturalness, target isolation, review status, and content/API cases; define sampling and learner-success measures. The draft supplies implementation acceptance examples but does not establish teacher approval or learning efficacy.
@@ -27,6 +25,7 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 - **BL-009 — Explore session and progression design.** Assess guided instruction, independent practice, mixed practice, learner control, and session shape. Complete when options and a proposed learning flow are documented.
 - **BL-010 — Compare generation and grading approaches.** Examine reviewed templates, structural generation, and possible AI assistance against accuracy, naturalness, variety, and diagnostic needs. Complete with tradeoffs and a recommendation; no method is selected.
 - **BL-011 — Explore progress and review strategy.** Consider recognition versus production, mastery evidence, spaced practice, and uncertainty. Complete with a proposed model and evaluation criteria; no scheduling algorithm is selected.
+- **BL-025 — Resolve resource adoption and corpus gaps.** The [resource assessment](docs/knowledge/danish-resource-assessment.md) recommends a COR-first morphology approach as a proposal. Before importing, archive the applicable release and reuse terms, verify IDs/forms, select usage/frequency evidence and determine how authored English senses are reviewed. The [candidate crosswalk](docs/knowledge/cor-pilot-crosswalk.md) does not authorize adoption or supply English equivalents.
 
 ## [parked]
 
@@ -40,6 +39,10 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 No active work is currently blocked. Git writes and remote access succeeded through approved escalated commands; the foundation delivery is complete. Use the applicable approval mechanism for future Git operations that exceed the workspace sandbox.
 
 ## Completed work
+
+- **7 November 2026 — BL-005, language-resource assessment:** Compared COR, COR.EXT, COR.SEM and DDO using primary access/version/reuse evidence. Recorded a proposed morphology-first approach, a 23-record candidate COR crosswalk including active infinitives, and explicit gaps in English equivalents, usage/frequency, valency and current-release terms. No data was imported; adoption and remaining evidence are BL-025.
+- **7 November 2026 — BL-020, Flow reuse boundary:** Recorded and implemented the [keep/adapt/omit manifest](docs/knowledge/flow-reuse-manifest.md), including Docker Compose, Kubernetes, shared UI family and explicitly private development sessions.
+- **7 November 2026 — BL-012, engine playground:** Delivered the [verified baseline](docs/knowledge/playground-delivery.md) in six focused commits, fast-forwarded to `master` and pushed to GitHub at `3b462a9`. Local quality gates and all four packaged browser journeys passed. The portable collapsed-content test correction `a724372` then passed every remote CI job.
 
 - **6 November 2026 — Contributor guide:** Created root `AGENTS.md` after confirming it did not exist.
 - **6 November 2026 — Knowledge base:** Recorded product scope, engine proposals, language foundations, references, and unresolved questions in [docs/knowledge](docs/knowledge/README.md).

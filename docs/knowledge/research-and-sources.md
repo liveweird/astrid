@@ -35,3 +35,7 @@ For the first [23-entry vocabulary seed](danish-vocabulary-seed.md), Den Danske 
 - Sources for English equivalents, verb constructions, and semantic compatibility.
 - Resource-specific reuse terms for any definitions, examples, or other content incorporated into the product.
 - Teacher review of explanations and examples, followed by learner trials of the proposed exercises.
+
+## Resource audit update — 7 November 2026
+
+The [Danish resource assessment](danish-resource-assessment.md) records current official COR/RO, COR.EXT, COR.SEM and DDO evidence, versions and published reuse terms. It proposes a COR-first morphology audit while preserving authored English senses and internal IDs. No resource has been imported or adopted as a runtime dependency; current-release terms and exact mappings remain open.
