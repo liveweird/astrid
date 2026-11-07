@@ -23,11 +23,14 @@ internal object PilotContent {
     const val GENERATOR_REVISION = "generator-1"
     const val RETAINED_CONTENT_REVISION = "pilot-2"
     const val RETAINED_GENERATOR_REVISION = "generator-2"
-    const val CURRENT_CONTENT_REVISION = "pilot-3"
-    const val CURRENT_GENERATOR_REVISION = "generator-3"
+    const val RETAINED_THREE_CONTENT_REVISION = "pilot-3"
+    const val RETAINED_THREE_GENERATOR_REVISION = "generator-3"
+    const val CURRENT_CONTENT_REVISION = "pilot-4"
+    const val CURRENT_GENERATOR_REVISION = "generator-4"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-3"
+    const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-4"
 
     val humanPronouns =
         listOf(
@@ -132,6 +135,18 @@ internal object PilotContent {
                 ExerciseFormat("E008", "Recall the Danish headword", null, LexicalTask("singular-headword", "en-da")),
             )
 
+    val writingReadingFormats =
+        vocabularyFormats +
+            listOf(
+                ExerciseFormat("E009", "Write a Danish sentence", "G005"),
+                ExerciseFormat(
+                    "E010",
+                    "Read a short text",
+                    null,
+                    readingTask = ReadingTask("participant-action-complement"),
+                ),
+            )
+
     val snapshot =
         PilotContentSnapshot(
             contentRevision = CONTENT_REVISION,
@@ -162,12 +177,27 @@ internal object PilotContent {
             vocabularySenses = emptyList(),
         )
 
+    val pilotThreeSnapshot =
+        PilotContentSnapshot(
+            contentRevision = RETAINED_THREE_CONTENT_REVISION,
+            generatorRevision = RETAINED_THREE_GENERATOR_REVISION,
+            skills = skills,
+            formats = vocabularyFormats,
+            humanPronouns = humanPronouns,
+            identifyingPronoun = identifyingPronoun,
+            verbs = verbs,
+            nouns = nouns,
+            sentences = sentences,
+            lexicalReview = PilotReviewMetadata.records(humanPronouns, identifyingPronoun, verbs, nouns),
+            vocabularySenses = vocabularySenses,
+        )
+
     val currentSnapshot =
         PilotContentSnapshot(
             contentRevision = CURRENT_CONTENT_REVISION,
             generatorRevision = CURRENT_GENERATOR_REVISION,
             skills = skills,
-            formats = vocabularyFormats,
+            formats = writingReadingFormats,
             humanPronouns = humanPronouns,
             identifyingPronoun = identifyingPronoun,
             verbs = verbs,
@@ -180,6 +210,7 @@ internal object PilotContent {
     init {
         PilotContentValidator.requireValid(snapshot)
         PilotContentValidator.requireValid(pilotTwoSnapshot)
+        PilotContentValidator.requireValid(pilotThreeSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

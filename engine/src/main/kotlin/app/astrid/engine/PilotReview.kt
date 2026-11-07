@@ -3,6 +3,10 @@ package app.astrid.engine
 object PilotReview {
     fun renderMarkdown(): String = renderSnapshot(PilotContent.currentSnapshot)
 
+    fun renderPilotFourMarkdown(): String = renderMarkdown()
+
+    fun renderPilotThreeMarkdown(): String = renderSnapshot(PilotContent.pilotThreeSnapshot)
+
     fun renderLegacyMarkdown(): String = renderSnapshot(PilotContent.snapshot)
 
     fun renderPilotTwoMarkdown(): String = renderSnapshot(PilotContent.pilotTwoSnapshot)
@@ -21,6 +25,10 @@ object PilotReview {
             appendLexicalInventory(snapshot.lexicalReview)
             appendSentenceInventory(snapshot.sentences)
             appendExamples(snapshot)
+            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+                appendWritingInventory()
+                appendReadingInventory()
+            }
         }
     }
 
@@ -99,8 +107,12 @@ object PilotReview {
         }
     }
 
-    private fun promptSummary(exercise: GeneratedExercise): String =
-        when {
+    private fun promptSummary(exercise: GeneratedExercise): String {
+        val passage = exercise.prompt.passage
+        return when {
+            passage != null ->
+                passage.joinToString(" ") + " ${exercise.prompt.cue} " +
+                    "[${exercise.prompt.choices.joinToString(", ")}]"
             exercise.prompt.cue != null && exercise.prompt.choices.isNotEmpty() ->
                 "Cue (${exercise.prompt.cueLanguage}): ${exercise.prompt.cue} " +
                     "[${exercise.prompt.choices.joinToString(", ")}]"
@@ -115,6 +127,74 @@ object PilotReview {
                 "${exercise.prompt.before}[replace: ${exercise.prompt.replacementWord}]${exercise.prompt.after}"
             else -> "${exercise.prompt.before}___${exercise.prompt.after}"
         }
+    }
+
+    private fun StringBuilder.appendReadingInventory() {
+        val engine = PilotEngine()
+        appendLine()
+        appendLine("## Short-reading teaching units")
+        appendLine()
+        appendLine("All 24 semantic units below use seed 0 and expose the complete passage for review.")
+        appendLine()
+        appendLine("| Unit | Passage | Question | Choices in display order | Answer |")
+        appendLine("| ---: | --- | --- | --- | --- |")
+        for (index in 0 until READING_UNIT_COUNT) {
+            val exercise = engine.generate(
+                GenerationRequest(
+                    "E010",
+                    null,
+                    0,
+                    index,
+                    PilotContent.CURRENT_CONTENT_REVISION,
+                    PilotContent.CURRENT_GENERATOR_REVISION,
+                ),
+            )
+            appendLine(
+                listOf(
+                    (index + 1).toString(),
+                    requireNotNull(exercise.prompt.passage).joinToString(" "),
+                    requireNotNull(exercise.prompt.cue),
+                    exercise.prompt.choices.joinToString("; "),
+                    requireNotNull(exercise.inspector.readingSource).answer,
+                ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+            )
+        }
+    }
+
+    private fun StringBuilder.appendWritingInventory() {
+        val engine = PilotEngine()
+        appendLine()
+        appendLine("## Sentence-writing teaching units")
+        appendLine()
+        appendLine("All 99 licensed writing units below use seed 0 and expose the complete teaching prompt for review.")
+        appendLine()
+        appendLine("| Unit | Canonical ID | English cue | Optional language reference | Hint |")
+        appendLine("| ---: | --- | --- | --- | --- |")
+        for (index in 0 until WRITING_UNIT_COUNT) {
+            val exercise = engine.generate(
+                GenerationRequest(
+                    "E009",
+                    "G005",
+                    0,
+                    index,
+                    PilotContent.CURRENT_CONTENT_REVISION,
+                    PilotContent.CURRENT_GENERATOR_REVISION,
+                ),
+            )
+            val reference = exercise.introduction.joinToString("; ") { section ->
+                "${section.title}: ${section.body} [${section.bodyLanguage.orEmpty()}]"
+            }
+            appendLine(
+                listOf(
+                    (index + 1).toString(),
+                    requireNotNull(exercise.inspector.canonicalSentenceId),
+                    requireNotNull(exercise.prompt.cue),
+                    reference,
+                    exercise.hint,
+                ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+            )
+        }
+    }
 
     private fun realize(sentence: Sentence): String {
         val parts = listOfNotNull(sentence.subject.text, sentence.verb.present, sentence.complement?.text)
@@ -125,4 +205,6 @@ object PilotReview {
         value.replace("|", "\\|").replace("\r", " ").replace("\n", " ")
 
     private const val REVIEW_SEED = 47
+    private const val READING_UNIT_COUNT = 24
+    private const val WRITING_UNIT_COUNT = 99
 }

@@ -19,13 +19,22 @@ class PilotEngine {
         when (RevisionPair(contentRevision, generatorRevision)) {
             LEGACY_REVISION_PAIR -> PilotContent.LEGACY_EVALUATION_REVISION
             PILOT_TWO_REVISION_PAIR -> PilotContent.RETAINED_EVALUATION_REVISION
+            PILOT_THREE_REVISION_PAIR -> PilotContent.RETAINED_THREE_EVALUATION_REVISION
             CURRENT_REVISION_PAIR -> PilotContent.CURRENT_EVALUATION_REVISION
             else -> null
         }
 
     fun generate(request: GenerationRequest): GeneratedExercise {
         validate(request)
-        if (request.formatId in LEXICAL_FORMAT_IDS) return createLexicalExercise(request)
+        return when {
+            request.formatId == WRITING_FORMAT_ID -> WritingReadingGenerator.createWritingExercise(request)
+            request.formatId == READING_FORMAT_ID -> WritingReadingGenerator.createReadingExercise(request)
+            request.formatId in LEXICAL_FORMAT_IDS -> createLexicalExercise(request)
+            else -> createSentenceExercise(request)
+        }
+    }
+
+    private fun createSentenceExercise(request: GenerationRequest): GeneratedExercise {
         val candidates =
             when (request.formatId) {
                 "E001", "E003", "E004", "E005" -> PilotContent.sentences
@@ -57,20 +66,22 @@ class PilotEngine {
                 "E004" to "G004",
                 "E005" to "G004",
                 "E006" to "G006",
+                WRITING_FORMAT_ID to "G005",
             )[request.formatId]
-        require(expectedTarget != null || request.formatId in LEXICAL_FORMAT_IDS) {
+        require(expectedTarget != null || request.formatId in LEXICAL_FORMAT_IDS || request.formatId == READING_FORMAT_ID) {
             "Unsupported format: ${request.formatId}"
         }
         val supportedFormats = when (pair) {
             LEGACY_REVISION_PAIR -> LEGACY_FORMAT_IDS
             PILOT_TWO_REVISION_PAIR -> PILOT_TWO_FORMAT_IDS
+            PILOT_THREE_REVISION_PAIR -> PILOT_THREE_FORMAT_IDS
             CURRENT_REVISION_PAIR -> CURRENT_FORMAT_IDS
             else -> emptySet()
         }
         require(request.formatId in supportedFormats) {
             "Format ${request.formatId} is unsupported by ${request.contentRevision}/${request.generatorRevision}"
         }
-        if (request.formatId in LEXICAL_FORMAT_IDS) {
+        if (request.formatId in LEXICAL_FORMAT_IDS || request.formatId == READING_FORMAT_ID) {
             require(request.targetSkillId == null) { "Format ${request.formatId} does not accept a grammar target" }
         } else {
             require(request.targetSkillId == expectedTarget) {
@@ -545,17 +556,23 @@ class PilotEngine {
         val LEGACY_REVISION_PAIR = RevisionPair(PilotContent.CONTENT_REVISION, PilotContent.GENERATOR_REVISION)
         val PILOT_TWO_REVISION_PAIR =
             RevisionPair(PilotContent.RETAINED_CONTENT_REVISION, PilotContent.RETAINED_GENERATOR_REVISION)
+        val PILOT_THREE_REVISION_PAIR =
+            RevisionPair(PilotContent.RETAINED_THREE_CONTENT_REVISION, PilotContent.RETAINED_THREE_GENERATOR_REVISION)
         val CURRENT_REVISION_PAIR =
             RevisionPair(PilotContent.CURRENT_CONTENT_REVISION, PilotContent.CURRENT_GENERATOR_REVISION)
-        val SUPPORTED_REVISION_PAIRS = listOf(LEGACY_REVISION_PAIR, PILOT_TWO_REVISION_PAIR, CURRENT_REVISION_PAIR)
+        val SUPPORTED_REVISION_PAIRS =
+            listOf(LEGACY_REVISION_PAIR, PILOT_TWO_REVISION_PAIR, PILOT_THREE_REVISION_PAIR, CURRENT_REVISION_PAIR)
         val LEGACY_FORMAT_IDS = setOf("E001", "E002", "E003")
         val PILOT_TWO_FORMAT_IDS = LEGACY_FORMAT_IDS + setOf("E004", "E005", "E006")
         val LEXICAL_FORMAT_IDS = setOf("E007", "E008")
-        val CURRENT_FORMAT_IDS = PILOT_TWO_FORMAT_IDS + LEXICAL_FORMAT_IDS
+        val PILOT_THREE_FORMAT_IDS = PILOT_TWO_FORMAT_IDS + LEXICAL_FORMAT_IDS
+        val CURRENT_FORMAT_IDS = PILOT_THREE_FORMAT_IDS + setOf("E009", "E010")
         val NEW_FORMAT_IDS = setOf("E004", "E005", "E006")
         const val MAX_INDEX = 1_000_000
         const val ORDER_SHUFFLE_XOR = 0x5a5a5a5a
         const val LEXICAL_CHOICE_SHUFFLE_XOR = 0x13579bdf
+        const val WRITING_FORMAT_ID = "E009"
+        const val READING_FORMAT_ID = "E010"
         const val GOLDEN_GAMMA = -7046029254386353131L
         const val MIX_MULTIPLIER_ONE = -4658895280553007687L
         const val MIX_MULTIPLIER_TWO = -7723592293110705685L

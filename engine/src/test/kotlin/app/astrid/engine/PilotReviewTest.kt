@@ -20,8 +20,8 @@ class PilotReviewTest {
 
     @Test
     fun `review markdown is deterministic and includes full inventory and reproduction data`() {
-        val first = PilotReview.renderMarkdown()
-        val second = PilotReview.renderMarkdown()
+        val first = PilotReview.renderPilotThreeMarkdown()
+        val second = PilotReview.renderPilotThreeMarkdown()
 
         assertEquals(first, second)
         assertTrue("Content revision: `pilot-3`" in first)

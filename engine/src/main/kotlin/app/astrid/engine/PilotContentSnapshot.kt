@@ -58,6 +58,7 @@ internal object PilotContentValidator {
         val expectedFormats = when (snapshot.contentRevision) {
             PilotContent.CONTENT_REVISION -> setOf("E001", "E002", "E003")
             PilotContent.RETAINED_CONTENT_REVISION -> setOf("E001", "E002", "E003", "E004", "E005", "E006")
+            PilotContent.RETAINED_THREE_CONTENT_REVISION -> EXPECTED_PILOT_THREE_FORMAT_IDS
             else -> EXPECTED_CURRENT_FORMAT_IDS
         }
         requireIds("format", snapshot.formats.map { it.id }, expectedFormats)
@@ -99,9 +100,9 @@ internal object PilotContentValidator {
         skillIds: Set<String>,
     ) {
         snapshot.formats.forEach { format ->
-            val hasGrammarTarget = format.targetSkillId != null
-            val hasLexicalTask = format.lexicalTask != null
-            if (hasGrammarTarget == hasLexicalTask) add(issue(format.id, "requires exactly one grammar or lexical target"))
+            if (!hasExactlyOneTarget(format)) {
+                add(issue(format.id, "requires exactly one grammar or lexical target, or one reading target"))
+            }
             if (format.targetSkillId != null && format.targetSkillId !in skillIds) {
                 add(issue(format.id, "unknown target ${format.targetSkillId}"))
             }
@@ -114,12 +115,14 @@ internal object PilotContentValidator {
                 "E004" to "G004",
                 "E005" to "G004",
                 "E006" to "G006",
+                "E009" to "G005",
             )
         snapshot.formats.forEach { format ->
             expectedTargets[format.id]?.let { expected ->
                 if (format.targetSkillId != expected) add(issue(format.id, "expected target $expected"))
             }
         }
+        validateReadingTask(snapshot)
         val expectedLexicalTasks =
             mapOf(
                 "E007" to LexicalTask("meaning", "da-en"),
@@ -131,6 +134,18 @@ internal object PilotContentValidator {
                     add(issue(format.id, "expected lexical task ${expected.facet}/${expected.direction}"))
                 }
             }
+        }
+    }
+
+    private fun hasExactlyOneTarget(format: ExerciseFormat): Boolean =
+        listOf(format.targetSkillId, format.lexicalTask, format.readingTask).count { it != null } == 1
+
+    private fun MutableList<ContentValidationIssue>.validateReadingTask(snapshot: PilotContentSnapshot) {
+        val format = snapshot.formats.singleOrNull { it.id == "E010" } ?: return
+        if (format.readingTask != ReadingTask("participant-action-complement") ||
+            format.targetSkillId != null || format.lexicalTask != null
+        ) {
+            add(issue(format.id, "expected reading task participant-action-complement"))
         }
     }
 
@@ -201,7 +216,11 @@ internal object PilotContentValidator {
     }
 
     private fun MutableList<ContentValidationIssue>.validateVocabularySenses(snapshot: PilotContentSnapshot) {
-        val expected = if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+        val expected = if (snapshot.contentRevision in setOf(
+                PilotContent.RETAINED_THREE_CONTENT_REVISION,
+                PilotContent.CURRENT_CONTENT_REVISION,
+            )
+        ) {
             setOf("L014-S01", "L015-S01", "L018-S01")
         } else {
             emptySet()
@@ -333,6 +352,8 @@ internal object PilotContentValidator {
         (1..LAST_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_CURRENT_FORMAT_IDS =
         (1..LAST_CURRENT_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
+    private val EXPECTED_PILOT_THREE_FORMAT_IDS =
+        (1..LAST_PILOT_THREE_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val KNOWN_SOURCE_URLS =
         setOf(
             "https://sproget.dk/typiske-problemer/pronomener-stedord/",
@@ -357,5 +378,6 @@ internal object PilotContentValidator {
     private const val ROLE_SUBJECT = "SUBJECT"
     private const val ROLE_OBJECT = "OBJECT"
     private const val ROLE_PREDICATIVE = "PREDICATIVE"
-    private const val LAST_CURRENT_FORMAT_NUMBER = 8
+    private const val LAST_PILOT_THREE_FORMAT_NUMBER = 8
+    private const val LAST_CURRENT_FORMAT_NUMBER = 10
 }

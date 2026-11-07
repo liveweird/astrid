@@ -12,11 +12,11 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-val pilotReviewOutput = layout.buildDirectory.file("review/pilot-3.md")
+val pilotReviewOutput = layout.buildDirectory.file("review/pilot-4.md")
 
 tasks.register<JavaExec>("exportPilotReview") {
     group = "verification"
-    description = "Writes the deterministic current pilot content review to engine/build/review/pilot-3.md"
+    description = "Writes the deterministic current pilot content review to engine/build/review/pilot-4.md"
     dependsOn(tasks.testClasses)
     classpath = sourceSets.test.get().runtimeClasspath
     mainClass.set("app.astrid.engine.PilotReviewExportMain")
@@ -24,6 +24,22 @@ tasks.register<JavaExec>("exportPilotReview") {
         org.gradle.process.CommandLineArgumentProvider { listOf(pilotReviewOutput.get().asFile.absolutePath) },
     )
     outputs.file(pilotReviewOutput)
+}
+
+val pilotThreeReviewOutput = layout.buildDirectory.file("review/pilot-3.md")
+
+tasks.register<JavaExec>("exportPilotThreeReview") {
+    group = "verification"
+    description = "Writes the retained pilot-3 content review to engine/build/review/pilot-3.md"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PilotReviewExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf("--pilot-three", pilotThreeReviewOutput.get().asFile.absolutePath)
+        },
+    )
+    outputs.file(pilotThreeReviewOutput)
 }
 
 val pilotTwoReviewOutput = layout.buildDirectory.file("review/pilot-2.md")

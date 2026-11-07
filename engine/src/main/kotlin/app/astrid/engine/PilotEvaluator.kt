@@ -6,7 +6,19 @@ internal object PilotEvaluator {
     fun evaluate(
         exercise: GeneratedExercise,
         answer: Answer,
-    ): Evaluation =
+    ): Evaluation = when (exercise.formatId) {
+        "E009" -> WritingReadingEvaluator.evaluateWriting(
+            answer,
+            (exercise.source as SentenceSource).sentence,
+        )
+        "E010" -> WritingReadingEvaluator.evaluateReading(
+            answer,
+            exercise.source.answerKey as AnswerKey.MeaningChoice,
+        )
+        else -> evaluateRetained(exercise, answer)
+    }
+
+    private fun evaluateRetained(exercise: GeneratedExercise, answer: Answer): Evaluation =
         when (val key = exercise.source.answerKey) {
             is AnswerKey.PresentForm -> evaluatePresent(exercise, answer, key)
             is AnswerKey.Article -> evaluateArticle(exercise, answer, key)

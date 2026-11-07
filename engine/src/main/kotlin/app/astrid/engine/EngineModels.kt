@@ -34,11 +34,16 @@ data class ExerciseFormat(
     val title: String,
     val targetSkillId: String?,
     val lexicalTask: LexicalTask? = null,
+    val readingTask: ReadingTask? = null,
 )
 
 data class LexicalTask(
     val facet: String,
     val direction: String,
+)
+
+data class ReadingTask(
+    val facet: String,
 )
 
 data class LexicalTarget(
@@ -60,6 +65,7 @@ class GeneratedExercise internal constructor(
     val reproduction: Reproduction,
     val inspector: ExerciseInspector,
     internal val source: ExerciseSource,
+    val readingTarget: ReadingTask? = null,
 ) {
     val instruction: String get() = presentation.instruction
     val context: String get() = presentation.context
@@ -87,6 +93,7 @@ data class ExercisePrompt(
     val cue: String? = null,
     val cueLanguage: String? = null,
     val answerLanguage: String? = null,
+    val passage: List<String>? = null,
 )
 
 data class OrderBlock(
@@ -97,6 +104,7 @@ data class OrderBlock(
 data class IntroductionSection(
     val title: String,
     val body: String,
+    val bodyLanguage: String? = null,
 )
 
 data class Reproduction(
@@ -111,6 +119,22 @@ data class ExerciseInspector(
     val clauseRoles: List<String>,
     val canonicalSentence: String? = null,
     val lexicalSource: LexicalSourceDetails? = null,
+    val readingSource: ReadingSourceDetails? = null,
+)
+
+data class ReadingSourceDetails(
+    val propositions: List<ReadingPropositionDetails>,
+    val questionSubjectId: String,
+    val questionVerbId: String,
+    val answerNounId: String,
+    val answer: String,
+)
+
+data class ReadingPropositionDetails(
+    val sentenceId: String,
+    val subjectId: String,
+    val verbId: String,
+    val objectId: String,
 )
 
 data class LexicalSourceDetails(
@@ -137,6 +161,7 @@ data class Evaluation(
     val normalizedAnswer: NormalizedAnswer,
     val linguisticScope: LinguisticScope? = null,
     val responseConstraintStatus: ResponseConstraintStatus? = null,
+    val meaningSatisfaction: MeaningSatisfaction? = null,
 )
 
 data class EvaluationIssue(
@@ -165,6 +190,13 @@ enum class LinguisticStatus(val wireValue: String) {
 enum class LinguisticScope(val wireValue: String) {
     ENGLISH_CHOICE("english-choice"),
     DANISH_HEADWORD("danish-headword"),
+    DANISH_SENTENCE("danish-sentence"),
+}
+
+enum class MeaningSatisfaction(val wireValue: String) {
+    MET("met"),
+    NOT_MET("not-met"),
+    UNKNOWN("unknown"),
 }
 
 enum class ResponseConstraintStatus(val wireValue: String) {
@@ -188,6 +220,22 @@ internal data class LexicalSource(
     override val answerKey: AnswerKey,
     override val blockRoles: Map<String, String> = emptyMap(),
 ) : ExerciseSource
+
+internal data class ReadingSource(
+    val propositions: List<ReadingProposition>,
+    val questionSubjectId: String,
+    val questionVerbId: String,
+    val answerNounId: String,
+    override val answerKey: AnswerKey,
+    override val blockRoles: Map<String, String> = emptyMap(),
+) : ExerciseSource
+
+internal data class ReadingProposition(
+    val sentence: Sentence,
+    val subjectId: String,
+    val verbId: String,
+    val objectId: String,
+)
 
 internal data class LexicalSense(
     val entryId: String,
@@ -228,4 +276,5 @@ internal sealed interface AnswerKey {
     data class MeaningChoice(val expected: String, val suppliedChoices: Set<String>) : AnswerKey
 
     data class Headword(val expected: LexicalSense) : AnswerKey
+
 }
