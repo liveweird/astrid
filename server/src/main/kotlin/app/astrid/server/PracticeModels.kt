@@ -1,6 +1,9 @@
+@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+
 package app.astrid.server
 
 import java.util.UUID
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.Serializable
 
 data class NewPracticeSession(
@@ -11,6 +14,13 @@ data class NewPracticeSession(
     val prerequisiteSkillIds: List<String>,
     val introduction: List<IntroductionDto>,
     val items: List<NewPracticeItem>,
+    val followUp: PracticeFollowUpLineage? = null,
+    val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
+)
+
+data class PracticeFollowUpLineage(
+    val sourcePracticeSessionId: UUID,
+    val selectedTargetKeys: List<String>,
 )
 
 data class NewPracticeItem(
@@ -40,6 +50,8 @@ data class StoredPracticeSession(
     val prerequisiteSkillIds: List<String>,
     val introduction: List<IntroductionDto>,
     val items: List<StoredPracticeItem>,
+    val followUp: PracticeFollowUpLineage? = null,
+    val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
 )
 
 data class StoredPracticeItem(
@@ -71,6 +83,16 @@ data class PracticePlanPayload(
     val prerequisiteSkillIds: List<String>,
     val introduction: List<IntroductionDto>,
     val items: List<PracticeItemPayload>,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val followUp: PracticeFollowUpPayload? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
+)
+
+@Serializable
+data class PracticeFollowUpPayload(
+    val sourcePracticeSessionId: String,
+    val selectedTargetKeys: List<String>,
 )
 
 @Serializable
@@ -102,4 +124,6 @@ fun NewPracticeSession.toPayload() = PracticePlanPayload(
             it.feedbackExposureKeys,
         )
     },
+    followUp?.let { PracticeFollowUpPayload(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },
+    sourceExposure,
 )

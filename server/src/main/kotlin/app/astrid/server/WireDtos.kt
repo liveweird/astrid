@@ -1,7 +1,10 @@
+@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+
 package app.astrid.server
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.json.JsonClassDiscriminator
 
 internal const val CONTENT_REVISION = "pilot-1"
@@ -39,6 +42,14 @@ data class PracticeSessionRequest(
     val focusId: String,
     val planRevision: String,
     val seed: Int,
+)
+
+@Serializable
+data class PracticeFollowUpRequest(
+    val practiceSessionId: String,
+    val planRevision: String,
+    val seed: Int,
+    val targetKeys: List<String>,
 )
 
 @Serializable
@@ -184,6 +195,22 @@ data class PracticeAttemptContextDto(
     val lessonOpened: Boolean,
     val hintOpened: Boolean,
     val priorExposure: List<PracticePriorExposureDto>,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
+)
+
+@Serializable
+data class PracticeCrossRunExposureDto(
+    val practiceSessionId: String,
+    val position: Int,
+    val source: String,
+    val keys: List<String>,
+)
+
+@Serializable
+data class PracticeFollowUpDto(
+    val sourcePracticeSessionId: String,
+    val selectedTargetKeys: List<String>,
 )
 
 @Serializable
@@ -266,6 +293,8 @@ data class PracticeSessionResponse(
     val items: List<PracticeItemDto>,
     val currentExercise: ExerciseResponse? = null,
     val summary: PracticeSummaryDto,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val followUp: PracticeFollowUpDto? = null,
 )
 
 @Serializable

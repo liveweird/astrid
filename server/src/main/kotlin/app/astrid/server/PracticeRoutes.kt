@@ -5,6 +5,7 @@ package app.astrid.server
 import app.astrid.engine.GeneratedExercise
 import app.astrid.engine.LinguisticStatus
 import app.astrid.engine.PracticeAttemptContext
+import app.astrid.engine.PracticeFollowUpPlanner
 import app.astrid.engine.PracticeExposureSource
 import app.astrid.engine.PracticePlanner
 import app.astrid.engine.PracticePriorExposure
@@ -25,11 +26,13 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import java.util.UUID
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.Serializable
 
 private const val PRACTICE_OWNER_HEADER = "X-Astrid-Practice-Owner"
 private const val PRACTICE_FOCUS = "reading-basics"
 private const val PRACTICE_REVISION = "practice-1"
 private const val PRACTICE_ITEM_COUNT = 8
+private const val FOLLOW_UP_REVISION = "follow-up-1"
 
 internal fun Route.practiceRoutes(
     config: ServerConfig,
@@ -84,8 +87,10 @@ internal fun Route.practiceRoutes(
             is PracticeCreateResult.Created -> call.respond(HttpStatusCode.Created, result.session.toResponse())
             is PracticeCreateResult.Existing -> call.respond(result.session.toResponse())
             PracticeCreateResult.RequestConflict -> throw Conflict("Practice session id was already used with a different request")
+            PracticeCreateResult.SourceMissing, PracticeCreateResult.SourceActive -> error("Initial practice has no source")
         }
     }
+    followUpRoute(config, repository, engine, clock)
     get("/practice-sessions/{id}") {
         val owner = requirePracticeSession(call, config, repository, clock)
         val stored = repository.findPracticeSession(owner.id, call.practiceId()) ?: throw NotFound()
@@ -108,6 +113,68 @@ internal fun Route.practiceRoutes(
     }
 }
 
+private fun Route.followUpRoute(
+    config: ServerConfig,
+    repository: AstridRepository,
+    engine: PilotEngine,
+    clock: () -> Long,
+) {
+    post("/practice-sessions/{id}/follow-ups") {
+        requireMutationHeaders(call)
+        val owner = requirePracticeSession(call, config, repository, clock)
+        requirePracticeOwner(call, owner.id)
+        val sourceId = call.practiceId()
+        val request = call.receive<PracticeFollowUpRequest>().validated(sourceId)
+        val identity = wireJson.encodeToString(PracticeFollowUpCreationIdentity(sourceId.toString(), request))
+        val result = repository.createPracticeFollowUp(owner, sourceId, request, identity) { source ->
+            source.toFollowUp(request, sourceId, owner.id, engine)
+        }
+        when (result) {
+            is PracticeCreateResult.Created -> call.respond(HttpStatusCode.Created, result.session.toResponse())
+            is PracticeCreateResult.Existing -> call.respond(result.session.toResponse())
+            PracticeCreateResult.RequestConflict -> throw Conflict("Practice session id was already used with a different request")
+            PracticeCreateResult.SourceMissing -> throw NotFound("Source practice session not found")
+            PracticeCreateResult.SourceActive -> throw Conflict("Complete the source practice before starting a review")
+        }
+    }
+}
+
+private fun StoredPracticeSession.toFollowUp(
+    request: PracticeFollowUpRequest,
+    sourceId: UUID,
+    ownerId: UUID,
+    engine: PilotEngine,
+): NewPracticeSession {
+    val sourceExercises = items.map { regenerateVerified(engine, it.exercise) }
+    val plan = try {
+        PracticeFollowUpPlanner(engine).plan(request.planRevision, request.seed, request.targetKeys, sourceExercises)
+    } catch (cause: IllegalArgumentException) {
+        throw Conflict(cause.message ?: "Unsupported follow-up practice plan").apply { initCause(cause) }
+    }
+    return NewPracticeSession(
+        plan.title,
+        plan.contentRevision,
+        plan.generatorRevision,
+        plan.evaluationRevision,
+        plan.prerequisiteSkillIds,
+        plan.introduction.map { IntroductionDto(it.title, it.body) },
+        plan.items.map { item ->
+            NewPracticeItem(
+                item.position,
+                item.exercise.toStoredPractice(UUID.randomUUID(), ownerId),
+                item.targetDescriptor.label,
+                item.answerExposureKeys,
+                item.promptExposureKeys,
+                item.lessonExposureKeys,
+                item.hintExposureKeys,
+                item.feedbackExposureKeys,
+            )
+        },
+        PracticeFollowUpLineage(sourceId, request.targetKeys),
+        sourceExposureSnapshot(),
+    )
+}
+
 private suspend fun requirePracticeSession(
     call: ApplicationCall,
     config: ServerConfig,
@@ -125,6 +192,20 @@ private fun PracticeSessionRequest.validated(): PracticeSessionRequest {
     parseStrictUuid(practiceSessionId, "practiceSessionId")
     if (focusId != PRACTICE_FOCUS || planRevision != PRACTICE_REVISION) throw Conflict("Unsupported practice plan")
     if (seed < 0) throw BadRequest("Invalid practice seed")
+    return this
+}
+
+private fun PracticeFollowUpRequest.validated(sourceId: UUID): PracticeFollowUpRequest {
+    val id = parseStrictUuid(practiceSessionId, "practiceSessionId")
+    if (id == sourceId) throw Conflict("Follow-up practice must use a new session id")
+    if (planRevision != FOLLOW_UP_REVISION) throw Conflict("Unsupported follow-up practice plan")
+    if (seed < 0) throw BadRequest("Invalid practice seed")
+    if (targetKeys.isEmpty() || targetKeys.size > PRACTICE_ITEM_COUNT || targetKeys.toSet().size != targetKeys.size) {
+        throw BadRequest("Follow-up target keys must contain 1 to 8 distinct values")
+    }
+    if (targetKeys.any { it.isBlank() || it.length > MAX_TARGET_KEY_LENGTH }) {
+        throw BadRequest("Invalid follow-up target key")
+    }
     return this
 }
 
@@ -197,6 +278,7 @@ private fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
         prerequisiteSkillIds, introduction, introductionOpened,
         items.map { it.toDto() }, items.singleOrNull { it.position == cursor }?.exercise?.presentation,
         summary.toDto(includeRows = cursor == items.size),
+        followUp?.let { PracticeFollowUpDto(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },
     )
 }
 
@@ -229,7 +311,53 @@ private fun PracticeAttemptContextDto.toEngine() = PracticeAttemptContext(
             exposure.keys,
         )
     },
+    sourceExposure.map { exposure ->
+        app.astrid.engine.PracticeCrossRunExposure(
+            exposure.practiceSessionId,
+            exposure.position,
+            PracticeExposureSource.entries.single { it.wireValue == exposure.source },
+            exposure.keys,
+        )
+    },
 )
+
+private fun StoredPracticeSession.sourceExposureSnapshot(): List<PracticeCrossRunExposureDto> {
+    val events = buildList {
+        addAll(sourceExposure)
+        if (introductionOpened) {
+            add(
+                PracticeCrossRunExposureDto(
+                    id.toString(),
+                    INTRODUCTION_POSITION,
+                    PracticeExposureSource.INTRODUCTION.wireValue,
+                    items.flatMap { it.lessonExposureKeys }.distinct(),
+                ),
+            )
+        }
+        items.sortedBy { it.position }.forEach { item ->
+            add(PracticeCrossRunExposureDto(id.toString(), item.position, "prompt", item.promptExposureKeys))
+            if (item.lessonOpened) add(PracticeCrossRunExposureDto(id.toString(), item.position, "lesson", item.lessonExposureKeys))
+            if (item.hintOpened) add(PracticeCrossRunExposureDto(id.toString(), item.position, "hint", item.hintExposureKeys))
+            if (item.attempts.isNotEmpty()) {
+                add(PracticeCrossRunExposureDto(id.toString(), item.position, "feedback", item.feedbackExposureKeys))
+            }
+        }
+    }
+    val witnessByKey = linkedMapOf<String, PracticeCrossRunExposureDto>()
+    events.forEach { event -> event.keys.distinct().forEach { key -> witnessByKey.putIfAbsent(key, event.copy(keys = listOf(key))) } }
+    return witnessByKey.values.groupBy { Triple(it.practiceSessionId, it.position, it.source) }.map { (origin, witnesses) ->
+        PracticeCrossRunExposureDto(origin.first, origin.second, origin.third, witnesses.flatMap { it.keys })
+    }
+}
+
+@Serializable
+private data class PracticeFollowUpCreationIdentity(
+    val sourcePracticeSessionId: String,
+    val request: PracticeFollowUpRequest,
+)
+
+private const val MAX_TARGET_KEY_LENGTH = 160
+private const val INTRODUCTION_POSITION = -1
 
 private fun app.astrid.engine.PracticeSummary.toDto(includeRows: Boolean) = PracticeSummaryDto(
     plannedItems, attemptedItems, completedItems, attemptCount, retryCount, introductionOpened,

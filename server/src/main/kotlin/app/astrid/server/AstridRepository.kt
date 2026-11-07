@@ -37,6 +37,7 @@ data class PracticeAttemptSource(
     val position: Int,
     val introductionOpened: Boolean,
     val items: List<PracticeExposureState>,
+    val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
 )
 
 data class PracticeExposureState(
@@ -55,6 +56,8 @@ sealed interface PracticeCreateResult {
     data class Created(val session: StoredPracticeSession) : PracticeCreateResult
     data class Existing(val session: StoredPracticeSession) : PracticeCreateResult
     data object RequestConflict : PracticeCreateResult
+    data object SourceMissing : PracticeCreateResult
+    data object SourceActive : PracticeCreateResult
 }
 
 sealed interface PracticeMutationResult {
@@ -88,6 +91,13 @@ interface AstridRepository {
         request: PracticeSessionRequest,
         requestPayload: String,
         create: suspend () -> NewPracticeSession,
+    ): PracticeCreateResult
+    suspend fun createPracticeFollowUp(
+        ownerSession: SessionRecord,
+        sourcePracticeSessionId: UUID,
+        request: PracticeFollowUpRequest,
+        requestPayload: String,
+        create: suspend (StoredPracticeSession) -> NewPracticeSession,
     ): PracticeCreateResult
     suspend fun findPracticeSession(ownerSessionId: UUID, practiceSessionId: UUID): StoredPracticeSession?
     suspend fun openPracticeSupport(

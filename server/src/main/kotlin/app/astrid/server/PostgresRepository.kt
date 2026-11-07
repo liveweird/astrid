@@ -266,6 +266,44 @@ class PostgresRepository private constructor(
         PracticeCreateResult.Created(loadPracticeSession(ownerSession.id, practiceId))
     }
 
+    override suspend fun createPracticeFollowUp(
+        ownerSession: SessionRecord,
+        sourcePracticeSessionId: UUID,
+        request: PracticeFollowUpRequest,
+        requestPayload: String,
+        create: suspend (StoredPracticeSession) -> NewPracticeSession,
+    ): PracticeCreateResult = suspendTransaction(database) {
+        lockSession(ownerSession.id)
+        val practiceId = UUID.fromString(request.practiceSessionId)
+        val existing = findPracticeRow(ownerSession.id, practiceId)
+        if (existing != null) {
+            return@suspendTransaction if (existing[PracticeSessions.requestPayload] == requestPayload) {
+                PracticeCreateResult.Existing(loadPracticeSession(ownerSession.id, practiceId))
+            } else {
+                PracticeCreateResult.RequestConflict
+            }
+        }
+        if (practiceId == sourcePracticeSessionId) return@suspendTransaction PracticeCreateResult.RequestConflict
+        val sourceRow = findPracticeRow(ownerSession.id, sourcePracticeSessionId)
+            ?: return@suspendTransaction PracticeCreateResult.SourceMissing
+        val source = loadPracticeSession(ownerSession.id, sourcePracticeSessionId)
+        if (source.cursor != source.items.size) return@suspendTransaction PracticeCreateResult.SourceActive
+        val plan = create(source)
+        require(plan.items.isNotEmpty() && plan.items.size <= MAX_PRACTICE_ITEMS) { "Invalid follow-up item count" }
+        require(plan.items.map { it.position } == plan.items.indices.toList()) { "Practice positions must be contiguous" }
+        check(sourceRow[PracticeSessions.cursor] == source.items.size)
+        insertPracticeSession(
+            ownerSession,
+            practiceId,
+            requestPayload,
+            TARGETED_REVIEW_FOCUS,
+            request.planRevision,
+            request.seed,
+            plan,
+        )
+        PracticeCreateResult.Created(loadPracticeSession(ownerSession.id, practiceId))
+    }
+
     override suspend fun findPracticeSession(
         ownerSessionId: UUID,
         practiceSessionId: UUID,
@@ -324,7 +362,9 @@ class PostgresRepository private constructor(
         val practice = findPracticeRow(ownerSessionId, practiceSessionId)
             ?: return@suspendTransaction PracticeMutationResult.Missing
         val cursor = practice[PracticeSessions.cursor]
+        val itemCount = json.decodeFromString<PracticePlanPayload>(practice[PracticeSessions.planPayload]).items.size
         when {
+            position !in 0 until itemCount -> PracticeMutationResult.Conflict
             position < cursor -> PracticeMutationResult.Success(loadPracticeSession(ownerSessionId, practiceSessionId))
             position > cursor -> PracticeMutationResult.Conflict
             else -> {
@@ -389,6 +429,7 @@ class PostgresRepository private constructor(
                     it[PracticeItems.position] in feedbackPositions,
                 )
             },
+            payload.sourceExposure,
         )
     }
 
@@ -452,7 +493,48 @@ class PostgresRepository private constructor(
             payload.prerequisiteSkillIds,
             payload.introduction,
             items,
+            payload.followUp?.let {
+                PracticeFollowUpLineage(UUID.fromString(it.sourcePracticeSessionId), it.selectedTargetKeys)
+            },
+            payload.sourceExposure,
         )
+    }
+
+    private suspend fun insertPracticeSession(
+        ownerSession: SessionRecord,
+        practiceId: UUID,
+        requestPayload: String,
+        focus: String,
+        revision: String,
+        seedValue: Int,
+        plan: NewPracticeSession,
+    ) {
+        val now = System.currentTimeMillis()
+        PracticeSessions.insert {
+            it[ownerSessionId] = ownerSession.id
+            it[practiceSessionId] = practiceId
+            it[PracticeSessions.requestPayload] = requestPayload
+            it[planPayload] = json.encodeToString(plan.toPayload())
+            it[focusId] = focus
+            it[planRevision] = revision
+            it[seed] = seedValue
+            it[sessionExpiresAt] = ownerSession.expiresAt
+            it[cursor] = 0
+            it[introductionOpened] = false
+            it[createdAt] = now
+            it[updatedAt] = now
+        }
+        plan.items.forEach { item ->
+            insertExerciseInTransaction(item.exercise, now)
+            PracticeItems.insert {
+                it[ownerSessionId] = ownerSession.id
+                it[practiceSessionId] = practiceId
+                it[position] = item.position
+                it[exerciseId] = item.exercise.id
+                it[lessonOpened] = false
+                it[hintOpened] = false
+            }
+        }
     }
 
     private suspend fun insertExerciseInTransaction(exercise: StoredExercise, now: Long) {
@@ -501,6 +583,8 @@ class PostgresRepository private constructor(
             }
 
     companion object {
+        private const val MAX_PRACTICE_ITEMS = 8
+        private const val TARGETED_REVIEW_FOCUS = "targeted-review"
         fun connect(config: ServerConfig, json: Json): PostgresRepository {
             val options = ConnectionFactoryOptions.parse(config.r2dbcUrl).mutate()
                 .option(ConnectionFactoryOptions.USER, config.postgresUser)

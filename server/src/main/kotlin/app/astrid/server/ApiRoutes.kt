@@ -5,6 +5,7 @@ package app.astrid.server
 import app.astrid.engine.GenerationRequest
 import app.astrid.engine.PilotEngine
 import app.astrid.engine.PracticeAttemptContextCalculator
+import app.astrid.engine.PracticeCrossRunExposure
 import app.astrid.engine.PracticeItemExposureObservation
 import app.astrid.engine.PracticeExposureSnapshot
 import app.astrid.engine.Answer
@@ -199,12 +200,23 @@ private fun PracticeAttemptSource.toAttemptContext(): PracticeAttemptContextDto 
                 feedbackReleased = state.feedbackReleased,
             )
         },
+        sourceExposure.map { exposure ->
+            PracticeCrossRunExposure(
+                exposure.practiceSessionId,
+                exposure.position,
+                app.astrid.engine.PracticeExposureSource.entries.single { it.wireValue == exposure.source },
+                exposure.keys,
+            )
+        },
     )
     return PracticeAttemptContextDto(
         calculated.introductionOpened,
         calculated.lessonOpened,
         calculated.hintOpened,
         calculated.priorExposure.map { PracticePriorExposureDto(it.position, it.source.wireValue, it.keys) },
+        calculated.sourceExposure.map {
+            PracticeCrossRunExposureDto(it.practiceSessionId, it.position, it.source.wireValue, it.keys)
+        },
     )
 }
 
@@ -384,7 +396,7 @@ private fun regenerate(engine: PilotEngine, stored: StoredExercise) = try {
     throw Conflict("Exercise revision is no longer supported").apply { initCause(cause) }
 }
 
-private fun regenerateVerified(engine: PilotEngine, stored: StoredExercise) = regenerate(engine, stored).also { generated ->
+internal fun regenerateVerified(engine: PilotEngine, stored: StoredExercise) = regenerate(engine, stored).also { generated ->
     if (generated.reproductionFingerprint() != stored.reproductionFingerprint) {
         throw Conflict("Exercise reproduction no longer matches its stored presentation")
     }

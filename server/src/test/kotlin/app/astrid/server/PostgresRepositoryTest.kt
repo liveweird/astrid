@@ -25,12 +25,80 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.encodeToString
 import org.junit.AfterClass
 import org.flywaydb.core.Flyway
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
 class PostgresRepositoryTest {
+    @Test
+    fun `follow-up creation is atomic replayable and retains bounded ancestry across pools`() = withRepositories { first, second ->
+        val owner = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        val sourceId = UUID.randomUUID()
+        val sourceRequest = PracticeSessionRequest(sourceId.toString(), "reading-basics", "practice-1", 73)
+        val source = assertIs<PracticeCreateResult.Created>(
+            first.createPracticeSession(owner, sourceRequest, wireJson.encodeToString(sourceRequest)) {
+                practiceFixture(owner, sourceRequest)
+            },
+        ).session
+        setPracticeCursor(owner.id, sourceId, source.items.size)
+
+        val childRequest = PracticeFollowUpRequest(
+            UUID.randomUUID().toString(),
+            "follow-up-1",
+            91,
+            listOf("grammar:G005"),
+        )
+        val payload = "source=$sourceId|${wireJson.encodeToString(childRequest)}"
+        val callbacks = AtomicInteger()
+        val gate = CompletableDeferred<Unit>()
+        val creations = listOf(first, second).map { repository ->
+            async {
+                gate.await()
+                repository.createPracticeFollowUp(owner, sourceId, childRequest, payload) { completed ->
+                    callbacks.incrementAndGet()
+                    followUpFixture(completed, childRequest, sourceId)
+                }
+            }
+        }
+        gate.complete(Unit)
+        val results = withTimeout(TIMEOUT_MILLIS) { creations.awaitAll() }
+        assertEquals(1, callbacks.get())
+        assertEquals(1, results.count { it is PracticeCreateResult.Created })
+        assertEquals(1, results.count { it is PracticeCreateResult.Existing })
+        val childId = UUID.fromString(childRequest.practiceSessionId)
+        val child = assertNotNull(first.findPracticeSession(owner.id, childId))
+        assertEquals(sourceId, child.followUp?.sourcePracticeSessionId)
+        assertEquals(1, child.sourceExposure.size)
+
+        val failedRequest = childRequest.copy(practiceSessionId = UUID.randomUUID().toString())
+        val failedPayload = "source=$sourceId|${wireJson.encodeToString(failedRequest)}"
+        assertFailsWith<IllegalStateException> {
+            first.createPracticeFollowUp(owner, sourceId, failedRequest, failedPayload) { error("planning failed") }
+        }
+        assertNull(second.findPracticeSession(owner.id, UUID.fromString(failedRequest.practiceSessionId)))
+        assertIs<PracticeCreateResult.Created>(
+            second.createPracticeFollowUp(owner, sourceId, failedRequest, failedPayload) { completed ->
+                followUpFixture(completed, failedRequest, sourceId)
+            },
+        )
+
+        setPracticeCursor(owner.id, childId, child.items.size)
+        val nestedRequest = childRequest.copy(practiceSessionId = UUID.randomUUID().toString(), seed = 92)
+        val nested = first.createPracticeFollowUp(
+            owner,
+            childId,
+            nestedRequest,
+            "source=$childId|${wireJson.encodeToString(nestedRequest)}",
+        ) { completed ->
+            assertEquals(sourceId.toString(), completed.sourceExposure.single().practiceSessionId)
+            followUpFixture(completed, nestedRequest, childId)
+        }
+        val nestedSession = assertIs<PracticeCreateResult.Created>(nested).session
+        assertEquals(sourceId.toString(), nestedSession.sourceExposure.single().practiceSessionId)
+    }
+
     @Test
     fun `practice create attempts advance and ownership are atomic across pools`() = withRepositories { first, second ->
         val owner = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
@@ -446,6 +514,55 @@ class PostgresRepositoryTest {
                 )
             },
         )
+    }
+
+    private fun followUpFixture(
+        source: StoredPracticeSession,
+        request: PracticeFollowUpRequest,
+        sourceId: UUID,
+    ): NewPracticeSession {
+        val sourceItem = source.items.first()
+        val exerciseId = UUID.randomUUID()
+        val item = NewPracticeItem(
+            0,
+            sourceItem.exercise.copy(
+                id = exerciseId,
+                presentation = sourceItem.exercise.presentation.copy(id = exerciseId.toString()),
+            ),
+            sourceItem.targetLabel,
+            sourceItem.answerExposureKeys,
+            sourceItem.promptExposureKeys,
+            sourceItem.lessonExposureKeys,
+            sourceItem.hintExposureKeys,
+            sourceItem.feedbackExposureKeys,
+        )
+        val ancestry = source.sourceExposure.ifEmpty {
+            listOf(PracticeCrossRunExposureDto(sourceId.toString(), -1, "introduction", listOf("grammar:G005")))
+        }
+        return NewPracticeSession(
+            "Review selected targets",
+            source.contentRevision,
+            source.generatorRevision,
+            source.evaluationRevision,
+            source.prerequisiteSkillIds,
+            source.introduction,
+            listOf(item),
+            PracticeFollowUpLineage(sourceId, request.targetKeys),
+            ancestry,
+        )
+    }
+
+    private fun setPracticeCursor(ownerId: UUID, practiceId: UUID, cursor: Int) {
+        DriverManager.getConnection(postgres.jdbcUrl, postgres.username, postgres.password).use { connection ->
+            connection.prepareStatement(
+                "UPDATE practice_sessions SET cursor = ? WHERE owner_session_id = ? AND practice_session_id = ?",
+            ).use { statement ->
+                statement.setInt(1, cursor)
+                statement.setObject(2, ownerId)
+                statement.setObject(3, practiceId)
+                assertEquals(1, statement.executeUpdate())
+            }
+        }
     }
 
     private fun practiceAttempt(exerciseId: UUID) = AttemptRequest(

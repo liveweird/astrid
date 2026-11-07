@@ -70,6 +70,7 @@ class InMemoryAstridRepository(private val clock: () -> Long = System::currentTi
                         it.attempts.isNotEmpty(),
                     )
                 },
+                current.sourceExposure,
             )
         }
         val created = create(exercise, retry, clock(), source)
@@ -126,6 +127,52 @@ class InMemoryAstridRepository(private val clock: () -> Long = System::currentTi
         PracticeCreateResult.Created(stored.snapshot())
     }
 
+    override suspend fun createPracticeFollowUp(
+        ownerSession: SessionRecord,
+        sourcePracticeSessionId: UUID,
+        request: PracticeFollowUpRequest,
+        requestPayload: String,
+        create: suspend (StoredPracticeSession) -> NewPracticeSession,
+    ): PracticeCreateResult = mutex.withLock {
+        val id = UUID.fromString(request.practiceSessionId)
+        val key = ownerSession.id to id
+        practiceSessions[key]?.let {
+            return@withLock if (practiceRequests.getValue(key) == requestPayload) {
+                PracticeCreateResult.Existing(it.snapshot())
+            } else {
+                PracticeCreateResult.RequestConflict
+            }
+        }
+        if (id == sourcePracticeSessionId) return@withLock PracticeCreateResult.RequestConflict
+        val source = practiceSessions[ownerSession.id to sourcePracticeSessionId]
+            ?: return@withLock PracticeCreateResult.SourceMissing
+        if (source.cursor != source.items.size) return@withLock PracticeCreateResult.SourceActive
+        val plan = create(source.snapshot())
+        require(plan.items.isNotEmpty() && plan.items.size <= 8)
+        require(plan.items.map { it.position } == plan.items.indices.toList())
+        val stored = MemoryPracticeSession(
+            id,
+            ownerSession.id,
+            ownerSession.expiresAt,
+            "targeted-review",
+            plan.title,
+            request.planRevision,
+            request.seed,
+            plan.contentRevision,
+            plan.generatorRevision,
+            plan.evaluationRevision,
+            prerequisiteSkillIds = plan.prerequisiteSkillIds.toList(),
+            introduction = plan.introduction.toList(),
+            items = plan.items.sortedBy { it.position }.map { MemoryPracticeItem(it) }.toMutableList(),
+            followUp = plan.followUp,
+            sourceExposure = plan.sourceExposure.toList(),
+        )
+        plan.items.forEach { exercises[ownerSession.id to it.exercise.id] = it.exercise }
+        practiceRequests[key] = requestPayload
+        practiceSessions[key] = stored
+        PracticeCreateResult.Created(stored.snapshot())
+    }
+
     override suspend fun findPracticeSession(ownerSessionId: UUID, practiceSessionId: UUID) = mutex.withLock {
         practiceSessions[ownerSessionId to practiceSessionId]?.snapshot()
     }
@@ -163,8 +210,9 @@ class InMemoryAstridRepository(private val clock: () -> Long = System::currentTi
         val stored = practiceSessions[ownerSessionId to practiceSessionId]
             ?: return@withLock PracticeMutationResult.Missing
         when {
+            position !in stored.items.indices -> PracticeMutationResult.Conflict
             position < stored.cursor -> PracticeMutationResult.Success(stored.snapshot())
-            position > stored.cursor || position !in stored.items.indices -> PracticeMutationResult.Conflict
+            position > stored.cursor -> PracticeMutationResult.Conflict
             stored.items.single { it.position == position }.attempts.isEmpty() -> PracticeMutationResult.Conflict
             else -> {
                 stored.cursor += 1
@@ -204,11 +252,14 @@ class InMemoryAstridRepository(private val clock: () -> Long = System::currentTi
         val prerequisiteSkillIds: List<String>,
         val introduction: List<IntroductionDto>,
         val items: MutableList<MemoryPracticeItem>,
+        val followUp: PracticeFollowUpLineage? = null,
+        val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
     ) {
         fun snapshot() = StoredPracticeSession(
             id, ownerSessionId, sessionExpiresAt, focusId, title, planRevision, seed,
             contentRevision, generatorRevision, evaluationRevision, cursor, introductionOpened,
             prerequisiteSkillIds.toList(), introduction.toList(), items.map(MemoryPracticeItem::snapshot),
+            followUp, sourceExposure.toList(),
         )
     }
 
