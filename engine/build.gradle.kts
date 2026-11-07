@@ -30,6 +30,22 @@ tasks.test {
     useJUnit()
 }
 
+val localeCompatibilityTest = tasks.register<Test>("localeCompatibilityTest") {
+    group = "verification"
+    description = "Runs engine tests in a fresh JVM using the Arabic (Egypt) locale"
+    dependsOn(tasks.testClasses)
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    useJUnit()
+    systemProperty("user.language", "ar")
+    systemProperty("user.country", "EG")
+    shouldRunAfter(tasks.test)
+}
+
+tasks.check {
+    dependsOn(localeCompatibilityTest)
+}
+
 detekt {
     config.setFrom(rootProject.files("config/detekt/detekt.yml"))
     buildUponDefaultConfig = true

@@ -267,8 +267,11 @@ internal object PilotContentValidator {
     private const val EXPECTED_SENTENCE_COUNT = 99
     private const val LAST_SKILL_NUMBER = 6
     private const val LAST_LEXICAL_NUMBER = 23
-    private val EXPECTED_SKILL_IDS = (1..LAST_SKILL_NUMBER).map { "G%03d".format(it) }.toSet()
-    private val EXPECTED_LEXICAL_IDS = (1..LAST_LEXICAL_NUMBER).map { "L%03d".format(it) }.toSet()
+    private const val ID_NUMBER_WIDTH = 3
+    private val EXPECTED_SKILL_IDS =
+        (1..LAST_SKILL_NUMBER).map { "G${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
+    private val EXPECTED_LEXICAL_IDS =
+        (1..LAST_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val KNOWN_SOURCE_URLS =
         setOf(
             "https://sproget.dk/typiske-problemer/pronomener-stedord/",

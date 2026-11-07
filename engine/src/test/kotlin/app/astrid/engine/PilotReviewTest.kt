@@ -9,7 +9,7 @@ class PilotReviewTest {
     fun `review metadata covers all 23 lexical records with sources and draft state`() {
         val records = PilotContent.snapshot.lexicalReview
 
-        assertEquals((1..23).map { "L%03d".format(it) }, records.map { it.id })
+        assertEquals((1..23).map { "L${it.toString().padStart(3, '0')}" }, records.map { it.id })
         assertTrue(records.all { it.selectedSense.isNotBlank() })
         assertTrue(records.all { it.activeForms.isNotEmpty() && it.activeForms.values.none(String::isBlank) })
         assertTrue(records.all { it.constraints.isNotBlank() })

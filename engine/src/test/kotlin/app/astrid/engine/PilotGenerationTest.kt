@@ -41,7 +41,7 @@ class PilotGenerationTest {
     fun `catalog exposes six skills three formats and the bounded sentence count`() {
         val catalog = engine.catalog()
 
-        assertEquals((1..6).map { "G%03d".format(it) }, catalog.skills.map { it.id })
+        assertEquals((1..6).map { "G${it.toString().padStart(3, '0')}" }, catalog.skills.map { it.id })
         assertEquals(listOf("E001", "E002", "E003"), catalog.formats.map { it.id })
         assertEquals(99, catalog.sentenceCount)
         assertEquals("pilot-1", catalog.contentRevision)
@@ -121,7 +121,7 @@ class PilotGenerationTest {
             sentence.subject.lexicalIds + sentence.verb.lexicalId + sentence.complement.orEmptyLexicalIds()
         }.toSet()
 
-        assertEquals((1..23).map { "L%03d".format(it) }.toSet(), lexicalIds)
+        assertEquals((1..23).map { "L${it.toString().padStart(3, '0')}" }.toSet(), lexicalIds)
     }
 
     @Test
