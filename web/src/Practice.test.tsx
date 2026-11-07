@@ -65,6 +65,23 @@ function context(ownerSessionId = owner) {
   return { ownerSessionId, sessionExpiresAt: 9999999999999, focusId: "reading-basics", title: "Words and simple statements", planRevision: "practice-1", itemCount: 1 };
 }
 
+function profiles(ownerSessionId = owner) {
+  return {
+    ownerSessionId, sessionExpiresAt: 9999999999999, profiles: [
+      { focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
+        description: "Mixed existing skills.", itemCount: 8, prerequisiteSkillIds: [] },
+      { focusId: "present-verbs", planRevision: "present-verbs-1", title: "Present verb forms",
+        description: "Present-tense verb forms.", itemCount: 6, prerequisiteSkillIds: ["G001", "G002", "G003"] },
+    ],
+  };
+}
+
+async function choosePractice(user: ReturnType<typeof userEvent.setup>, name: "Mixed practice" | "Present verb forms" = "Mixed practice") {
+  await screen.findByRole("heading", { name: "Choose your practice" });
+  await user.click(screen.getByRole("radio", { name }));
+  await user.click(screen.getByRole("button", { name: "Start practice" }));
+}
+
 beforeEach(() => {
   localStorage.clear();
   window.history.replaceState(null, "", "/practice");
@@ -78,6 +95,7 @@ it("records support before revealing it, permits retries after wrong answers, an
     const body = String(init?.body ?? "");
     if (body) sent.push({ path, body });
     if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-profiles")) return json(profiles());
     if (path.endsWith("practice-context")) return json(context());
     if (path.endsWith("practice-sessions") && init?.method === "POST") return json(serverState, 201);
     if (path.endsWith("/support")) {
@@ -107,6 +125,7 @@ it("records support before revealing it, permits retries after wrong answers, an
 
   const user = userEvent.setup();
   render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await choosePractice(user);
   expect(await screen.findByRole("heading", { name: "Words and simple statements" })).toBeVisible();
 
   await user.click(screen.getByRole("button", { name: "Session introduction" }));
@@ -442,6 +461,40 @@ it("marks recovery unavailable when the pre-retry state read is definitively exp
   expect(listOutbox(practiceId)).toHaveLength(1);
 });
 
+it("disables every new-practice action while an unavailable run resolves an in-flight conflict", async () => {
+  const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };
+  saveRunRecovery(run);
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  let attempts = 0;
+  let contextReads = 0;
+  let resolveConflict: ((response: Response) => void) | undefined;
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) {
+      contextReads += 1;
+      if (contextReads === 2) return new Promise<Response>((resolve) => { resolveConflict = resolve; });
+      return json(context());
+    }
+    if (path.endsWith("/attempts")) {
+      attempts += 1;
+      return attempts === 1 ? json({ detail: "expired" }, 401) : json({ detail: "cursor changed" }, 409);
+    }
+    if (path.includes("/practice-sessions/")) return json(state());
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await user.click(await screen.findByRole("button", { name: "dog" }));
+  await user.click(screen.getByRole("button", { name: "Check answer" }));
+  await screen.findByText("This practice session expired. Start a new practice to continue.");
+  await user.click(screen.getByRole("button", { name: "dog" }));
+  await user.click(screen.getByRole("button", { name: "Check answer" }));
+  await screen.findByText("This practice changed in another tab. Its latest saved state is shown.");
+  expect(screen.getAllByRole("button", { name: "Start new practice" }).every((button) => button.hasAttribute("disabled"))).toBe(true);
+  resolveConflict?.(json(context()));
+  await waitFor(() => expect(screen.getAllByRole("button", { name: "Start new practice" }).every((button) => !button.hasAttribute("disabled"))).toBe(true));
+  expect(new URLSearchParams(window.location.search).get("session")).toBe(practiceId);
+});
+
 it.each([false, true])("drains later operations after a pending attempt succeeds (complete: %s)", async (complete) => {
   const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };
   saveRunRecovery(run);
@@ -477,13 +530,14 @@ it.each([false, true])("drains later operations after a pending attempt succeeds
   expect(bodies.map((body) => JSON.parse(body).attemptId)).toEqual([first.attemptId, first.attemptId, second.attemptId]);
 });
 
-it("allows explicit abandonment of an uncertain operation", async () => {
+it("starts a chosen practice without deleting an uncertain saved run", async () => {
   const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };
   saveRunRecovery(run);
   window.history.replaceState(null, "", `/practice?session=${practiceId}`);
   let renewed = false;
   vi.stubGlobal("fetch", vi.fn(async (path: string) => {
     if (path.endsWith("development-session")) { renewed = true; return json({ mode: "development" }); }
+    if (path.endsWith("practice-profiles")) return json(profiles(renewed ? "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" : owner));
     if (path.endsWith("practice-context")) return json(context(renewed ? "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" : owner));
     if (path.endsWith("/attempts")) throw new TypeError("connection closed");
     if (path.endsWith("practice-sessions")) return json({ ...state(), id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb" }, 201);
@@ -496,9 +550,18 @@ it("allows explicit abandonment of an uncertain operation", async () => {
   await user.click(screen.getByRole("button", { name: "Check answer" }));
   const startNew = await screen.findByRole("button", { name: "Start new practice" });
   expect(startNew).toBeEnabled();
+  const recoveryMessage = screen.getByRole("alert").textContent;
+  const savedAttempt = listOutbox(practiceId)[0]!;
   await user.click(startNew);
+  await user.click(screen.getByRole("button", { name: "Cancel" }));
+  expect(screen.getByRole("alert")).toHaveTextContent(recoveryMessage!);
+  expect(screen.getByRole("button", { name: "Retry saved operation" })).toBeVisible();
+  expect(new URLSearchParams(window.location.search).get("session")).toBe(practiceId);
+  expect(listOutbox(practiceId)[0]?.body).toBe(savedAttempt.body);
+  await user.click(screen.getByRole("button", { name: "Start new practice" }));
+  await choosePractice(user);
   await waitFor(() => expect(new URLSearchParams(window.location.search).get("session")).not.toBe(practiceId));
-  expect(localStorage.getItem(`astrid.practice.v1.run.${practiceId}`)).toBeNull();
+  expect(localStorage.getItem(`astrid.practice.v1.run.${practiceId}`)).not.toBeNull();
 });
 
 it("keeps the immutable saved attempt when an identity is reused with another body", async () => {
@@ -546,16 +609,19 @@ it("never reassigns saved recovery when the authenticated owner rotates", async 
 });
 
 it("does not send creation when local recovery cannot be persisted", async () => {
-  const setItem = vi.spyOn(localStorage, "setItem").mockImplementation(() => { throw new DOMException("full", "QuotaExceededError"); });
   const fetchMock = vi.fn(async (path: string) => {
     if (path.endsWith("development-session")) return json({ mode: "development" });
-    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("practice-profiles")) return json(profiles());
     throw new Error(`Creation must not call ${path}`);
   });
   vi.stubGlobal("fetch", fetchMock);
+  const user = userEvent.setup();
   render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await screen.findByRole("heading", { name: "Choose your practice" });
+  const setItem = vi.spyOn(localStorage, "setItem").mockImplementation(() => { throw new DOMException("full", "QuotaExceededError"); });
+  await choosePractice(user);
   expect(await screen.findByText("This browser could not save recovery data. The operation was not sent.")).toBeVisible();
-  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(fetchMock).toHaveBeenCalledTimes(3);
   setItem.mockRestore();
 });
 
@@ -568,11 +634,13 @@ it("explains a missing tab-bound run instead of silently starting another", asyn
   expect(fetchMock).not.toHaveBeenCalled();
   fetchMock.mockImplementation(async (path: string) => {
     if (path.endsWith("development-session")) return json({ mode: "development" });
-    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("practice-profiles")) return json(profiles());
     if (path.endsWith("practice-sessions")) return json(state(), 201);
     throw new Error(`Unexpected ${path}`);
   });
   await userEvent.click(screen.getByRole("button", { name: "Start new practice" }));
+  const user = userEvent.setup();
+  await choosePractice(user);
   expect(await screen.findByRole("heading", { name: "Words and simple statements" })).toBeVisible();
 });
 
@@ -662,7 +730,7 @@ it.each([
   expect(fetchMock).toHaveBeenCalledTimes(1);
 });
 
-it("abandons the current browser recovery only after Start new practice is chosen", async () => {
+it("keeps the current recovery while choosing and after starting another practice", async () => {
   const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };
   saveRunRecovery(run);
   window.history.replaceState(null, "", `/practice?session=${practiceId}`);
@@ -676,6 +744,7 @@ it("abandons the current browser recovery only after Start new practice is chose
   const nextOwner = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
   vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
     if (path.endsWith("development-session")) { renewed = true; return json({ mode: "development" }); }
+    if (path.endsWith("practice-profiles")) return json(profiles(renewed ? nextOwner : owner));
     if (path.endsWith("practice-context")) return json(context(renewed ? nextOwner : owner));
     if (path.endsWith("practice-sessions")) {
       creationSeeds.push(JSON.parse(String(init?.body)).seed);
@@ -687,9 +756,16 @@ it("abandons the current browser recovery only after Start new practice is chose
   const user = userEvent.setup();
   render(<MantineProvider env="test"><Practice /></MantineProvider>);
   await user.click(await screen.findByRole("button", { name: "Start new practice" }));
-  await waitFor(() => expect(new URLSearchParams(window.location.search).get("session")).not.toBe(practiceId));
-  expect(localStorage.getItem(`astrid.practice.v1.run.${practiceId}`)).toBeNull();
+  expect(new URLSearchParams(window.location.search).get("session")).toBe(practiceId);
+  expect(localStorage.getItem(`astrid.practice.v1.run.${practiceId}`)).not.toBeNull();
+  await user.click(screen.getByRole("button", { name: "Cancel" }));
+  expect(new URLSearchParams(window.location.search).get("session")).toBe(practiceId);
   await user.click(screen.getByRole("button", { name: "Start new practice" }));
+  await choosePractice(user);
+  await waitFor(() => expect(new URLSearchParams(window.location.search).get("session")).not.toBe(practiceId));
+  expect(localStorage.getItem(`astrid.practice.v1.run.${practiceId}`)).not.toBeNull();
+  await user.click(screen.getByRole("button", { name: "Start new practice" }));
+  await choosePractice(user);
   await waitFor(() => expect(creationSeeds).toEqual([123, 456]));
 });
 
@@ -734,20 +810,207 @@ it("submits an ordering answer and advances without completing early", async () 
   expect(screen.queryByRole("heading", { name: "Practice complete" })).not.toBeInTheDocument();
 });
 
-it("deduplicates automatic creation across Strict Mode remounts", async () => {
+it("deduplicates fresh catalog bootstrap across Strict Mode remounts without creating a run", async () => {
   const paths: string[] = [];
   vi.stubGlobal("fetch", vi.fn(async (path: string) => {
     paths.push(path);
     if (path.endsWith("development-session")) return json({ mode: "development" });
-    if (path.endsWith("practice-context")) return json(context());
-    if (path.endsWith("practice-sessions")) return json(state(), 201);
+    if (path.endsWith("practice-profiles")) return json(profiles());
     throw new Error(`Unexpected ${path}`);
   }));
 
   render(<StrictMode><MantineProvider env="test"><Practice /></MantineProvider></StrictMode>);
-  expect(await screen.findByRole("heading", { name: "Words and simple statements" })).toBeVisible();
+  expect(await screen.findByRole("heading", { name: "Choose your practice" })).toBeVisible();
+  expect(screen.getByRole("button", { name: "Start practice" })).toBeDisabled();
   expect(paths.filter((path) => path.endsWith("development-session"))).toHaveLength(1);
-  expect(paths.filter((path) => path.endsWith("practice-sessions"))).toHaveLength(1);
+  expect(paths.filter((path) => path.endsWith("practice-profiles"))).toHaveLength(1);
+  expect(paths.filter((path) => path.endsWith("practice-sessions"))).toHaveLength(0);
+});
+
+it("ignores a stale Strict Mode recovery after a newer chosen run starts", async () => {
+  const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };
+  saveRunRecovery(run);
+  saveOutboxEntry({ ...run, kind: "creation", identity: practiceId, body: JSON.stringify({
+    practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47,
+  }), queuedAt: 1 });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  let contextReads = 0;
+  let resolveStale: ((response: Response) => void) | undefined;
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) {
+      contextReads += 1;
+      if (contextReads === 1) return new Promise<Response>((resolve) => { resolveStale = resolve; });
+      return json(context());
+    }
+    if (path.endsWith("practice-profiles")) return json(profiles());
+    if (path.endsWith("practice-sessions")) {
+      const request = JSON.parse(String(init?.body)) as { practiceSessionId: string; focusId: string; planRevision: string };
+      return json(state({ id: request.practiceSessionId, focusId: request.focusId, planRevision: request.planRevision,
+        title: request.practiceSessionId === practiceId ? "Words and simple statements" : "Present verb forms" }), 201);
+    }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<StrictMode><MantineProvider env="test"><Practice /></MantineProvider></StrictMode>);
+  await screen.findByRole("heading", { name: "Words and simple statements" });
+  await user.click(screen.getByRole("button", { name: "Start new practice" }));
+  await choosePractice(user, "Present verb forms");
+  expect(await screen.findByRole("heading", { name: "Present verb forms" })).toBeVisible();
+  resolveStale?.(json({ detail: "stale recovery expired" }, 401));
+  await waitFor(() => expect(screen.queryByRole("alert")).not.toBeInTheDocument());
+  expect(screen.queryByRole("button", { name: "Retry saved operation" })).not.toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Present verb forms" })).toBeVisible();
+});
+
+it("starts only the explicitly selected present-verb profile with its exact identity", async () => {
+  const creations: string[] = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-profiles")) return json(profiles());
+    if (path.endsWith("practice-sessions")) {
+      creations.push(String(init?.body));
+      const request = JSON.parse(String(init?.body)) as { practiceSessionId: string };
+      return json(state({ id: request.practiceSessionId, focusId: "present-verbs", planRevision: "present-verbs-1",
+        title: "Present verb forms", itemCount: 6, followUpPlanRevision: "follow-up-2" }), 201);
+    }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await screen.findByRole("heading", { name: "Choose your practice" });
+  expect(screen.getByRole("radio", { name: "Mixed practice" })).not.toBeChecked();
+  expect(screen.getByRole("radio", { name: "Present verb forms" })).not.toBeChecked();
+  expect(screen.getByRole("button", { name: "Start practice" })).toBeDisabled();
+  expect(creations).toEqual([]);
+  await choosePractice(user, "Present verb forms");
+  expect(await screen.findByRole("heading", { name: "Present verb forms" })).toBeVisible();
+  expect(creations).toHaveLength(1);
+  expect(JSON.parse(creations[0]!)).toMatchObject({ focusId: "present-verbs", planRevision: "present-verbs-1" });
+});
+
+it("opens and cancels the chooser for an expired owner without renewing or changing the draft", async () => {
+  const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };
+  saveRunRecovery(run);
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  let renewals = 0;
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) { renewals += 1; return json({ mode: "development" }); }
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("practice-profiles")) return json({ detail: "expired" }, 401);
+    if (path.includes("/practice-sessions/")) return json(state());
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await user.click(await screen.findByRole("button", { name: "dog" }));
+  await user.click(screen.getByRole("button", { name: "Start new practice" }));
+  expect(await screen.findByRole("heading", { name: "Choose your practice" })).toBeVisible();
+  expect(new URLSearchParams(window.location.search).get("session")).toBe(practiceId);
+  await user.click(screen.getByRole("button", { name: "Cancel" }));
+  expect(screen.getByRole("button", { name: "dog" })).toHaveAttribute("aria-pressed", "true");
+  expect(new URLSearchParams(window.location.search).get("session")).toBe(practiceId);
+  expect(renewals).toBe(0);
+});
+
+it("keeps the previous run and URL when saving a chosen creation fails partway", async () => {
+  const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };
+  saveRunRecovery(run);
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  let creations = 0;
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("practice-profiles")) return json(profiles());
+    if (path.endsWith("practice-sessions")) { creations += 1; return json(state()); }
+    if (path.includes("/practice-sessions/")) return json(state());
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await user.click(await screen.findByRole("button", { name: "Start new practice" }));
+  const originalSetItem = localStorage.setItem.bind(localStorage);
+  const storage = vi.spyOn(localStorage, "setItem").mockImplementation((key, value) => {
+    if (key.startsWith("astrid.practice.v1.outbox.") && key.includes(".creation.")) {
+      throw new DOMException("Storage full", "QuotaExceededError");
+    }
+    originalSetItem(key, value);
+  });
+  await choosePractice(user, "Present verb forms");
+  expect(await screen.findByText("This browser could not save recovery data. The operation was not sent.")).toBeVisible();
+  expect(creations).toBe(0);
+  expect(new URLSearchParams(window.location.search).get("session")).toBe(practiceId);
+  expect(localStorage.getItem(`astrid.practice.v1.run.${practiceId}`)).not.toBeNull();
+  expect(localStorage.getItem("astrid.practice.v1.latest")).toBe(practiceId);
+  storage.mockRestore();
+});
+
+it("keeps the chooser safe when the server catalog is unsupported", async () => {
+  let creations = 0;
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-profiles")) return json({ ...profiles(), profiles: [profiles().profiles[0]] });
+    if (path.endsWith("practice-sessions")) { creations += 1; return json(state()); }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  expect(await screen.findByText("The practice catalog is unavailable or incomplete.")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Start practice" })).toBeDisabled();
+  expect(creations).toBe(0);
+});
+
+it("bootstraps only after an explicit start finds that the catalog owner expired", async () => {
+  let profileReads = 0;
+  let bootstraps = 0;
+  let creations = 0;
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) { bootstraps += 1; return json({ mode: "development" }); }
+    if (path.endsWith("practice-profiles")) {
+      profileReads += 1;
+      if (profileReads === 2) return json({ detail: "owner expired" }, 401);
+      return json(profiles());
+    }
+    if (path.endsWith("practice-sessions")) {
+      creations += 1;
+      const request = JSON.parse(String(init?.body)) as { practiceSessionId: string };
+      return json(state({ id: request.practiceSessionId }), 201);
+    }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await choosePractice(user);
+  expect(await screen.findByRole("heading", { name: "Words and simple statements" })).toBeVisible();
+  expect(profileReads).toBe(3);
+  expect(bootstraps).toBe(2);
+  expect(creations).toBe(1);
+});
+
+it("keeps the prior run when explicit catalog validation fails without an owner-expiry response", async () => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  let profileReads = 0;
+  let bootstraps = 0;
+  let creations = 0;
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) { bootstraps += 1; return json({ mode: "development" }); }
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.includes(`/practice-sessions/${practiceId}`)) return json(state());
+    if (path.endsWith("practice-profiles")) {
+      profileReads += 1;
+      return profileReads === 1 ? json(profiles()) : json({ detail: "catalog temporarily unavailable" }, 503);
+    }
+    if (path.endsWith("practice-sessions")) { creations += 1; return json(state()); }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await user.click(await screen.findByRole("button", { name: "Start new practice" }));
+  await waitFor(() => expect(profileReads).toBe(1));
+  await choosePractice(user, "Present verb forms");
+  expect(await screen.findByText("catalog temporarily unavailable")).toBeVisible();
+  expect(new URLSearchParams(window.location.search).get("session")).toBe(practiceId);
+  expect(localStorage.getItem(`astrid.practice.v1.run.${practiceId}`)).not.toBeNull();
+  expect(bootstraps).toBe(0);
+  expect(creations).toBe(0);
 });
 
 
@@ -771,11 +1034,11 @@ it("focuses unavailable recovery instead of replaying a foreign-owner queued ope
 });
 
 
-it("binds an uncertain creation before sending and abandons its original recovery on explicit restart", async () => {
+it("binds an uncertain chosen creation and keeps it when another practice starts", async () => {
   let creations = 0;
   vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
     if (path.endsWith("development-session")) return json({ mode: "development" });
-    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("practice-profiles")) return json(profiles());
     if (path.endsWith("practice-sessions")) {
       const body = JSON.parse(String(init?.body)) as { practiceSessionId: string };
       expect(new URLSearchParams(window.location.search).get("session")).toBe(body.practiceSessionId);
@@ -787,15 +1050,49 @@ it("binds an uncertain creation before sending and abandons its original recover
   }));
   const user = userEvent.setup();
   render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await choosePractice(user, "Present verb forms");
   await screen.findByRole("alert");
   const original = new URLSearchParams(window.location.search).get("session");
   expect(original).not.toBeNull();
-  expect(listOutbox(original!)).toHaveLength(1);
+  const savedCreation = listOutbox(original!)[0]!;
   await user.click(screen.getByRole("button", { name: "Start new practice" }));
+  expect(screen.getByRole("button", { name: "Cancel" })).toBeVisible();
+  await user.click(screen.getByRole("button", { name: "Cancel" }));
+  expect(screen.getByRole("button", { name: "Retry saved operation" })).toBeVisible();
+  expect(new URLSearchParams(window.location.search).get("session")).toBe(original);
+  expect(listOutbox(original!)[0]?.body).toBe(savedCreation.body);
+  await user.click(screen.getByRole("button", { name: "Start new practice" }));
+  await choosePractice(user);
   await screen.findByRole("button", { name: "Check answer" });
   expect(new URLSearchParams(window.location.search).get("session")).not.toBe(original);
-  expect(localStorage.getItem(`astrid.practice.v1.run.${original}`)).toBeNull();
-  expect(listOutbox(original!)).toEqual([]);
+  expect(localStorage.getItem(`astrid.practice.v1.run.${original}`)).not.toBeNull();
+  expect(listOutbox(original!)).toHaveLength(1);
+});
+
+it("retries a lost selected-profile creation with the exact saved body", async () => {
+  const bodies: string[] = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-profiles")) return json(profiles());
+    if (path.endsWith("practice-sessions")) {
+      bodies.push(String(init?.body));
+      const request = JSON.parse(String(init?.body)) as { practiceSessionId: string };
+      if (bodies.length === 1) throw new TypeError("creation response lost");
+      return json(state({ id: request.practiceSessionId, focusId: "present-verbs", planRevision: "present-verbs-1",
+        title: "Present verb forms", itemCount: 6, followUpPlanRevision: "follow-up-2" }), 201);
+    }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await choosePractice(user, "Present verb forms");
+  const retry = await screen.findByRole("button", { name: "Retry saved operation" });
+  const bound = new URLSearchParams(window.location.search).get("session");
+  expect(bound).toBe(JSON.parse(bodies[0]!).practiceSessionId);
+  await user.click(retry);
+  expect(await screen.findByRole("heading", { name: "Present verb forms" })).toBeVisible();
+  expect(bodies[1]).toBe(bodies[0]);
+  expect(JSON.parse(bodies[1]!)).toMatchObject({ focusId: "present-verbs", planRevision: "present-verbs-1" });
 });
 
 it("starts an unchecked learner-selected follow-up without renewing or abandoning its source", async () => {
@@ -889,6 +1186,94 @@ it("keeps meaning recognition and written headword recall as separate review tar
   await user.click(screen.getByRole("button", { name: "Start selected review" }));
   await screen.findByRole("heading", { name: "Focused review" });
   expect(sentTargets).toEqual(["lexical:L014:L014-S01:singular-headword:en-da"]);
+});
+
+it("uses the legacy follow-up revision for a known revision-one review source", async () => {
+  const sourceId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "targeted-review", planRevision: "follow-up-1", seed: 47,
+    sourcePracticeSessionId: sourceId, selectedTargetKeys: ["lexical:L014:L014-S01:meaning:da-en"] });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const completedReview = state({ ...completedState(), focusId: "targeted-review", planRevision: "follow-up-1",
+    title: "Focused review", followUp: { sourcePracticeSessionId: sourceId, selectedTargetKeys: ["lexical:L014:L014-S01:meaning:da-en"] } });
+  let revision = "";
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith(`/practice-sessions/${practiceId}`)) return json(completedReview);
+    if (path.endsWith("/follow-ups")) {
+      const request = JSON.parse(String(init?.body)) as { practiceSessionId: string; planRevision: string; targetKeys: string[] };
+      revision = request.planRevision;
+      return json(state({ id: request.practiceSessionId, focusId: "targeted-review", planRevision: request.planRevision,
+        title: "Focused review", followUp: { sourcePracticeSessionId: practiceId, selectedTargetKeys: request.targetKeys } }), 201);
+    }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await user.click(await screen.findByRole("checkbox", { name: "Review book · meaning" }));
+  await user.click(screen.getByRole("button", { name: "Start selected review" }));
+  expect(await screen.findByRole("heading", { name: "Focused review" })).toBeVisible();
+  expect(revision).toBe("follow-up-1");
+});
+
+it("keeps present-verb operations separate and requests their advertised follow-up revision", async () => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "present-verbs", planRevision: "present-verbs-1", seed: 47 });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const verbRows = [
+    { label: "Present verbs — choosing the form", assessmentMode: "selection" },
+    { label: "Present verbs — written recall", assessmentMode: "recall" },
+    { label: "Present verbs — repairing the form", assessmentMode: "repair" },
+  ].map((row) => ({ ...row, targetSkillId: "G004", plannedItems: 2, attemptedItems: 2, advancedItems: 2,
+    attemptCount: 2, retryCount: 0, firstOutcomes: outcomes, latestOutcomes: outcomes,
+    firstWithSupport: 0, firstWithPriorExposure: 0, lessonOpenedItems: 0, hintOpenedItems: 0 }));
+  const completed = state({ focusId: "present-verbs", planRevision: "present-verbs-1", title: "Present verb forms",
+    followUpPlanRevision: "follow-up-2", state: "completed", cursor: 6, itemCount: 6, currentExercise: null,
+    summary: { ...completedState().summary, plannedItems: 6, completedItems: 6, rows: verbRows } });
+  let followUpBody = "";
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith(`/practice-sessions/${practiceId}`)) return json(completed);
+    if (path.endsWith("/follow-ups")) {
+      followUpBody = String(init?.body);
+      const request = JSON.parse(followUpBody) as { practiceSessionId: string; targetKeys: string[] };
+      return json(state({ id: request.practiceSessionId, focusId: "targeted-review", planRevision: "follow-up-2",
+        title: "Focused review", followUpPlanRevision: "follow-up-2",
+        followUp: { sourcePracticeSessionId: practiceId, selectedTargetKeys: request.targetKeys } }), 201);
+    }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  expect(await screen.findByText("Form selection")).toBeVisible();
+  expect(screen.getByText("Written form recall")).toBeVisible();
+  expect(screen.getByText("Form repair")).toBeVisible();
+  await user.click(screen.getByRole("checkbox", { name: "Review Present verbs — choosing the form" }));
+  await user.click(screen.getByRole("checkbox", { name: "Review Present verbs — written recall" }));
+  await user.click(screen.getByRole("checkbox", { name: "Review Present verbs — repairing the form" }));
+  await user.click(screen.getByRole("button", { name: "Start selected review" }));
+  expect(await screen.findByRole("heading", { name: "Focused review" })).toBeVisible();
+  expect(JSON.parse(followUpBody)).toMatchObject({ planRevision: "follow-up-2", targetKeys: [
+    "grammar:G004:selection", "grammar:G004:recall", "grammar:G004:repair",
+  ] });
+});
+
+it("refuses follow-up creation when unknown session metadata advertises no revision", async () => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "unknown-focus", planRevision: "unknown-plan", seed: 47 });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  let followUps = 0;
+  const unknown = state({ ...completedState(), focusId: "unknown-focus", planRevision: "unknown-plan" });
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith(`/practice-sessions/${practiceId}`)) return json(unknown);
+    if (path.endsWith("/follow-ups")) { followUps += 1; return json(state()); }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await user.click(await screen.findByRole("checkbox", { name: "Review book · meaning" }));
+  await user.click(screen.getByRole("button", { name: "Start selected review" }));
+  expect(await screen.findByText("This practice does not advertise a supported follow-up plan.")).toBeVisible();
+  expect(followUps).toBe(0);
+  expect(new URLSearchParams(window.location.search).get("session")).toBe(practiceId);
 });
 
 it("retries a lost follow-up creation with its exact source endpoint and body", async () => {

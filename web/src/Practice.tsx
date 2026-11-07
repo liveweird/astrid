@@ -1,30 +1,111 @@
 import {
   Accordion, Alert, Badge, Box, Button, Divider, Group, Loader, Paper, Progress,
-  SimpleGrid, Stack, Text, Title,
+  Radio, SimpleGrid, Stack, Text, Title,
 } from "@mantine/core";
 import { IconAlertCircle, IconBook2, IconBulb, IconRefresh } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import {
   advancePracticeSession, ApiError, createPracticeFollowUp, createPracticeSession, loadPracticeContext,
+  loadPracticeProfiles,
   loadPracticeSession, startDevelopmentSession, submitSerializedAttempt,
   updatePracticeSupport,
 } from "./api/client";
 import type {
-  Attempt, AttemptAnswer, AttemptRequest, PracticeCreationRequest, PracticeFollowUpRequest, PracticeSession,
+  Attempt, AttemptAnswer, AttemptRequest, PracticeCreationRequest, PracticeFollowUpRequest, PracticeProfile,
+  PracticeProfiles, PracticeSession,
 } from "./api/models";
 import ExercisePrompt from "./components/ExercisePrompt";
 import FeedbackPanel from "./components/FeedbackPanel";
 import PracticeSummary from "./components/PracticeSummary";
 import {
-  abandonRun, latestRunRecovery, listOutbox, loadRunRecovery, PracticeOutboxConflictError,
+  latestRunRecovery, listOutbox, loadRunRecovery, PracticeOutboxConflictError,
   PracticePersistenceError,
   type PracticeOutboxEntry, type PracticeRunRecovery, removeOutboxEntry, saveOutboxEntry,
   saveRunWithCreation,
 } from "./practiceRecovery";
 import classes from "./theme.module.css";
 
-let automaticStart: Promise<{ run: PracticeRunRecovery; session: PracticeSession }> | null = null;
+let profileBootstrap: Promise<PracticeProfiles> | null = null;
 type PracticeSupportKind = "introduction" | "lesson" | "hint";
+
+class PracticeCatalogError extends Error {}
+
+const PRESENTATION_PROFILES = [
+  {
+    focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
+    description: "Practise familiar words, sentence order and articles in eight varied parts.",
+    itemCount: 8, prerequisiteSkillIds: [],
+  },
+  {
+    focusId: "present-verbs", planRevision: "present-verbs-1", title: "Present verb forms",
+    description: "Choose, recall and repair present-tense verb forms in six focused parts.",
+    itemCount: 6, prerequisiteSkillIds: ["G001", "G002", "G003"],
+  },
+] satisfies PracticeProfile[];
+
+function profileKey(profile: Pick<PracticeProfile, "focusId" | "planRevision">) {
+  return `${profile.focusId}/${profile.planRevision}`;
+}
+
+function validateProfiles(catalog: PracticeProfiles) {
+  const expected = new Map(PRESENTATION_PROFILES.map((profile) => [profileKey(profile), profile]));
+  if (!catalog.ownerSessionId || catalog.sessionExpiresAt <= 0 || catalog.profiles.length !== expected.size) {
+    throw new PracticeCatalogError("The practice catalog is unavailable or incomplete.");
+  }
+  for (const profile of catalog.profiles) {
+    const known = expected.get(profileKey(profile));
+    if (!known || profile.title !== known.title || profile.itemCount !== known.itemCount) {
+      throw new PracticeCatalogError("The practice catalog contains an unsupported profile.");
+    }
+  }
+  return catalog;
+}
+
+async function bootstrapPracticeProfiles() {
+  profileBootstrap ??= (async () => {
+    await startDevelopmentSession();
+    return validateProfiles(await loadPracticeProfiles());
+  })();
+  try {
+    return await profileBootstrap;
+  } finally {
+    profileBootstrap = null;
+  }
+}
+
+async function profilesForExplicitStart() {
+  try {
+    return validateProfiles(await loadPracticeProfiles());
+  } catch (caught) {
+    if (isOwnerUnavailable(caught)) return bootstrapPracticeProfiles();
+    throw caught;
+  }
+}
+
+async function preparePracticeCreation(chosenKey: string) {
+  const catalog = await profilesForExplicitStart();
+  const profile = catalog.profiles.find((candidate) => profileKey(candidate) === chosenKey);
+  if (!profile) throw new PracticeCatalogError("The selected practice is not available in the current catalog.");
+  const practiceSessionId = crypto.randomUUID(), seed = freshPracticeSeed();
+  let request: PracticeCreationRequest;
+  if (profile.focusId === "reading-basics" && profile.planRevision === "practice-1") {
+    request = { practiceSessionId, focusId: "reading-basics", planRevision: "practice-1", seed };
+  } else if (profile.focusId === "present-verbs" && profile.planRevision === "present-verbs-1") {
+    request = { practiceSessionId, focusId: "present-verbs", planRevision: "present-verbs-1", seed };
+  } else {
+    throw new PracticeCatalogError("The selected practice profile has an unsupported revision.");
+  }
+  const recovery: PracticeRunRecovery = { ownerSessionId: catalog.ownerSessionId, ...request };
+  const creation = outboxEntry(recovery, "creation", request.practiceSessionId, request);
+  return { recovery, creation };
+}
+
+function followUpRevisionFor(session: PracticeSession) {
+  if (session.followUpPlanRevision) return session.followUpPlanRevision;
+  if (session.focusId === "reading-basics" && session.planRevision === "practice-1") return "follow-up-1" as const;
+  if (session.focusId === "targeted-review" && session.planRevision === "follow-up-1") return "follow-up-1" as const;
+  return null;
+}
 
 function freshPracticeSeed() {
   return crypto.getRandomValues(new Uint32Array(1))[0]! & 0x7fffffff;
@@ -52,11 +133,6 @@ function bindUrl(practiceSessionId: string) {
   window.history.replaceState(null, "", url);
 }
 
-function abandonCurrentPractice(run: PracticeRunRecovery | null) {
-  const previous = run ?? currentRecovery();
-  if (previous) abandonRun(previous.practiceSessionId);
-}
-
 function outboxEntry(run: PracticeRunRecovery, kind: PracticeOutboxEntry["kind"], identity: string, body: unknown) {
   return {
     ownerSessionId: run.ownerSessionId,
@@ -69,37 +145,9 @@ function outboxEntry(run: PracticeRunRecovery, kind: PracticeOutboxEntry["kind"]
   } satisfies PracticeOutboxEntry;
 }
 
-async function createAutomaticPractice() {
-  await startDevelopmentSession();
-  const context = await loadPracticeContext();
-  const request: PracticeCreationRequest = {
-    practiceSessionId: crypto.randomUUID(), focusId: context.focusId,
-    planRevision: context.planRevision, seed: freshPracticeSeed(),
-  };
-  const run: PracticeRunRecovery = { ownerSessionId: context.ownerSessionId, ...request };
-  const creation = outboxEntry(run, "creation", request.practiceSessionId, request);
-  saveRunWithCreation(run, creation);
-  bindUrl(run.practiceSessionId);
-  const session = await createPracticeSession(run.ownerSessionId, creation.body);
-  removeOutboxEntry(creation);
-  return { run, session };
-}
-
-async function startAutomaticPractice(): Promise<{ run: PracticeRunRecovery; session: PracticeSession }> {
-  automaticStart ??= createAutomaticPractice();
-  try {
-    const result = await automaticStart;
-    if (loadRunRecovery(result.run.practiceSessionId)) return result;
-    automaticStart = null;
-    return startAutomaticPractice();
-  } catch (error) {
-    automaticStart = null;
-    throw error;
-  }
-}
-
 function practiceError(error: unknown) {
   if (error instanceof PracticePersistenceError) return error.message;
+  if (error instanceof PracticeCatalogError) return error.message;
   if (error instanceof ApiError && error.status === 401) return "This practice session expired. Start a new practice to continue.";
   if (error instanceof ApiError && error.status === 403) return "This practice belongs to a different browser session and was not changed.";
   if (error instanceof ApiError && error.status === 404) return "This practice is no longer available for this browser session.";
@@ -398,7 +446,7 @@ function PracticeError({ message, uncertain, recoveryUnavailable, pending, retry
       <Stack gap="sm">
         <Text>{message}</Text>
         {pending && <Button color="orange" variant="light" disabled={retryDisabled} onClick={onRetry}>Retry saved operation</Button>}
-        {recoveryUnavailable && <Button variant="light" onClick={onStartNew}>Start new practice</Button>}
+        {recoveryUnavailable && <Button variant="light" disabled={retryDisabled} onClick={onStartNew}>Start new practice</Button>}
       </Stack>
     </Alert>
   );
@@ -533,6 +581,79 @@ function ActivePractice({ session, blocked, busy, text, order, attempt, feedback
   );
 }
 
+function PracticeChooser({ selected, busy, canCancel, message, onSelect, onStart, onCancel }: {
+  selected: string | null;
+  busy: boolean;
+  canCancel: boolean;
+  message: string;
+  onSelect: (key: string) => void;
+  onStart: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <Stack maw={760} gap="lg" className={`${classes.playground} ${classes.practice}`}>
+      <Box>
+        <Title order={1} size="h2">Choose your practice</Title>
+        <Text c="dimmed" mt="xs">Choose one focus for this run. You can start another without removing saved practice.</Text>
+      </Box>
+      {message && <Alert icon={<IconAlertCircle size={18} />} color="red" role="alert">{message}</Alert>}
+      <Radio.Group value={selected} onChange={onSelect} aria-label="Practice focus">
+        <Stack gap="sm">
+          {PRESENTATION_PROFILES.map((profile) => (
+            <Paper key={profileKey(profile)} withBorder p="md">
+              <Radio
+                value={profileKey(profile)}
+                label={profile.title}
+                description={`${profile.description} ${profile.itemCount} parts.`}
+                disabled={busy}
+              />
+            </Paper>
+          ))}
+        </Stack>
+      </Radio.Group>
+      <Group>
+        <Button disabled={!selected || busy} loading={busy} onClick={onStart}>Start practice</Button>
+        {canCancel && <Button variant="default" disabled={busy} onClick={onCancel}>Cancel</Button>}
+      </Group>
+    </Stack>
+  );
+}
+
+function PracticeHeading({ session, busy, onStartNew }: {
+  session: PracticeSession;
+  busy: boolean;
+  onStartNew: () => void;
+}) {
+  return (
+    <Group justify="space-between" align="start">
+      <Box>
+        <Title order={1} size="h2">{session.title}</Title>
+        <Text c="dimmed">{session.followUp ? "A focused review" : "A short practice"} in {session.itemCount} {session.itemCount === 1 ? "part" : "parts"}. Continue after any saved answer.</Text>
+        {session.followUp && <Button component="a" variant="subtle" px={0} href={`/practice?session=${encodeURIComponent(session.followUp.sourcePracticeSessionId)}`}>Source practice</Button>}
+      </Box>
+      <Button variant="subtle" color="gray" disabled={busy} onClick={onStartNew}>Start new practice</Button>
+    </Group>
+  );
+}
+
+function EmptyPractice({ error, unavailable, pending, busy, focusRef, onStartNew, onRetry }: {
+  error: string;
+  unavailable: boolean;
+  pending: boolean;
+  busy: boolean;
+  focusRef: React.RefObject<HTMLDivElement | null>;
+  onStartNew: () => void;
+  onRetry: () => void;
+}) {
+  return (
+    <Stack maw={760} className={`${classes.playground} ${classes.practice}`}>
+      <PracticeError message={error} uncertain={false} recoveryUnavailable={unavailable}
+        pending={pending} retryDisabled={busy} focusRef={focusRef} onStartNew={onStartNew} onRetry={onRetry} />
+      {!unavailable && <Button disabled={busy} onClick={onStartNew}>Start new practice</Button>}
+    </Stack>
+  );
+}
+
 type InitialRecoveryHandlers = {
   applyState: (session: PracticeSession) => void;
   setBusy: (value: boolean) => void;
@@ -541,6 +662,7 @@ type InitialRecoveryHandlers = {
   setPendingEntry: (value: PracticeOutboxEntry | null) => void;
   setRecoveryUnavailable: (value: boolean) => void;
   setRun: (value: PracticeRunRecovery) => void;
+  showFreshChooser: (catalog: PracticeProfiles | null, message?: string) => void;
   setText: (value: string) => void;
   setUncertain: (value: AttemptRequest | null) => void;
 };
@@ -552,14 +674,10 @@ function useInitialPracticeRecovery(handlers: InitialRecoveryHandlers) {
     let active = true;
     const startMissing = async () => {
       try {
-        const started = await startAutomaticPractice();
-        if (active) {
-          handlers.setRun(started.run);
-          bindUrl(started.run.practiceSessionId);
-          handlers.applyState(started.session);
-        }
+        const catalog = await bootstrapPracticeProfiles();
+        if (active) handlers.showFreshChooser(catalog);
       } catch (caught) {
-        if (active) handlers.setError(practiceError(caught));
+        if (active) handlers.showFreshChooser(null, practiceError(caught));
       } finally {
         if (active) handlers.setBusy(false);
       }
@@ -569,6 +687,7 @@ function useInitialPracticeRecovery(handlers: InitialRecoveryHandlers) {
       bindUrl(recovery.practiceSessionId);
       try {
         const context = await loadPracticeContext();
+        if (!active) return;
         if (context.ownerSessionId !== recovery.ownerSessionId) {
           if (active) {
             handlers.setRecoveryUnavailable(true);
@@ -577,17 +696,20 @@ function useInitialPracticeRecovery(handlers: InitialRecoveryHandlers) {
           return;
         }
         const next = await reconcileOutbox(recovery, {
-          unavailable: (message) => { handlers.setRecoveryUnavailable(true); handlers.setError(message); },
-          error: handlers.setError,
+          unavailable: (message) => {
+            if (active) { handlers.setRecoveryUnavailable(true); handlers.setError(message); }
+          },
+          error: (message) => { if (active) handlers.setError(message); },
           uncertain: (request) => {
+            if (!active) return;
             handlers.setUncertain(request);
             const restored = answerValues(request?.answer);
             handlers.setText(restored.text);
             handlers.setOrder(restored.order);
           },
-          pending: handlers.setPendingEntry,
+          pending: (entry) => { if (active) handlers.setPendingEntry(entry); },
           definitive: (_entry, caught) => {
-            if (caught instanceof ApiError && [401, 403, 404].includes(caught.status)) {
+            if (active && caught instanceof ApiError && [401, 403, 404].includes(caught.status)) {
               handlers.setRecoveryUnavailable(true);
             }
           },
@@ -640,11 +762,10 @@ export default function Practice() {
   const [uncertain, setUncertain] = useState<AttemptRequest | null>(null);
   const [pendingEntry, setPendingEntry] = useState<PracticeOutboxEntry | null>(null);
   const [error, setError] = useState("");
-  const [recoveryUnavailable, setRecoveryUnavailable] = useState(false);
-  const [selectedTargets, setSelectedTargets] = useState<Set<string>>(() => new Set());
-  const focusQueue = usePracticeFocusQueue(error);
-  const { errorRef, feedbackRef, hintRef, introductionContentRef, itemHeadingRef, lessonContentRef, requestFocus, summaryHeadingRef } = focusQueue;
-  const generationRef = useRef(0);
+  const [recoveryUnavailable, setRecoveryUnavailable] = useState(false), [selectedTargets, setSelectedTargets] = useState<Set<string>>(() => new Set());
+  const [chooserOpen, setChooserOpen] = useState(false), [selectedProfile, setSelectedProfile] = useState<string | null>(null);
+  const { errorRef, feedbackRef, hintRef, introductionContentRef, itemHeadingRef, lessonContentRef, requestFocus, summaryHeadingRef } = usePracticeFocusQueue(error);
+  const generationRef = useRef(0), chooserReturnErrorRef = useRef(""); useEffect(() => () => { generationRef.current += 1; }, []);
 
   const applyState = (next: PracticeSession) => {
     setSession(next);
@@ -659,6 +780,11 @@ export default function Practice() {
   useInitialPracticeRecovery({
     applyState, setBusy, setError, setOrder, setPendingEntry, setRecoveryUnavailable,
     setRun, setText, setUncertain,
+    showFreshChooser: (_catalog, message = "") => {
+      setSelectedProfile(null);
+      setChooserOpen(true);
+      setError(message);
+    },
   });
 
   const operationHandlers: OperationHandlers = {
@@ -698,35 +824,57 @@ export default function Practice() {
     }
   };
 
-  const startNewPractice = async () => {
+  const openPracticeChooser = () => {
+    const generation = generationRef.current + 1;
+    generationRef.current = generation;
+    chooserReturnErrorRef.current = error;
+    setChooserOpen(true);
+    setSelectedProfile(null);
+    setError("");
+    if (!run) return;
+    void loadPracticeProfiles().then((catalog) => {
+      const validated = validateProfiles(catalog);
+      if (generation !== generationRef.current || validated.ownerSessionId !== run.ownerSessionId) return;
+    }).catch(() => {
+      // Present the compiled choices without renewing an expired owner.
+    });
+  };
+
+  const cancelPracticeChooser = () => {
     generationRef.current += 1;
+    setChooserOpen(false);
+    setSelectedProfile(null);
+    setError(chooserReturnErrorRef.current);
+  };
+
+  const startNewPractice = async () => {
+    const chosenKey = selectedProfile;
+    if (!chosenKey) return;
+    const generation = generationRef.current + 1;
+    generationRef.current = generation;
     setBusy(true);
     setError("");
-    abandonCurrentPractice(run);
-    setRun(null);
-    setSession(null);
-    setAttempt(null);
-    setUncertain(null);
-    setPendingEntry(null);
     try {
-      await startDevelopmentSession();
-      const context = await loadPracticeContext();
-      const request: PracticeCreationRequest = {
-        practiceSessionId: crypto.randomUUID(), focusId: context.focusId,
-        planRevision: context.planRevision, seed: freshPracticeSeed(),
-      };
-      const recovery: PracticeRunRecovery = { ownerSessionId: context.ownerSessionId, ...request };
-      const creation = outboxEntry(recovery, "creation", request.practiceSessionId, request);
+      const { recovery, creation } = await preparePracticeCreation(chosenKey);
+      if (generation !== generationRef.current) return;
       saveRunWithCreation(recovery, creation);
       bindUrl(recovery.practiceSessionId);
       setRun(recovery);
-      const created = await createPracticeSession(recovery.ownerSessionId, creation.body);
-      removeOutboxEntry(creation);
-      applyState(created);
+      setSession(null);
+      setAttempt(null);
+      setUncertain(null);
+      setPendingEntry(creation);
+      setSelectedTargets(new Set());
+      setChooserOpen(false);
       setRecoveryUnavailable(false);
+      await perform(creation, "item", recovery);
     } catch (caught) {
+      if (generation !== generationRef.current) return;
       setError(practiceError(caught));
-    } finally { setBusy(false); }
+      requestFocus("error");
+    } finally {
+      if (generation === generationRef.current) setBusy(false);
+    }
   };
 
   const startFollowUp = async () => {
@@ -736,6 +884,12 @@ export default function Practice() {
     setBusy(true);
     setError("");
     try {
+      const planRevision = followUpRevisionFor(session);
+      if (!planRevision) {
+        setError("This practice does not advertise a supported follow-up plan.");
+        requestFocus("error");
+        return;
+      }
       // This read cannot renew the development cookie. A review always keeps its source owner.
       const context = await loadPracticeContext();
       if (context.ownerSessionId !== run.ownerSessionId) {
@@ -745,7 +899,7 @@ export default function Practice() {
       }
       const request: PracticeFollowUpRequest = {
         practiceSessionId: crypto.randomUUID(),
-        planRevision: "follow-up-1" as const,
+        planRevision,
         seed: freshPracticeSeed(),
         targetKeys: [...selectedTargets],
       };
@@ -778,31 +932,25 @@ export default function Practice() {
     }
   };
 
-  if (busy && !session) return <Group justify="center" mih={300}><Loader aria-label="Starting practice" /></Group>;
+  if (busy && !session && !chooserOpen) return <Group justify="center" mih={300}><Loader aria-label="Starting practice" /></Group>;
+  if (chooserOpen) return <PracticeChooser
+    selected={selectedProfile}
+    busy={busy}
+    canCancel={Boolean(run)}
+    message={error}
+    onSelect={setSelectedProfile}
+    onStart={() => void startNewPractice()}
+    onCancel={cancelPracticeChooser}
+  />;
   if (!session) {
-    return (
-      <Stack maw={760} className={`${classes.playground} ${classes.practice}`}>
-        <PracticeError
-          message={error}
-          uncertain={false}
-          recoveryUnavailable={recoveryUnavailable}
-          pending={Boolean(pendingEntry)}
-          retryDisabled={busy}
-          focusRef={errorRef}
-          onStartNew={() => void startNewPractice()}
-          onRetry={() => {
-            if (pendingEntry) void perform(pendingEntry, "item");
-          }}
-        />
-        {!recoveryUnavailable && <Button onClick={() => void startNewPractice()}>Start new practice</Button>}
-      </Stack>
-    );
+    return <EmptyPractice error={error} unavailable={recoveryUnavailable} pending={Boolean(pendingEntry)}
+      busy={busy} focusRef={errorRef} onStartNew={openPracticeChooser}
+      onRetry={() => { if (pendingEntry) void perform(pendingEntry, "item"); }} />;
   }
   const exercise = session.currentExercise;
   const item = session.items.find((candidate) => candidate.position === session.cursor);
   const progress = session.itemCount > 0 ? (session.cursor / session.itemCount) * 100 : 0;
   const blocked = busy || Boolean(pendingEntry) || Boolean(uncertain);
-  const followUp = session.followUp;
   const submit = () => {
     if (!run || !exercise || !item) return;
     const request: AttemptRequest = {
@@ -824,14 +972,7 @@ export default function Practice() {
 
   return (
     <Stack gap="lg" maw={920} className={`${classes.playground} ${classes.practice}`}>
-      <Group justify="space-between" align="start">
-        <Box>
-          <Title order={1} size="h2">{session.title}</Title>
-          <Text c="dimmed">{followUp ? "A focused review" : "A short practice"} in {session.itemCount} {session.itemCount === 1 ? "part" : "parts"}. Continue after any saved answer.</Text>
-          {followUp && <Button component="a" variant="subtle" px={0} href={`/practice?session=${encodeURIComponent(followUp.sourcePracticeSessionId)}`}>Source practice</Button>}
-        </Box>
-        <Button variant="subtle" color="gray" disabled={busy} onClick={() => void startNewPractice()}>Start new practice</Button>
-      </Group>
+      <PracticeHeading session={session} busy={busy} onStartNew={openPracticeChooser} />
       <Box>
         <Group justify="space-between" mb={6}><Text size="sm" fw={650}>{session.state === "completed" ? "Complete" : `Part ${session.cursor + 1} of ${session.itemCount}`}</Text><Text size="sm" c="dimmed">{session.cursor}/{session.itemCount} continued</Text></Group>
         <Progress value={progress} aria-label={`${session.cursor} of ${session.itemCount} practice items continued`} />
@@ -843,7 +984,7 @@ export default function Practice() {
         pending={Boolean(pendingEntry)}
         retryDisabled={busy}
         focusRef={errorRef}
-        onStartNew={() => void startNewPractice()}
+        onStartNew={openPracticeChooser}
         onRetry={() => {
           if (!pendingEntry) return;
           void perform(pendingEntry, pendingFocus(pendingEntry, session));

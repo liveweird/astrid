@@ -17,6 +17,8 @@ export type Attempt = components["schemas"]["Attempt"];
 export type InspectorDetails = components["schemas"]["Inspector"];
 
 export type PracticeContext = components["schemas"]["PracticeContext"];
+export type PracticeProfiles = components["schemas"]["PracticeProfiles"];
+export type PracticeProfile = components["schemas"]["PracticeProfile"];
 export type PracticeAttemptContext = components["schemas"]["PracticeAttemptContext"];
 export type PracticeItem = components["schemas"]["PracticeItem"];
 export type PracticeOutcomeCounts = components["schemas"]["PracticeOutcomeCounts"];

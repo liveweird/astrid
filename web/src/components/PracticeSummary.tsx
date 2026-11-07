@@ -26,13 +26,20 @@ function OutcomeSummary({ row, kind }: { row: PracticeSummaryRow; kind: "firstOu
 }
 
 function practiceTargetKey(row: PracticeSummaryRow) {
-  if (row.targetSkillId) return `grammar:${row.targetSkillId}`;
+  if (row.targetSkillId) {
+    return row.targetSkillId === "G004" && row.assessmentMode
+      ? `grammar:${row.targetSkillId}:${row.assessmentMode}`
+      : `grammar:${row.targetSkillId}`;
+  }
   const target = row.lexicalTarget;
   if (!target) throw new Error("Practice summary target is missing");
   return `lexical:${target.entryId}:${target.senseId}:${target.facet}:${target.direction}`;
 }
 
 function targetKind(row: PracticeSummaryRow) {
+  if (row.targetSkillId === "G004" && row.assessmentMode === "selection") return "Form selection";
+  if (row.targetSkillId === "G004" && row.assessmentMode === "recall") return "Written form recall";
+  if (row.targetSkillId === "G004" && row.assessmentMode === "repair") return "Form repair";
   if (row.targetSkillId) return "Grammar";
   return row.lexicalTarget?.direction === "da-en" ? "Meaning recognition" : "Written headword recall";
 }
@@ -64,7 +71,7 @@ export default function PracticeSummary({ session, headingRef, selectedTargets, 
           <Paper
             component="article"
             aria-label={row.label}
-            key={`${row.targetSkillId ?? "lexical"}-${row.lexicalTarget?.entryId ?? ""}-${row.lexicalTarget?.senseId ?? ""}-${row.lexicalTarget?.facet ?? ""}-${row.lexicalTarget?.direction ?? ""}`}
+            key={`${row.targetSkillId ?? "lexical"}-${row.assessmentMode ?? ""}-${row.lexicalTarget?.entryId ?? ""}-${row.lexicalTarget?.senseId ?? ""}-${row.lexicalTarget?.facet ?? ""}-${row.lexicalTarget?.direction ?? ""}`}
             withBorder
             p="lg"
           >

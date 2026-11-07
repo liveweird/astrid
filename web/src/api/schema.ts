@@ -116,6 +116,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/practice-profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getPracticeProfiles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/practice-sessions": {
         parameters: {
             query?: never;
@@ -403,6 +419,34 @@ export interface components {
             /** @enum {integer} */
             itemCount: 8;
         };
+        PracticeProfiles: {
+            /** Format: uuid */
+            ownerSessionId: string;
+            /** Format: int64 */
+            sessionExpiresAt: number;
+            profiles: components["schemas"]["PracticeProfile"][];
+        };
+        PracticeProfile: {
+            /** @enum {string} */
+            focusId: "reading-basics";
+            /** @enum {string} */
+            planRevision: "practice-1";
+            title: string;
+            description: string;
+            /** @enum {integer} */
+            itemCount: 8;
+            prerequisiteSkillIds: string[];
+        } | {
+            /** @enum {string} */
+            focusId: "present-verbs";
+            /** @enum {string} */
+            planRevision: "present-verbs-1";
+            title: string;
+            description: string;
+            /** @enum {integer} */
+            itemCount: 6;
+            prerequisiteSkillIds: string[];
+        };
         PracticeSessionRequest: {
             /** Format: uuid */
             practiceSessionId: string;
@@ -410,6 +454,14 @@ export interface components {
             focusId: "reading-basics";
             /** @enum {string} */
             planRevision: "practice-1";
+            seed: number;
+        } | {
+            /** Format: uuid */
+            practiceSessionId: string;
+            /** @enum {string} */
+            focusId: "present-verbs";
+            /** @enum {string} */
+            planRevision: "present-verbs-1";
             seed: number;
         };
         PracticeSupportRequest: {
@@ -421,7 +473,7 @@ export interface components {
             /** Format: uuid */
             practiceSessionId: string;
             /** @enum {string} */
-            planRevision: "follow-up-1";
+            planRevision: "follow-up-1" | "follow-up-2";
             seed: number;
             targetKeys: string[];
         };
@@ -453,6 +505,8 @@ export interface components {
             currentExercise?: components["schemas"]["Exercise"];
             summary: components["schemas"]["PracticeSummary"];
             followUp?: components["schemas"]["PracticeFollowUp"];
+            /** @enum {string} */
+            followUpPlanRevision?: "follow-up-2";
         };
         PracticeFollowUp: {
             /** Format: uuid */
@@ -466,6 +520,8 @@ export interface components {
             formatId: string;
             targetSkillId?: string | null;
             lexicalTarget?: components["schemas"]["LexicalTarget"];
+            /** @enum {string} */
+            assessmentMode?: "selection" | "recall" | "repair";
             lessonOpened: boolean;
             hintOpened: boolean;
             attemptIds: string[];
@@ -511,6 +567,8 @@ export interface components {
             label: string;
             targetSkillId?: string | null;
             lexicalTarget?: components["schemas"]["LexicalTarget"];
+            /** @enum {string} */
+            assessmentMode?: "selection" | "recall" | "repair";
             plannedItems: number;
             attemptedItems: number;
             advancedItems: number;
@@ -774,6 +832,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PracticeContext"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+        };
+    };
+    getPracticeProfiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Available practice profiles */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeProfiles"];
                 };
             };
             401: components["responses"]["Problem"];
