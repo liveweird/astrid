@@ -8,6 +8,7 @@ import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactoryOptions
 import java.time.Duration
 import java.util.UUID
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -152,9 +153,15 @@ class PostgresRepository private constructor(
         }.toList().singleOrNull()?.let { json.decodeFromString(it[Attempts.responsePayload]) }
     }
 
-    override suspend fun ready(): Boolean = runCatching {
+    @Suppress("TooGenericExceptionCaught") // Any database failure means not ready; coroutine cancellation still propagates.
+    override suspend fun ready(): Boolean = try {
         suspendTransaction(database) { Sessions.select(Sessions.id).limit(1).toList() }
-    }.isSuccess
+        true
+    } catch (cause: CancellationException) {
+        throw cause
+    } catch (_: Exception) {
+        false
+    }
 
     override fun close() = pool.dispose()
 

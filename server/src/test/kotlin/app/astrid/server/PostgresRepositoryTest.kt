@@ -14,8 +14,11 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.AfterClass
@@ -23,6 +26,24 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
 class PostgresRepositoryTest {
+    @Test
+    fun `readiness reports database state without swallowing caller cancellation`() = withRepositories { first, second ->
+        assertEquals(true, first.ready())
+
+        first.close()
+        assertEquals(false, first.ready())
+        assertEquals(true, second.ready())
+
+        val observedCall = CompletableDeferred<Result<Boolean>>()
+        val cancelledChild = launch(start = CoroutineStart.UNDISPATCHED) {
+            cancel(CancellationException("readiness caller left"))
+            observedCall.complete(runCatching { second.ready() })
+        }
+        val result = withTimeout(TIMEOUT_MILLIS) { observedCall.await() }
+        assertIs<CancellationException>(result.exceptionOrNull())
+        cancelledChild.join()
+    }
+
     @Test
     fun `two pools serialize identical and conflicting attempt identities`() = withRepositories { first, second ->
         val same = fixture(first)
