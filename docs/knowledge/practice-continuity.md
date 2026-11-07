@@ -22,6 +22,12 @@ A capitalization-sensitive stale-tab assertion was corrected to recognize both v
 
 The first follow-up CI run exposed two WebKit contrast failures that passed on retry. Trace evidence showed the newly enabled Continue label still fading out of Mantine's loading state: light/dark contrast measured 1.04:1/1.03:1, below the 3:1 requirement at 200% text. Practice primary-action labels now leave loading at full opacity, while loading controls and spinners remain intact. The browser journeys assert immediate label opacity and retain the full accessibility scans; no colors, exclusions or contrast thresholds changed.
 
+### Standalone format navigation follow-up — BL-038
+
+A later documentation-only master run exposed a separate retry-only timeout in the existing short-window format-navigation test. Local repetition and focus/geometry probes found two contributing mechanisms: setup could reopen the picker before the intended exercise-heading focus ran; even after synchronizing that focus, scrolling a portalled option with absolute document positioning could move the selector offscreen and trigger detached-dropdown hiding. Search setup alone failed, and focus synchronization alone also failed.
+
+The candidate sets the dropdown's supported floating strategy to `fixed`, keeping its coordinates relative to the viewport. Test setup verifies closure and the committed value, then waits for the new exercise heading before reopening; selecting the already-current format requires no generation/focus change. The candidate passed 24 repeated Chromium/WebKit short-window cases against Vite with retries disabled. All native ArrowDown, highlight, viewport, overflow and ordinary pointer-selection assertions remain active. No forced interaction, delay or timeout increase was introduced. Independent review and packaged verification are in progress; this follow-up changes no content, grading, API or persistence.
+
 ## Actual process-restart evidence
 
 The private protocol verified the exact candidate image and owned project/service/container/volume labels before mutation. It never restarted the main preview or its database. Both Chromium and WebKit passed these phases:

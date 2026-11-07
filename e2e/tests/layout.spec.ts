@@ -37,9 +37,12 @@ async function expectUnclippedLabels(page: Page) {
 async function chooseFormat(page: Page, title: string) {
   const selector = page.getByRole("combobox", { name: "Exercise type" });
   await openGenerationControls(page);
+  const previousFormat = await selector.inputValue();
   await selector.click();
-  await page.getByRole("option", { name: title }).click();
+  await page.getByRole("option", { name: title, exact: true }).click();
+  await expect(selector).toHaveAttribute("aria-expanded", "false");
   await expect(selector).toHaveValue(title);
+  if (previousFormat !== title) await expect(page.locator("h3[tabindex='-1']")).toBeFocused();
 }
 
 test("all pilot formats and recovery states reflow at 320px with 200% text", async ({ page }) => {

@@ -152,6 +152,7 @@ function FormatSelectControl({ data, value, disabled = false, onChange }: Format
   return (
     <Combobox
       store={store}
+      floatingStrategy="fixed"
       keepMounted={false}
       width="max-content"
       preventPositionChangeWhenVisible={false}

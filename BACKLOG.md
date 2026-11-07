@@ -6,6 +6,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [next]
 
+- **BL-038 — Stabilize portalled format navigation in short windows.** A retry-only WebKit failure led to reproducible focus/scroll geometry evidence: generation-focus ordering plus absolute dropdown scrolling can detach the picker. Verify the viewport-fixed candidate and synchronized test setup with independent review, complete packaged/browser gates, a backed-up preview promotion and focused Git delivery. Preserve all native navigation/geometry assertions, content and persistence boundaries. Candidate verification is in progress; see the [follow-up evidence](docs/knowledge/practice-continuity.md#standalone-format-navigation-follow-up--bl-038).
+
 - **BL-035 — Review the expanded playground and guided practice.** Proposed next step: try `/practice` for an eight-part session, then all eight standalone entries under “Generation controls.” Assess pacing, instruction/feedback clarity, typed Danish input, repair, response constraints, support, recovery, summaries and repetition before choosing the next bounded engine/content iteration. Record reproducible coordinates for corrections. The [review guide](docs/knowledge/pilot-review-guide.md) covers both flows; specialist validation remains BL-022.
 
 ## [todo]
