@@ -65,3 +65,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Vocabulary delivery](vocabulary-delivery.md): observed compatibility, migration, inspector, grading and browser verification for BL-036.
 
 - [Short practice sessions](practice-sessions.md): authorized BL-009 plan, possible-exposure evidence, owner-bound recovery and transaction acceptance.
+
+- [Guided practice delivery](practice-delivery.md): local verification, independent review corrections and rollout evidence for BL-009.

@@ -1,6 +1,6 @@
 # Astrid
 
-A Danish reading and writing engine for English-speaking beginners. This first milestone is a private playground: eight exercise entries covering grammar selection/supply/order/repair and vocabulary recognition/recall, a structured 23-entry vocabulary seed, and 99 licensed sentence combinations. Content is a linguistic draft awaiting Danish teaching review.
+A Danish reading and writing engine for English-speaking beginners. The private preview offers guided practice and a standalone playground: eight exercise entries covering grammar selection/supply/order/repair and vocabulary recognition/recall, a structured 23-entry vocabulary seed, and 99 licensed sentence combinations. Content is a linguistic draft awaiting Danish teaching review.
 
 ## Run the complete app
 
