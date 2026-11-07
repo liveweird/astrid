@@ -4,6 +4,18 @@ package app.astrid.server
 
 import app.astrid.engine.GenerationRequest
 import app.astrid.engine.PilotEngine
+import app.astrid.server.authz.BadRequest
+import app.astrid.server.authz.Conflict
+import app.astrid.server.authz.NotFound
+import app.astrid.server.exercises.AttemptAnswerDto
+import app.astrid.server.exercises.AttemptRequest
+import app.astrid.server.exercises.AttemptResponse
+import app.astrid.server.exercises.ExerciseResponse
+import app.astrid.server.exercises.reproductionFingerprint
+import app.astrid.server.exercises.toResponse
+import app.astrid.server.infra.config.ServerConfig
+import app.astrid.server.infra.json.wireJson
+import app.astrid.server.session.SESSION_COOKIE
 import io.ktor.client.request.cookie
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -54,7 +66,7 @@ class VocabularyApplicationTest {
 
     @Test
     fun `catalog separates grammar targets from lexical tasks`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val cookieValue = createSession()
         val response = client.get("/api/v1/catalog") {
             trustedHost()
@@ -74,7 +86,7 @@ class VocabularyApplicationTest {
 
     @Test
     fun `lexical metadata is public only at its bounded level and private source stays authorized`() = testApplication {
-        val repository = InMemoryAstridRepository()
+        val repository = InMemoryStores()
         application { astridModule(config(inspectorKey = INSPECTOR_KEY), repository) }
         val owner = createSession()
         val outsider = createSession()
@@ -121,7 +133,7 @@ class VocabularyApplicationTest {
 
     @Test
     fun `target and revision validation rejects conflicting request shapes`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val cookieValue = createSession()
         assertEquals(HttpStatusCode.BadRequest, createExercise(cookieValue, "E001").status)
         assertEquals(HttpStatusCode.BadRequest, createExercise(cookieValue, "E007", "G004").status)

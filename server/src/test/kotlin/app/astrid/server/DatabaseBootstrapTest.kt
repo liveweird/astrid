@@ -1,5 +1,10 @@
 package app.astrid.server
 
+import app.astrid.server.infra.config.ServerConfig
+import app.astrid.server.infra.db.MIGRATION_CONNECT_TIMEOUT_SECONDS
+import app.astrid.server.infra.db.MIGRATION_LOGIN_TIMEOUT_SECONDS
+import app.astrid.server.infra.db.buildMigrationDataSource
+import app.astrid.server.infra.db.migrate
 import java.net.ServerSocket
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors

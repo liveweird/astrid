@@ -1,6 +1,6 @@
 @file:Suppress("MagicNumber") // Reviewed security and pool bounds.
 
-package app.astrid.server
+package app.astrid.server.infra.config
 
 data class ServerConfig(
     val developmentMode: Boolean,

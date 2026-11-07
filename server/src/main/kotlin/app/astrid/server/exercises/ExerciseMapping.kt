@@ -1,4 +1,4 @@
-package app.astrid.server
+package app.astrid.server.exercises
 
 import app.astrid.engine.Answer
 import app.astrid.engine.ExerciseInspector
@@ -7,6 +7,8 @@ import app.astrid.engine.GeneratedExercise
 import app.astrid.engine.IntroductionSection
 import app.astrid.engine.LexicalTarget
 import app.astrid.engine.ReadingTask
+import app.astrid.server.session.CURRENT_CONTENT_REVISION
+import app.astrid.server.session.CURRENT_GENERATOR_REVISION
 import java.security.MessageDigest
 
 internal fun GeneratedExercise.toResponse(id: String) = ExerciseResponse(

@@ -4,6 +4,15 @@ package app.astrid.server
 
 import app.astrid.engine.GenerationRequest
 import app.astrid.engine.PilotEngine
+import app.astrid.server.authz.Conflict
+import app.astrid.server.authz.NotFound
+import app.astrid.server.exercises.AttemptAnswerDto
+import app.astrid.server.exercises.AttemptRequest
+import app.astrid.server.exercises.reproductionFingerprint
+import app.astrid.server.exercises.toResponse
+import app.astrid.server.infra.config.ServerConfig
+import app.astrid.server.infra.json.wireJson
+import app.astrid.server.session.SESSION_COOKIE
 import io.ktor.client.request.cookie
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -32,7 +41,7 @@ import kotlinx.serialization.json.jsonPrimitive
 class WritingReadingApplicationTest {
     @Test
     fun `catalog and public exercises expose only bounded writing and reading descriptors`() = testApplication {
-        application { astridModule(config(inspectorKey = INSPECTOR_KEY), InMemoryAstridRepository()) }
+        application { astridModule(config(inspectorKey = INSPECTOR_KEY), InMemoryStores()) }
         val owner = createSession()
         val catalog = client.get("/api/v1/catalog") {
             trustedHost()
@@ -76,7 +85,7 @@ class WritingReadingApplicationTest {
 
     @Test
     fun `writing and reading attempts expose four facets and replay before regeneration`() = testApplication {
-        val repository = InMemoryAstridRepository()
+        val repository = InMemoryStores()
         application { astridModule(config(inspectorKey = INSPECTOR_KEY), repository) }
         val owner = createSession()
         val outsider = createSession()

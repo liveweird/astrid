@@ -1,5 +1,6 @@
 package app.astrid.server
 
+import app.astrid.server.infra.config.ServerConfig
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

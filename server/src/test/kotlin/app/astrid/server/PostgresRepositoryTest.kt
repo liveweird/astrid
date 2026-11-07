@@ -5,6 +5,31 @@ package app.astrid.server
 import app.astrid.engine.GenerationRequest
 import app.astrid.engine.PilotEngine
 import app.astrid.engine.PracticePlanner
+import app.astrid.server.authz.SessionPrincipal
+import app.astrid.server.exercises.AttemptAnswerDto
+import app.astrid.server.exercises.AttemptRequest
+import app.astrid.server.exercises.AttemptResponse
+import app.astrid.server.exercises.AttemptWriteResult
+import app.astrid.server.exercises.CreatedAttempt
+import app.astrid.server.exercises.EVALUATION_REVISION
+import app.astrid.server.exercises.ExerciseResponse
+import app.astrid.server.exercises.IntroductionDto
+import app.astrid.server.exercises.PracticeAttemptContextDto
+import app.astrid.server.exercises.PracticeCrossRunExposureDto
+import app.astrid.server.exercises.StoredExercise
+import app.astrid.server.exercises.reproductionFingerprint
+import app.astrid.server.exercises.toResponse
+import app.astrid.server.infra.db.Database
+import app.astrid.server.infra.db.migrate
+import app.astrid.server.infra.json.wireJson
+import app.astrid.server.practice.NewPracticeItem
+import app.astrid.server.practice.NewPracticeSession
+import app.astrid.server.practice.PracticeCreateResult
+import app.astrid.server.practice.PracticeFollowUpLineage
+import app.astrid.server.practice.PracticeFollowUpRequest
+import app.astrid.server.practice.PracticeMutationResult
+import app.astrid.server.practice.PracticeSessionRequest
+import app.astrid.server.practice.StoredPracticeSession
 import java.sql.DriverManager
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
@@ -26,19 +51,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.encodeToString
-import org.junit.AfterClass
 import org.flywaydb.core.Flyway
-import org.testcontainers.postgresql.PostgreSQLContainer
-import org.testcontainers.utility.DockerImageName
 
 class PostgresRepositoryTest {
     @Test
     fun `present verb feedback exposure requires a prior met attempt in postgres`() = withRepositories { first, second ->
-        val owner = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
         val practiceId = UUID.randomUUID()
         val request = PracticeSessionRequest(practiceId.toString(), "present-verbs", "present-verbs-1", 17)
         val created = assertIs<PracticeCreateResult.Created>(
-            first.createPracticeSession(owner, request, wireJson.encodeToString(request)) {
+            first.practice.createPracticeSession(owner, request, wireJson.encodeToString(request)) {
                 practiceFixture(owner, request)
             },
         ).session
@@ -48,7 +70,7 @@ class PostgresRepositoryTest {
 
         suspend fun write(targetSatisfaction: String, expectPresentExposure: Boolean) {
             val attempt = practiceAttempt(item.exercise.id)
-            val result = second.writeAttemptWithPractice(owner.id, attempt, attemptPayload(attempt)) {
+            val result = second.exercises.writeAttemptWithPractice(owner.id, attempt, attemptPayload(attempt)) {
                     stored, retry, now, source ->
                 val frozen = assertNotNull(source).items.single { it.position == item.position }.feedbackExposureKeys
                 assertEquals(expectPresentExposure, presentKey in frozen)
@@ -69,11 +91,11 @@ class PostgresRepositoryTest {
 
     @Test
     fun `follow-up creation is atomic replayable and retains bounded ancestry across pools`() = withRepositories { first, second ->
-        val owner = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
         val sourceId = UUID.randomUUID()
         val sourceRequest = PracticeSessionRequest(sourceId.toString(), "reading-basics", "practice-1", 73)
         val source = assertIs<PracticeCreateResult.Created>(
-            first.createPracticeSession(owner, sourceRequest, wireJson.encodeToString(sourceRequest)) {
+            first.practice.createPracticeSession(owner, sourceRequest, wireJson.encodeToString(sourceRequest)) {
                 practiceFixture(owner, sourceRequest)
             },
         ).session
@@ -91,7 +113,7 @@ class PostgresRepositoryTest {
         val creations = listOf(first, second).map { repository ->
             async {
                 gate.await()
-                repository.createPracticeFollowUp(owner, sourceId, childRequest, payload) { completed ->
+                repository.practice.createPracticeFollowUp(owner, sourceId, childRequest, payload) { completed ->
                     callbacks.incrementAndGet()
                     followUpFixture(completed, childRequest, sourceId)
                 }
@@ -103,25 +125,25 @@ class PostgresRepositoryTest {
         assertEquals(1, results.count { it is PracticeCreateResult.Created })
         assertEquals(1, results.count { it is PracticeCreateResult.Existing })
         val childId = UUID.fromString(childRequest.practiceSessionId)
-        val child = assertNotNull(first.findPracticeSession(owner.id, childId))
+        val child = assertNotNull(first.practice.findPracticeSession(owner.id, childId))
         assertEquals(sourceId, child.followUp?.sourcePracticeSessionId)
         assertEquals(1, child.sourceExposure.size)
 
         val failedRequest = childRequest.copy(practiceSessionId = UUID.randomUUID().toString())
         val failedPayload = "source=$sourceId|${wireJson.encodeToString(failedRequest)}"
         assertFailsWith<IllegalStateException> {
-            first.createPracticeFollowUp(owner, sourceId, failedRequest, failedPayload) { error("planning failed") }
+            first.practice.createPracticeFollowUp(owner, sourceId, failedRequest, failedPayload) { error("planning failed") }
         }
-        assertNull(second.findPracticeSession(owner.id, UUID.fromString(failedRequest.practiceSessionId)))
+        assertNull(second.practice.findPracticeSession(owner.id, UUID.fromString(failedRequest.practiceSessionId)))
         assertIs<PracticeCreateResult.Created>(
-            second.createPracticeFollowUp(owner, sourceId, failedRequest, failedPayload) { completed ->
+            second.practice.createPracticeFollowUp(owner, sourceId, failedRequest, failedPayload) { completed ->
                 followUpFixture(completed, failedRequest, sourceId)
             },
         )
 
         setPracticeCursor(owner.id, childId, child.items.size)
         val nestedRequest = childRequest.copy(practiceSessionId = UUID.randomUUID().toString(), seed = 92)
-        val nested = first.createPracticeFollowUp(
+        val nested = first.practice.createPracticeFollowUp(
             owner,
             childId,
             nestedRequest,
@@ -136,22 +158,22 @@ class PostgresRepositoryTest {
 
     @Test
     fun `practice create attempts advance and ownership are atomic across pools`() = withRepositories { first, second ->
-        val owner = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
-        val outsider = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        val outsider = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
         val practiceId = UUID.randomUUID()
         val request = PracticeSessionRequest(practiceId.toString(), "reading-basics", "practice-1", 20261107)
         val requestPayload = wireJson.encodeToString(PracticeSessionRequest.serializer(), request)
-        val created = first.createPracticeSession(owner, request, requestPayload) { practiceFixture(owner, request) }
+        val created = first.practice.createPracticeSession(owner, request, requestPayload) { practiceFixture(owner, request) }
         val initial = assertIs<PracticeCreateResult.Created>(created).session
         assertEquals(8, initial.items.size)
-        assertNull(second.findPracticeSession(outsider.id, practiceId))
-        val replayed = second.createPracticeSession(owner, request, requestPayload) {
+        assertNull(second.practice.findPracticeSession(outsider.id, practiceId))
+        val replayed = second.practice.createPracticeSession(owner, request, requestPayload) {
             error("saved practice request must replay before planning")
         }
         assertEquals(initial, assertIs<PracticeCreateResult.Existing>(replayed).session)
         val changed = request.copy(seed = request.seed + 1)
         assertIs<PracticeCreateResult.RequestConflict>(
-            first.createPracticeSession(
+            first.practice.createPracticeSession(
                 owner,
                 changed,
                 wireJson.encodeToString(PracticeSessionRequest.serializer(), changed),
@@ -166,7 +188,7 @@ class PostgresRepositoryTest {
         )
         val presentPayload = wireJson.encodeToString(presentRequest)
         val present = assertIs<PracticeCreateResult.Created>(
-            first.createPracticeSession(owner, presentRequest, presentPayload) { practiceFixture(owner, presentRequest) },
+            first.practice.createPracticeSession(owner, presentRequest, presentPayload) { practiceFixture(owner, presentRequest) },
         ).session
         assertEquals(6, present.items.size)
         assertEquals(
@@ -176,7 +198,7 @@ class PostgresRepositoryTest {
         assertEquals(
             present,
             assertIs<PracticeCreateResult.Existing>(
-                second.createPracticeSession(owner, presentRequest, presentPayload) {
+                second.practice.createPracticeSession(owner, presentRequest, presentPayload) {
                     error("saved present-verb request must replay before planning")
                 },
             ).session,
@@ -185,16 +207,16 @@ class PostgresRepositoryTest {
         val exercise = initial.items.first().exercise
         val failedRequest = practiceAttempt(exercise.id)
         assertFailsWith<IllegalStateException> {
-            first.writeAttemptWithPractice(owner.id, failedRequest, attemptPayload(failedRequest)) { _, _, _, _ ->
+            first.exercises.writeAttemptWithPractice(owner.id, failedRequest, attemptPayload(failedRequest)) { _, _, _, _ ->
                 error("offline")
             }
         }
-        assertTrue(checkNotNull(second.findPracticeSession(owner.id, practiceId)).items.first().attempts.isEmpty())
+        assertTrue(checkNotNull(second.practice.findPracticeSession(owner.id, practiceId)).items.first().attempts.isEmpty())
 
         val trigger = installContextFailureTrigger(owner.id, UUID.fromString(failedRequest.attemptId))
         try {
             assertFails {
-                first.writeAttemptWithPractice(
+                first.exercises.writeAttemptWithPractice(
                     owner.id,
                     failedRequest,
                     attemptPayload(failedRequest),
@@ -208,8 +230,8 @@ class PostgresRepositoryTest {
         } finally {
             dropContextFailureTrigger(trigger)
         }
-        assertNull(second.findAttempt(owner.id, UUID.fromString(failedRequest.attemptId)))
-        assertTrue(checkNotNull(second.findPracticeSession(owner.id, practiceId)).items.first().attempts.isEmpty())
+        assertNull(second.exercises.findAttempt(owner.id, UUID.fromString(failedRequest.attemptId)))
+        assertTrue(checkNotNull(second.practice.findPracticeSession(owner.id, practiceId)).items.first().attempts.isEmpty())
 
         val requests = listOf(
             failedRequest,
@@ -219,7 +241,7 @@ class PostgresRepositoryTest {
         val writes = listOf(first, second).zip(requests).map { (repository, attempt) ->
             async {
                 gate.await()
-                repository.writeAttemptWithPractice(owner.id, attempt, attemptPayload(attempt)) { stored, retry, now, source ->
+                repository.exercises.writeAttemptWithPractice(owner.id, attempt, attemptPayload(attempt)) { stored, retry, now, source ->
                     assertNotNull(source)
                     CreatedAttempt(
                         attemptResponse(attempt.attemptId, stored, retry, now),
@@ -232,7 +254,7 @@ class PostgresRepositoryTest {
         val results = withTimeout(TIMEOUT_MILLIS) { writes.awaitAll() }
         assertEquals(listOf(1, 2), results.map { assertIs<AttemptWriteResult.Created>(it).response.retryNumber }.sorted())
         equalizePracticeAttemptTimes(owner.id, practiceId, 0)
-        val loadedAttempts = checkNotNull(first.findPracticeSession(owner.id, practiceId)).items.first().attempts
+        val loadedAttempts = checkNotNull(first.practice.findPracticeSession(owner.id, practiceId)).items.first().attempts
         assertEquals(listOf(1, 2), loadedAttempts.map { it.response.retryNumber })
         val expectedByRetry = requests.zip(results).sortedBy { (_, result) ->
             assertIs<AttemptWriteResult.Created>(result).response.retryNumber
@@ -241,13 +263,13 @@ class PostgresRepositoryTest {
         assertEquals(expectedByRetry.map { it.first.answer }, loadedAttempts.map { it.answer })
 
         val advances = listOf(first, second).map { repository ->
-            async { repository.advancePracticeSession(owner.id, practiceId, 0) }
+            async { repository.practice.advancePracticeSession(owner.id, practiceId, 0) }
         }
         assertTrue(withTimeout(TIMEOUT_MILLIS) { advances.awaitAll() }.all { it is PracticeMutationResult.Success })
-        assertEquals(1, checkNotNull(first.findPracticeSession(owner.id, practiceId)).cursor)
+        assertEquals(1, checkNotNull(first.practice.findPracticeSession(owner.id, practiceId)).cursor)
         val stale = practiceAttempt(exercise.id)
         assertIs<AttemptWriteResult.PracticePositionConflict>(
-            second.writeAttemptWithPractice(owner.id, stale, attemptPayload(stale)) { _, _, _, _ ->
+            second.exercises.writeAttemptWithPractice(owner.id, stale, attemptPayload(stale)) { _, _, _, _ ->
                 error("stale practice attempt must not evaluate")
             },
         )
@@ -256,8 +278,8 @@ class PostgresRepositoryTest {
     @Test
     fun `V2 preserves V1 grammar evidence and stores nullable lexical evidence with exact replay`() = runBlocking {
         val databaseName = "astrid_migration_${UUID.randomUUID().toString().replace("-", "")}"
-        postgres.createDatabase(databaseName)
-        val config = postgres.config(databaseName)
+        PostgresTestDatabase.createDatabase(databaseName)
+        val config = PostgresTestDatabase.config(databaseName)
         Flyway.configure()
             .dataSource(config.jdbcUrl, config.postgresUser, config.postgresPassword)
             .locations("classpath:db/migration")
@@ -301,9 +323,9 @@ class PostgresRepositoryTest {
         }
 
         migrate(config)
-        val repository = PostgresRepository.connect(config, wireJson)
+        val repository = PostgresStores(Database.connect(config), wireJson)
         try {
-            val restoredGrammar = assertNotNull(repository.findExercise(sessionId, grammarId))
+            val restoredGrammar = assertNotNull(repository.exercises.findExercise(sessionId, grammarId))
             assertEquals("G004", restoredGrammar.targetSkillId)
             assertEquals(grammar.reproductionFingerprint(), engine.generate(restoredGrammar.generationRequest()).reproductionFingerprint())
 
@@ -321,8 +343,8 @@ class PostgresRepositoryTest {
                 lexical.toResponse(lexicalId.toString()),
                 lexical.reproductionFingerprint(),
             )
-            repository.insertExercise(storedLexical)
-            val restoredLexical = assertNotNull(repository.findExercise(sessionId, lexicalId))
+            repository.exercises.insertExercise(storedLexical)
+            val restoredLexical = assertNotNull(repository.exercises.findExercise(sessionId, lexicalId))
             assertNull(restoredLexical.targetSkillId)
             assertNotNull(restoredLexical.presentation.lexicalTarget)
             assertEquals(storedLexical.presentation, restoredLexical.presentation)
@@ -336,7 +358,7 @@ class PostgresRepositoryTest {
             )
             val payload = wireJson.encodeToString(AttemptRequest.serializer(), request)
             val callbacks = AtomicInteger()
-            val created = repository.writeAttempt(sessionId, request, payload) { exercise, retry, createdAt ->
+            val created = repository.exercises.writeAttempt(sessionId, request, payload) { exercise, retry, createdAt ->
                 callbacks.incrementAndGet()
                 AttemptResponse(
                     request.attemptId,
@@ -355,13 +377,13 @@ class PostgresRepositoryTest {
                 )
             }
             val createdResponse = assertIs<AttemptWriteResult.Created>(created).response
-            val replayed = repository.writeAttempt(sessionId, request, payload) { _, _, _ ->
+            val replayed = repository.exercises.writeAttempt(sessionId, request, payload) { _, _, _ ->
                 callbacks.incrementAndGet()
                 error("saved attempt must replay before regeneration")
             }
             assertEquals(1, callbacks.get())
             assertEquals(createdResponse, assertIs<AttemptWriteResult.Existing>(replayed).response)
-            assertEquals("danish-headword", repository.findAttempt(sessionId, UUID.fromString(request.attemptId))?.linguisticScope)
+            assertEquals("danish-headword", repository.exercises.findAttempt(sessionId, UUID.fromString(request.attemptId))?.linguisticScope)
         } finally {
             repository.close()
         }
@@ -369,16 +391,16 @@ class PostgresRepositoryTest {
 
     @Test
     fun `readiness reports database state without swallowing caller cancellation`() = withRepositories { first, second ->
-        assertEquals(true, first.ready())
+        assertEquals(true, first.readiness.ready())
 
         first.close()
-        assertEquals(false, first.ready())
-        assertEquals(true, second.ready())
+        assertEquals(false, first.readiness.ready())
+        assertEquals(true, second.readiness.ready())
 
         val observedCall = CompletableDeferred<Result<Boolean>>()
         val cancelledChild = launch(start = CoroutineStart.UNDISPATCHED) {
             cancel(CancellationException("readiness caller left"))
-            observedCall.complete(runCatching { second.ready() })
+            observedCall.complete(runCatching { second.readiness.ready() })
         }
         val result = withTimeout(TIMEOUT_MILLIS) { observedCall.await() }
         assertIs<CancellationException>(result.exceptionOrNull())
@@ -393,7 +415,7 @@ class PostgresRepositoryTest {
         val sameWrites = listOf(first, second).map { repository ->
             async {
                 gate.await()
-                repository.writeAttempt(same.session.id, same.request, same.payload) { exercise, retry, createdAt ->
+                repository.exercises.writeAttempt(same.session.id, same.request, same.payload) { exercise, retry, createdAt ->
                     callbackCount.incrementAndGet()
                     attemptResponse(same.request.attemptId, exercise, retry, createdAt)
                 }
@@ -420,7 +442,7 @@ class PostgresRepositoryTest {
         val competing = listOf(first to conflict.request, second to changed).map { (repository, request) ->
             async {
                 conflictGate.await()
-                repository.writeAttempt(
+                repository.exercises.writeAttempt(
                     conflict.session.id,
                     request,
                     wireJson.encodeToString(AttemptRequest.serializer(), request),
@@ -445,7 +467,7 @@ class PostgresRepositoryTest {
         val writes = listOf(first, second).zip(requests).map { (repository, request) ->
             async {
                 gate.await()
-                repository.writeAttempt(
+                repository.exercises.writeAttempt(
                     base.session.id,
                     request,
                     wireJson.encodeToString(AttemptRequest.serializer(), request),
@@ -462,11 +484,11 @@ class PostgresRepositoryTest {
     fun `failed and cancelled callbacks rollback without retry gaps or retained locks`() = withRepositories { first, second ->
         val failed = fixture(first)
         assertFailsWith<IllegalStateException> {
-            first.writeAttempt(failed.session.id, failed.request, failed.payload) { _, _, _ -> error("offline") }
+            first.exercises.writeAttempt(failed.session.id, failed.request, failed.payload) { _, _, _ -> error("offline") }
         }
-        assertNull(second.findAttempt(failed.session.id, UUID.fromString(failed.request.attemptId)))
+        assertNull(second.exercises.findAttempt(failed.session.id, UUID.fromString(failed.request.attemptId)))
         val recovered = withTimeout(TIMEOUT_MILLIS) {
-            second.writeAttempt(failed.session.id, failed.request, failed.payload) { exercise, retry, createdAt ->
+            second.exercises.writeAttempt(failed.session.id, failed.request, failed.payload) { exercise, retry, createdAt ->
                 attemptResponse(failed.request.attemptId, exercise, retry, createdAt)
             }
         }
@@ -474,12 +496,12 @@ class PostgresRepositoryTest {
 
         val cancelled = fixture(first)
         assertFailsWith<CancellationException> {
-            first.writeAttempt(cancelled.session.id, cancelled.request, cancelled.payload) { _, _, _ ->
+            first.exercises.writeAttempt(cancelled.session.id, cancelled.request, cancelled.payload) { _, _, _ ->
                 throw CancellationException("caller left")
             }
         }
         val afterCancellation = withTimeout(TIMEOUT_MILLIS) {
-            second.writeAttempt(cancelled.session.id, cancelled.request, cancelled.payload) { exercise, retry, createdAt ->
+            second.exercises.writeAttempt(cancelled.session.id, cancelled.request, cancelled.payload) { exercise, retry, createdAt ->
                 attemptResponse(cancelled.request.attemptId, exercise, retry, createdAt)
             }
         }
@@ -489,22 +511,22 @@ class PostgresRepositoryTest {
     @Test
     fun `stored response replays after exercise metadata is retired`() = withRepositories { first, second ->
         val fixture = fixture(first)
-        val created = first.writeAttempt(fixture.session.id, fixture.request, fixture.payload) { exercise, retry, createdAt ->
+        val created = first.exercises.writeAttempt(fixture.session.id, fixture.request, fixture.payload) { exercise, retry, createdAt ->
             attemptResponse(fixture.request.attemptId, exercise, retry, createdAt)
         }
         val original = assertIs<AttemptWriteResult.Created>(created).response
-        postgres.updateExerciseRevision(fixture.exercise.id, "retired-content")
+        updateExerciseRevision(fixture.exercise.id, "retired-content")
         val callbackCount = AtomicInteger()
-        val replay = second.writeAttempt(fixture.session.id, fixture.request, fixture.payload) { exercise, retry, createdAt ->
+        val replay = second.exercises.writeAttempt(fixture.session.id, fixture.request, fixture.payload) { exercise, retry, createdAt ->
             callbackCount.incrementAndGet()
             attemptResponse(fixture.request.attemptId, exercise, retry, createdAt)
         }
         assertEquals(0, callbackCount.get())
         assertEquals(original, assertIs<AttemptWriteResult.Existing>(replay).response)
-        assertEquals(original, second.findAttempt(fixture.session.id, UUID.fromString(fixture.request.attemptId)))
+        assertEquals(original, second.exercises.findAttempt(fixture.session.id, UUID.fromString(fixture.request.attemptId)))
         val changed = fixture.request.copy(answer = AttemptAnswerDto.Text("læse"))
         assertIs<AttemptWriteResult.PayloadConflict>(
-            first.writeAttempt(
+            first.exercises.writeAttempt(
                 fixture.session.id,
                 changed,
                 wireJson.encodeToString(AttemptRequest.serializer(), changed),
@@ -515,8 +537,8 @@ class PostgresRepositoryTest {
     @Test
     fun `pair four writing and reading evidence persists replays and remains owner isolated`() =
         withRepositories { first, second ->
-            val owner = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
-            val outsider = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+            val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+            val outsider = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
             val engine = PilotEngine()
             val cases = listOf(
                 Triple("E009", "G005", "Hun læser en avis."),
@@ -538,10 +560,10 @@ class PostgresRepositoryTest {
                     generated.toResponse(exerciseId.toString()),
                     generated.reproductionFingerprint(),
                 )
-                first.insertExercise(stored)
+                first.exercises.insertExercise(stored)
 
-                assertEquals(stored, second.findExercise(owner.id, exerciseId))
-                assertNull(second.findExercise(outsider.id, exerciseId))
+                assertEquals(stored, second.exercises.findExercise(owner.id, exerciseId))
+                assertNull(second.exercises.findExercise(outsider.id, exerciseId))
 
                 val request = AttemptRequest(
                     UUID.randomUUID().toString(),
@@ -551,7 +573,7 @@ class PostgresRepositoryTest {
                 )
                 val payload = wireJson.encodeToString(request)
                 val callbackCount = AtomicInteger()
-                val created = second.writeAttempt(owner.id, request, payload) { exercise, retry, createdAt ->
+                val created = second.exercises.writeAttempt(owner.id, request, payload) { exercise, retry, createdAt ->
                     callbackCount.incrementAndGet()
                     AttemptResponse(
                         attemptId = request.attemptId,
@@ -571,20 +593,20 @@ class PostgresRepositoryTest {
                     )
                 }
                 val response = assertIs<AttemptWriteResult.Created>(created).response
-                val replay = first.writeAttempt(owner.id, request, payload) { _, _, _ ->
+                val replay = first.exercises.writeAttempt(owner.id, request, payload) { _, _, _ ->
                     callbackCount.incrementAndGet()
                     error("saved pair-four attempt must replay before regeneration")
                 }
                 assertEquals(1, callbackCount.get())
                 assertEquals(response, assertIs<AttemptWriteResult.Existing>(replay).response)
-                assertEquals(response, second.findAttempt(owner.id, UUID.fromString(request.attemptId)))
-                assertNull(second.findAttempt(outsider.id, UUID.fromString(request.attemptId)))
+                assertEquals(response, second.exercises.findAttempt(owner.id, UUID.fromString(request.attemptId)))
+                assertNull(second.exercises.findAttempt(outsider.id, UUID.fromString(request.attemptId)))
             }
         }
 
-    private suspend fun fixture(repository: PostgresRepository): Fixture {
+    private suspend fun fixture(repository: PostgresStores): Fixture {
         val suffix = UUID.randomUUID().toString().replace("-", "")
-        val session = repository.createSession(suffix.repeat(2), Long.MAX_VALUE)
+        val session = repository.sessions.createSession(suffix.repeat(2), Long.MAX_VALUE)
         val exerciseId = UUID.randomUUID()
         val generated = PilotEngine().generate(GenerationRequest("E001", "G004", 19, 3))
         val exercise = StoredExercise(
@@ -599,7 +621,7 @@ class PostgresRepositoryTest {
             generated.toResponse(exerciseId.toString()),
             generated.reproductionFingerprint(),
         )
-        repository.insertExercise(exercise)
+        repository.exercises.insertExercise(exercise)
         val request = AttemptRequest(
             UUID.randomUUID().toString(),
             exerciseId.toString(),
@@ -609,7 +631,7 @@ class PostgresRepositoryTest {
         return Fixture(session, exercise, request, wireJson.encodeToString(AttemptRequest.serializer(), request))
     }
 
-    private fun practiceFixture(owner: SessionRecord, request: PracticeSessionRequest): NewPracticeSession {
+    private fun practiceFixture(owner: SessionPrincipal, request: PracticeSessionRequest): NewPracticeSession {
         val plan = PracticePlanner().plan(request.focusId, request.planRevision, request.seed)
         return NewPracticeSession(
             plan.title,
@@ -684,7 +706,7 @@ class PostgresRepositoryTest {
     }
 
     private fun setPracticeCursor(ownerId: UUID, practiceId: UUID, cursor: Int) {
-        DriverManager.getConnection(postgres.jdbcUrl, postgres.username, postgres.password).use { connection ->
+        PostgresTestDatabase.connect().use { connection ->
             connection.prepareStatement(
                 "UPDATE practice_sessions SET cursor = ? WHERE owner_session_id = ? AND practice_session_id = ?",
             ).use { statement ->
@@ -710,7 +732,7 @@ class PostgresRepositoryTest {
         val suffix = UUID.randomUUID().toString().replace("-", "")
         val function = "fail_practice_context_$suffix"
         val trigger = "practice_context_trigger_$suffix"
-        DriverManager.getConnection(postgres.jdbcUrl, postgres.username, postgres.password).use { connection ->
+        PostgresTestDatabase.connect().use { connection ->
             connection.createStatement().use { statement ->
                 statement.execute(
                     """CREATE FUNCTION $function() RETURNS trigger AS ${'$'}${'$'}
@@ -733,7 +755,7 @@ class PostgresRepositoryTest {
 
     private fun dropContextFailureTrigger(names: String) {
         val (trigger, function) = names.split(':')
-        DriverManager.getConnection(postgres.jdbcUrl, postgres.username, postgres.password).use { connection ->
+        PostgresTestDatabase.connect().use { connection ->
             connection.createStatement().use { statement ->
                 statement.execute("DROP TRIGGER IF EXISTS $trigger ON practice_attempt_context")
                 statement.execute("DROP FUNCTION IF EXISTS $function()")
@@ -742,7 +764,7 @@ class PostgresRepositoryTest {
     }
 
     private fun equalizePracticeAttemptTimes(ownerId: UUID, practiceId: UUID, position: Int) {
-        DriverManager.getConnection(postgres.jdbcUrl, postgres.username, postgres.password).use { connection ->
+        PostgresTestDatabase.connect().use { connection ->
             connection.prepareStatement(
                 """UPDATE attempts SET created_at = 1
                     WHERE session_id = ? AND attempt_id IN (
@@ -782,12 +804,12 @@ class PostgresRepositoryTest {
         createdAt,
     )
 
-    private fun withRepositories(block: suspend kotlinx.coroutines.CoroutineScope.(PostgresRepository, PostgresRepository) -> Unit) =
+    private fun withRepositories(block: suspend kotlinx.coroutines.CoroutineScope.(PostgresStores, PostgresStores) -> Unit) =
         runBlocking {
-            val config = postgres.config()
+            val config = PostgresTestDatabase.config()
             migrate(config)
-            val first = PostgresRepository.connect(config, wireJson)
-            val second = PostgresRepository.connect(config, wireJson)
+            val first = PostgresStores(Database.connect(config), wireJson)
+            val second = PostgresStores(Database.connect(config), wireJson)
             try {
                 block(first, second)
             } finally {
@@ -796,19 +818,13 @@ class PostgresRepositoryTest {
             }
         }
 
-    private fun PostgreSQLContainer.updateExerciseRevision(id: UUID, revision: String) {
-        DriverManager.getConnection(jdbcUrl, username, password).use { connection ->
+    private fun updateExerciseRevision(id: UUID, revision: String) {
+        PostgresTestDatabase.connect().use { connection ->
             connection.prepareStatement("UPDATE exercises SET content_revision = ? WHERE id = ?").use { statement ->
                 statement.setString(1, revision)
                 statement.setObject(2, id)
                 assertEquals(1, statement.executeUpdate())
             }
-        }
-    }
-
-    private fun PostgreSQLContainer.createDatabase(databaseName: String) {
-        DriverManager.getConnection(jdbcUrl, username, password).use { connection ->
-            connection.createStatement().use { statement -> statement.executeUpdate("CREATE DATABASE $databaseName") }
         }
     }
 
@@ -821,14 +837,8 @@ class PostgresRepositoryTest {
         generatorRevision,
     )
 
-    private fun PostgreSQLContainer.config(databaseName: String? = null) = ServerConfig(
-        true, false, null, false, false, emptySet(), emptySet(), 60_000, null,
-        databaseName?.let { "jdbc:postgresql://$host:${getMappedPort(5432)}/$it" } ?: jdbcUrl,
-        "r2dbc:postgresql://$host:${getMappedPort(5432)}/${databaseName ?: "astrid_test"}", username, password, 4,
-    )
-
     private data class Fixture(
-        val session: SessionRecord,
+        val session: SessionPrincipal,
         val exercise: StoredExercise,
         val request: AttemptRequest,
         val payload: String,
@@ -836,19 +846,5 @@ class PostgresRepositoryTest {
 
     private companion object {
         const val TIMEOUT_MILLIS = 10_000L
-        const val POSTGRES_IMAGE =
-            "postgres:18.6-alpine@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5"
-        val postgres: PostgreSQLContainer = PostgreSQLContainer(
-            DockerImageName.parse(POSTGRES_IMAGE).asCompatibleSubstituteFor("postgres"),
-        ).apply {
-            withDatabaseName("astrid_test")
-            withUsername("astrid")
-            withPassword("astrid")
-            start()
-        }
-
-        @JvmStatic
-        @AfterClass
-        fun stopPostgres() = postgres.stop()
     }
 }

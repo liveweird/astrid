@@ -20,7 +20,7 @@ complexity:
     functionThreshold: 10
     constructorThreshold: 14
     ignoreDataClasses: true
-  # Catalogues and cohesive boundary services (PilotEngine, ApiRoutes, PracticePlanner) are flat
+  # Catalogues and cohesive boundary services (PilotEngine, ExerciseRoutes, PracticePlanner) are flat
   # tables of small operations; splitting them by function count would fork one concern across files.
   # All sibling repos (flow, lettuce, toadie) disable this rule for the same reason.
   TooManyFunctions:

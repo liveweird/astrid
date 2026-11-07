@@ -82,7 +82,7 @@ For a user-visible feature, bump the minor application version; for a fix, bump 
 | Path | Responsibility |
 | --- | --- |
 | `engine/` | Pure Kotlin language content, validation, generation and grading; no HTTP/database dependencies |
-| `server/` | Ktor API (`application/problem+json` errors, hand-maintained spec at `server/src/main/resources/openapi/documentation.yaml`), public DTO mapping, session ownership, PostgreSQL and Flyway migrations |
+| `server/` | Ktor API (`application/problem+json` errors, hand-maintained spec at `server/src/main/resources/openapi/documentation.yaml`), PostgreSQL and Flyway migrations. Packages under `app.astrid.server`: the composition root (`Main`, `Application`, `Stores`, `PostgresStores`); `plugins/` (Ktor wiring: errors, compression, security headers, HTTP, SPA routing, health); `infra/` (`config`, `db` Flyway and pool, `json` wire format); `authz/` (typed HTTP exceptions, guards, the `SessionPrincipal`/`Authenticator` seam); then the features, one-way `session` < `exercises` < `practice` (each: DTOs, routes, store port, Postgres store). `exercises/` reaches practice state only through `AttemptPracticeHook`; `PackageBoundaryTest` enforces the layering |
 | `api-guidelines/` | Shared API rulebook and Spectral ruleset (copied from Flow, never edited here); Astrid's severity decisions live in `web/spectral.astrid.yaml` |
 | `web/` | React/Mantine shell, exercise controls, generated API types and interaction tests |
 | `e2e/` | Browser journeys against the assembled app |

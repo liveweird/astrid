@@ -1,6 +1,6 @@
 @file:Suppress("MagicNumber") // HTTP status codes.
 
-package app.astrid.server
+package app.astrid.server.authz
 
 internal open class ApiException(val status: Int, val code: String, override val message: String) : RuntimeException(message)
 internal class BadRequest(message: String) : ApiException(400, "bad_request", message)

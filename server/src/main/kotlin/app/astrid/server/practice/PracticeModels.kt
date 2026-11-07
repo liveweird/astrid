@@ -1,7 +1,13 @@
 @file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 
-package app.astrid.server
+package app.astrid.server.practice
 
+import app.astrid.server.exercises.AttemptAnswerDto
+import app.astrid.server.exercises.AttemptResponse
+import app.astrid.server.exercises.IntroductionDto
+import app.astrid.server.exercises.PracticeAttemptContextDto
+import app.astrid.server.exercises.PracticeCrossRunExposureDto
+import app.astrid.server.exercises.StoredExercise
 import java.util.UUID
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.Serializable

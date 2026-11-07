@@ -2,6 +2,12 @@
 
 package app.astrid.server
 
+import app.astrid.server.exercises.AttemptAnswerDto
+import app.astrid.server.exercises.AttemptRequest
+import app.astrid.server.infra.config.ServerConfig
+import app.astrid.server.infra.json.wireJson
+import app.astrid.server.plugins.ProblemJson
+import app.astrid.server.plugins.Readiness
 import com.atlassian.oai.validator.OpenApiInteractionValidator
 import com.atlassian.oai.validator.model.SimpleRequest
 import com.atlassian.oai.validator.model.SimpleResponse
@@ -213,7 +219,7 @@ class OpenApiContractTest {
     fun `spec parses and validates critical runtime responses`() = testApplication {
         val parse = OpenAPIV3Parser().readContents(rawSpec)
         assertNotNull(parse.openAPI, "OpenAPI parse failed: ${parse.messages}")
-        application { astridModule(config(inspectorKey = "k".repeat(32)), InMemoryAstridRepository()) }
+        application { astridModule(config(inspectorKey = "k".repeat(32)), InMemoryStores()) }
 
         val sessionResponse = client.post("/api/v1/development-session") {
             trustedHost()
@@ -398,7 +404,7 @@ class OpenApiContractTest {
 
     @Test
     fun `security and production mode responses conform to declared api statuses`() = testApplication {
-        application { astridModule(config(developmentMode = false), InMemoryAstridRepository()) }
+        application { astridModule(config(developmentMode = false), InMemoryStores()) }
         val forbiddenCatalog = client.get("/api/v1/catalog") {
             trustedHost()
             header(HttpHeaders.Origin, "https://attacker.example")
@@ -426,9 +432,9 @@ class OpenApiContractTest {
 
     @Test
     fun `creation responses carry a Location header and an unready service answers a problem`() = testApplication {
-        val repository = InMemoryAstridRepository()
-        val unready = object : AstridRepository by repository {
-            override suspend fun ready() = false
+        val repository = InMemoryStores()
+        val unready = object : Stores by repository {
+            override val readiness = Readiness { false }
         }
         application { astridModule(config(), unready) }
         val session = client.post("/api/v1/development-session") {

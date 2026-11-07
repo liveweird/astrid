@@ -1,0 +1,255 @@
+@file:Suppress("ThrowsCount") // Route validation maps each independent client fault to a safe problem.
+
+package app.astrid.server.exercises
+
+import app.astrid.engine.Answer
+import app.astrid.engine.Evaluation
+import app.astrid.engine.GeneratedExercise
+import app.astrid.engine.GenerationRequest
+import app.astrid.engine.PilotEngine
+import app.astrid.server.authz.Authenticator
+import app.astrid.server.authz.BadRequest
+import app.astrid.server.authz.Conflict
+import app.astrid.server.authz.EvaluationUnavailable
+import app.astrid.server.authz.NotFound
+import app.astrid.server.authz.caller
+import app.astrid.server.authz.parseStrictUuid
+import app.astrid.server.authz.requireInspectorKey
+import app.astrid.server.authz.requireMutationHeaders
+import app.astrid.server.authz.uuidParameter
+import app.astrid.server.infra.config.ServerConfig
+import app.astrid.server.infra.json.wireJson
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import java.nio.charset.StandardCharsets
+import java.util.UUID
+import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.encodeToString
+
+private const val MAX_IDENTIFIER_LENGTH = 32
+private const val MAX_REVISION_LENGTH = 64
+private const val MAX_GENERATION_INDEX = 1_000_000
+private const val MAX_TEXT_LENGTH = 512
+private const val MAX_BLOCK_COUNT = 16
+
+/** Catalog, playground exercises, attempts and the development inspector. */
+internal fun Route.exerciseRoutes(
+    config: ServerConfig,
+    exercises: ExerciseStore,
+    authenticator: Authenticator,
+    engine: PilotEngine,
+    evaluator: suspend (GeneratedExercise, Answer) -> Evaluation,
+) {
+    catalogRoute(authenticator, engine)
+    playgroundExerciseRoutes(exercises, authenticator, engine)
+    attemptRoutes(exercises, authenticator, engine, evaluator)
+    inspectorRoute(config, exercises, authenticator, engine)
+}
+
+private fun Route.catalogRoute(authenticator: Authenticator, engine: PilotEngine) {
+    get("/catalog") {
+        call.caller(authenticator)
+        val catalog = engine.catalog()
+        call.respond(
+            CatalogResponse(
+                catalog.contentRevision,
+                catalog.generatorRevision,
+                checkNotNull(engine.evaluationRevision(catalog.contentRevision, catalog.generatorRevision)) {
+                    "Catalog exposed an unsupported revision pair"
+                },
+                catalog.skills.map { SkillDto(it.id, it.title, it.explanation, it.prerequisiteIds) },
+                catalog.formats.map { format ->
+                    FormatDto(
+                        format.id,
+                        format.title,
+                        format.targetSkillId,
+                        format.lexicalTask?.let { LexicalTaskDto(it.facet, it.direction) },
+                        format.readingTask?.let { ReadingTaskDto(it.facet) },
+                    )
+                },
+                catalog.sentenceCount,
+            ),
+        )
+    }
+}
+
+private fun Route.playgroundExerciseRoutes(exercises: ExerciseStore, authenticator: Authenticator, engine: PilotEngine) {
+    post("/exercises") {
+        requireMutationHeaders(call)
+        val session = call.caller(authenticator)
+        val request = call.receive<ExerciseRequest>().validated()
+        val generated = generate(engine, request)
+        val id = UUID.randomUUID()
+        val presentation = generated.toResponse(id.toString())
+        exercises.insertExercise(request.toStored(id, session.id, presentation, generated.reproductionFingerprint()))
+        call.response.headers.append(HttpHeaders.Location, "/api/v1/exercises/$id")
+        call.respond(HttpStatusCode.Created, presentation)
+    }
+    get("/exercises/{id}") {
+        val session = call.caller(authenticator)
+        val stored = exercises.findExercise(session.id, call.uuidParameter("id")) ?: throw NotFound()
+        call.respond(stored.presentation)
+    }
+}
+
+private fun Route.attemptRoutes(
+    exercises: ExerciseStore,
+    authenticator: Authenticator,
+    engine: PilotEngine,
+    evaluator: suspend (GeneratedExercise, Answer) -> Evaluation,
+) {
+    post("/attempts") {
+        requireMutationHeaders(call)
+        val session = call.caller(authenticator)
+        val request = call.receive<AttemptRequest>().validated()
+        val result = exercises.writeAttemptWithPractice(
+            session.id,
+            request,
+            wireJson.encodeToString(request),
+        ) { stored, retry, time, practice ->
+            val context = practice?.toAttemptContext()
+            CreatedAttempt(evaluateAttempt(engine, evaluator, stored, request, retry, time), context)
+        }
+        when (result) {
+            is AttemptWriteResult.Created -> call.respond(result.response)
+            is AttemptWriteResult.Existing -> call.respond(result.response)
+            AttemptWriteResult.PayloadConflict -> throw Conflict("Attempt id was already used with a different payload")
+            AttemptWriteResult.ExerciseMissing -> throw NotFound("Exercise not found")
+            AttemptWriteResult.PracticePositionConflict -> throw Conflict("Practice item is no longer current")
+        }
+    }
+    get("/attempts/{id}") {
+        val session = call.caller(authenticator)
+        call.respond(exercises.findAttempt(session.id, call.uuidParameter("id")) ?: throw NotFound())
+    }
+}
+
+private fun Route.inspectorRoute(
+    config: ServerConfig,
+    exercises: ExerciseStore,
+    authenticator: Authenticator,
+    engine: PilotEngine,
+) {
+    get("/dev/exercises/{id}") {
+        if (!config.developmentMode || !config.inspectorEnabled) throw NotFound()
+        requireInspectorKey(call, config.inspectorKey!!)
+        val session = call.caller(authenticator)
+        val stored = exercises.findExercise(session.id, call.uuidParameter("id")) ?: throw NotFound()
+        call.respond(regenerateVerified(engine, stored).toInspector(stored.id.toString()))
+    }
+}
+
+@Suppress("TooGenericExceptionCaught") // Any engine failure is an unavailable grade; coroutine cancellation still propagates.
+private suspend fun evaluateAttempt(
+    engine: PilotEngine,
+    evaluator: suspend (GeneratedExercise, Answer) -> Evaluation,
+    stored: StoredExercise,
+    request: AttemptRequest,
+    retry: Int,
+    createdAt: Long,
+): AttemptResponse {
+    val generated = regenerateVerified(engine, stored)
+    request.answer.validateFor(generated.formatId, generated.prompt.blocks.map { it.id }.toSet())
+    val evaluation = try {
+        evaluator(generated, request.answer.toEngineAnswer())
+    } catch (cause: CancellationException) {
+        throw cause
+    } catch (cause: Exception) {
+        throw EvaluationUnavailable().apply { initCause(cause) }
+    }
+    return AttemptResponse(
+        request.attemptId,
+        request.exerciseId,
+        evaluation.targetStatus.wireValue,
+        evaluation.linguisticStatus.wireValue,
+        evaluation.issues.map { IssueDto(it.code, it.message) },
+        evaluation.feedback,
+        evaluation.completedSentence.orEmpty(),
+        checkNotNull(engine.evaluationRevision(generated.contentRevision, generated.generatorRevision)) {
+            "Regenerated exercise has an unsupported revision pair"
+        },
+        request.hintUsed,
+        retry,
+        createdAt,
+        evaluation.linguisticScope?.wireValue,
+        evaluation.responseConstraintStatus?.wireValue,
+        evaluation.meaningSatisfaction?.wireValue,
+    )
+}
+
+private fun ExerciseRequest.validated(): ExerciseRequest {
+    if (formatId.length !in 1..MAX_IDENTIFIER_LENGTH ||
+        (targetSkillId != null && targetSkillId.length !in 1..MAX_IDENTIFIER_LENGTH)) {
+        throw BadRequest("Invalid exercise identifiers")
+    }
+    if (contentRevision.length !in 1..MAX_REVISION_LENGTH || generatorRevision.length !in 1..MAX_REVISION_LENGTH) {
+        throw BadRequest("Invalid revision")
+    }
+    if (seed < 0 || index !in 0..MAX_GENERATION_INDEX) throw BadRequest("Invalid generation coordinates")
+    return this
+}
+
+private fun AttemptRequest.validated(): AttemptRequest {
+    parseStrictUuid(attemptId, "attemptId")
+    parseStrictUuid(exerciseId, "exerciseId")
+    when (val value = answer) {
+        is AttemptAnswerDto.Text -> {
+            if (!StandardCharsets.UTF_8.newEncoder().canEncode(value.text)) {
+                throw BadRequest("Text answer must contain well-formed Unicode")
+            }
+            if (value.text.codePointCount(0, value.text.length) > MAX_TEXT_LENGTH) {
+                throw BadRequest("Text answer is too long")
+            }
+        }
+        is AttemptAnswerDto.Order -> if (value.blockIds.size > MAX_BLOCK_COUNT ||
+            value.blockIds.any { it.length !in 1..MAX_REVISION_LENGTH }) throw BadRequest("Invalid block answer")
+    }
+    return this
+}
+
+private fun AttemptAnswerDto.validateFor(formatId: String, expectedBlocks: Set<String>) {
+    if (formatId == "E003" && this !is AttemptAnswerDto.Order) throw BadRequest("This exercise requires an order answer")
+    if (formatId != "E003" && this !is AttemptAnswerDto.Text) throw BadRequest("This exercise requires a text answer")
+    if (this is AttemptAnswerDto.Order && (blockIds.size != expectedBlocks.size || blockIds.toSet() != expectedBlocks)) {
+        throw BadRequest("The answer must contain every supplied block exactly once")
+    }
+}
+
+private fun generate(engine: PilotEngine, request: ExerciseRequest) =
+    if (engine.evaluationRevision(request.contentRevision, request.generatorRevision) == null) {
+        throw Conflict("Unsupported content or generator revision")
+    } else try {
+        engine.generate(request.toGenerationRequest())
+    } catch (cause: IllegalArgumentException) {
+        throw BadRequest(cause.message ?: "Invalid generation request").apply { initCause(cause) }
+    }
+
+private fun regenerate(engine: PilotEngine, stored: StoredExercise) = try {
+    engine.generate(stored.toGenerationRequest())
+} catch (cause: IllegalArgumentException) {
+    throw Conflict("Exercise revision is no longer supported").apply { initCause(cause) }
+}
+
+internal fun regenerateVerified(engine: PilotEngine, stored: StoredExercise) = regenerate(engine, stored).also { generated ->
+    if (generated.reproductionFingerprint() != stored.reproductionFingerprint) {
+        throw Conflict("Exercise reproduction no longer matches its stored presentation")
+    }
+}
+
+private fun ExerciseRequest.toGenerationRequest() =
+    GenerationRequest(formatId, targetSkillId, seed, index, contentRevision, generatorRevision)
+
+private fun StoredExercise.toGenerationRequest() =
+    GenerationRequest(formatId, targetSkillId, seed, index, contentRevision, generatorRevision)
+
+private fun ExerciseRequest.toStored(
+    id: UUID,
+    sessionId: UUID,
+    presentation: ExerciseResponse,
+    fingerprint: String,
+) = StoredExercise(id, sessionId, formatId, targetSkillId, seed, index, contentRevision, generatorRevision, presentation, fingerprint)

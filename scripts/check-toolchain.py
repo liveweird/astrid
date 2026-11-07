@@ -34,7 +34,7 @@ for path in (root / ".github/workflows").glob("*.yml"):
 postgres_paths = (
     "compose.yaml",
     "k8s/postgres.yaml",
-    "server/src/test/kotlin/app/astrid/server/PostgresRepositoryTest.kt",
+    "server/src/test/kotlin/app/astrid/server/PostgresTestDatabase.kt",
 )
 postgres_pins = []
 for name in postgres_paths:

@@ -1,5 +1,6 @@
-package app.astrid.server
+package app.astrid.server.infra.db
 
+import app.astrid.server.infra.config.ServerConfig
 import org.flywaydb.core.Flyway
 import org.postgresql.ds.PGSimpleDataSource
 

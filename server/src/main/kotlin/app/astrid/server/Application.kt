@@ -1,36 +1,43 @@
 package app.astrid.server
 
-import app.astrid.engine.PilotEngine
 import app.astrid.engine.Answer
 import app.astrid.engine.Evaluation
 import app.astrid.engine.GeneratedExercise
-import io.ktor.serialization.kotlinx.json.json
+import app.astrid.engine.PilotEngine
+import app.astrid.server.exercises.exerciseRoutes
+import app.astrid.server.infra.config.ServerConfig
+import app.astrid.server.plugins.healthRoutes
+import app.astrid.server.plugins.installHttp
+import app.astrid.server.plugins.installProblemHandling
+import app.astrid.server.plugins.installSecurityHeadersAndGuards
+import app.astrid.server.plugins.installStaticCompression
+import app.astrid.server.plugins.staticRoutes
+import app.astrid.server.practice.practiceRoutes
+import app.astrid.server.session.DevelopmentSessionAuthenticator
+import app.astrid.server.session.sessionRoutes
 import io.ktor.server.application.Application
-import io.ktor.server.application.install
-import io.ktor.server.plugins.bodylimit.RequestBodyLimit
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
-import kotlinx.serialization.json.Json
-
-internal const val MAX_BODY_BYTES = 16L * 1024
-
-val wireJson = Json {
-    ignoreUnknownKeys = false
-    explicitNulls = false
-    encodeDefaults = true
-}
 
 fun Application.astridModule(
     config: ServerConfig = ServerConfig.fromEnvironment(),
-    repository: AstridRepository,
+    stores: Stores,
     engine: PilotEngine = PilotEngine(),
     evaluator: suspend (GeneratedExercise, Answer) -> Evaluation = engine::evaluate,
     clock: () -> Long = System::currentTimeMillis,
 ) {
-    install(ContentNegotiation) { json(wireJson) }
-    install(RequestBodyLimit) { bodyLimit { MAX_BODY_BYTES } }
+    installHttp()
     installStaticCompression()
     installProblemHandling()
     installSecurityHeadersAndGuards(config)
-    routing { astridRoutes(config, repository, engine, evaluator, clock) }
+    val authenticator = DevelopmentSessionAuthenticator(config, stores.sessions, clock)
+    routing {
+        route("/api/v1") {
+            healthRoutes(stores.readiness)
+            sessionRoutes(config, stores.sessions, clock)
+            exerciseRoutes(config, stores.exercises, authenticator, engine, evaluator)
+            practiceRoutes(stores.practice, authenticator, engine)
+        }
+        staticRoutes(config)
+    }
 }

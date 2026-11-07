@@ -2,6 +2,7 @@ package app.astrid.server
 
 import app.astrid.engine.GenerationRequest
 import app.astrid.engine.PilotEngine
+import app.astrid.server.exercises.reproductionFingerprint
 import java.security.MessageDigest
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -1,5 +1,11 @@
 package app.astrid.server
 
+import app.astrid.server.infra.json.wireJson
+import app.astrid.server.practice.PracticeItemDto
+import app.astrid.server.practice.PracticeItemPayload
+import app.astrid.server.practice.PracticePlanPayload
+import app.astrid.server.practice.PracticeSessionResponse
+import app.astrid.server.practice.PracticeSummaryDto
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

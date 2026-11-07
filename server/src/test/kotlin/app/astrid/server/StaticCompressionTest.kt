@@ -1,5 +1,10 @@
 package app.astrid.server
 
+import app.astrid.server.authz.BadRequest
+import app.astrid.server.authz.NotFound
+import app.astrid.server.infra.config.ServerConfig
+import app.astrid.server.plugins.STATIC_COMPRESSION_MIN_BYTES
+import app.astrid.server.session.SESSION_COOKIE
 import io.ktor.client.request.cookie
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -28,7 +33,7 @@ class StaticCompressionTest {
     @Test
     fun `large javascript and css use gzip without changing their decoded representation`() = withFixture { fixture ->
         testApplication {
-            application { astridModule(config(fixture.root.path), InMemoryAstridRepository()) }
+            application { astridModule(config(fixture.root.path), InMemoryStores()) }
 
             val script = client.get("/assets/app.js") { encodedWith("gzip") }
             assertEquals(HttpStatusCode.OK, script.status)
@@ -57,7 +62,7 @@ class StaticCompressionTest {
     @Test
     fun `quality negotiation and the size threshold retain identity when appropriate`() = withFixture { fixture ->
         testApplication {
-            application { astridModule(config(fixture.root.path), InMemoryAstridRepository()) }
+            application { astridModule(config(fixture.root.path), InMemoryStores()) }
 
             val identity = client.get("/assets/app.js") { encodedWith("gzip;q=0.5, identity;q=1") }
             assertNull(identity.headers[HttpHeaders.ContentEncoding])
@@ -87,7 +92,7 @@ class StaticCompressionTest {
     @Test
     fun `html fonts images api responses and errors are never compressed`() = withFixture { fixture ->
         testApplication {
-            application { astridModule(config(fixture.root.path), InMemoryAstridRepository()) }
+            application { astridModule(config(fixture.root.path), InMemoryStores()) }
 
             val index = client.get("/") { encodedWith("gzip") }
             assertEquals(ContentType.Text.Html, index.contentType()?.withoutParameters())
@@ -135,7 +140,7 @@ class StaticCompressionTest {
 
     @Test
     fun `compression remains response only and does not decode request bodies`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
 
         val plain = client.post("/api/v1/development-session") {
             trustedHost()

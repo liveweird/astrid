@@ -1,14 +1,12 @@
-@file:Suppress("ThrowsCount")
-
-package app.astrid.server
+package app.astrid.server.practice
 
 import app.astrid.engine.GeneratedExercise
 import app.astrid.engine.LinguisticStatus
+import app.astrid.engine.PilotEngine
 import app.astrid.engine.PracticeAttemptContext
+import app.astrid.engine.PracticeExposureSource
 import app.astrid.engine.PracticeFollowUpPlanner
 import app.astrid.engine.PracticeFollowUpSourceItem
-import app.astrid.engine.PracticeExposureSource
-import app.astrid.engine.PracticePlanner
 import app.astrid.engine.PracticePriorExposure
 import app.astrid.engine.PracticeSummaryAttemptObservation
 import app.astrid.engine.PracticeSummaryCalculator
@@ -16,121 +14,30 @@ import app.astrid.engine.PracticeSummarySnapshotItemObservation
 import app.astrid.engine.PracticeTargetDescriptor
 import app.astrid.engine.ResponseConstraintStatus
 import app.astrid.engine.TargetStatus
-import app.astrid.engine.PilotEngine
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.request.header
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
+import app.astrid.server.authz.Conflict
+import app.astrid.server.authz.NotFound
+import app.astrid.server.exercises.IntroductionDto
+import app.astrid.server.exercises.LexicalTargetDto
+import app.astrid.server.exercises.PracticeAttemptContextDto
+import app.astrid.server.exercises.PracticeCrossRunExposureDto
+import app.astrid.server.exercises.StoredExercise
+import app.astrid.server.exercises.frozenFeedbackExposureKeys
+import app.astrid.server.exercises.regenerateVerified
+import app.astrid.server.exercises.reproductionFingerprint
+import app.astrid.server.exercises.toResponse
 import java.util.UUID
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.Serializable
 
-private const val PRACTICE_OWNER_HEADER = "X-Astrid-Practice-Owner"
-private const val PRACTICE_FOCUS = "reading-basics"
-private const val PRACTICE_REVISION = "practice-1"
-private const val PRACTICE_ITEM_COUNT = 8
-private const val FOLLOW_UP_REVISION = "follow-up-1"
-private const val PRESENT_VERBS_FOCUS = "present-verbs"
-private const val PRESENT_VERBS_REVISION = "present-verbs-1"
-private const val PRESENT_VERBS_FOLLOW_UP_REVISION = "follow-up-2"
+internal const val PRACTICE_FOCUS = "reading-basics"
+internal const val PRACTICE_REVISION = "practice-1"
+internal const val PRACTICE_ITEM_COUNT = 8
+internal const val FOLLOW_UP_REVISION = "follow-up-1"
+internal const val PRESENT_VERBS_FOCUS = "present-verbs"
+internal const val PRESENT_VERBS_REVISION = "present-verbs-1"
+internal const val PRESENT_VERBS_FOLLOW_UP_REVISION = "follow-up-2"
 private const val TARGETED_REVIEW_FOCUS = "targeted-review"
+private const val INTRODUCTION_POSITION = -1
 
-internal fun Route.practiceRoutes(
-    config: ServerConfig,
-    repository: AstridRepository,
-    engine: PilotEngine,
-    clock: () -> Long,
-) {
-    val planner = PracticePlanner(engine)
-    practiceProfilesRoute(config, repository, planner, clock)
-    get("/practice-context") {
-        val owner = requirePracticeSession(call, config, repository, clock)
-        val plan = planner.plan(PRACTICE_FOCUS, PRACTICE_REVISION, 0)
-        call.respond(
-            PracticeContextResponse(
-                owner.id.toString(), owner.expiresAt, plan.focusId, plan.title, plan.planRevision, plan.items.size,
-            ),
-        )
-    }
-    post("/practice-sessions") {
-        requireMutationHeaders(call)
-        val owner = requirePracticeSession(call, config, repository, clock)
-        requirePracticeOwner(call, owner.id)
-        val request = call.receive<PracticeSessionRequest>().validated()
-        val result = repository.createPracticeSession(owner, request, wireJson.encodeToString(request)) {
-            val plan = try {
-                planner.plan(request.focusId, request.planRevision, request.seed)
-            } catch (cause: IllegalArgumentException) {
-                throw Conflict(cause.message ?: "Unsupported practice plan").apply { initCause(cause) }
-            }
-            plan.toNewPracticeSession(owner.id)
-        }
-        when (result) {
-            is PracticeCreateResult.Created -> {
-                call.response.headers.append(HttpHeaders.Location, "/api/v1/practice-sessions/${result.session.id}")
-                call.respond(HttpStatusCode.Created, result.session.toResponse())
-            }
-            is PracticeCreateResult.Existing -> call.respond(result.session.toResponse())
-            PracticeCreateResult.RequestConflict -> throw Conflict("Practice session id was already used with a different request")
-            PracticeCreateResult.SourceMissing, PracticeCreateResult.SourceActive -> error("Initial practice has no source")
-        }
-    }
-    followUpRoute(config, repository, engine, clock)
-    get("/practice-sessions/{id}") {
-        val owner = requirePracticeSession(call, config, repository, clock)
-        val stored = repository.findPracticeSession(owner.id, call.practiceId()) ?: throw NotFound()
-        call.respond(stored.toResponse())
-    }
-    post("/practice-sessions/{id}/support") {
-        requireMutationHeaders(call)
-        val owner = requirePracticeSession(call, config, repository, clock)
-        requirePracticeOwner(call, owner.id)
-        val request = call.receive<PracticeSupportRequest>().validated()
-        call.respond(repository.openPracticeSupport(owner.id, call.practiceId(), request).response())
-    }
-    post("/practice-sessions/{id}/advance") {
-        requireMutationHeaders(call)
-        val owner = requirePracticeSession(call, config, repository, clock)
-        requirePracticeOwner(call, owner.id)
-        val request = call.receive<PracticeAdvanceRequest>()
-        if (request.position !in 0 until PRACTICE_ITEM_COUNT) throw BadRequest("Invalid practice position")
-        call.respond(repository.advancePracticeSession(owner.id, call.practiceId(), request.position).response())
-    }
-}
-
-private fun Route.practiceProfilesRoute(
-    config: ServerConfig,
-    repository: AstridRepository,
-    planner: PracticePlanner,
-    clock: () -> Long,
-) {
-    get("/practice-profiles") {
-        val owner = requirePracticeSession(call, config, repository, clock)
-        call.respond(
-            PracticeProfilesResponse(
-                owner.id.toString(),
-                owner.expiresAt,
-                planner.profiles().map { profile ->
-                    PracticeProfileDto(
-                        profile.focusId,
-                        profile.planRevision,
-                        profile.title,
-                        profile.description,
-                        profile.itemCount,
-                        profile.prerequisiteSkillIds,
-                    )
-                },
-            ),
-        )
-    }
-}
-
-private fun app.astrid.engine.PracticePlan.toNewPracticeSession(ownerId: UUID) = NewPracticeSession(
+internal fun app.astrid.engine.PracticePlan.toNewPracticeSession(ownerId: UUID) = NewPracticeSession(
     title,
     contentRevision,
     generatorRevision,
@@ -153,36 +60,7 @@ private fun app.astrid.engine.PracticePlan.toNewPracticeSession(ownerId: UUID) =
     },
 )
 
-private fun Route.followUpRoute(
-    config: ServerConfig,
-    repository: AstridRepository,
-    engine: PilotEngine,
-    clock: () -> Long,
-) {
-    post("/practice-sessions/{id}/follow-ups") {
-        requireMutationHeaders(call)
-        val owner = requirePracticeSession(call, config, repository, clock)
-        requirePracticeOwner(call, owner.id)
-        val sourceId = call.practiceId()
-        val request = call.receive<PracticeFollowUpRequest>().validated(sourceId)
-        val identity = wireJson.encodeToString(PracticeFollowUpCreationIdentity(sourceId.toString(), request))
-        val result = repository.createPracticeFollowUp(owner, sourceId, request, identity) { source ->
-            source.toFollowUp(request, sourceId, owner.id, engine)
-        }
-        when (result) {
-            is PracticeCreateResult.Created -> {
-                call.response.headers.append(HttpHeaders.Location, "/api/v1/practice-sessions/${result.session.id}")
-                call.respond(HttpStatusCode.Created, result.session.toResponse())
-            }
-            is PracticeCreateResult.Existing -> call.respond(result.session.toResponse())
-            PracticeCreateResult.RequestConflict -> throw Conflict("Practice session id was already used with a different request")
-            PracticeCreateResult.SourceMissing -> throw NotFound("Source practice session not found")
-            PracticeCreateResult.SourceActive -> throw Conflict("Complete the source practice before starting a review")
-        }
-    }
-}
-
-private fun StoredPracticeSession.toFollowUp(
+internal fun StoredPracticeSession.toFollowUp(
     request: PracticeFollowUpRequest,
     sourceId: UUID,
     ownerId: UUID,
@@ -254,60 +132,7 @@ private fun StoredPracticeSession.requirePresentVerbFollowUpSource() {
     }
 }
 
-private suspend fun requirePracticeSession(
-    call: ApplicationCall,
-    config: ServerConfig,
-    repository: AstridRepository,
-    clock: () -> Long,
-): SessionRecord = requireSession(call, config, repository, clock)
-
-private fun requirePracticeOwner(call: ApplicationCall, expected: UUID) {
-    val raw = call.request.header(PRACTICE_OWNER_HEADER) ?: throw BadRequest("Practice owner header is required")
-    val supplied = parseStrictUuid(raw, "practice owner")
-    if (supplied != expected) throw Conflict("Practice owner does not match the authenticated session")
-}
-
-private fun PracticeSessionRequest.validated(): PracticeSessionRequest {
-    parseStrictUuid(practiceSessionId, "practiceSessionId")
-    val supported =
-        (focusId == PRACTICE_FOCUS && planRevision == PRACTICE_REVISION) ||
-            (focusId == PRESENT_VERBS_FOCUS && planRevision == PRESENT_VERBS_REVISION)
-    if (!supported) throw Conflict("Unsupported practice plan")
-    if (seed < 0) throw BadRequest("Invalid practice seed")
-    return this
-}
-
-private fun PracticeFollowUpRequest.validated(sourceId: UUID): PracticeFollowUpRequest {
-    val id = parseStrictUuid(practiceSessionId, "practiceSessionId")
-    if (id == sourceId) throw Conflict("Follow-up practice must use a new session id")
-    if (planRevision != FOLLOW_UP_REVISION && planRevision != PRESENT_VERBS_FOLLOW_UP_REVISION) {
-        throw Conflict("Unsupported follow-up practice plan")
-    }
-    if (seed < 0) throw BadRequest("Invalid practice seed")
-    if (targetKeys.isEmpty() || targetKeys.size > PRACTICE_ITEM_COUNT || targetKeys.toSet().size != targetKeys.size) {
-        throw BadRequest("Follow-up target keys must contain 1 to 8 distinct values")
-    }
-    if (targetKeys.any { it.isBlank() || it.length > MAX_TARGET_KEY_LENGTH }) {
-        throw BadRequest("Invalid follow-up target key")
-    }
-    return this
-}
-
-private fun PracticeSupportRequest.validated(): PracticeSupportRequest {
-    when (kind) {
-        "introduction" -> if (position != null) throw BadRequest("Introduction support must not include a position")
-        "lesson", "hint" -> if (position !in 0 until PRACTICE_ITEM_COUNT) {
-            throw BadRequest("Item support requires a valid position")
-        }
-        else -> throw BadRequest("Invalid practice support kind")
-    }
-    return this
-}
-
-private fun ApplicationCall.practiceId(): UUID =
-    parameters["id"]?.let { parseStrictUuid(it, "id") } ?: throw BadRequest("Invalid id")
-
-private fun PracticeMutationResult.response() = when (this) {
+internal fun PracticeMutationResult.response() = when (this) {
     is PracticeMutationResult.Success -> session.toResponse()
     PracticeMutationResult.Missing -> throw NotFound()
     PracticeMutationResult.Conflict -> throw Conflict("Practice operation conflicts with current progress")
@@ -326,7 +151,7 @@ private fun GeneratedExercise.toStoredPractice(id: UUID, ownerSessionId: UUID) =
     reproductionFingerprint(),
 )
 
-private fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
+internal fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
     val summary = PracticeSummaryCalculator.calculate(
         items.size,
         introductionOpened,
@@ -452,15 +277,6 @@ private fun StoredPracticeSession.sourceExposureSnapshot(): List<PracticeCrossRu
         PracticeCrossRunExposureDto(origin.first, origin.second, origin.third, witnesses.flatMap { it.keys })
     }
 }
-
-@Serializable
-private data class PracticeFollowUpCreationIdentity(
-    val sourcePracticeSessionId: String,
-    val request: PracticeFollowUpRequest,
-)
-
-private const val MAX_TARGET_KEY_LENGTH = 160
-private const val INTRODUCTION_POSITION = -1
 
 private fun app.astrid.engine.PracticeSummary.toDto(includeRows: Boolean) = PracticeSummaryDto(
     plannedItems, attemptedItems, completedItems, attemptCount, retryCount, introductionOpened,

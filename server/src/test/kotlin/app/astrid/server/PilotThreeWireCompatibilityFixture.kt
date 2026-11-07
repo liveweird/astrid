@@ -2,6 +2,10 @@ package app.astrid.server
 
 import app.astrid.engine.GenerationRequest
 import app.astrid.engine.PilotEngine
+import app.astrid.server.exercises.reproductionFingerprint
+import app.astrid.server.exercises.toInspector
+import app.astrid.server.exercises.toResponse
+import app.astrid.server.infra.json.wireJson
 import java.security.MessageDigest
 import kotlinx.serialization.encodeToString
 

@@ -98,10 +98,12 @@ kover {
                 // grows, never lowered. Re-measure with `:server:koverXmlReport` (`check` runs only
                 // koverVerify, which reports pass/fail, not the actual).
                 // 2026-11-07, scaffold alignment: actual 94.89% -> floor 94.
-                minBound(94)
+                // 2026-11-08, server package split + store contract suite: actual 97.49% -> floor 97.
+                minBound(97)
                 // Branch-coverage floor, same rule.
                 // 2026-11-07, scaffold alignment: actual 72.32% -> floor 72.
-                minBound(72, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
+                // 2026-11-08, server package split + store contract suite: actual 76.35% -> floor 76.
+                minBound(76, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
             }
         }
     }
