@@ -2,11 +2,11 @@ import {
   ActionIcon, AppShell, Box, Burger, Divider, Group, NavLink, ScrollArea, Text, Tooltip,
   useComputedColorScheme, useMantineColorScheme,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
   IconFlask, IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand, IconMoon, IconSun,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Playground from "./Playground";
 import BrandMark from "./components/BrandMark";
 import classes from "./theme.module.css";
@@ -18,9 +18,13 @@ function storedRail() {
 export default function App() {
   const [opened, { toggle, close }] = useDisclosure();
   const [collapsed, setCollapsed] = useState(storedRail);
+  const desktop = useMediaQuery("(min-width: 48em)");
   const { setColorScheme } = useMantineColorScheme();
   const colorScheme = useComputedColorScheme("light", { getInitialValueInEffect: false });
-  const rail = collapsed && !opened;
+  const rail = collapsed && (desktop || !opened);
+  useEffect(() => {
+    if (desktop) close();
+  }, [close, desktop]);
   const changeRail = () => {
     const next = !collapsed;
     setCollapsed(next);
@@ -37,9 +41,25 @@ export default function App() {
         <a href="#main-content" className="skip-link">Skip to learning exercise</a>
         <Group h="3rem" px={{ base: "xs", sm: "md" }} justify="space-between" wrap="nowrap">
           <Group gap="sm" wrap="nowrap">
-            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" aria-label="Toggle navigation" />
+            <Burger
+              opened={opened}
+              onClick={toggle}
+              hiddenFrom="sm"
+              size="sm"
+              aria-label="Toggle navigation"
+              aria-expanded={opened}
+              aria-controls="primary-navigation"
+            />
             <Tooltip label={collapsed ? "Expand navigation" : "Collapse navigation"} position="right">
-              <ActionIcon visibleFrom="sm" variant="subtle" color="gray" onClick={changeRail} aria-label="Toggle navigation width">
+              <ActionIcon
+                visibleFrom="sm"
+                variant="subtle"
+                color="gray"
+                onClick={changeRail}
+                aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+                aria-expanded={!collapsed}
+                aria-controls="primary-navigation"
+              >
                 {collapsed ? <IconLayoutSidebarLeftExpand size={18} /> : <IconLayoutSidebarLeftCollapse size={18} />}
               </ActionIcon>
             </Tooltip>
@@ -58,7 +78,7 @@ export default function App() {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="xs">
+      <AppShell.Navbar id="primary-navigation" p="xs" data-mobile-opened={opened || undefined}>
         <AppShell.Section grow component={ScrollArea}>
           {!rail && <Text size="xs" fw={650} c="dimmed" px="sm" py="xs">Learn Danish</Text>}
           <NavLink
@@ -67,6 +87,7 @@ export default function App() {
             leftSection={<IconFlask size={19} stroke={1.6} />}
             aria-label="Engine playground"
             className={rail ? classes.railLink : undefined}
+            href="#main-content"
             onClick={close}
           />
         </AppShell.Section>

@@ -23,6 +23,12 @@
   letter-spacing: -0.02em;
 }
 
+@media (max-width: 47.99em) {
+  .appNavbar:not([data-mobile-opened]) {
+    visibility: hidden;
+  }
+}
+
 @media (max-width: 30em) {
   .narrowBrandLabel {
     display: none;

@@ -36,4 +36,28 @@ describe("App theme", () => {
     await waitFor(() => expect(document.documentElement).toHaveAttribute("data-mantine-color-scheme", "light"));
     expect(screen.getByRole("button", { name: "Use dark theme" })).toBeVisible();
   });
+
+  it("exposes native navigation semantics and the burger state", async () => {
+    localStorage.setItem("astrid.viewSettings.appShell.navCollapsed", "true");
+    render(
+      <MantineProvider env="test" theme={theme} cssVariablesResolver={cssVariablesResolver}>
+        <App />
+      </MantineProvider>,
+    );
+
+    const navigation = screen.getByRole("navigation");
+    const burger = screen.getByLabelText("Toggle navigation");
+    expect(navigation).toHaveAttribute("id", "primary-navigation");
+    expect(screen.getByRole("link", { name: "Engine playground" })).toHaveAttribute("href", "#main-content");
+    expect(burger).toHaveAttribute("aria-controls", "primary-navigation");
+    expect(burger).toHaveAttribute("aria-expanded", "false");
+    const railToggle = screen.getByLabelText("Expand navigation");
+    expect(railToggle).toHaveAttribute("aria-controls", "primary-navigation");
+    expect(railToggle).toHaveAttribute("aria-expanded", "false");
+
+    await userEvent.click(burger);
+
+    expect(burger).toHaveAttribute("aria-expanded", "true");
+    expect(navigation).toHaveAttribute("data-mobile-opened");
+  });
 });
