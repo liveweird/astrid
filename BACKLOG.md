@@ -1,22 +1,14 @@
 # Project Backlog
 
-Work planning for the Danish learning app. Updated 7 November 2026. The engine playground baseline is delivered and pushed. Pilot hardening is delivered; current work is the user-authorized foundation source review and remaining overnight verification.
+Work planning for the Danish learning app. Updated 7 November 2026. The private engine playground and verified hardening are delivered and pushed. Current priority is user feedback and Danish teaching review; broader content and media remain later work.
 
 Statuses follow the [working agreement](docs/knowledge/working-agreement.md). The ordering below is an initial proposed sequence; it does not imply the user has approved the assistant's design proposals.
 
 ## [next]
 
-- **BL-033 — Reuse static response compression.** The [measured transport gap](docs/knowledge/static-delivery.md) shows the deployed JavaScript/CSS totals 769299 bytes and ignores gzip negotiation; Flow already uses Ktor Compression. Reuse the pinned plugin for eligible static text, preserve decoded bytes/cache/security behavior, verify negotiation and complete browser/CI/Git delivery. This is transport hardening within the existing pilot.
-
-
-
-
-- **BL-026 — Recover visibly from a stalled runtime database.** A separately owned QA stack reproduced a submission still waiting after 35 seconds while PostgreSQL was paused. Browser waiting/cancellation fixes, independent review, real outage/restart/replay and isolated restore checks passed. Complete final CI, preview promotion and ownership-scoped QA cleanup. Do not equate a browser timeout with a known rollback or an assured server cleanup deadline.
-
+- **BL-031 — Review the playable engine before extending it.** Use the [walkthrough](docs/knowledge/pilot-review-guide.md) to capture user feedback on target difficulty, sentence variation, grammar explanations, feedback and interaction. Choose the next bounded operation with that evidence; the [recall/repair proposal](docs/knowledge/exercise-extension-proposal.md) remains unadopted. Complete when feedback and an agreed next iteration are recorded.
 
 ## [todo]
-
-- **BL-031 — Review the playable engine before extending it.** Use the [walkthrough](docs/knowledge/pilot-review-guide.md) to capture user feedback on target difficulty, sentence variation, grammar explanations, feedback and interaction. Choose the next bounded operation with that evidence; the [recall/repair proposal](docs/knowledge/exercise-extension-proposal.md) remains unadopted. Complete when feedback and an agreed next iteration are recorded.
 
 - **BL-022 — Validate and extend the Danish foundation drafts.** Review the [grammar map](docs/knowledge/danish-grammar-map.md), [construction catalogue](docs/knowledge/danish-sentence-catalogue.md), and pilot content for teaching order, linguistic naturalness, valency, accepted variants, and documented coverage gaps. Arrange appropriate Danish teaching review before labeling content specialist-approved; source and independent agent checks do not confer that status. Preserve stable IDs and add regression examples for corrected rules. The source-backed pass and [coverage crosswalk](docs/knowledge/foundation-coverage.md) are complete as drafts. A [proposed specialist handoff](docs/knowledge/pilot-teaching-review.md) now specifies the packet, live teaching-unit review, issue records and revision safeguards; no engagement or approval is arranged. Teaching review and concrete content activation remain outstanding.
 - **BL-025 — Resolve resource adoption and corpus gaps.** The [morphology](docs/knowledge/danish-resource-assessment.md), [usage](docs/knowledge/frequency-and-usage-resources.md) and [bilingual](docs/knowledge/bilingual-resources.md) assessments now distinguish candidate coverage, editions, terms and mapping limits. Before any import, select the intended use/distribution, clarify conditional rights, pin releases and decide how authored English senses and upstream derivation are reviewed. COR and the [candidate crosswalk](docs/knowledge/cor-pilot-crosswalk.md) remain unadopted.
@@ -47,6 +39,9 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 No active work is currently blocked. Git writes and remote access succeeded through approved escalated commands; the foundation delivery is complete. Use the applicable approval mechanism for future Git operations that exceed the workspace sandbox.
 
 ## Completed work
+
+- **7 November 2026 — BL-033, static delivery:** Reused Flow's pinned response-compression module in focused commits through `e5fbcdf`, merged/pushed after all five [branch CI jobs](https://github.com/liveweird/astrid/actions/runs/42343476526) passed. All 33 server tests, strict checks, independent review, both local 38-journey matrices and the actual image scan passed. The [same asset bodies](docs/knowledge/static-delivery.md) transfer in 196,394 rather than 769,299 bytes; the upgraded main preview passed byte/negotiation checks and both-browser format smoke tests.
+- **7 November 2026 — BL-026, runtime recovery:** Delivered foreground deadlines, preserved readiness cancellation and exact uncertain-attempt replay through `3ca0533`, with all branch/master CI jobs passing. Verified real outage, expiry, idle/resume, restart, post-commit response loss, isolated restore and saturated-pool continuity. [Owned QA cleanup](docs/knowledge/runtime-recovery.md#owned-qa-cleanup) removed only temporary containers/data/network and preserved the main database. Server cleanup/termination budgets remain the separate BL-032 proposal.
 
 - **7 November 2026 — BL-027, BL-028 and BL-030:** Delivered Unicode replay validation, rendering-engine coverage, enlarged/short-window reflow and keyboard recovery focus through `3ca0533`, merged/pushed to master. All five [branch](https://github.com/liveweird/astrid/actions/runs/42340567827) and [master CI jobs](https://github.com/liveweird/astrid/actions/runs/42341038761) passed, including 38 browser journeys without retries. Local checks also passed 44 frontend tests, 80 repeated keyboard selections and 12 real-PostgreSQL Unicode cases. See [keyboard](docs/knowledge/keyboard-navigation.md), [reflow](docs/knowledge/text-resize-reflow.md) and [Unicode evidence](docs/knowledge/unicode-input-boundary.md).
 
