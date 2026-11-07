@@ -33,3 +33,6 @@ The user has established continuous documentation as a standing project rule. Ca
 The [backlog](../../BACKLOG.md) owns work status and priority. The first grammar map and construction catalogue are drafted, with a connected beginner seed and worked exercise specification. The user has now authorized the engine playground. Its scope and operational boundaries are recorded in [implementation decisions](implementation-decisions.md), with the concrete [Flow reuse manifest](flow-reuse-manifest.md). Linguistic teaching review remains separate from software validation.
 
 The broad language map and the small validation subset serve different purposes. A complete language implementation is not a prerequisite for validating the engine.
+
+- [Playground delivery](playground-delivery.md): observed baseline implementation and validation evidence.
+- [Pilot hardening plan](pilot-hardening-plan.md): authorized overnight reliability, content-integrity and accessibility work.

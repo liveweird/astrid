@@ -12,6 +12,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [todo]
 
+- **BL-024 — Harden the pilot after its first delivery.** Authorized overnight continuation through at least 08:00 Europe/Warsaw on 7 November. Close measured accessibility and interaction gaps, exercise engine/API edge cases and historical replay, strengthen content validation and reproducible quality gates. Preserve the pilot scope and independent review; complete with focused commits and observed validation evidence.
+
 - **BL-004 — Define the teaching vocabulary subset.** A [23-entry pilot seed](docs/knowledge/danish-vocabulary-seed.md) now records selected meanings, forms, gender, English glosses, and construction compatibility. Expand toward the broader curriculum using usage/frequency evidence and reviewed forms; preserve sources, stable IDs, review state, and versioning. Complete when vocabulary supports useful variation for the selected course coverage; use BL-005 and BL-022.
 - **BL-005 — Assess language resources.** Evaluate morphology, frequency, meanings, English equivalents, and usage sources, including COR. Record coverage gaps, resource versions, and specific reuse terms. Complete with a source recommendation and unresolved data needs.
 - **BL-006 — Specify exercise families.** Three pilot formats now have targets, prerequisites, original examples, valid answers, related alternatives, and variation rules in the [slice specification](docs/knowledge/beginner-slice-spec.md). Expand the catalogue for transformations, correction, comprehension, and constrained writing as their grammar becomes active. Keep format-specific evidence and review criteria explicit.
