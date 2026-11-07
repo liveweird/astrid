@@ -51,6 +51,7 @@ Derive the answer by querying the actual generated propositions for the question
 
 Trailing nullable/default-omitted additions:
 
+- Optional `IntroductionSection.bodyLanguage` and DTO mirror: E009 references use English section titles and Danish-only bodies tagged `da`, with noun/verb/pronoun sections ordered separately from the sentence. This avoids mixed-language reference strings; old sections omit the field. Pair-four fingerprints include the ordered language metadata.
 - Engine `ReadingTask(val facet: String)`; `ExerciseFormat.readingTask`; `GeneratedExercise.readingTarget` (constructor parameter after source); `ExercisePrompt.passage: List<String>?`.
 - `Evaluation.meaningSatisfaction: MeaningSatisfaction?`, enum `MET/met`, `NOT_MET/not-met`, `UNKNOWN/unknown`; add `LinguisticScope.DANISH_SENTENCE`.
 - Private inspector `ReadingSourceDetails(propositions, questionSubjectId, questionVerbId, answerNounId, answer)` with `ReadingPropositionDetails(sentenceId, subjectId, verbId, objectId)`; append `ExerciseInspector.readingSource`.
@@ -68,3 +69,11 @@ Verify all 99 writing meanings, all 24 reading units, unique and related choices
 
 
 Rollback boundary: strict older readers cannot safely decode new pair-four presentation fields. Disable new-pair creation and retain evidence; an incompatible binary alone is not a supported downgrade. Resume new instances only with a compatible reader.
+
+## Review corrections and pre-package checks
+
+Independent engine, server and web reviews have no remaining actionable findings after corrections. Engine review added semicolon/colon shape rejection, protected the single-error boundary when lowercase plural `i` accompanies another error, and required independent literal meaning/gloss/passage oracles. The current review export now exposes all 99 writing cues/references/hints and all 24 reading passages/questions/ordered choices/answers. Retained revision-three rendering remains separate.
+
+Web review made all four writing facets explicitly required for green feedback, including conservative handling of missing meaning/shape fields, and added Danish language tags to the optional reference. Server review correlated format, target, revision, lexical direction and prompt category in complete closed OpenAPI variants; strict positive/negative matrices cover invalid combinations. The generated web schema matches this final contract.
+
+Observed local checks: 104 engine tests passed in both normal and fresh Arabic locales, engine/server lint and coverage gates passed, all four review exports succeeded, and 71 server tests passed including PostgreSQL persistence/replay and all immutable wire/fingerprint archives. The web passed 144 tests, API type checks, lint and build with unchanged coverage floors (94.45% statements, 87.46% branches, 96.85% functions, 97.25% lines). Toolchain/startup checks and eleven infrastructure-script tests passed. Packaged browser matrices, CI, backed-up preview promotion and scoped QA cleanup remain delivery gates.

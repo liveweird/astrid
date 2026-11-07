@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This proposed walkthrough helps evaluate the engine before expanding content or producing media. Open `http://localhost:8088`. It is a private developer preview, with eight entries and draft Danish content rather than a complete beginner course.
+This proposed walkthrough helps evaluate the engine before expanding content or producing media. Open `http://localhost:8088`. It is a private developer preview, with ten entries and draft Danish content rather than a complete beginner course.
 
-## Try the eight entries
+## Try the ten entries
 
 1. **Present form:** open “Learn this first,” then choose the finite present form. The alternatives deliberately use the same verb. Check the answer, inspect feedback, retry, then advance. Opening the lesson or hint records supported practice; that evidence stays attached to retries of the same exercise.
 2. **Article:** expand “Generation controls” and select “Supply the indefinite article.” Type `en` or `et`. Try the wrong gender, then retry with the matching form. A matching accented numeral such as `én` has a different target interpretation from the requested unstressed article; feedback should distinguish that from a gender error.
@@ -16,6 +16,9 @@ This proposed walkthrough helps evaluate the engine before expanding content or 
 
 7. **Meaning recognition:** select “Recognize the meaning.” Match the Danish headword with an English choice. All three alternatives are related introduced meanings. Feedback describes an English choice rather than calling it Danish.
 8. **Headword recall:** select “Recall the Danish headword.” Type `bog`, `avis` or `brev` for the specified English meaning. Try another known noun, then an extra article: `en avis` should acknowledge the identified word while requesting a noun-only answer; `et avis` also receives a stored-gender diagnosis. Unrecognized words or synonyms remain outside the bounded assessment, not invalid Danish. Optional teaching still records support.
+
+9. **Sentence writing:** select “Write a Danish sentence.” Produce a whole statement from the English meaning. Compare a correct answer, a grammatical statement with another meaning, a meaning-preserving fronted answer, a known form/article mistake and unsupported writing. Check the separate order, meaning, language and shape facets. Opening the optional language reference records support; its Danish bodies should receive Danish pronunciation from assistive technology.
+10. **Short reading:** select “Read a short text.” Read all three facts, then match both the participant and the action in the English question. Each readable noun appears once; all choices are related. Try a distractor referring to the other participant/action, then retry. Optional support records a reveal; this is supported comprehension of explicitly stated facts, not a proficiency judgment.
 
 Use Tab/Enter throughout and try the narrow layout and both themes. If a result cannot be confirmed after a connection problem, “Check the same attempt” safely replays the original submission.
 
@@ -42,7 +45,7 @@ Check whether selecting targets feels useful and whether source exposure is unde
 
 Record the format, seed and index under “Generation controls.” Reusing those coordinates and revisions reproduces the exercise presentation; the API's persisted UUID is a separate identity. Change the index or use “Next exercise” to sample variation. The finite pools contain 99 sentences for present/order and 92 for articles, while vocabulary directions each cycle through three selected senses. Long-term variety needs more reviewed content.
 
-For the complete inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-3.md`.
+For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-4.md`. Retained revision three is available with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
 
 ## Record feedback
 

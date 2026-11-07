@@ -1,6 +1,6 @@
 # Astrid
 
-A Danish reading and writing engine for English-speaking beginners. The private preview offers guided practice and a standalone playground: eight exercise entries covering grammar selection/supply/order/repair and vocabulary recognition/recall, a structured 23-entry vocabulary seed, and 99 licensed sentence combinations. Content is a linguistic draft awaiting Danish teaching review.
+A Danish reading and writing engine for English-speaking beginners. The private preview offers guided practice and a standalone playground: ten exercise entries covering grammar selection/supply/order/repair, vocabulary recognition/recall, full-sentence writing and short reading comprehension, a structured 23-entry vocabulary seed, and 99 licensed sentence combinations. Content is a linguistic draft awaiting Danish teaching review.
 
 ## Run the complete app
 
@@ -46,12 +46,14 @@ Native development binds to `127.0.0.1`; `ASTRID_BIND_HOST` overrides it. The co
 - **Present recall and repair:** supply a named present verb or replace one marked verb/article.
 - **Meaning recognition:** choose the English meaning of `bog`, `avis` or `brev` from related alternatives.
 - **Headword recall:** type the introduced Danish singular noun for an English cue, without its article.
+- **Sentence writing:** type a complete subject-first Danish statement from an English meaning, using introduced words. Feedback separates order, meaning, bounded language diagnosis and one-statement constraints.
+- **Short reading:** read three Danish sentences, then choose the English answer matching the asked participant and action. Related alternatives require following the stated facts.
 
 Feedback reports both the requested target and the supported linguistic judgment. An acceptable fronted statement can miss the subject-first target. Unknown writing is not automatically invalid Danish. Vocabulary feedback also separates knowing the headword from supplying the requested one-word response; `en avis` can identify the word while needing correction to the response format. Hints and retries are recorded; there is no mastery or adaptive scheduling claim.
 
 API requests have a 15-second browser deadline, including their response body. An unconfirmed submission keeps the exact attempt available through “Check the same attempt.” Keep that page open for recovery. This bounds visible waiting in an active browser; it does not establish whether a timed-out write committed or guarantee server cleanup during a database outage. See the [recovery evidence](docs/knowledge/runtime-recovery.md).
 
-Seed, index, content revision and generator revision make exercises reproducible. A seeded cycle visits every eligible sentence before repeating (99 for present/order, 92 for articles); each vocabulary direction visits its three selected senses before repeating.
+Seed, index, content revision and generator revision make exercises reproducible. A seeded cycle visits every eligible sentence before repeating (99 for present/order, 92 for articles); each vocabulary direction visits its three selected senses before repeating. Sentence writing uses the 99 licensed statements; reading cycles through 24 three-fact units with seeded sentence/choice order. The two new families are initially standalone; guided practice retains its existing plans and revisions.
 
 The optional inspector reveals private generation details. Set `ASTRID_INSPECTOR_ENABLED=true` and a random `ASTRID_INSPECTOR_KEY` of at least 32 characters in the server environment, then enter the key in the inspector. Generate one with `openssl rand -hex 32`. The key stays out of frontend builds and browser persistent storage. Restart the server after configuration changes.
 

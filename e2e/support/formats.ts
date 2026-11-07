@@ -7,4 +7,6 @@ export const PILOT_FORMAT_TITLES = [
   "Repair the indefinite article",
   "Recognize the meaning",
   "Recall the Danish headword",
+  "Write a Danish sentence",
+  "Read a short text",
 ] as const;
