@@ -21,6 +21,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [new]
 
+- **BL-039 — Targeted follow-up practice.** Assistant-proposed next engine milestone after BL-035 feedback: let learners select existing grammar/vocabulary targets from a completed summary and start a separate, varied review run. Reuse eligible current formats/content and preserve the source run, immutable outcomes and reliable recovery. Define suggestions, prerequisites, run size, revision/lineage and cross-run possible-exposure rules before implementation; keep unknown/support/response-constraint evidence explicit. Complete when the agreed summary-to-review flow and its persistence/evaluation boundaries are verified. See the [proposal](docs/knowledge/learning-engine.md#proposed-next-milestone-targeted-follow-up-practice). Not yet authorized; broad scheduling/proficiency policy remains BL-011.
+
 - **BL-032 — Define bounded server-outage work.** Proposed follow-up to the [observed lifecycle limitation](docs/knowledge/server-outage-boundary.md): choose a fault model and evidence-based request/cleanup/shutdown budgets, then prove lease fencing, eventual remote cleanup, bounded retained work and exact replay before adopting a policy. No server deadline or production SLO is selected.
 
 - **BL-010 — Compare generation and grading approaches.** Examine reviewed templates, structural generation, and possible AI assistance against accuracy, naturalness, variety, and diagnostic needs. Complete with broader-course tradeoffs and a recommendation. The pilot already uses deterministic typed generation and bounded explicit grading; this item does not reopen its published revisions.

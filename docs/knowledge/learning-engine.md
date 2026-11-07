@@ -60,7 +60,7 @@ Keep learning rules and content independent of web screens, account for phone in
 
 The user-authorized [vocabulary contract](vocabulary-assessment.md) adds meaning recognition and introduced-headword recall for three existing senses, bringing the catalog to eight entries. Lexical targets are distinct from grammar skills, and response constraints are assessed separately from identifying a headword. The initial three-format description above is historical; [delivery evidence](vocabulary-delivery.md) tracks the current iteration. Short practice sessions were subsequently authorized as BL-009; broader progression remains a proposal.
 
-## Recommended next milestone: short practice sessions
+## Short practice sessions: delivered milestone
 
 **7 November 2026 — Initially proposed, subsequently user-authorized (“go with that”).** The engine now supports eight exercise entries across grammar and vocabulary. Next, connect those capabilities into a bounded practice flow using the existing content and graders.
 
@@ -73,3 +73,11 @@ Retain the planned item order, exercise revisions and attempt references so refr
 Before implementation, specify session size/focus choices, prerequisite/support sequencing, completion rules, persistence/resume and summary aggregation. Acceptance should cover reproducible ordering, target coverage, exposure/support evidence, partial/unknown outcomes, reload and lost-response recovery, accessible keyboard progress and summary, and unchanged standalone exercises. BL-009 owns this authorized implementation; BL-035 remains user review of the expanded playground. New content, later grammar, adaptive scheduling, streaks and mastery thresholds are separate decisions.
 
 The [implementation contract](practice-sessions.md) now specifies the eight-item `practice-1` plan, optional support, frozen first-attempt context, per-target first/latest summaries and owner-bound browser recovery. These are implementation defaults within the authorized current-content scope; the [delivery record](practice-delivery.md) records passing source/browser gates and the upgraded private preview.
+
+## Proposed next milestone: targeted follow-up practice
+
+**7 November 2026 — Assistant recommendation, not yet selected:** After user review of the delivered guided flow (BL-035), connect its summary to a learner-controlled follow-up run. BL-039 records this proposal; broader progression and scheduling remain BL-011.
+
+Let the learner select existing grammar or vocabulary targets from the summary and start a new, explicitly labeled review session. For example, article practice could reuse eligible article supply/repair formats with varied licensed sentences. Keep recognition and headword production distinct. Suggestions may draw on recorded outcomes, with support, response constraints, unknown diagnoses and possible earlier exposure shown separately; exact suggestion rules remain open.
+
+Reuse current content and graders, preserve the source run and its frozen results, and persist the new run's selected targets, lineage, revisions and plan for reliable resume/replay. Earlier source-run teaching and answers are possible exposure, so review answers must not be presented as independent knowledge or mastery. Define the exposure contract, selection/prerequisite rules, run size and finite-pool repetition policy before implementation. This proposal adds no new curriculum, accounts, automatic schedule or proficiency threshold.
