@@ -26,11 +26,13 @@ import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 class OpenApiContractTest {
     private val rawSpec = checkNotNull(javaClass.getResource("/openapi.yaml")).readText()
+    private val strictValidator = OpenApiInteractionValidator.createForInlineApiSpecification(rawSpec).build()
     private val validator = OpenApiInteractionValidator.createForInlineApiSpecification(rawSpec)
         .withLevelResolver(
             LevelResolver.create()
@@ -68,6 +70,132 @@ class OpenApiContractTest {
                 assertEquals(supported, !report.hasErrors(), SimpleValidationReportFormat.getInstance().apply(report))
             }
         }
+    }
+
+    @Test
+    fun `exercise request schema correlates formats targets and retained revision pairs`() {
+        val accepted = listOf(
+            exerciseRequest("E001", "G004", "pilot-1", "generator-1"),
+            exerciseRequest("E002", "G006", "pilot-1", "generator-1"),
+            exerciseRequest("E003", "G005", "pilot-1", "generator-1"),
+            exerciseRequest("E004", "G004", "pilot-2", "generator-2"),
+            exerciseRequest("E006", "G006", "pilot-2", "generator-2"),
+            exerciseRequest("E007", null, "pilot-3", "generator-3"),
+            exerciseRequest("E008", null, "pilot-4", "generator-4"),
+            exerciseRequest("E009", "G005", "pilot-4", "generator-4"),
+            exerciseRequest("E010", null, "pilot-4", "generator-4"),
+        )
+        val rejected = listOf(
+            exerciseRequest("E009", null, "pilot-4", "generator-4"),
+            exerciseRequest("E009", "G004", "pilot-4", "generator-4"),
+            exerciseRequest("E009", "G005", "pilot-3", "generator-3"),
+            exerciseRequest("E009", "G005", "pilot-4", "generator-3"),
+            exerciseRequest("E010", "G005", "pilot-4", "generator-4"),
+            exerciseRequest("E010", null, "pilot-3", "generator-3"),
+            exerciseRequest("E010", null, "pilot-4", "generator-3"),
+            exerciseRequest("E001", "G004", "pilot-1", "generator-2"),
+            exerciseRequest("E007", null, "pilot-3", "generator-4"),
+        )
+
+        accepted.forEach { assertExerciseRequestValidity(it, expected = true) }
+        rejected.forEach { assertExerciseRequestValidity(it, expected = false) }
+    }
+
+    @Test
+    fun `exercise response schema enforces writing reading and lexical categories`() {
+        val accepted = listOf(
+            exerciseResponse("E001", "pilot-1", "generator-1", target = "G004"),
+            exerciseResponse("E004", "pilot-2", "generator-2", target = "G004"),
+            exerciseResponse("E006", "pilot-3", "generator-3", target = "G006"),
+            exerciseResponse("E003", "pilot-4", "generator-4", target = "G005"),
+            exerciseResponse("E009", "pilot-4", "generator-4", target = "G005"),
+            exerciseResponse(
+                "E010",
+                "pilot-4",
+                "generator-4",
+                readingFacet = "participant-action-complement",
+                passage = true,
+            ),
+            exerciseResponse(
+                "E008",
+                "pilot-3",
+                "generator-3",
+                lexicalFacet = "singular-headword",
+                lexicalDirection = "en-da",
+            ),
+            exerciseResponse(
+                "E007",
+                "pilot-4",
+                "generator-4",
+                lexicalFacet = "meaning",
+                lexicalDirection = "da-en",
+            ),
+        )
+        val rejected = listOf(
+            exerciseResponse("E009", "pilot-4", "generator-4"),
+            exerciseResponse("E009", "pilot-3", "generator-3", target = "G005"),
+            exerciseResponse(
+                "E009",
+                "pilot-4",
+                "generator-4",
+                target = "G005",
+                readingFacet = "participant-action-complement",
+            ),
+            exerciseResponse("E010", "pilot-4", "generator-4", passage = true),
+            exerciseResponse("E010", "pilot-4", "generator-4", readingFacet = "wrong", passage = true),
+            exerciseResponse(
+                "E010",
+                "pilot-4",
+                "generator-4",
+                target = "G005",
+                readingFacet = "participant-action-complement",
+                passage = true,
+            ),
+            exerciseResponse(
+                "E010",
+                "pilot-4",
+                "generator-4",
+                lexicalFacet = "singular-headword",
+                lexicalDirection = "en-da",
+                readingFacet = "participant-action-complement",
+                passage = true,
+            ),
+            exerciseResponse("E008", "pilot-3", "generator-3"),
+            exerciseResponse("E001", "pilot-1", "generator-2", target = "G004"),
+            exerciseResponse(
+                "E008",
+                "pilot-3",
+                "generator-4",
+                lexicalFacet = "singular-headword",
+                lexicalDirection = "en-da",
+            ),
+            exerciseResponse("E001", "pilot-1", "generator-1", target = "G006"),
+            exerciseResponse("E002", "pilot-2", "generator-2", target = "G004"),
+            exerciseResponse(
+                "E008",
+                "pilot-3",
+                "generator-3",
+                lexicalFacet = "meaning",
+                lexicalDirection = "en-da",
+            ),
+            exerciseResponse(
+                "E008",
+                "pilot-3",
+                "generator-3",
+                lexicalFacet = "singular-headword",
+                lexicalDirection = "da-en",
+            ),
+            exerciseResponse(
+                "E007",
+                "pilot-4",
+                "generator-4",
+                lexicalFacet = "singular-headword",
+                lexicalDirection = "da-en",
+            ),
+        )
+
+        accepted.forEach { assertExerciseResponseValidity(it, expected = true) }
+        rejected.forEach { assertExerciseResponseValidity(it, expected = false) }
     }
 
     @Test
@@ -192,6 +320,58 @@ class OpenApiContractTest {
                 header("X-Astrid-Inspector-Key", "k".repeat(32))
             },
         )
+        val recallResponse = client.post("/api/v1/exercises") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """{"formatId":"E008","seed":47,"index":0,"contentRevision":"pilot-3","generatorRevision":"generator-3"}""",
+            )
+        }
+        validate(HttpMethod.Post, "/api/v1/exercises", recallResponse)
+        listOf("E009" to "G005", "E010" to null).forEach { (format, target) ->
+            val targetJson = target?.let { ",\"targetSkillId\":\"$it\"" }.orEmpty()
+            val currentResponse = client.post("/api/v1/exercises") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                contentType(ContentType.Application.Json)
+                setBody(
+                    """{"formatId":"$format"$targetJson,"seed":47,"index":0,"contentRevision":"pilot-4","generatorRevision":"generator-4"}""",
+                )
+            }
+            validate(HttpMethod.Post, "/api/v1/exercises", currentResponse)
+            val currentId = (wireJson.parseToJsonElement(currentResponse.bodyAsText()) as JsonObject)
+                .getValue("id").jsonPrimitive.content
+            val inspectorResponse = client.get("/api/v1/dev/exercises/$currentId") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Inspector-Key", "k".repeat(32))
+            }
+            validate(HttpMethod.Get, "/api/v1/dev/exercises/$currentId", inspectorResponse)
+            val inspector = (wireJson.parseToJsonElement(inspectorResponse.bodyAsText()) as JsonObject)
+            val answer = if (format == "E009") {
+                inspector.getValue("canonicalSentence").jsonPrimitive.content
+            } else {
+                (inspector.getValue("readingSource") as JsonObject).getValue("answer").jsonPrimitive.content
+            }
+            validate(
+                HttpMethod.Post,
+                "/api/v1/attempts",
+                client.post("/api/v1/attempts") {
+                    trustedHost()
+                    cookie("astrid_session", cookie)
+                    header("X-Astrid-Client", "playground")
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        wireJson.encodeToString(
+                            AttemptRequest(UUID.randomUUID().toString(), currentId, AttemptAnswerDto.Text(answer), false),
+                        ),
+                    )
+                },
+            )
+        }
         val exerciseId = (wireJson.parseToJsonElement(exerciseResponse.bodyAsText()) as JsonObject)
             .getValue("id").jsonPrimitive.content
         val attemptId = UUID.randomUUID()
@@ -255,6 +435,54 @@ class OpenApiContractTest {
         if (report.hasErrors()) {
             throw AssertionError(SimpleValidationReportFormat.getInstance().apply(report) + "\n$body")
         }
+    }
+
+    private fun assertExerciseRequestValidity(body: String, expected: Boolean) {
+        val request = SimpleRequest.Builder.post("/api/v1/exercises")
+            .withHeader("Content-Type", "application/json")
+            .withHeader("X-Astrid-Client", "playground")
+            .withBody(body)
+            .build()
+        val report = strictValidator.validateRequest(request)
+        assertEquals(expected, !report.hasErrors(), SimpleValidationReportFormat.getInstance().apply(report))
+    }
+
+    private fun assertExerciseResponseValidity(body: String, expected: Boolean) {
+        val request = SimpleRequest.Builder.post("/api/v1/exercises").build()
+        val response = SimpleResponse.Builder(201)
+            .withHeader("Content-Type", "application/json")
+            .withBody(body)
+            .build()
+        val report = validator.validate(request, response)
+        assertEquals(expected, !report.hasErrors(), SimpleValidationReportFormat.getInstance().apply(report))
+    }
+
+    private fun exerciseRequest(format: String, target: String?, content: String, generator: String): String {
+        val targetJson = target?.let { "\"targetSkillId\":\"$it\"," }.orEmpty()
+        return """{"formatId":"$format",$targetJson"seed":47,"index":0,"contentRevision":"$content","generatorRevision":"$generator"}"""
+    }
+
+    private fun exerciseResponse(
+        format: String,
+        content: String,
+        generator: String,
+        target: String? = null,
+        lexicalFacet: String? = null,
+        lexicalDirection: String? = null,
+        readingFacet: String? = null,
+        passage: Boolean = false,
+    ): String {
+        val targetJson = target?.let { "\"targetSkillId\":\"$it\"," }.orEmpty()
+        val lexicalJson = if (lexicalFacet != null && lexicalDirection != null) {
+            """"lexicalTarget":{"entryId":"L014","senseId":"L014-S01","facet":"$lexicalFacet","direction":"$lexicalDirection"},"""
+        } else {
+            ""
+        }
+        val readingJson = readingFacet?.let { """"readingTarget":{"facet":"$it"},""" }.orEmpty()
+        val passageJson = if (passage) ""","passage":["Hun læser en avis.","Han læser en bog.","Hun har et brev."]""" else ""
+        val prompt =
+            """{"before":"","after":"","choices":["a newspaper","a book","a letter"],"blocks":[],"punctuation":"","cue":"Question","cueLanguage":"en","answerLanguage":"en"$passageJson}"""
+        return """{"id":"00000000-0000-0000-0000-000000000001","formatId":"$format",$targetJson$lexicalJson$readingJson"supportSkillIds":[],"contentRevision":"$content","generatorRevision":"$generator","instruction":"Instruction","context":"Context","prompt":$prompt,"introduction":[],"hint":"Hint"}"""
     }
 
     private fun io.ktor.client.request.HttpRequestBuilder.trustedHost() {

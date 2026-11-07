@@ -110,6 +110,7 @@ private fun Route.catalogRoute(
                         format.title,
                         format.targetSkillId,
                         format.lexicalTask?.let { LexicalTaskDto(it.facet, it.direction) },
+                        format.readingTask?.let { ReadingTaskDto(it.facet) },
                     )
                 },
                 catalog.sentenceCount,
@@ -291,6 +292,7 @@ private suspend fun evaluateAttempt(
         createdAt,
         evaluation.linguisticScope?.wireValue,
         evaluation.responseConstraintStatus?.wireValue,
+        evaluation.meaningSatisfaction?.wireValue,
     )
 }
 

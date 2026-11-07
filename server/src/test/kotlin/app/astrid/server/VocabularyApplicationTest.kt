@@ -42,11 +42,13 @@ class VocabularyApplicationTest {
             )
             val exercise = wireJson.parseToJsonElement(serialized).jsonObject
             assertFalse("lexicalTarget" in exercise)
+            assertFalse("readingTarget" in exercise)
             assertTrue("targetSkillId" in exercise)
             val prompt = exercise.getValue("prompt").jsonObject
             assertFalse("cue" in prompt)
             assertFalse("cueLanguage" in prompt)
             assertFalse("answerLanguage" in prompt)
+            assertFalse("passage" in prompt)
         }
     }
 
@@ -63,6 +65,7 @@ class VocabularyApplicationTest {
         val grammar = formats.first { it.jsonObject.getValue("id").jsonPrimitive.content == "E006" }.jsonObject
         assertEquals("G006", grammar.getValue("targetSkillId").jsonPrimitive.content)
         assertFalse("lexicalTask" in grammar)
+        assertFalse("readingTask" in grammar)
         val recognition = formats.first { it.jsonObject.getValue("id").jsonPrimitive.content == "E007" }.jsonObject
         assertFalse("targetSkillId" in recognition)
         assertEquals("meaning", recognition.getValue("lexicalTask").jsonObject.getValue("facet").jsonPrimitive.content)
@@ -162,13 +165,16 @@ class VocabularyApplicationTest {
         val decoded = wireJson.decodeFromString(AttemptResponse.serializer(), json)
         assertNull(decoded.linguisticScope)
         assertNull(decoded.responseConstraintStatus)
+        assertNull(decoded.meaningSatisfaction)
         assertFalse("linguisticScope" in wireJson.encodeToString(AttemptResponse.serializer(), decoded))
         assertFalse("responseConstraintStatus" in wireJson.encodeToString(AttemptResponse.serializer(), decoded))
+        assertFalse("meaningSatisfaction" in wireJson.encodeToString(AttemptResponse.serializer(), decoded))
         assertEquals(json, wireJson.encodeToString(AttemptResponse.serializer(), decoded))
-        listOf("evaluation-1", "evaluation-2").forEach { revision ->
+        listOf("evaluation-1", "evaluation-2", "evaluation-3").forEach { revision ->
             val published = wireJson.encodeToString(AttemptResponse.serializer(), decoded.copy(evaluationRevision = revision))
             assertFalse("linguisticScope" in published)
             assertFalse("responseConstraintStatus" in published)
+            assertFalse("meaningSatisfaction" in published)
         }
     }
 

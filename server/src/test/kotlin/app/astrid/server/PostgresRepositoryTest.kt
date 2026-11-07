@@ -512,6 +512,76 @@ class PostgresRepositoryTest {
         )
     }
 
+    @Test
+    fun `pair four writing and reading evidence persists replays and remains owner isolated`() =
+        withRepositories { first, second ->
+            val owner = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+            val outsider = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+            val engine = PilotEngine()
+            val cases = listOf(
+                Triple("E009", "G005", "Hun læser en avis."),
+                Triple("E010", null, "a newspaper"),
+            )
+
+            cases.forEach { (format, target, answer) ->
+                val generated = engine.generate(GenerationRequest(format, target, 47, 0, "pilot-4", "generator-4"))
+                val exerciseId = UUID.randomUUID()
+                val stored = StoredExercise(
+                    exerciseId,
+                    owner.id,
+                    generated.formatId,
+                    generated.targetSkillId,
+                    generated.reproduction.seed,
+                    generated.reproduction.index,
+                    generated.contentRevision,
+                    generated.generatorRevision,
+                    generated.toResponse(exerciseId.toString()),
+                    generated.reproductionFingerprint(),
+                )
+                first.insertExercise(stored)
+
+                assertEquals(stored, second.findExercise(owner.id, exerciseId))
+                assertNull(second.findExercise(outsider.id, exerciseId))
+
+                val request = AttemptRequest(
+                    UUID.randomUUID().toString(),
+                    exerciseId.toString(),
+                    AttemptAnswerDto.Text(answer),
+                    false,
+                )
+                val payload = wireJson.encodeToString(request)
+                val callbackCount = AtomicInteger()
+                val created = second.writeAttempt(owner.id, request, payload) { exercise, retry, createdAt ->
+                    callbackCount.incrementAndGet()
+                    AttemptResponse(
+                        attemptId = request.attemptId,
+                        exerciseId = exercise.id.toString(),
+                        targetSatisfaction = "met",
+                        linguisticStatus = "acceptable",
+                        issues = emptyList(),
+                        feedback = "Correct",
+                        completedSentence = if (format == "E009") answer else "",
+                        evaluationRevision = "evaluation-4",
+                        hintUsed = false,
+                        retryNumber = retry,
+                        createdAt = createdAt,
+                        linguisticScope = if (format == "E009") "danish-sentence" else "english-choice",
+                        responseConstraintStatus = "met",
+                        meaningSatisfaction = if (format == "E009") "met" else null,
+                    )
+                }
+                val response = assertIs<AttemptWriteResult.Created>(created).response
+                val replay = first.writeAttempt(owner.id, request, payload) { _, _, _ ->
+                    callbackCount.incrementAndGet()
+                    error("saved pair-four attempt must replay before regeneration")
+                }
+                assertEquals(1, callbackCount.get())
+                assertEquals(response, assertIs<AttemptWriteResult.Existing>(replay).response)
+                assertEquals(response, second.findAttempt(owner.id, UUID.fromString(request.attemptId)))
+                assertNull(second.findAttempt(outsider.id, UUID.fromString(request.attemptId)))
+            }
+        }
+
     private suspend fun fixture(repository: PostgresRepository): Fixture {
         val suffix = UUID.randomUUID().toString().replace("-", "")
         val session = repository.createSession(suffix.repeat(2), Long.MAX_VALUE)

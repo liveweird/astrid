@@ -10,9 +10,9 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 internal const val CONTENT_REVISION = "pilot-1"
 internal const val GENERATOR_REVISION = "generator-1"
 internal const val EVALUATION_REVISION = "evaluation-1"
-internal const val CURRENT_CONTENT_REVISION = "pilot-3"
-internal const val CURRENT_GENERATOR_REVISION = "generator-3"
-internal const val CURRENT_EVALUATION_REVISION = "evaluation-3"
+internal const val CURRENT_CONTENT_REVISION = "pilot-4"
+internal const val CURRENT_GENERATOR_REVISION = "generator-4"
+internal const val CURRENT_EVALUATION_REVISION = "evaluation-4"
 
 @Serializable
 class DevelopmentSessionRequest
@@ -87,11 +87,16 @@ data class SkillDto(
 data class LexicalTaskDto(val facet: String, val direction: String)
 
 @Serializable
+data class ReadingTaskDto(val facet: String)
+
+@Serializable
 data class FormatDto(
     val id: String,
     val title: String,
     val targetSkillId: String? = null,
     val lexicalTask: LexicalTaskDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val readingTask: ReadingTaskDto? = null,
 )
 
 @Serializable
@@ -129,10 +134,17 @@ data class ExercisePromptDto(
     val cue: String? = null,
     val cueLanguage: String? = null,
     val answerLanguage: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val passage: List<String>? = null,
 )
 
 @Serializable
-data class IntroductionDto(val title: String, val body: String)
+data class IntroductionDto(
+    val title: String,
+    val body: String,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val bodyLanguage: String? = null,
+)
 
 @Serializable
 data class LexicalTargetDto(
@@ -156,6 +168,8 @@ data class ExerciseResponse(
     val prompt: ExercisePromptDto,
     val introduction: List<IntroductionDto>,
     val hint: String,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val readingTarget: ReadingTaskDto? = null,
 )
 
 @Serializable
@@ -197,6 +211,8 @@ data class AttemptResponse(
     val createdAt: Long,
     val linguisticScope: String? = null,
     val responseConstraintStatus: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val meaningSatisfaction: String? = null,
 )
 
 @Serializable
@@ -343,6 +359,23 @@ data class LexicalSourceDto(
 )
 
 @Serializable
+data class ReadingPropositionDetailsDto(
+    val sentenceId: String,
+    val subjectId: String,
+    val verbId: String,
+    val objectId: String,
+)
+
+@Serializable
+data class ReadingSourceDetailsDto(
+    val propositions: List<ReadingPropositionDetailsDto>,
+    val questionSubjectId: String,
+    val questionVerbId: String,
+    val answerNounId: String,
+    val answer: String,
+)
+
+@Serializable
 data class ExerciseInspectorDto(
     val exercise: ExerciseResponse,
     val seed: Int,
@@ -353,4 +386,6 @@ data class ExerciseInspectorDto(
     val clauseRoles: List<String>,
     val canonicalSentence: String? = null,
     val lexicalSource: LexicalSourceDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val readingSource: ReadingSourceDetailsDto? = null,
 )
