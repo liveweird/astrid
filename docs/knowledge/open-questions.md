@@ -23,6 +23,7 @@ This register tracks open and resolved questions through the delivered private p
 | Q17 | **Pilot resolved:** revisioned reproduction inputs and presentation fingerprint, immutable session-scoped attempts and database-serialized idempotency. Long-term progress remains open; see [implementation decisions](implementation-decisions.md). | BL-007, BL-008, BL-020 |
 | Q18 | Which red palette and light/dark accent shades should Astrid use, and how should brand, incorrect-answer, destructive-action, and system-error treatments be distinguished? | BL-021 |
 | Q19 | Which unique logo direction should be developed: a Denmark-related symbol, an Astrid character portrait, or a combination? What illustration and small-icon treatment should it use? | BL-021 |
+| Q20 | Which [usage](frequency-and-usage-resources.md) and [bilingual](bilingual-resources.md) candidates fit Astrid's intended data use and distribution? Which need publisher clarification, attribution/adaptation decisions or reference-only treatment before any import? | BL-025 |
 
 ## Resolved clarifications
 

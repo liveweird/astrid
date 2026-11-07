@@ -30,7 +30,7 @@ No contradiction was confirmed in C017's broad understood-subject wording. Contr
 
 ## Coverage and remaining work
 
-The later map still needs reciprocal G↔C authoring links and variant-specific support requirements. The structural checker verifies existing IDs/references and the prerequisite graph, not pedagogical sufficiency or semantic licensing.
+The separately reviewed [coverage crosswalk](foundation-coverage.md) now supplies proposed reciprocal G↔C links for all 58 skills and 30 constructions, with variant-specific support and gap notes. It separates word-level lexical work from missing structural families. The checker verifies row completeness, existing IDs/references and the prerequisite graph, not pedagogical sufficiency or semantic licensing. Concrete content records still need reviewed lexical/context requirements before activation.
 
 - **Identified, deferred:** embedded subject questions, finite content clauses functioning as subjects, unstressed object-pronoun placement with negation, dedicated particle frames, comparison with `end`, broader participle/passive distinctions and marked register variants.
 - **Source-limited:** G053's wider tense-perspective account needs a stronger dedicated reference. English equivalents, naturalness, discourse context and teaching order need appropriate Danish teaching review.

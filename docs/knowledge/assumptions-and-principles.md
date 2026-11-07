@@ -36,5 +36,6 @@ These restate the user's requirements from the planning discussion on 6 November
 - **P08 — Language extensibility:** Make Danish-specific rules identifiable without requiring a universal language system before the first release.
 - **P09 — Independent learning logic:** Keep sentence generation, exercise construction, and answer evaluation independent of HTTP, persistence, and UI frameworks. The pilot implements a pure Kotlin/JVM engine given the online/web-reuse preference; multiplatform compilation is optional future work.
 - **P10 — Domain-specific correctness:** Treat linguistic validity, answer fairness, reproducibility, and content provenance as first-class quality checks alongside software coverage and static analysis.
+- **P11 — Source independence:** For future curation, distinguish independent evidence from mirrored/imported assertions. COR data repeated through DanNet or Wikidata should not count as several independent confirmations. Record upstream derivation where known.
 
 These principles originated as assistant proposals. The authorized pilot operationalizes a subset through [implementation decisions](implementation-decisions.md), including independent learning logic, deterministic generation and explicit evidence/replay rules. Broader-course adoption and acceptance criteria remain open in Q11.

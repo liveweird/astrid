@@ -281,6 +281,8 @@ The slice tests word boundaries, a few word classes and sentence roles, subject 
 
 ## Dependency and coverage checks
 
+The [coverage crosswalk](foundation-coverage.md) links every skill to bounded construction families or an explicit authoring/coverage gap. Only G004/G005/G006 are directly assessed by current formats; G001/G002/G003 are supporting pilot knowledge. Later links do not activate a construction or override its lexical and prerequisite restrictions.
+
 The prerequisite graph runs only from lower to higher identifiers, so this draft contains no cycles. Every prerequisite named above exists. The phases preserve that partial order, although review and spaced practice should revisit earlier skills after their first introduction.
 
 Coverage is intentionally broad rather than exhaustive. The map identifies the principal morphology, noun-phrase structure, verb complexes, clause types, word-order contrasts, reference systems, and writing conventions needed for later content design. It does not yet inventory every valency frame, particle verb, idiom, stylistic construction, punctuation edge case, or accepted variant. Those belong in the linked construction and vocabulary catalogues and should be promoted into new stable skills only when they support a distinct learning target.

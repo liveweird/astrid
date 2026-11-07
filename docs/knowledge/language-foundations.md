@@ -6,7 +6,7 @@ Create a logically ordered grammar topic breakdown, a thorough description of se
 
 ## Draft resources delivered
 
-The first design pass has produced a [58-skill grammar map](danish-grammar-map.md), [30-construction sentence catalogue](danish-sentence-catalogue.md), [23-entry pilot vocabulary seed](danish-vocabulary-seed.md), and [connected beginner slice specification](beginner-slice-spec.md). These are source-backed drafts, not a complete language database or specialist-approved curriculum. Proposed skill order is separate from grammatical correctness and has no claimed official CEFR alignment.
+The first design pass has produced a [58-skill grammar map](danish-grammar-map.md), [30-construction sentence catalogue](danish-sentence-catalogue.md), [23-entry pilot vocabulary seed](danish-vocabulary-seed.md), and [connected beginner slice specification](beginner-slice-spec.md). A separately reviewed [coverage crosswalk](foundation-coverage.md) now links every skill and construction, separating assessed pilot targets from supplied support, later overlays and actual gaps. These are source-backed drafts, not a complete language database or specialist-approved curriculum. Proposed skill order is separate from grammatical correctness and has no claimed official CEFR alignment.
 
 ## Proposed grammar curriculum
 

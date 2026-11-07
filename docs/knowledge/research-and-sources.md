@@ -39,3 +39,5 @@ For the first [23-entry vocabulary seed](danish-vocabulary-seed.md), Den Danske 
 ## Resource audit update — 7 November 2026
 
 The [Danish resource assessment](danish-resource-assessment.md) records current official COR/RO, COR.EXT, COR.SEM and DDO evidence, versions and published reuse terms. It proposes a COR-first morphology audit while preserving authored English senses and internal IDs. No resource has been imported or adopted as a runtime dependency; current-release terms and exact mappings remain open.
+
+Independent area research and lead validation extended this to [frequency/usage candidates](frequency-and-usage-resources.md) and [English–Danish lexical candidates](bilingual-resources.md). They distinguish corpus editions, morphological versus semantic assertions, data versus tool licences and conditional reuse. No publisher contact or product import was performed. The [pilot variation audit](pilot-variation-audit.md) measures the authored fixture separately from external frequency evidence.

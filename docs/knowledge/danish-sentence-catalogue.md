@@ -4,7 +4,7 @@
 
 This catalogue gives Astrid a bounded structural inventory for English-speaking complete beginners learning everyday written Danish. It separates phrase structure from clause structure, records the order of whole constituents rather than individual words, and makes verb meaning and complement choice part of generation safety. It is a design reference, not a complete formal grammar, parser specification, or claim that every Danish variant has been enumerated.
 
-Constructions C001–C003 are the proposed first engine pilot. Their initial generators are deliberately limited to short positive main-clause declaratives. The remaining entries map later coverage; they are not yet authorizations to generate those forms. All entries are **described and source-checked**, but **not yet reviewed by a Danish-language teaching specialist**. None is engine-supported at the time of writing.
+Constructions C001–C003 are implemented in the private engine pilot, deliberately limited to short positive main-clause declaratives. The remaining entries map later coverage and remain unsupported; they are not authorizations to generate those forms. All entries are **described and source-checked**, but **not yet reviewed by a Danish-language teaching specialist**. Implementation status does not establish linguistic approval.
 
 ## How to read the patterns
 
@@ -334,7 +334,7 @@ Astrid should avoid isolated examples whose intended analysis is not recoverable
 
 This first catalogue covers high-value standard written patterns and flags selected spoken or register variation. It does not yet model every placement of adverbials, verb particles, discontinuous phrase, extraction pattern, ellipsis, comparison, presentational inversion, cleft, tag question, reported-speech pattern, idiom, dialect form, or construction licensed only by a narrow lexical class. Danish subordinate clauses with main-clause word order are acknowledged but intentionally excluded from beginner generation.
 
-Finite content clauses functioning as subjects and embedded subject questions with `der` are identified but deferred; the latter are explicitly outside C021's current pattern. Clause-as-subject functions are documented in [DSN's comma grammar](https://sproget.dk/typiske-problemer/komma/kommagrammatik/). The [foundation source review](foundation-source-review.md) records these gaps and the later G↔C mapping work; no new runtime construction is implied.
+Finite content clauses functioning as subjects and embedded subject questions with `der` are identified but deferred; the latter are explicitly outside C021's current pattern. Clause-as-subject functions are documented in [DSN's comma grammar](https://sproget.dk/typiske-problemer/komma/kommagrammatik/). The [foundation source review](foundation-source-review.md) records those gaps; the [coverage crosswalk](foundation-coverage.md) supplies proposed reciprocal G↔C links and variant boundaries. Neither implies new runtime support.
 
 Before any construction moves from “described” to “reviewed,” a qualified reviewer should check the naturalness of every example, the valency and meaning constraints, the claimed neutral order, and the learner-facing English equivalent. Before “engine-supported,” tests should demonstrate that generated variants preserve those constraints and never treat constituent order as token order.
 
