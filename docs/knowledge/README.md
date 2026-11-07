@@ -79,3 +79,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Topic-based practice](topic-practice.md): authorized mixed/verb focus selection, operation-specific outcomes, precise exposure and saved-run continuity.
 
 - [Exercise family expansion](exercise-family-expansion.md): proposed sentence writing, short reading comprehension, error diagnosis and later transformations; no implementation selected.
+
+- [Writing and reading implementation contract](writing-reading-contract.md): authorized standalone sentence production and short-text comprehension, bounded grading and retained revision safeguards.

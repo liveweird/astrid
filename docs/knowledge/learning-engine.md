@@ -121,3 +121,6 @@ Proposed completion: both new grammar focuses can create/resume runs, report the
 ## New exercise families: current recommendation
 
 **7 November 2026 — User interest, implementation not selected:** The user asked to consider more exercise types. The [family expansion proposal](exercise-family-expansion.md) recommends constrained full-sentence writing and short reading comprehension first, then error diagnosis/repair. These explore new operations using existing language material where possible. Question transformations remain a later candidate requiring reviewed grammar activation; this supersedes the earlier question-first recommendation. BL-006 owns the proposed specifications, with grading and validation under BL-007/BL-008. Exact targets, formats, revisions and implementation scope remain open.
+
+
+**Subsequent user authorization:** “OK, start with these” selects constrained sentence writing and short reading comprehension for standalone implementation under BL-043. The earlier unselected-implementation status is superseded for these two families only; later diagnosis/transformations and guided-practice integration remain separate decisions. The [family record](exercise-family-expansion.md) and working agreement capture scope.
