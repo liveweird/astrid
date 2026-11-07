@@ -33,6 +33,41 @@ import org.testcontainers.utility.DockerImageName
 
 class PostgresRepositoryTest {
     @Test
+    fun `present verb feedback exposure requires a prior met attempt in postgres`() = withRepositories { first, second ->
+        val owner = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        val practiceId = UUID.randomUUID()
+        val request = PracticeSessionRequest(practiceId.toString(), "present-verbs", "present-verbs-1", 17)
+        val created = assertIs<PracticeCreateResult.Created>(
+            first.createPracticeSession(owner, request, wireJson.encodeToString(request)) {
+                practiceFixture(owner, request)
+            },
+        ).session
+        setPracticeCursor(owner.id, practiceId, 1)
+        val item = created.items[1]
+        val presentKey = item.feedbackExposureKeys.single { it.startsWith("verb-present:") }
+
+        suspend fun write(targetSatisfaction: String, expectPresentExposure: Boolean) {
+            val attempt = practiceAttempt(item.exercise.id)
+            val result = second.writeAttemptWithPractice(owner.id, attempt, attemptPayload(attempt)) {
+                    stored, retry, now, source ->
+                val frozen = assertNotNull(source).items.single { it.position == item.position }.feedbackExposureKeys
+                assertEquals(expectPresentExposure, presentKey in frozen)
+                CreatedAttempt(
+                    attemptResponse(attempt.attemptId, stored, retry, now).copy(
+                        targetSatisfaction = targetSatisfaction,
+                    ),
+                    PracticeAttemptContextDto(false, false, false, emptyList()),
+                )
+            }
+            assertIs<AttemptWriteResult.Created>(result)
+        }
+
+        write("not-met", expectPresentExposure = false)
+        write("met", expectPresentExposure = false)
+        write("not-met", expectPresentExposure = true)
+    }
+
+    @Test
     fun `follow-up creation is atomic replayable and retains bounded ancestry across pools`() = withRepositories { first, second ->
         val owner = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
         val sourceId = UUID.randomUUID()
@@ -121,6 +156,30 @@ class PostgresRepositoryTest {
                 changed,
                 wireJson.encodeToString(PracticeSessionRequest.serializer(), changed),
             ) { practiceFixture(owner, changed) },
+        )
+
+        val presentRequest = PracticeSessionRequest(
+            UUID.randomUUID().toString(),
+            "present-verbs",
+            "present-verbs-1",
+            request.seed,
+        )
+        val presentPayload = wireJson.encodeToString(presentRequest)
+        val present = assertIs<PracticeCreateResult.Created>(
+            first.createPracticeSession(owner, presentRequest, presentPayload) { practiceFixture(owner, presentRequest) },
+        ).session
+        assertEquals(6, present.items.size)
+        assertEquals(
+            listOf("selection", "recall", "repair", "selection", "recall", "repair"),
+            present.items.map { it.assessmentMode },
+        )
+        assertEquals(
+            present,
+            assertIs<PracticeCreateResult.Existing>(
+                second.createPracticeSession(owner, presentRequest, presentPayload) {
+                    error("saved present-verb request must replay before planning")
+                },
+            ).session,
         )
 
         val exercise = initial.items.first().exercise
@@ -511,6 +570,7 @@ class PostgresRepositoryTest {
                     item.lessonExposureKeys,
                     item.hintExposureKeys,
                     item.feedbackExposureKeys,
+                    item.targetDescriptor.assessmentMode,
                 )
             },
         )
@@ -535,6 +595,7 @@ class PostgresRepositoryTest {
             sourceItem.lessonExposureKeys,
             sourceItem.hintExposureKeys,
             sourceItem.feedbackExposureKeys,
+            sourceItem.assessmentMode,
         )
         val ancestry = source.sourceExposure.ifEmpty {
             listOf(PracticeCrossRunExposureDto(sourceId.toString(), -1, "introduction", listOf("grammar:G005")))

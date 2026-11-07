@@ -52,6 +52,17 @@ data class PracticeExposureState(
     val feedbackReleased: Boolean,
 )
 
+internal fun frozenFeedbackExposureKeys(
+    candidateKeys: List<String>,
+    hasPriorTargetMetAttempt: Boolean,
+): List<String> = if (hasPriorTargetMetAttempt) {
+    candidateKeys
+} else {
+    candidateKeys.filterNot { it.startsWith(VERB_PRESENT_EXPOSURE_PREFIX) }
+}
+
+private const val VERB_PRESENT_EXPOSURE_PREFIX = "verb-present:"
+
 sealed interface PracticeCreateResult {
     data class Created(val session: StoredPracticeSession) : PracticeCreateResult
     data class Existing(val session: StoredPracticeSession) : PracticeCreateResult

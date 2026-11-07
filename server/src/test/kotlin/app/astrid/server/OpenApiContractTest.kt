@@ -52,6 +52,36 @@ class OpenApiContractTest {
     }
 
     @Test
+    fun `practice creation schema admits only supported focus revision pairs`() {
+        val requestValidator = OpenApiInteractionValidator.createForInlineApiSpecification(rawSpec).build()
+        val id = "4d2dc82d-bbdc-4645-a78a-ad0be38c4355"
+        for (focus in listOf("reading-basics", "present-verbs")) {
+            for (revision in listOf("practice-1", "present-verbs-1")) {
+                val request = SimpleRequest.Builder.post("/api/v1/practice-sessions")
+                    .withHeader("Content-Type", "application/json")
+                    .withHeader("X-Astrid-Client", "playground")
+                    .withHeader("X-Astrid-Practice-Owner", id)
+                    .withBody("""{"practiceSessionId":"$id","focusId":"$focus","planRevision":"$revision","seed":47}""")
+                    .build()
+                val report = requestValidator.validateRequest(request)
+                val supported = (focus == "reading-basics") == (revision == "practice-1")
+                assertEquals(supported, !report.hasErrors(), SimpleValidationReportFormat.getInstance().apply(report))
+            }
+        }
+    }
+
+    @Test
+    fun `practice profile operation mapping stays stable`() {
+        val spec = checkNotNull(OpenAPIV3Parser().readContents(rawSpec).openAPI)
+        assertEquals("getPracticeProfiles", spec.paths.getValue("/api/v1/practice-profiles").get.operationId)
+        assertEquals("createPracticeSession", spec.paths.getValue("/api/v1/practice-sessions").post.operationId)
+        assertEquals(
+            "createPracticeFollowUp",
+            spec.paths.getValue("/api/v1/practice-sessions/{id}/follow-ups").post.operationId,
+        )
+    }
+
+    @Test
     fun `spec parses and validates critical runtime responses`() = testApplication {
         val parse = OpenAPIV3Parser().readContents(rawSpec)
         assertNotNull(parse.openAPI, "OpenAPI parse failed: ${parse.messages}")
@@ -88,6 +118,10 @@ class OpenApiContractTest {
         val cookie = sessionResponse.headers[HttpHeaders.SetCookie]!!
             .substringAfter("astrid_session=").substringBefore(';')
         validate(HttpMethod.Get, "/api/v1/catalog", client.get("/api/v1/catalog") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+        })
+        validate(HttpMethod.Get, "/api/v1/practice-profiles", client.get("/api/v1/practice-profiles") {
             trustedHost()
             cookie("astrid_session", cookie)
         })

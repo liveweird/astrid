@@ -64,7 +64,10 @@ class InMemoryAstridRepository(private val clock: () -> Long = System::currentTi
                         it.promptExposureKeys,
                         it.lessonExposureKeys,
                         it.hintExposureKeys,
-                        it.feedbackExposureKeys,
+                        frozenFeedbackExposureKeys(
+                            it.feedbackExposureKeys,
+                            it.attempts.any { attempt -> attempt.response.targetSatisfaction == "met" },
+                        ),
                         it.lessonOpened,
                         it.hintOpened,
                         it.attempts.isNotEmpty(),
@@ -272,6 +275,7 @@ class InMemoryAstridRepository(private val clock: () -> Long = System::currentTi
         val lessonExposureKeys = item.lessonExposureKeys.toList()
         val hintExposureKeys = item.hintExposureKeys.toList()
         val feedbackExposureKeys = item.feedbackExposureKeys.toList()
+        val assessmentMode = item.assessmentMode
         var lessonOpened = false
         var hintOpened = false
         var attempts = mutableListOf<StoredPracticeAttempt>()
@@ -279,6 +283,7 @@ class InMemoryAstridRepository(private val clock: () -> Long = System::currentTi
         fun snapshot() = StoredPracticeItem(
             position, exercise, targetLabel, answerExposureKeys, promptExposureKeys, lessonExposureKeys, hintExposureKeys,
             feedbackExposureKeys, lessonOpened, hintOpened, attempts.toList(),
+            assessmentMode,
         )
     }
 }

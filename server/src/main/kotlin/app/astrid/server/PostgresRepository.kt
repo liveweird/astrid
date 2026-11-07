@@ -408,6 +408,16 @@ class PostgresRepository private constructor(
             (PracticeAttemptContexts.ownerSessionId eq ownerSessionId) and
                 (PracticeAttemptContexts.practiceSessionId eq practiceSessionId)
         }.toList().map { it[PracticeAttemptContexts.position] }.toSet()
+        val targetMetPositions = PracticeAttemptContexts.selectAll().where {
+            (PracticeAttemptContexts.ownerSessionId eq ownerSessionId) and
+                (PracticeAttemptContexts.practiceSessionId eq practiceSessionId)
+        }.toList().mapNotNull { context ->
+            val response = Attempts.select(Attempts.responsePayload).where {
+                (Attempts.sessionId eq ownerSessionId) and
+                    (Attempts.attemptId eq context[PracticeAttemptContexts.attemptId])
+            }.toList().singleOrNull()?.let { json.decodeFromString<AttemptResponse>(it[Attempts.responsePayload]) }
+            context[PracticeAttemptContexts.position].takeIf { response?.targetSatisfaction == "met" }
+        }.toSet()
         val payload: PracticePlanPayload = json.decodeFromString(practice[PracticeSessions.planPayload])
         val metadata = payload.items.associateBy { it.position }
         return PracticeAttemptSource(
@@ -423,7 +433,10 @@ class PostgresRepository private constructor(
                     metadata.getValue(it[PracticeItems.position]).promptExposureKeys,
                     metadata.getValue(it[PracticeItems.position]).lessonExposureKeys,
                     metadata.getValue(it[PracticeItems.position]).hintExposureKeys,
-                    metadata.getValue(it[PracticeItems.position]).feedbackExposureKeys,
+                    frozenFeedbackExposureKeys(
+                        metadata.getValue(it[PracticeItems.position]).feedbackExposureKeys,
+                        it[PracticeItems.position] in targetMetPositions,
+                    ),
                     it[PracticeItems.lessonOpened],
                     it[PracticeItems.hintOpened],
                     it[PracticeItems.position] in feedbackPositions,
@@ -475,6 +488,7 @@ class PostgresRepository private constructor(
                 item[PracticeItems.lessonOpened],
                 item[PracticeItems.hintOpened],
                 attempts,
+                itemPayload.assessmentMode,
             )
         }
         return StoredPracticeSession(

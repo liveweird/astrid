@@ -80,6 +80,14 @@ paths:
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+  /api/v1/practice-profiles:
+    get:
+      operationId: getPracticeProfiles
+      responses:
+        '200': { description: Available practice profiles, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeProfiles' } } } }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
   /api/v1/practice-sessions:
     post:
       operationId: createPracticeSession
@@ -338,15 +346,54 @@ components:
         title: { type: string }
         planRevision: { type: string, enum: [practice-1] }
         itemCount: { type: integer, enum: [8] }
-    PracticeSessionRequest:
+    PracticeProfiles:
       type: object
       additionalProperties: false
-      required: [practiceSessionId, focusId, planRevision, seed]
+      required: [ownerSessionId, sessionExpiresAt, profiles]
       properties:
-        practiceSessionId: { type: string, format: uuid }
-        focusId: { type: string, enum: [reading-basics] }
-        planRevision: { type: string, enum: [practice-1] }
-        seed: { type: integer, minimum: 0 }
+        ownerSessionId: { type: string, format: uuid }
+        sessionExpiresAt: { type: integer, format: int64 }
+        profiles: { type: array, minItems: 2, maxItems: 2, items: { $ref: '#/components/schemas/PracticeProfile' } }
+    PracticeProfile:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [focusId, planRevision, title, description, itemCount, prerequisiteSkillIds]
+          properties:
+            focusId: { type: string, enum: [reading-basics] }
+            planRevision: { type: string, enum: [practice-1] }
+            title: { type: string }
+            description: { type: string }
+            itemCount: { type: integer, enum: [8] }
+            prerequisiteSkillIds: { type: array, items: { type: string } }
+        - type: object
+          additionalProperties: false
+          required: [focusId, planRevision, title, description, itemCount, prerequisiteSkillIds]
+          properties:
+            focusId: { type: string, enum: [present-verbs] }
+            planRevision: { type: string, enum: [present-verbs-1] }
+            title: { type: string }
+            description: { type: string }
+            itemCount: { type: integer, enum: [6] }
+            prerequisiteSkillIds: { type: array, items: { type: string } }
+    PracticeSessionRequest:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [practiceSessionId, focusId, planRevision, seed]
+          properties:
+            practiceSessionId: { type: string, format: uuid }
+            focusId: { type: string, enum: [reading-basics] }
+            planRevision: { type: string, enum: [practice-1] }
+            seed: { type: integer, minimum: 0 }
+        - type: object
+          additionalProperties: false
+          required: [practiceSessionId, focusId, planRevision, seed]
+          properties:
+            practiceSessionId: { type: string, format: uuid }
+            focusId: { type: string, enum: [present-verbs] }
+            planRevision: { type: string, enum: [present-verbs-1] }
+            seed: { type: integer, minimum: 0 }
     PracticeSupportRequest:
       type: object
       additionalProperties: false
@@ -360,7 +407,7 @@ components:
       required: [practiceSessionId, planRevision, seed, targetKeys]
       properties:
         practiceSessionId: { type: string, format: uuid }
-        planRevision: { type: string, enum: [follow-up-1] }
+        planRevision: { type: string, enum: [follow-up-1, follow-up-2] }
         seed: { type: integer, minimum: 0 }
         targetKeys: { type: array, minItems: 1, maxItems: 8, uniqueItems: true, items: { type: string, minLength: 1, maxLength: 160 } }
     PracticeAdvanceRequest:
@@ -394,6 +441,7 @@ components:
         currentExercise: { $ref: '#/components/schemas/Exercise' }
         summary: { $ref: '#/components/schemas/PracticeSummary' }
         followUp: { $ref: '#/components/schemas/PracticeFollowUp' }
+        followUpPlanRevision: { type: string, enum: [follow-up-2] }
     PracticeFollowUp:
       type: object
       additionalProperties: false
@@ -411,6 +459,7 @@ components:
         formatId: { type: string }
         targetSkillId: { type: string, nullable: true }
         lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        assessmentMode: { type: string, enum: [selection, recall, repair] }
         lessonOpened: { type: boolean }
         hintOpened: { type: boolean }
         attemptIds: { type: array, items: { type: string, format: uuid } }
@@ -470,6 +519,7 @@ components:
         label: { type: string }
         targetSkillId: { type: string, nullable: true }
         lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        assessmentMode: { type: string, enum: [selection, recall, repair] }
         plannedItems: { type: integer }
         attemptedItems: { type: integer }
         advancedItems: { type: integer }

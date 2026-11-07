@@ -6,6 +6,7 @@ import app.astrid.engine.GeneratedExercise
 import app.astrid.engine.LinguisticStatus
 import app.astrid.engine.PracticeAttemptContext
 import app.astrid.engine.PracticeFollowUpPlanner
+import app.astrid.engine.PracticeFollowUpSourceItem
 import app.astrid.engine.PracticeExposureSource
 import app.astrid.engine.PracticePlanner
 import app.astrid.engine.PracticePriorExposure
@@ -33,6 +34,10 @@ private const val PRACTICE_FOCUS = "reading-basics"
 private const val PRACTICE_REVISION = "practice-1"
 private const val PRACTICE_ITEM_COUNT = 8
 private const val FOLLOW_UP_REVISION = "follow-up-1"
+private const val PRESENT_VERBS_FOCUS = "present-verbs"
+private const val PRESENT_VERBS_REVISION = "present-verbs-1"
+private const val PRESENT_VERBS_FOLLOW_UP_REVISION = "follow-up-2"
+private const val TARGETED_REVIEW_FOCUS = "targeted-review"
 
 internal fun Route.practiceRoutes(
     config: ServerConfig,
@@ -41,6 +46,7 @@ internal fun Route.practiceRoutes(
     clock: () -> Long,
 ) {
     val planner = PracticePlanner(engine)
+    practiceProfilesRoute(config, repository, planner, clock)
     get("/practice-context") {
         val owner = requirePracticeSession(call, config, repository, clock)
         val plan = planner.plan(PRACTICE_FOCUS, PRACTICE_REVISION, 0)
@@ -61,27 +67,7 @@ internal fun Route.practiceRoutes(
             } catch (cause: IllegalArgumentException) {
                 throw Conflict(cause.message ?: "Unsupported practice plan").apply { initCause(cause) }
             }
-            NewPracticeSession(
-                plan.title,
-                plan.contentRevision,
-                plan.generatorRevision,
-                plan.evaluationRevision,
-                plan.prerequisiteSkillIds,
-                plan.introduction.map { IntroductionDto(it.title, it.body) },
-                plan.items.map { item ->
-                    val id = UUID.randomUUID()
-                    NewPracticeItem(
-                        item.position,
-                        item.exercise.toStoredPractice(id, owner.id),
-                        item.targetDescriptor.label,
-                        item.answerExposureKeys,
-                        item.promptExposureKeys,
-                        item.lessonExposureKeys,
-                        item.hintExposureKeys,
-                        item.feedbackExposureKeys,
-                    )
-                },
-            )
+            plan.toNewPracticeSession(owner.id)
         }
         when (result) {
             is PracticeCreateResult.Created -> call.respond(HttpStatusCode.Created, result.session.toResponse())
@@ -112,6 +98,56 @@ internal fun Route.practiceRoutes(
         call.respond(repository.advancePracticeSession(owner.id, call.practiceId(), request.position).response())
     }
 }
+
+private fun Route.practiceProfilesRoute(
+    config: ServerConfig,
+    repository: AstridRepository,
+    planner: PracticePlanner,
+    clock: () -> Long,
+) {
+    get("/practice-profiles") {
+        val owner = requirePracticeSession(call, config, repository, clock)
+        call.respond(
+            PracticeProfilesResponse(
+                owner.id.toString(),
+                owner.expiresAt,
+                planner.profiles().map { profile ->
+                    PracticeProfileDto(
+                        profile.focusId,
+                        profile.planRevision,
+                        profile.title,
+                        profile.description,
+                        profile.itemCount,
+                        profile.prerequisiteSkillIds,
+                    )
+                },
+            ),
+        )
+    }
+}
+
+private fun app.astrid.engine.PracticePlan.toNewPracticeSession(ownerId: UUID) = NewPracticeSession(
+    title,
+    contentRevision,
+    generatorRevision,
+    evaluationRevision,
+    prerequisiteSkillIds,
+    introduction.map { IntroductionDto(it.title, it.body) },
+    items.map { item ->
+        val id = UUID.randomUUID()
+        NewPracticeItem(
+            item.position,
+            item.exercise.toStoredPractice(id, ownerId),
+            item.targetDescriptor.label,
+            item.answerExposureKeys,
+            item.promptExposureKeys,
+            item.lessonExposureKeys,
+            item.hintExposureKeys,
+            item.feedbackExposureKeys,
+            item.targetDescriptor.assessmentMode,
+        )
+    },
+)
 
 private fun Route.followUpRoute(
     config: ServerConfig,
@@ -145,9 +181,34 @@ private fun StoredPracticeSession.toFollowUp(
     ownerId: UUID,
     engine: PilotEngine,
 ): NewPracticeSession {
-    val sourceExercises = items.map { regenerateVerified(engine, it.exercise) }
+    val sourceItems = items.map { item ->
+        PracticeFollowUpSourceItem(
+            regenerateVerified(engine, item.exercise),
+            PracticeTargetDescriptor(
+                item.targetLabel,
+                item.exercise.targetSkillId,
+                item.exercise.presentation.lexicalTarget?.let {
+                    app.astrid.engine.LexicalTarget(it.entryId, it.senseId, it.facet, it.direction)
+                },
+                item.assessmentMode,
+            ),
+        )
+    }
     val plan = try {
-        PracticeFollowUpPlanner(engine).plan(request.planRevision, request.seed, request.targetKeys, sourceExercises)
+        val planner = PracticeFollowUpPlanner(engine)
+        when (request.planRevision) {
+            FOLLOW_UP_REVISION -> planner.plan(
+                request.planRevision,
+                request.seed,
+                request.targetKeys,
+                sourceItems.map { it.exercise },
+            )
+            PRESENT_VERBS_FOLLOW_UP_REVISION -> {
+                requirePresentVerbFollowUpSource()
+                planner.planPresentVerbs(request.planRevision, request.seed, request.targetKeys, sourceItems)
+            }
+            else -> error("Unsupported follow-up practice plan")
+        }
     } catch (cause: IllegalArgumentException) {
         throw Conflict(cause.message ?: "Unsupported follow-up practice plan").apply { initCause(cause) }
     }
@@ -168,11 +229,22 @@ private fun StoredPracticeSession.toFollowUp(
                 item.lessonExposureKeys,
                 item.hintExposureKeys,
                 item.feedbackExposureKeys,
+                item.targetDescriptor.assessmentMode,
             )
         },
         PracticeFollowUpLineage(sourceId, request.targetKeys),
         sourceExposureSnapshot(),
     )
+}
+
+private fun StoredPracticeSession.requirePresentVerbFollowUpSource() {
+    val eligible =
+        (focusId == PRESENT_VERBS_FOCUS && planRevision == PRESENT_VERBS_REVISION) ||
+            (focusId == TARGETED_REVIEW_FOCUS && planRevision == PRESENT_VERBS_FOLLOW_UP_REVISION)
+    require(eligible) { "Follow-up-2 requires a present-verb source practice" }
+    require(items.all { it.exercise.targetSkillId != "G004" || it.assessmentMode != null }) {
+        "Follow-up-2 requires frozen assessment modes"
+    }
 }
 
 private suspend fun requirePracticeSession(
@@ -190,7 +262,10 @@ private fun requirePracticeOwner(call: ApplicationCall, expected: UUID) {
 
 private fun PracticeSessionRequest.validated(): PracticeSessionRequest {
     parseStrictUuid(practiceSessionId, "practiceSessionId")
-    if (focusId != PRACTICE_FOCUS || planRevision != PRACTICE_REVISION) throw Conflict("Unsupported practice plan")
+    val supported =
+        (focusId == PRACTICE_FOCUS && planRevision == PRACTICE_REVISION) ||
+            (focusId == PRESENT_VERBS_FOCUS && planRevision == PRESENT_VERBS_REVISION)
+    if (!supported) throw Conflict("Unsupported practice plan")
     if (seed < 0) throw BadRequest("Invalid practice seed")
     return this
 }
@@ -198,7 +273,9 @@ private fun PracticeSessionRequest.validated(): PracticeSessionRequest {
 private fun PracticeFollowUpRequest.validated(sourceId: UUID): PracticeFollowUpRequest {
     val id = parseStrictUuid(practiceSessionId, "practiceSessionId")
     if (id == sourceId) throw Conflict("Follow-up practice must use a new session id")
-    if (planRevision != FOLLOW_UP_REVISION) throw Conflict("Unsupported follow-up practice plan")
+    if (planRevision != FOLLOW_UP_REVISION && planRevision != PRESENT_VERBS_FOLLOW_UP_REVISION) {
+        throw Conflict("Unsupported follow-up practice plan")
+    }
     if (seed < 0) throw BadRequest("Invalid practice seed")
     if (targetKeys.isEmpty() || targetKeys.size > PRACTICE_ITEM_COUNT || targetKeys.toSet().size != targetKeys.size) {
         throw BadRequest("Follow-up target keys must contain 1 to 8 distinct values")
@@ -255,6 +332,7 @@ private fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
                     stored.exercise.presentation.lexicalTarget?.let {
                         app.astrid.engine.LexicalTarget(it.entryId, it.senseId, it.facet, it.direction)
                     },
+                    stored.assessmentMode,
                 ),
                 advanced = stored.position < cursor,
                 lessonOpened = stored.lessonOpened,
@@ -279,8 +357,15 @@ private fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
         items.map { it.toDto() }, items.singleOrNull { it.position == cursor }?.exercise?.presentation,
         summary.toDto(includeRows = cursor == items.size),
         followUp?.let { PracticeFollowUpDto(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },
+        followUpPlanRevision(),
     )
 }
+
+private fun StoredPracticeSession.followUpPlanRevision(): String? =
+    PRESENT_VERBS_FOLLOW_UP_REVISION.takeIf {
+        (focusId == PRESENT_VERBS_FOCUS && planRevision == PRESENT_VERBS_REVISION) ||
+            (focusId == TARGETED_REVIEW_FOCUS && planRevision == PRESENT_VERBS_FOLLOW_UP_REVISION)
+    }
 
 private fun StoredPracticeItem.toDto(): PracticeItemDto = PracticeItemDto(
     position,
@@ -298,6 +383,7 @@ private fun StoredPracticeItem.toDto(): PracticeItemDto = PracticeItemDto(
     attempts.lastOrNull()?.answer,
     attempts.firstOrNull()?.context,
     attempts.lastOrNull()?.context,
+    assessmentMode,
 )
 
 private fun PracticeAttemptContextDto.toEngine() = PracticeAttemptContext(
@@ -339,7 +425,17 @@ private fun StoredPracticeSession.sourceExposureSnapshot(): List<PracticeCrossRu
             if (item.lessonOpened) add(PracticeCrossRunExposureDto(id.toString(), item.position, "lesson", item.lessonExposureKeys))
             if (item.hintOpened) add(PracticeCrossRunExposureDto(id.toString(), item.position, "hint", item.hintExposureKeys))
             if (item.attempts.isNotEmpty()) {
-                add(PracticeCrossRunExposureDto(id.toString(), item.position, "feedback", item.feedbackExposureKeys))
+                add(
+                    PracticeCrossRunExposureDto(
+                        id.toString(),
+                        item.position,
+                        "feedback",
+                        frozenFeedbackExposureKeys(
+                            item.feedbackExposureKeys,
+                            item.attempts.any { it.response.targetSatisfaction == "met" },
+                        ),
+                    ),
+                )
             }
         }
     }
@@ -377,6 +473,7 @@ private fun app.astrid.engine.PracticeSummary.toDto(includeRows: Boolean) = Prac
             row.firstWithPriorExposure,
             row.lessonOpenedItems,
             row.hintOpenedItems,
+            row.assessmentMode,
         )
     },
 )

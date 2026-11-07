@@ -32,6 +32,7 @@ data class NewPracticeItem(
     val lessonExposureKeys: List<String>,
     val hintExposureKeys: List<String>,
     val feedbackExposureKeys: List<String>,
+    val assessmentMode: String? = null,
 )
 
 data class StoredPracticeSession(
@@ -66,6 +67,7 @@ data class StoredPracticeItem(
     val lessonOpened: Boolean,
     val hintOpened: Boolean,
     val attempts: List<StoredPracticeAttempt>,
+    val assessmentMode: String? = null,
 )
 
 data class StoredPracticeAttempt(
@@ -104,6 +106,8 @@ data class PracticeItemPayload(
     val lessonExposureKeys: List<String>,
     val hintExposureKeys: List<String>,
     val feedbackExposureKeys: List<String>,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val assessmentMode: String? = null,
 )
 
 fun NewPracticeSession.toPayload() = PracticePlanPayload(
@@ -122,6 +126,7 @@ fun NewPracticeSession.toPayload() = PracticePlanPayload(
             it.lessonExposureKeys,
             it.hintExposureKeys,
             it.feedbackExposureKeys,
+            it.assessmentMode,
         )
     },
     followUp?.let { PracticeFollowUpPayload(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },

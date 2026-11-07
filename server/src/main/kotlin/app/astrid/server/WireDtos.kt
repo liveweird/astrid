@@ -37,6 +37,23 @@ data class PracticeContextResponse(
 )
 
 @Serializable
+data class PracticeProfileDto(
+    val focusId: String,
+    val planRevision: String,
+    val title: String,
+    val description: String,
+    val itemCount: Int,
+    val prerequisiteSkillIds: List<String>,
+)
+
+@Serializable
+data class PracticeProfilesResponse(
+    val ownerSessionId: String,
+    val sessionExpiresAt: Long,
+    val profiles: List<PracticeProfileDto>,
+)
+
+@Serializable
 data class PracticeSessionRequest(
     val practiceSessionId: String,
     val focusId: String,
@@ -230,6 +247,8 @@ data class PracticeItemDto(
     val lastAnswer: AttemptAnswerDto? = null,
     val firstAttemptContext: PracticeAttemptContextDto? = null,
     val lastAttemptContext: PracticeAttemptContextDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val assessmentMode: String? = null,
 )
 
 @Serializable
@@ -259,6 +278,8 @@ data class PracticeSummaryRowDto(
     val firstWithPriorExposure: Int,
     val lessonOpenedItems: Int,
     val hintOpenedItems: Int,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val assessmentMode: String? = null,
 )
 
 @Serializable
@@ -295,6 +316,8 @@ data class PracticeSessionResponse(
     val summary: PracticeSummaryDto,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val followUp: PracticeFollowUpDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val followUpPlanRevision: String? = null,
 )
 
 @Serializable

@@ -14,6 +14,7 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -26,6 +27,119 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 class PracticeApplicationTest {
+    @Test
+    fun `practice profiles are authenticated stable and do not renew the session`() = testApplication {
+        val now = AtomicLong(1_000)
+        application { astridModule(config(), InMemoryAstridRepository(clock = now::get), clock = now::get) }
+        val auth = authenticate()
+
+        val profiles = client.get("/api/v1/practice-profiles") {
+            trustedHost()
+            cookie("astrid_session", auth.cookie)
+        }
+        assertEquals(HttpStatusCode.OK, profiles.status)
+        assertNull(profiles.headers[HttpHeaders.SetCookie])
+        val payload = wireJson.parseToJsonElement(profiles.bodyAsText()).jsonObject
+        assertEquals(auth.ownerId, payload.getValue("ownerSessionId").jsonPrimitive.content)
+        val choices = payload.getValue("profiles").jsonArray
+        assertEquals(
+            listOf("reading-basics/practice-1", "present-verbs/present-verbs-1"),
+            choices.map { profile ->
+                profile.jsonObject.let {
+                    "${it.getValue("focusId").jsonPrimitive.content}/${it.getValue("planRevision").jsonPrimitive.content}"
+                }
+            },
+        )
+        assertEquals(listOf(8, 6), choices.map { it.jsonObject.getValue("itemCount").jsonPrimitive.content.toInt() })
+
+        now.set(61_001)
+        val expired = client.get("/api/v1/practice-profiles") {
+            trustedHost()
+            cookie("astrid_session", auth.cookie)
+        }
+        assertEquals(HttpStatusCode.Unauthorized, expired.status)
+        assertNull(expired.headers[HttpHeaders.SetCookie])
+    }
+
+    @Test
+    fun `present verb mode metadata is frozen and follow-up 2 is source constrained`() = testApplication {
+        application { astridModule(config(), InMemoryAstridRepository()) }
+        val auth = authenticate()
+        assertEquals(
+            HttpStatusCode.Conflict,
+            create(
+                auth.cookie,
+                auth.ownerId,
+                """{"practiceSessionId":"${UUID.randomUUID()}","focusId":"present-verbs","planRevision":"practice-1","seed":0}""",
+            ).status,
+        )
+        val sourceId = UUID.randomUUID().toString()
+        val created = create(auth.cookie, auth.ownerId, presentVerbBody(sourceId))
+        assertEquals(HttpStatusCode.Created, created.status)
+        val initial = wireJson.parseToJsonElement(created.bodyAsText()).jsonObject
+        assertEquals("follow-up-2", initial.getValue("followUpPlanRevision").jsonPrimitive.content)
+        val modes = initial.getValue("items").jsonArray.map {
+            it.jsonObject.getValue("assessmentMode").jsonPrimitive.content
+        }
+        assertEquals(listOf("selection", "recall", "repair", "selection", "recall", "repair"), modes)
+
+        val firstExercise = initial.getValue("currentExercise").jsonObject
+        assertEquals(HttpStatusCode.OK, submit(auth.cookie, attemptBodyFor(firstExercise)).status)
+        val recallState = wireJson.parseToJsonElement(advance(auth, sourceId, 0).bodyAsText()).jsonObject
+        val recallExercise = recallState.getValue("currentExercise").jsonObject
+        val recallExerciseId = recallExercise.getValue("id").jsonPrimitive.content
+        val targetExposureKey = presentVerbTarget(recallExercise).first
+        val incorrect = submit(auth.cookie, attemptBody(UUID.randomUUID().toString(), recallExerciseId))
+        assertEquals(HttpStatusCode.OK, incorrect.status)
+        val afterIncorrect = wireJson.parseToJsonElement(getPractice(auth.cookie, sourceId).bodyAsText()).jsonObject
+        assertFalse(targetExposureKey in itemExposureKeys(afterIncorrect, 1))
+
+        val correct = submit(
+            auth.cookie,
+            attemptBody(UUID.randomUUID().toString(), recallExerciseId, presentVerbTarget(recallExercise).second),
+        )
+        assertEquals(
+            "met",
+            wireJson.parseToJsonElement(correct.bodyAsText()).jsonObject
+                .getValue("targetSatisfaction").jsonPrimitive.content,
+        )
+        assertEquals(HttpStatusCode.OK, submit(auth.cookie, attemptBodyFor(recallExercise)).status)
+        val afterMet = wireJson.parseToJsonElement(getPractice(auth.cookie, sourceId).bodyAsText()).jsonObject
+        assertTrue(targetExposureKey in itemExposureKeys(afterMet, 1))
+
+        val completed = completePractice(auth, advance(auth, sourceId, 1).bodyAsText())
+        val targetKeys = completed.getValue("summary").jsonObject.getValue("rows").jsonArray.map(::targetKey)
+        assertEquals(setOf("grammar:G004:selection", "grammar:G004:recall", "grammar:G004:repair"), targetKeys.toSet())
+        val childId = UUID.randomUUID().toString()
+        val childBody = followUpBody(childId, targetKeys.take(1), "follow-up-2")
+        val child = followUp(auth, sourceId, childBody)
+        assertEquals(HttpStatusCode.Created, child.status)
+        val childText = child.bodyAsText()
+        assertEquals("follow-up-2", wireJson.parseToJsonElement(childText).jsonObject
+            .getValue("followUpPlanRevision").jsonPrimitive.content)
+        val childReplay = followUp(auth, sourceId, childBody)
+        assertEquals(HttpStatusCode.OK, childReplay.status)
+        assertEquals(childText, childReplay.bodyAsText())
+        assertEquals(
+            HttpStatusCode.Conflict,
+            followUp(
+                auth,
+                sourceId,
+                followUpBody(UUID.randomUUID().toString(), listOf("grammar:G004:unknown"), "follow-up-2"),
+            ).status,
+        )
+
+        val legacyId = UUID.randomUUID().toString()
+        val legacy = create(auth.cookie, auth.ownerId, createBody(legacyId))
+        val completedLegacy = completePractice(auth, legacy.bodyAsText())
+        val legacyTarget = targetKey(completedLegacy.getValue("summary").jsonObject.getValue("rows").jsonArray.first())
+        assertEquals(
+            HttpStatusCode.Conflict,
+            followUp(auth, legacyId, followUpBody(UUID.randomUUID().toString(), listOf(legacyTarget), "follow-up-2")).status,
+        )
+        assertEquals(HttpStatusCode.Conflict, followUp(auth, legacyId, childBody).status)
+    }
+
     @Test
     fun `completed practice creates a selected follow-up with frozen lineage and exposure`() = testApplication {
         application { astridModule(config(), InMemoryAstridRepository()) }
@@ -331,14 +445,22 @@ class PracticeApplicationTest {
         """{"practiceSessionId":"$id","focusId":"reading-basics","planRevision":"practice-1","seed":20261107}"""
 
     private fun attemptBody(attemptId: String, exerciseId: String) =
-        """{"attemptId":"$attemptId","exerciseId":"$exerciseId","answer":{"kind":"text","text":"wrong"},"hintUsed":false}"""
+        attemptBody(attemptId, exerciseId, "wrong")
 
-    private fun followUpBody(id: String, targets: List<String>) =
-        """{"practiceSessionId":"$id","planRevision":"follow-up-1","seed":417,"targetKeys":${wireJson.encodeToString(targets)}}"""
+    private fun attemptBody(attemptId: String, exerciseId: String, answer: String) =
+        """{"attemptId":"$attemptId","exerciseId":"$exerciseId","answer":{"kind":"text","text":"$answer"},"hintUsed":false}"""
+
+    private fun followUpBody(id: String, targets: List<String>, revision: String = "follow-up-1") =
+        """{"practiceSessionId":"$id","planRevision":"$revision","seed":417,"targetKeys":${wireJson.encodeToString(targets)}}"""
+
+    private fun presentVerbBody(id: String) =
+        """{"practiceSessionId":"$id","focusId":"present-verbs","planRevision":"present-verbs-1","seed":20261107}"""
 
     private fun targetKey(row: kotlinx.serialization.json.JsonElement): String {
         val value = row.jsonObject
-        return value["targetSkillId"]?.jsonPrimitive?.content?.let { "grammar:$it" }
+        return value["targetSkillId"]?.jsonPrimitive?.content?.let { skill ->
+            value["assessmentMode"]?.jsonPrimitive?.content?.let { "grammar:$skill:$it" } ?: "grammar:$skill"
+        }
             ?: value.getValue("lexicalTarget").jsonObject.let { target ->
                 listOf(
                     "lexical",
@@ -348,6 +470,25 @@ class PracticeApplicationTest {
                     target.getValue("direction").jsonPrimitive.content,
                 ).joinToString(":")
             }
+    }
+
+    private fun itemExposureKeys(state: kotlinx.serialization.json.JsonObject, position: Int): List<String> =
+        state.getValue("items").jsonArray[position].jsonObject.getValue("lastAttemptContext").jsonObject
+            .getValue("priorExposure").jsonArray.flatMap { exposure ->
+                exposure.jsonObject.getValue("keys").jsonArray.map { it.jsonPrimitive.content }
+            }
+
+    private fun presentVerbTarget(exercise: kotlinx.serialization.json.JsonObject): Pair<String, String> {
+        val instruction = exercise.getValue("instruction").jsonPrimitive.content
+        return listOf(
+            Triple("have", "L009", "har"),
+            Triple("være", "L010", "er"),
+            Triple("læse", "L011", "læser"),
+            Triple("spise", "L012", "spiser"),
+            Triple("sove", "L013", "sover"),
+        ).single { it.first in instruction }.let { (_, entryId, present) ->
+            "verb-present:$entryId" to present
+        }
     }
 
     private suspend fun ApplicationTestBuilder.completePractice(auth: Auth, initial: String): kotlinx.serialization.json.JsonObject {
