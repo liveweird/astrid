@@ -28,7 +28,11 @@ function lexicalLanguageLabel(attempt: Attempt) {
   return languageLabel(attempt.linguisticStatus);
 }
 
-export default function FeedbackPanel({ attempt, focusRef }: { attempt: Attempt; focusRef?: Ref<HTMLDivElement> }) {
+export default function FeedbackPanel({ attempt, focusRef, supportDescription }: {
+  attempt: Attempt;
+  focusRef?: Ref<HTMLDivElement>;
+  supportDescription?: string;
+}) {
   const met = attempt.targetSatisfaction === "met";
   const constraintMet = attempt.responseConstraintStatus == null || attempt.responseConstraintStatus === "met";
   const goodWork = attempt.linguisticScope
@@ -67,7 +71,7 @@ export default function FeedbackPanel({ attempt, focusRef }: { attempt: Attempt;
         )}
         {attempt.issues.map((issue) => <Text size="sm" key={issue.code}>{issue.message}</Text>)}
         <Text size="xs" c="var(--mantine-color-text)">
-          Try {attempt.retryNumber}{attempt.hintUsed ? " · Supported practice" : " · No support opened"}
+          Try {attempt.retryNumber} · {supportDescription ?? (attempt.hintUsed ? "Supported practice" : "No support opened")}
         </Text>
       </Stack>
     </Alert>

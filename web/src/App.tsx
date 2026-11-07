@@ -4,10 +4,11 @@ import {
 } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
-  IconFlask, IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand, IconMoon, IconSun,
+  IconBook2, IconFlask, IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand, IconMoon, IconSun,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import Playground from "./Playground";
+import Practice from "./Practice";
 import BrandMark from "./components/BrandMark";
 import classes from "./theme.module.css";
 
@@ -22,6 +23,7 @@ export default function App() {
   const { setColorScheme } = useMantineColorScheme();
   const colorScheme = useComputedColorScheme("light", { getInitialValueInEffect: false });
   const rail = collapsed && (desktop || !opened);
+  const practice = window.location.pathname === "/practice";
   useEffect(() => {
     if (desktop) close();
   }, [close, desktop]);
@@ -82,12 +84,21 @@ export default function App() {
         <AppShell.Section grow component={ScrollArea}>
           {!rail && <Text size="xs" fw={650} c="dimmed" px="sm" py="xs">Learn Danish</Text>}
           <NavLink
-            active
+            active={!practice}
             label={rail ? undefined : "Engine playground"}
             leftSection={<IconFlask size={19} stroke={1.6} />}
             aria-label="Engine playground"
             className={rail ? classes.railLink : undefined}
-            href="#main-content"
+            href={practice ? "/" : "#main-content"}
+            onClick={close}
+          />
+          <NavLink
+            active={practice}
+            label={rail ? undefined : "Practice"}
+            leftSection={<IconBook2 size={19} stroke={1.6} />}
+            aria-label="Practice"
+            className={rail ? classes.railLink : undefined}
+            href="/practice"
             onClick={close}
           />
         </AppShell.Section>
@@ -100,7 +111,7 @@ export default function App() {
       </AppShell.Navbar>
 
       <AppShell.Main id="main-content" tabIndex={-1}>
-        <Playground />
+        {practice ? <Practice /> : <Playground />}
       </AppShell.Main>
     </AppShell>
   );
