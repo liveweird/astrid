@@ -13,6 +13,7 @@ internal data class LexicalReviewRecord(
 internal object PilotReviewMetadata {
     const val REVIEW_STATE = "draft-not-teacher-reviewed"
     const val PROVENANCE = "docs/knowledge/danish-vocabulary-seed.md at baseline 3b462a9"
+    const val SOURCE_REVIEW_DATE = "2026-11-07; see docs/knowledge/pilot-source-review.md"
 
     fun records(
         pronouns: List<PronounEntry>,
@@ -39,7 +40,10 @@ internal object PilotReviewMetadata {
             )
         val records = pronouns.map { entry ->
             val detail = pronounDetails.getValue(entry.id)
-            record(entry.id, entry.text, detail.first, mapOf("subject" to entry.text), detail.second, PRONOUN_SOURCE)
+            record(
+                entry.id, entry.text, detail.first, mapOf("subject" to entry.text), detail.second, PRONOUN_SOURCE,
+                additionalSources = if (entry.id == "L006") listOf(UPPERCASE_PRONOUN_SOURCE) else emptyList(),
+            )
         }
         val identifying =
             record(
@@ -107,16 +111,18 @@ internal object PilotReviewMetadata {
                 "en",
                 "unstressed common-gender singular indefinite article",
                 mapOf("article" to "en"),
-                "Before a licensed common-gender singular count noun; numeral én is a different use.",
+                "Before a licensed common-gender singular count noun; numeral en/én is a different use, with optional accent.",
                 GENDER_SOURCE,
+                additionalSources = listOf(ARTICLE_SOURCE, ACCENT_SOURCE),
             ),
             record(
                 "L023",
                 "et",
                 "unstressed neuter singular indefinite article",
                 mapOf("article" to "et"),
-                "Before a licensed neuter singular count noun; numeral ét is a different use.",
+                "Before a licensed neuter singular count noun; numeral et/ét is a different use, with optional accent.",
                 GENDER_SOURCE,
+                additionalSources = listOf(ARTICLE_SOURCE, ACCENT_SOURCE),
             ),
         )
 
@@ -127,9 +133,13 @@ internal object PilotReviewMetadata {
         forms: Map<String, String>,
         constraints: String,
         sourceUrl: String,
-    ) = LexicalReviewRecord(id, headword, sense, forms, constraints, listOf(sourceUrl), REVIEW_STATE)
+        additionalSources: List<String> = emptyList(),
+    ) = LexicalReviewRecord(id, headword, sense, forms, constraints, listOf(sourceUrl) + additionalSources, REVIEW_STATE)
 
     private const val PRONOUN_SOURCE = "https://sproget.dk/typiske-problemer/pronomener-stedord/"
+    private const val UPPERCASE_PRONOUN_SOURCE = "https://ro.dsn.dk/?paragraf=13&type=rulesearch"
+    private const val ACCENT_SOURCE = "https://ro.dsn.dk/?paragraf=5&type=rulesearch"
+    private const val ARTICLE_SOURCE = "https://ordnet.dk/ddo/ordbog/en"
     private const val GENDER_SOURCE =
         "https://sproget.dk/sprogviden/spoergsmaal-og-svar/dansk-sprognaevn/sv00000096/"
     private val VERB_SOURCES =

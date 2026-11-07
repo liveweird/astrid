@@ -10,6 +10,7 @@ object PilotReview {
             appendLine("- Generator revision: `${snapshot.generatorRevision}`")
             appendLine("- Review state: `${PilotReviewMetadata.REVIEW_STATE}`")
             appendLine("- Provenance: ${PilotReviewMetadata.PROVENANCE}")
+            appendLine("- Source review: ${PilotReviewMetadata.SOURCE_REVIEW_DATE}")
             appendLine("- Inventory: ${snapshot.lexicalReview.size} lexical records; ${snapshot.sentences.size} sentences")
             appendLine()
             appendLexicalInventory(snapshot.lexicalReview)

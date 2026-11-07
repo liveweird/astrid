@@ -272,6 +272,9 @@ internal object PilotContentValidator {
     private val KNOWN_SOURCE_URLS =
         setOf(
             "https://sproget.dk/typiske-problemer/pronomener-stedord/",
+            "https://ro.dsn.dk/?paragraf=13&type=rulesearch",
+            "https://ro.dsn.dk/?paragraf=5&type=rulesearch",
+            "https://ordnet.dk/ddo/ordbog/en",
             "https://sproget.dk/sprogviden/spoergsmaal-og-svar/dansk-sprognaevn/sv00000096/",
             "https://ordnet.dk/ddo/ordbog/have",
             "https://ordnet.dk/ddo/ordbog/v%C3%A6re",

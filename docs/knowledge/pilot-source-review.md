@@ -44,7 +44,7 @@ Resolve entries through the [DDO headword search](https://ordnet.dk/ddo/ordbog) 
 
 ## Remaining work
 
-- Attach the claim-specific RO references to the local review metadata and preserve the review date. This is provenance maintenance, not a learner-content change.
+- Claim-specific RO references, the article lookup and the source-review date are now attached to the local review metadata. Article notes explicitly retain the optional numeral accent. These are provenance changes; learner generation and grading remain unchanged.
 - Adopt precise entry/sense citations only after verifying the actual destination; retain human locators when machine identifiers are unavailable.
 - Obtain Danish teaching review of naturalness, target isolation and instructional effectiveness before changing the draft review state.
 - Keep resource reuse assessment separate. No dictionary definitions or example sentences were imported during this audit; published access and reuse terms are documented in the [resource assessment](danish-resource-assessment.md).
