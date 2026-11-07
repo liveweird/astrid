@@ -77,3 +77,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Application versioning](app-versioning.md): Flow-derived version stamp, lazy changelog, build identity and release conventions.
 
 - [Topic-based practice](topic-practice.md): authorized mixed/verb focus selection, operation-specific outcomes, precise exposure and saved-run continuity.
+
+- [Exercise family expansion](exercise-family-expansion.md): proposed sentence writing, short reading comprehension, error diagnosis and later transformations; no implementation selected.
