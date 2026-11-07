@@ -75,3 +75,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Targeted follow-up practice](targeted-follow-up.md): authorized learner selection, finite review plans, frozen source exposure and recovery acceptance.
 
 - [Application versioning](app-versioning.md): Flow-derived version stamp, lazy changelog, build identity and release conventions.
+
+- [Topic-based practice](topic-practice.md): authorized mixed/verb focus selection, operation-specific outcomes, precise exposure and saved-run continuity.

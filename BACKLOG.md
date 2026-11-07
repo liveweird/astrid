@@ -6,6 +6,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [next]
 
+- **BL-041 — Topic-based practice with present verb forms (authorized, in progress).** Offer existing mixed practice and a new present-verb focus; integrate G004 selection/recall/repair with distinct operation evidence and source-linked reviews. Define revisions, prerequisites, plan size, exposure and chooser/recovery continuity first. Preserve old plans and grading. Deliver independent review, complete verification, a minor app-version/changelog update and focused merge/push. See the [milestone](docs/knowledge/learning-engine.md#topic-based-practice). Other focus profiles and new language content remain later work.
+
 - **BL-035 — Review the expanded playground, guided practice and targeted reviews.** Proposed next step: try `/practice` for an eight-part session, then all eight standalone entries under “Generation controls.” Assess pacing, instruction/feedback clarity, typed Danish input, repair, response constraints, support, recovery, summaries and repetition before choosing the next bounded engine/content iteration. From a completed summary, try selecting a single vocabulary direction and a grammar target for separate follow-up runs; assess selection, source links and possible earlier exposure. Record reproducible coordinates for corrections. The [review guide](docs/knowledge/pilot-review-guide.md) covers both flows; specialist validation remains BL-022.
 
 ## [todo]
@@ -20,8 +22,6 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 - **BL-021 — Specify Astrid branding within the shared UI family.** Preserve the sibling style/layout and reuse the theme/shell conventions. Develop the preferred red palette and distinct feedback semantics; explore a unique Denmark-related or Danish Astrid character logo. Complete when the palette, logo concept, asset requirements, and validation criteria are recorded. Exact visual choices remain open in Q18 and Q19. The [visual identity brief](docs/knowledge/visual-identity.md) is recorded; production assets remain in the later media phase unless the user brings them forward.
 
 ## [new]
-
-- **BL-041 — Topic-based practice, beginning with present verb forms.** Assistant-proposed next engine milestone: choose an existing focus before a fresh run and bring standalone G004 selection/recall/repair into guided practice and source-linked reviews. Define profile/plan revisions, prerequisites, bounded size, operation-specific outcome/exposure evidence and active-run continuity first. Reuse current language content and graders; preserve all saved runs and published revisions. Complete when the agreed focus-to-practice-to-review flow is independently verified. See the [proposal](docs/knowledge/learning-engine.md#proposed-next-milestone-topic-based-practice). Not yet authorized; BL-035 user review remains open.
 
 - **BL-032 — Define bounded server-outage work.** Proposed follow-up to the [observed lifecycle limitation](docs/knowledge/server-outage-boundary.md): choose a fault model and evidence-based request/cleanup/shutdown budgets, then prove lease fencing, eventual remote cleanup, bounded retained work and exact replay before adopting a policy. No server deadline or production SLO is selected.
 

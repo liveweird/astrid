@@ -1,0 +1,35 @@
+# Topic-based Practice Contract
+
+## Authorization and first scope
+
+**7 November 2026 — User-authorized:** “OK, go for it” selects BL-041. Offer two explicit fresh-run choices: **Mixed practice** and **Present verb forms**. This milestone reuses current teaching material, generated exercises and graders. Other dedicated topic profiles, new tenses, broader language material, scheduling and accounts remain separate work. The application feature version becomes `0.3.0`; published content/generator/evaluator revisions stay unchanged.
+
+The catalog's Mixed practice label refers to the existing `reading-basics/practice-1` eight-item run. Preserve its stored title, ordering, request identity, summaries and all old bytes. A new `present-verbs/present-verbs-1` profile contains six items: E001 selection, E004 recall, E005 repair, then the same three operations again. Rotate the existing five introduced verbs deterministically with the seed, include all five, repeat the first at position five, avoid adjacent equal verbs and use six distinct licensed sentences. Pins remain `pilot-3/generator-3/evaluation-3`. G001–G003 are prerequisites; G004 is assessed. Existing context supplies sentence order/articles rather than assessing them. Reuse and deduplicate existing introductions.
+
+## Assessment and exposure identity
+
+Add optional practice-only `assessmentMode` values `selection`, `recall` and `repair`. Persist them with the plan/item snapshot and return them on item/summary metadata. Omit null defaults so existing payloads and responses remain identical. Do not add fields to published GeneratedExercise or Attempt contracts. Keep grammar target G004 and assessment mode separate: keys are `grammar:G004:<mode>`, with distinct labels for choosing the form, written recall and repairing the form. Legacy target keys remain unchanged. Summaries group by target and mode, retaining first/latest outcomes, support, response constraints and uncertainty.
+
+Use `verb-present:<entryId>` as the exact-form exposure identity across all three operations. `grammar:G004` records concept support and is not an interchangeable answer key for every verb. E001's choices expose its supplied present form; recall and repair prompts supply the lemma but not that form. Existing lessons/combined introductions expose the form and concept; generic hints provide concept support only.
+
+A material source finding: incorrect verb feedback displays the learner's completed sentence, not a corrected answer. For new items, include a present-form feedback key only after an earlier stored target-met attempt on that item. Apply one shared filtering rule to PostgreSQL and memory attempt-context calculation and source-exposure snapshots. Wrong or unknown feedback alone cannot invent correct-form exposure. Successful earlier feedback can affect a retry/later item, and opened teaching still records support. Freeze each attempt and child source snapshot; never rewrite prior evidence. Legacy exposure metadata is unchanged.
+
+## Plans, catalog and follow-up revisions
+
+`PracticePlanner.profiles()` supplies two `PracticeProfile` records with focusId, planRevision, title, description, itemCount and prerequisiteSkillIds. An authenticated, nonrenewing `GET /api/v1/practice-profiles` returns ownerSessionId, sessionExpiresAt and these profiles. Keep the old practice-context response unchanged. The existing creation request shape admits only the exact supported focus/revision pairs and retains owner binding, atomic insertion and replay-before-planning.
+
+Keep `follow-up-1` behavior unchanged. New `follow-up-2` reviews are eligible only from the present-verb profile or another verb review. Pass regenerated-and-fingerprint-verified exercises plus their frozen target descriptors to the new planner; only operation keys actually assessed in that source may be selected. One/two/three selected modes produce four/four/six items. Balance/interleave requested modes, avoid adjacent repeated verbs, use distinct child sentences and exclude all immediate-source sentences. Keep existing compact ancestral witnesses, source identity and original outcomes unchanged.
+
+A new nullable, default-omitted `followUpPlanRevision` response field advertises `follow-up-2` for new verb runs/reviews. The client uses it; legacy fallback to revision one is limited to known legacy pairs. The server enforces source eligibility regardless of client hints. No new SQL migration is needed for six-item plans within existing one-to-eight bounds. An older strict decoder may reject new metadata: quiesce new-profile/review access before downgrade, retain all evidence and resume new runs only with a compatible reader.
+
+## Chooser and recovery continuity
+
+A fresh visit shows **Choose your practice**, with no focus preselected and no run-creation POST until **Start practice**. A fresh browser without recovery may bootstrap its development session to read the catalog. A URL-bound/latest saved run always takes priority and resumes directly, checking owner continuity before any renewing bootstrap.
+
+**Start new practice** opens selection without changing the old URL, run, draft or outbox. **Cancel** returns unchanged. Opening/cancelling must not renew an expired owner; retain the loaded catalog or display the two compiled choice labels until actual Start can bootstrap and validate the current catalog. On actual Start, capture profile/revision, UUID and seed once. Save the run and exact creation outbox atomically before switching URL/state or sending. Retain the old recovery record. Storage/catalog/bootstrap failure preserves the previous usable state; a durably queued uncertain creation binds its new URL and exact body for retry/reload. Guard late asynchronous responses from replacing a newer run. Existing support, attempt and advance recovery rules still apply.
+
+## Acceptance and ownership
+
+Engine owns profiles, deterministic verb plans, operation identities/summaries, exposure metadata and version-two reviews. Server owns catalog/DTO/OpenAPI, immutable snapshots, outcome-aware exposure filtering, memory/PostgreSQL parity and transactional tests. Web owns selection, recovery, operation-specific summary/review UI, generated types and component tests. Coordinator owns documentation, browser journeys, release files, shared Gradle/Docker checks, independent reviews, backups and Git delivery.
+
+Verify all five verbs and three operations, deterministic sentence variation, source exclusion, invalid modes/pairs, distinct summaries/reviews and exact historical generation/grading archives. Exercise wrong-versus-correct feedback exposure, frozen ancestry, owner isolation, atomic creation/replay, chooser cancellation/expiry/storage failure, Strict Mode bootstrap, committed/uncommitted response loss and direct resume. Run both browsers, themes, keyboard/enlarged-text checks and existing flows. Preserve main database identity/process/mounts and all immutable histories during backed-up promotion; fault-inject only in an owned QA stack. Record observed evidence before completion.
