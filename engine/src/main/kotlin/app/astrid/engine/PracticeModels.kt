@@ -37,6 +37,22 @@ data class PracticeTargetDescriptor(
     val lexicalTarget: LexicalTarget?,
 )
 
+object PracticeTargetKeys {
+    fun key(
+        targetSkillId: String?,
+        lexicalTarget: LexicalTarget?,
+    ): String {
+        require((targetSkillId == null) != (lexicalTarget == null)) {
+            "A practice target must identify exactly one grammar or lexical target"
+        }
+        return targetSkillId?.let { "grammar:$it" } ?: requireNotNull(lexicalTarget).run {
+            listOf("lexical", entryId, senseId, facet, direction).joinToString(":")
+        }
+    }
+}
+
+fun PracticeTargetDescriptor.targetKey(): String = PracticeTargetKeys.key(targetSkillId, lexicalTarget)
+
 data class PracticePlanItem(
     override val position: Int,
     val exercise: GeneratedExercise,
@@ -49,6 +65,7 @@ data class PracticePlanItem(
 ) : PracticeExposureMetadata
 
 enum class PracticeExposureSource(val wireValue: String) {
+    INTRODUCTION("introduction"),
     PROMPT("prompt"),
     LESSON("lesson"),
     HINT("hint"),
@@ -61,11 +78,19 @@ data class PracticePriorExposure(
     val keys: List<String>,
 )
 
+data class PracticeCrossRunExposure(
+    val practiceSessionId: String,
+    val position: Int,
+    val source: PracticeExposureSource,
+    val keys: List<String>,
+)
+
 data class PracticeAttemptContext(
     val introductionOpened: Boolean,
     val lessonOpened: Boolean,
     val hintOpened: Boolean,
     val priorExposure: List<PracticePriorExposure>,
+    val sourceExposure: List<PracticeCrossRunExposure> = emptyList(),
 )
 
 data class PracticeItemExposureObservation(

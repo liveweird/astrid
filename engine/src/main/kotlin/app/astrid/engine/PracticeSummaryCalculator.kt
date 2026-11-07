@@ -77,7 +77,9 @@ object PracticeSummaryCalculator {
             first = outcomeCounts(firstAttempts),
             latest = outcomeCounts(latestAttempts),
             firstWithSupport = firstAttempts.count { it.hintUsed || it.context.hasSupport() },
-            firstWithPriorExposure = firstAttempts.count { it.context.priorExposure.isNotEmpty() },
+            firstWithPriorExposure = firstAttempts.count {
+                it.context.priorExposure.isNotEmpty() || it.context.sourceExposure.isNotEmpty()
+            },
             lessonOpenedItems = items.count { it.lessonOpened },
             hintOpenedItems = items.count { it.hintOpened },
         )

@@ -110,6 +110,31 @@ class PracticeSummaryCalculatorTest {
     }
 
     @Test
+    fun `cross run exposure counts separately as possible earlier exposure`() {
+        val observations = emptyObservations().toMutableList()
+        observations[0] = observations[0].copy(
+            attempts = listOf(
+                attempt(
+                    TargetStatus.MET,
+                    LinguisticStatus.ACCEPTABLE,
+                    context = emptyContext.copy(
+                        sourceExposure = listOf(
+                            PracticeCrossRunExposure(
+                                "source-session", 0, PracticeExposureSource.FEEDBACK, listOf("gloss:L014-S01"),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        val row = PracticeSummaryCalculator.calculate(plan, false, observations).rows.first()
+
+        assertEquals(1, row.firstWithPriorExposure)
+        assertTrue(observations[0].attempts.single().context.priorExposure.isEmpty())
+    }
+
+    @Test
     fun `persisted target descriptors retain frozen labels and first latest outcomes`() {
         val descriptor = PracticeTargetDescriptor("Frozen custom label", "G999", null)
         val items = listOf(

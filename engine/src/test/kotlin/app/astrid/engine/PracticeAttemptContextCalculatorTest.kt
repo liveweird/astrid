@@ -130,6 +130,28 @@ class PracticeAttemptContextCalculatorTest {
         assertFalse(context.priorExposure.any { it.position == 1 && it.source == PracticeExposureSource.FEEDBACK })
     }
 
+    @Test
+    fun `source exposure is filtered to the current answer and deduplicated by frozen origin`() {
+        val source = PracticeCrossRunExposure(
+            "source-session",
+            0,
+            PracticeExposureSource.INTRODUCTION,
+            listOf("headword:L014-S01", "article:L014", "headword:L014-S01"),
+        )
+
+        val context = PracticeAttemptContextCalculator.calculate(
+            plan.items[3],
+            false,
+            observations(3),
+            listOf(source, source),
+        )
+
+        assertEquals(
+            listOf(source.copy(keys = listOf("headword:L014-S01"))),
+            context.sourceExposure,
+        )
+    }
+
     private fun observations(cursor: Int): List<PracticeItemExposureObservation> =
         plan.items.map {
             PracticeItemExposureObservation(

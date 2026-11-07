@@ -5,6 +5,7 @@ object PracticeAttemptContextCalculator {
         currentItem: PracticeExposureMetadata,
         introductionOpened: Boolean,
         observations: List<PracticeItemExposureObservation>,
+        sourceExposure: List<PracticeCrossRunExposure> = emptyList(),
     ): PracticeAttemptContext {
         require(observations.map { it.item.position }.toSet().size == observations.size) {
             "Practice exposure observations must have unique positions"
@@ -18,11 +19,16 @@ object PracticeAttemptContextCalculator {
         val exposure = observations
             .sortedBy { it.item.position }
             .flatMap { observation -> exposureFor(observation, currentItem.position, answerKeys) }
+        val relevantSourceExposure = sourceExposure.mapNotNull { exposure ->
+            val relevantKeys = exposure.keys.filter { it in answerKeys }.distinct()
+            exposure.copy(keys = relevantKeys).takeIf { relevantKeys.isNotEmpty() }
+        }.distinct()
         return PracticeAttemptContext(
             introductionOpened = introductionOpened,
             lessonOpened = current.lessonOpened,
             hintOpened = current.hintOpened,
             priorExposure = exposure,
+            sourceExposure = relevantSourceExposure,
         )
     }
 
