@@ -37,4 +37,12 @@ Gate waits are bounded. Final process/mount comparisons confirm the main app and
 
 The frontend passes 99 tests, lint, build, API drift and unchanged coverage floors. Independent review covered support targeting, immutable replay, real two-tab assumptions, restart ownership guards and proof accuracy. The [variation inventory](practice-variation-audit.md) separately measures meaningful and presentation-only variation, without changing generation.
 
-All 114 local Chromium/WebKit journeys pass in 2.1 minutes with retries disabled. Follow-up CI/promotion remain in progress. Completion evidence will replace this status before BL-037 is closed. The original master delivery passed all five [master CI jobs](https://github.com/liveweird/astrid/actions/runs/42374564854).
+All 114 native Chromium/WebKit journeys pass in 2.2 minutes with retries disabled. Ten repeated Linux WebKit light/dark accessibility journeys also pass without retries. Source `7eb7768` passes all five [CI jobs](https://github.com/liveweird/astrid/actions/runs/42380037939), including all 114 Linux browser journeys without flaky results or retries. The earlier retry-only failures were resolved before promotion.
+
+## Preview promotion and cleanup
+
+The final verified image serves `http://localhost:8088/practice`. Before replacement, an 84,907-byte database backup was created and its archive contents verified readable, including the practice tables. All prior immutable evidence hashes were preserved: 366 exercises, 223 attempts, 10 practice sessions, 80 practice items and 52 attempt-context records. The existing PostgreSQL container, process and mounts remained unchanged; schema versions remain V1/V2/V3.
+
+All three published evaluators still support fresh submissions and exact saved replay. Thirty main-preview Chromium/WebKit smoke journeys passed without retries, covering support readability, two real tabs, saved feedback/resume, native keyboard focus, completion and both-theme accessibility. Exact ownership checks then removed only the temporary QA containers, volume and network; final comparisons confirmed the main app/database processes and mounts were untouched by cleanup.
+
+BL-037 is complete. Five focused implementation/analysis commits and this completion/review record form the authorized Git delivery. The [review walkthrough](pilot-review-guide.md#try-guided-practice) is the proposed next step; Danish teaching review and broader content remain separate backlog work.

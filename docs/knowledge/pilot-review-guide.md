@@ -19,6 +19,17 @@ This proposed walkthrough helps evaluate the engine before expanding content or 
 
 Use Tab/Enter throughout and try the narrow layout and both themes. If a result cannot be confirmed after a connection problem, “Check the same attempt” safely replays the original submission.
 
+## Try guided practice
+
+Open `http://localhost:8088/practice` for **Words and simple statements**, an eight-part sequence using existing content.
+
+1. Open the optional introduction, item lesson or hint. The revealed text should receive focus and stay readable, including in a short window with enlarged text.
+2. Give an incorrect answer. Check whether feedback distinguishes the target from response constraints and explains opened support. Retry if useful, or choose **Continue** immediately after the saved result.
+3. Refresh midway. The same URL should restore the run, checked answer and support; an unsent draft is not guaranteed to survive refresh. Connection uncertainty offers **Retry saved operation**, retaining the original operation identity.
+4. Complete the run and compare first versus latest outcomes. Retries and earlier answer exposure remain visible; completion does not establish mastery. Use **Start new practice** to compare another run.
+
+Assess pacing, exercise transitions, explanation clarity and whether the summary helps decide what to revisit. The [variation audit](practice-variation-audit.md) distinguishes 294 meaningful current plans from additional choice/block shuffles; more reviewed language content remains necessary for lasting variety.
+
 ## Inspect variation
 
 Record the format, seed and index under “Generation controls.” Reusing those coordinates and revisions reproduces the exercise presentation; the API's persisted UUID is a separate identity. Change the index or use “Next exercise” to sample variation. The finite pools contain 99 sentences for present/order and 92 for articles, while vocabulary directions each cycle through three selected senses. Long-term variety needs more reviewed content.
@@ -27,7 +38,7 @@ For the complete inventory, run `./gradlew :engine:exportPilotReview` and read `
 
 ## Record feedback
 
-Capture the coordinates, answer and expected result when something seems wrong. Separate:
+Capture the coordinates, answer and expected result when something seems wrong. For guided practice, include the session URL, part number and which support was opened. Separate:
 
 - whether the exercise isolates the intended grammar or vocabulary target;
 - whether explanations and feedback are understandable;
