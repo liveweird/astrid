@@ -66,7 +66,7 @@ describe("Playground", () => {
     await renderPlayground();
 
     expect(await screen.findByText("Learn this first")).toBeInTheDocument();
-    expect(screen.queryByText("læse · to read")).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Learn this first" })).not.toBeInTheDocument();
     expect(screen.getByText(/Using it records supported practice/)).toBeVisible();
     await userEvent.click(screen.getByRole("button", { name: "Learn this first" }));
     expect(screen.getByText("læse · to read")).toBeVisible();
@@ -183,7 +183,7 @@ describe("Playground", () => {
 
     const lesson = await screen.findByRole("button", { name: "Learn this first" });
     expect(lesson).toHaveAttribute("aria-expanded", "false");
-    expect(screen.getByText("læse · to read")).not.toBeVisible();
+    expect(screen.queryByRole("region", { name: "Learn this first" })).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "læser" }));
     await userEvent.click(screen.getByRole("button", { name: "Check answer" }));
     await waitFor(() => expect(attemptSupport).toEqual([true, false]));
