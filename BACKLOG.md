@@ -21,6 +21,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [new]
 
+- **BL-041 — Topic-based practice, beginning with present verb forms.** Assistant-proposed next engine milestone: choose an existing focus before a fresh run and bring standalone G004 selection/recall/repair into guided practice and source-linked reviews. Define profile/plan revisions, prerequisites, bounded size, operation-specific outcome/exposure evidence and active-run continuity first. Reuse current language content and graders; preserve all saved runs and published revisions. Complete when the agreed focus-to-practice-to-review flow is independently verified. See the [proposal](docs/knowledge/learning-engine.md#proposed-next-milestone-topic-based-practice). Not yet authorized; BL-035 user review remains open.
+
 - **BL-032 — Define bounded server-outage work.** Proposed follow-up to the [observed lifecycle limitation](docs/knowledge/server-outage-boundary.md): choose a fault model and evidence-based request/cleanup/shutdown budgets, then prove lease fencing, eventual remote cleanup, bounded retained work and exact replay before adopting a policy. No server deadline or production SLO is selected.
 
 - **BL-010 — Compare generation and grading approaches.** Examine reviewed templates, structural generation, and possible AI assistance against accuracy, naturalness, variety, and diagnostic needs. Complete with broader-course tradeoffs and a recommendation. The pilot already uses deterministic typed generation and bounded explicit grading; this item does not reopen its published revisions.

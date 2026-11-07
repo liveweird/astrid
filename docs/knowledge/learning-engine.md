@@ -83,3 +83,13 @@ Let the learner select existing grammar or vocabulary targets from the summary a
 Reuse current content and graders, preserve the source run and its frozen results, and persist the new run's selected targets, lineage, revisions and plan for reliable resume/replay. Earlier source-run teaching and answers are possible exposure, so review answers must not be presented as independent knowledge or mastery. The contract defines exposure, selection/prerequisites, run size and finite-pool repetition. This milestone adds no new curriculum, accounts, automatic schedule or proficiency threshold.
 
 The [follow-up contract](targeted-follow-up.md) records the selected implementation defaults: one item per lexical target, additional distinct grammar sentences, no preselected targets or automatic suggestions, and frozen source-linked exposure.
+
+## Proposed next milestone: topic-based practice
+
+**7 November 2026 — Assistant recommendation, not yet selected:** BL-041 proposes choosing an existing learning focus before starting a fresh guided run. Start with present verb forms: selection (E001), typed recall (E004) and guided repair (E005) already assess G004 in the standalone playground, while delivered `practice-1` and `follow-up-1` assess order/articles and selected vocabulary. G004 currently acts as supplied prerequisite knowledge in those runs.
+
+Offer clear entry choices for verb forms, sentence order, articles and vocabulary, reusing existing content, teaching support and graders. Prioritize a complete verb-focused run plus source-linked follow-up before extending the chooser to other profiles. Preserve the original mixed plan and all saved runs; a new choice must not silently replace an active or uncertain run.
+
+Before implementation, specify profile IDs/revisions, eligibility, size, ordering, introduction prerequisites, source review selection and verb-specific possible-exposure keys. Keep the grammar target distinct from how it was assessed: choosing a form, recalling it and repairing one should remain distinguishable in summaries rather than being treated as equivalent evidence. Retain first/latest results, support, response constraints, uncertainty and exact owner-bound recovery. Define these rules without changing published generation or grading.
+
+This recommendation advances the engine with existing language material. New tenses, later grammar, broad vocabulary expansion, scheduling and mastery policy remain separate decisions. BL-035 user review and BL-022 Danish teaching review remain open; neither is presumed complete by this proposal.
