@@ -1,0 +1,10 @@
+baselineCommit=1d695c5
+codeEquivalentCommit=e3c7556
+captureDate=2026-11-07
+reviewState=compatibility-only-not-linguistic-approval
+contentRevision=pilot-3
+generatorRevision=generator-3
+evaluationRevision=evaluation-3
+rowCount=1320
+fixtureSha256=ab467eeb5a97c334b9af2d201625de3f17ff9dcde338a319b3b372aeb1e12f0b
+description=Eight cycles, boundaries, raw and Unicode inputs, ordering, lexical facets and byte-framed UTF-8 hashes.

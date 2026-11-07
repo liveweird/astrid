@@ -57,6 +57,27 @@ dependencies {
     testImplementation(libs.testcontainers.postgresql)
 }
 
+val pilotThreeWireFixture = layout.projectDirectory.file("src/test/resources/golden/pilot-3-generator-3-wire.tsv")
+val pilotThreeWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-3-generator-3-wire.provenance")
+
+tasks.register<JavaExec>("exportPilotThreeWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-3 server public-wire compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.PilotThreeWireCompatibilityExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                pilotThreeWireFixture.asFile.absolutePath,
+                pilotThreeWireProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(pilotThreeWireFixture, pilotThreeWireProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

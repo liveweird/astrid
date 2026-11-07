@@ -1,0 +1,7 @@
+baselineCommit=1d695c5
+contentRevision=pilot-3
+generatorRevision=generator-3
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=1806
+fixtureSha256=ef8f62beb500a0e25da6d94030271043c6cb5c7b987544089e0ca6579024c93d
+description=All eight pilot-3 formats; complete cycles for seeds 0, 47, and Int.MAX_VALUE plus cycle and maximum-index boundaries; SHA-256 over public ExerciseResponse, inspector, and reproduction fingerprint.
