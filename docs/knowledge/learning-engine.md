@@ -1,8 +1,8 @@
 # Learning Engine Proposals
 
-The following design ideas support the [confirmed product requirements](product-direction.md). They remain proposals; no architecture, framework, or algorithm has been selected.
+The following design ideas support the [confirmed product requirements](product-direction.md). The broader-course ideas remain proposals; the authorized pilot uses the architecture, deterministic generation and bounded grading choices in [implementation decisions](implementation-decisions.md).
 
-The [beginner slice specification](beginner-slice-spec.md) now makes the first three exercise formats, generation boundaries, normalization, feedback, and attempt handling concrete enough to review. The broader ideas below remain design direction rather than implemented behavior.
+The [beginner slice specification](beginner-slice-spec.md) now makes the first three exercise formats, generation boundaries, normalization, feedback, and attempt handling concrete enough to review. The [private playground delivery](playground-delivery.md) implements that bounded subset. The broader ideas below remain design direction rather than a claim of full-course behavior.
 
 ## Learning targets and progression
 
@@ -52,6 +52,6 @@ An earlier suggested trial size was 40–60 vocabulary entries, three grammar co
 
 The current draft instead defines a deliberately small, connected test space: six foundational skill records, three construction families, 23 vocabulary entries, and three exercise formats. Its allowlists yield 99 abstract sentence combinations. This establishes a bounded engine test fixture rather than sufficient variety for a full course.
 
-Before implementation, manually test a connected subset containing sentence structures, vocabulary, exercise variants, valid answers, likely mistakes, and feedback. Include unseen examples and delayed practice when evaluating learners.
+The authorized pilot has completed implementation and software checks. For future expansion, manually review a connected subset containing sentence structures, vocabulary, exercise variants, valid answers, likely mistakes, and feedback before activating it. Include unseen examples and delayed practice when evaluating learners; those learner studies remain outstanding.
 
-Keep learning rules and content independent of web screens, account for phone input, and isolate Danish-specific rules so future languages can be added. Decisions about storage, mobile technology, scheduling algorithms, generation methods, and grading remain open.
+Keep learning rules and content independent of web screens, account for phone input, and isolate Danish-specific rules so future languages can be added. The pilot uses typed content, persisted PostgreSQL attempts and explicit grading; storage beyond that subset, mobile distribution, scheduling and broader generation/grading remain open.

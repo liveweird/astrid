@@ -4,7 +4,7 @@
 
 The user authorized proceeding with the language/engine design pass on 6 November 2026 and requested reasonably sized commits followed by merge/push to GitHub. The first drafts are now available: [grammar inventory](danish-grammar-map.md), [construction catalogue](danish-sentence-catalogue.md), [vocabulary seed](danish-vocabulary-seed.md), and [beginner slice specification](beginner-slice-spec.md). They make the first end-to-end engine milestone reviewable.
 
-This delivery completes the initial draft step in the proposed sequence. It does not claim that the language content is specialist-reviewed, that a final stack has been adopted beyond explicit decisions, or that application implementation is already complete. The user authorized that following engine-playground milestone on 7 November 2026; see [implementation decisions](implementation-decisions.md).
+The initial delivery completed the draft step in the proposed sequence, without claiming specialist approval or completed application code. The user then authorized the engine-playground milestone on 7 November 2026; it is now [delivered](playground-delivery.md) using the [implementation decisions](implementation-decisions.md). Language teaching review and broader-course choices remain open.
 
 ## Confirmed initial scope
 

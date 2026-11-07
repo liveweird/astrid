@@ -102,7 +102,7 @@ Evidence: [server coverage configuration](https://github.com/liveweird/flow/blob
 
 ## Build and delivery
 
-Reuse Gradle locking and checksum verification, aligned dependency families, toolchain drift checks, npm lockfiles, SHA-pinned Actions, dependency update automation, vulnerability scanning, local gate scripts, test reports, and image hardening. Preserve `installDist` packaging: Flow explicitly avoids the fat JAR because of Flyway discovery issues. These improve dependency integrity; live OS-package installation means the image build should not be described as bit-for-bit reproducible. Current image scans fail on fixable HIGH/CRITICAL findings, while npm audit steps cover runtime dependencies at high severity and above.
+Reuse Gradle locking and checksum verification, aligned dependency families, toolchain drift checks, npm lockfiles, SHA-pinned Actions, dependency update automation, vulnerability scanning, local gate scripts, test reports, and image hardening. Preserve `installDist` packaging: Flow explicitly avoids the fat JAR because of Flyway discovery issues. These improve dependency integrity; live OS-package installation means the image build should not be described as bit-for-bit reproducible. The inspected Flow image gate rejects fixable HIGH/CRITICAL findings, while its npm audit steps cover runtime dependencies at high severity and above. This describes the gate policy, not an observed scan failure.
 
 The web install currently needs `--legacy-peer-deps` for a documented TypeScript/openapi-typescript peer mismatch. If that combination is ported, keep the exception narrow and validated; assess compatible supported versions rather than making arbitrary peer bypasses a standing convention.
 
@@ -126,7 +126,7 @@ Re-measure runtime sizing. Flow deliberately tunes the JVM for a small I/O-heavy
 
 Evidence: [PR workflow](https://github.com/liveweird/flow/blob/4e255e966804c5750c8fe0f1928a1461c17cc96f/.github/workflows/ci.yml), [nightly E2E](https://github.com/liveweird/flow/blob/4e255e966804c5750c8fe0f1928a1461c17cc96f/.github/workflows/e2e.yml), [browser configuration](https://github.com/liveweird/flow/blob/4e255e966804c5750c8fe0f1928a1461c17cc96f/e2e/playwright.config.ts), [single-replica deployment](https://github.com/liveweird/flow/blob/4e255e966804c5750c8fe0f1928a1461c17cc96f/k8s/web-deployment.yaml), [JVM tuning](https://github.com/liveweird/flow/blob/4e255e966804c5750c8fe0f1928a1461c17cc96f/server/build.gradle.kts#L44-L107).
 
-## Proposed reuse process
+## Original proposed reuse process
 
 1. Agree the remaining stack boundaries, account model, and hosting expectations. Retain the confirmed Kubernetes and Docker Compose platforms and online/web-reuse mobile preference; choose a specific mobile distribution approach later.
 2. Prepare a donor manifest listing each foundation component to keep, adapt, or omit, with its Flow revision, rationale, and required tests.
@@ -134,4 +134,4 @@ Evidence: [PR workflow](https://github.com/liveweird/flow/blob/4e255e966804c5750
 4. Keep provenance for copied components and preserve applicable notices from Flow's [MIT licence](https://github.com/liveweird/flow/blob/4e255e966804c5750c8fe0f1928a1461c17cc96f/LICENSE). Coordinate shared fixes deliberately; extract a common library only when real repeated maintenance justifies it.
 5. Validate the new engine with the connected language subset and independent language review already proposed in [Language foundations](language-foundations.md).
 
-Unresolved adoption decisions are tracked in [Open questions](open-questions.md); work planning remains in the [backlog](../../BACKLOG.md). This assessment authorizes no code port, dependency installation, deployment, or change to Flow.
+The subsequent authorized pilot completed the concrete [reuse manifest](flow-reuse-manifest.md) and [delivery](playground-delivery.md); the steps above preserve the original assessment plan. Unresolved adoption decisions are tracked in [Open questions](open-questions.md); work planning remains in the [backlog](../../BACKLOG.md). This assessment authorizes no code port, dependency installation, deployment, or change to Flow.

@@ -1,6 +1,6 @@
 # Open Questions
 
-This register tracks open and resolved questions through the first foundation drafts on 7 November 2026. Resolved entries are marked explicitly. Remaining questions are planning work; their presence does not mean every question blocks current progress.
+This register tracks open and resolved questions through the delivered private pilot and foundation source review on 7 November 2026. Resolved entries are marked explicitly. Remaining questions are planning work; their presence does not mean every question blocks current progress.
 
 | ID | Question or open point | Related work |
 | --- | --- | --- |
@@ -9,12 +9,12 @@ This register tracks open and resolved questions through the first foundation dr
 | Q03 | What does coverage of sentence variants include: register, colloquial forms, exceptional constructions, and advanced grammar? | BL-001, BL-003 |
 | Q04 | What session structure, progression, topic choice, and learner control do we want? | BL-009 |
 | Q05 | The [grammar draft](danish-grammar-map.md) defines 58 skills and prerequisite relationships. How will a Danish teaching specialist validate the sequence and coverage? | BL-022 |
-| Q06 | The [pilot seed](danish-vocabulary-seed.md) defines 23 entries and licensed senses/combinations. Which broader vocabulary, frequency/usage evidence, and reusable data sources should guide expansion? | BL-004, BL-005 |
+| Q06 | The [pilot seed](danish-vocabulary-seed.md) defines 23 entries and licensed senses/combinations. Which broader vocabulary, frequency/usage evidence, and reusable data sources should guide expansion? | BL-004, BL-025 |
 | Q07 | The [pilot specification](beginner-slice-spec.md) proposes explicit grading and normalization cases. Which policies should extend to later formats and free writing, including partial correctness? | BL-007, BL-022 |
 | Q08 | **Pilot resolved:** deterministic typed constructions and explicit bounded grading rules; no runtime AI dependency. Broader generation methods remain open. | BL-010 |
 | Q09 | How should progress, mastery, review timing, and uncertainty about error causes be represented? | BL-011 |
-| Q10 | A six-skill, three-construction, 23-entry slice with three exercise formats is drafted. What specialist review, sampling, and learner evidence should establish its readiness and effectiveness? | BL-008, BL-022 |
-| Q11 | Which proposed engine principles should become agreed design rules? | BL-006, BL-007, BL-008 |
+| Q10 | A six-skill, three-construction, 23-entry slice with three exercise formats is implemented with draft language content. What specialist review, sampling, and learner evidence should establish its readiness and effectiveness? | BL-008, BL-022 |
+| Q11 | Which proposed principles should become broader-course design rules? The pilot already operationalizes the bounded [implementation decisions](implementation-decisions.md). | BL-006, BL-007, BL-008 |
 | Q12 | **Pilot resolved:** pure Kotlin engine, Ktor/Exposed R2DBC/Flyway/PostgreSQL and React/Mantine, with Compose and private Kubernetes. See [implementation decisions](implementation-decisions.md). | BL-012 |
 | Q13 | Which specific mobile distribution approach should deliver the online web interface: browser installation, a web wrapper, or another approach? | BL-013 |
 | Q14 | With Kubernetes and Docker Compose retained, which Kubernetes environment and hosting/database services should be used? What ingress/TLS, secrets, database placement, backup/restore, rollout, and availability expectations apply? | BL-012, BL-020 |

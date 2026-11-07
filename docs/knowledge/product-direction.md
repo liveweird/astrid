@@ -10,7 +10,7 @@ The initial version focuses on reading and writing, including grammar and vocabu
 
 The user clarified on 6 November 2026 that online mobile apps with reuse of the web interface are acceptable. Native UI and offline lessons are not current requirements. The mobile packaging and distribution technology remains undecided.
 
-The initial development priority is the learning engine: exercise types, a vocabulary database, and a mechanism for exercise variability. Images, sounds, and other production media follow once the engine is satisfactory. The user authorized the first language/engine design pass and requested commit-sized delivery with merge/push. That pass has produced drafts; the application playground is the subsequent step in the agreed sequence.
+The initial development priority is the learning engine: exercise types, a vocabulary database, and a mechanism for exercise variability. Images, sounds, and other production media follow once the engine is satisfactory. The user authorized the first language/engine design pass and requested commit-sized delivery with merge/push. That pass produced the drafts used by the now-delivered [private playground](playground-delivery.md); production media still follows engine review.
 
 ## Confirmed learning priorities
 
@@ -25,7 +25,7 @@ These are product requirements, not independently verified claims about competin
 
 ## Confirmed reuse preference
 
-Reuse as much of the existing Flow project's stack, infrastructure, design approach, tools, conventions, checks, and guardrails as makes sense for Astrid. The user requested an assessment before adoption. The [Flow stack assessment](flow-stack-assessment.md) recommends a selective foundation port; technology and architecture choices remain proposals except where explicitly confirmed below.
+Reuse as much of the existing Flow project's stack, infrastructure, design approach, tools, conventions, checks, and guardrails as makes sense for Astrid. The user requested an assessment before adoption. The [Flow stack assessment](flow-stack-assessment.md) recommends a selective foundation port; its pilot keep/adapt/omit choices are implemented in the [reuse manifest](flow-reuse-manifest.md) and [implementation decisions](implementation-decisions.md). Broader-course technology and architecture remain proposals except where explicitly confirmed below.
 
 ## Confirmed infrastructure decisions
 

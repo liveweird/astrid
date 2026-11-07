@@ -4,7 +4,7 @@
 
 This is a reviewable first implementation specification, authorized for drafting on 6 November 2026. It connects the [grammar map](danish-grammar-map.md), [sentence catalogue](danish-sentence-catalogue.md), and [23-entry vocabulary seed](danish-vocabulary-seed.md). The user selected English-speaking complete beginners and general everyday Danish. Teaching sequence and implementation policies below are proposed choices for this slice, not validated learning outcomes or a completed curriculum.
 
-The first application remains an engine playground in the shared sibling UI/layout. Reading and writing are in scope; listening, speaking, production artwork, public onboarding, and a full adaptive course remain later work. Docker Compose and Kubernetes are retained infrastructure requirements. Application implementation follows this design pass; this document contains no implementation.
+The first application remains an engine playground in the shared sibling UI/layout. Reading and writing are in scope; listening, speaking, production artwork, public onboarding, and a full adaptive course remain later work. Docker Compose and Kubernetes are retained infrastructure requirements. The private playground now implements this slice; this document remains its language/behavior specification. See the [delivery record](playground-delivery.md) for observed software evidence and [implementation decisions](implementation-decisions.md) for the adopted technical boundaries.
 
 ## Observable learning objective
 

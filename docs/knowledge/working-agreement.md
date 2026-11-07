@@ -75,3 +75,5 @@ Earlier attempts to create the work branch and reach GitHub failed under the pri
 **7 November 2026 — Playground Git delivery observed:** Six focused commits merged by fast-forward into `master`; GitHub push and remote-object verification succeeded at `3b462a9`. The working tree was clean before creating `feat/pilot-hardening` for the explicitly authorized overnight continuation.
 
 **7 November 2026 — Power management:** The user has enabled `caffeinate` themselves. Leave system power settings and sleep-prevention processes under their control.
+
+**7 November 2026 — Hardening Git delivery observed:** Four focused commits merged by fast-forward and pushed to `master` at `527aa3c`; the remote object matched. The verified hardening image now serves the private Compose preview with its existing database volume. Broader foundation source review continues on `docs/foundation-review` without expanding the active learner slice.

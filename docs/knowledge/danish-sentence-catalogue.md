@@ -66,7 +66,7 @@ Naturalness also depends on definiteness, animacy, countability, register, infor
 - **Pilot boundary:** positive present tense; a first-, second-, or third-person subject pronoun; one reviewed intransitive verb sense; no object, negation, modifier, or fronting.
 - **Examples:** `Jeg sover.` — “I am sleeping / I sleep.” `De sover.` — “They are sleeping / They sleep.”
 - **Constraints and variation:** Danish present tense can receive an ongoing or habitual English translation according to context. Do not attach a direct object merely because another sense of the same spelling allows one.
-- **Status:** proposed engine pilot; described and source-checked; not specialist-reviewed; unsupported.
+- **Status:** implemented in the private engine pilot; described and source-checked; not specialist-reviewed. Broader variants remain unsupported.
 
 ### C002 Subject-first transitive present main clause
 
@@ -76,7 +76,7 @@ Naturalness also depends on definiteness, animacy, countability, register, infor
 - **Pilot boundary:** positive present tense; subject pronoun; reviewed transitive verb sense; one licensed indefinite singular count-noun object.
 - **Examples:** `Jeg har en bog.` — “I have a book.” `Hun læser en avis.` — “She reads / is reading a newspaper.” `Vi spiser et æble.` — “We eat / are eating an apple.”
 - **Constraints and variation:** Object selection is sense-specific: `læse` needs readable content in this frame, and `spise` needs something edible. `have` expresses possession here, not an auxiliary use. Pronouns and definite or plural objects are later variations, not pilot substitutions.
-- **Status:** proposed engine pilot; described and source-checked; not specialist-reviewed; unsupported.
+- **Status:** implemented in the private engine pilot; described and source-checked; not specialist-reviewed. Broader variants remain unsupported.
 
 ### C003 Subject-first identifying copula with det
 
@@ -86,7 +86,7 @@ Naturalness also depends on definiteness, animacy, countability, register, infor
 - **Pilot boundary:** fixed referential `det`, present `er`, and a reviewed indefinite singular count-noun complement. Use with context that makes an item available for identification.
 - **Examples:** `Det er en bog.` — “It/That is a book.” `Det er et hus.` — “It/That is a house.”
 - **Constraints and variation:** `en bog` and `et hus` are subject predicatives, not objects. The complement demonstrates noun gender. Do not generalize this pilot to arbitrary human or inanimate subjects, bare profession nouns, adjective complements, existential `der er`, or English weather/time “it.” Those belong to other frames.
-- **Status:** proposed engine pilot; described and source-checked; not specialist-reviewed; unsupported.
+- **Status:** implemented in the private engine pilot; described and source-checked; not specialist-reviewed. Broader variants remain unsupported.
 
 ## Main declaratives and complement frames
 

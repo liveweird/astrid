@@ -1,13 +1,12 @@
 # Project Backlog
 
-Work planning for the Danish learning app. Updated 7 November 2026. The engine playground baseline is delivered and pushed. Current work is the user-authorized overnight pilot hardening pass.
+Work planning for the Danish learning app. Updated 7 November 2026. The engine playground baseline is delivered and pushed. Pilot hardening is delivered; current work is the user-authorized foundation source review and remaining overnight verification.
 
 Statuses follow the [working agreement](docs/knowledge/working-agreement.md). The ordering below is an initial proposed sequence; it does not imply the user has approved the assistant's design proposals.
 
 ## [next]
 
-- **BL-024 — Harden the pilot after its first delivery.** Authorized overnight continuation through at least 08:00 Europe/Warsaw on 7 November. Execute the [bounded hardening plan](docs/knowledge/pilot-hardening-plan.md): frozen content compatibility, negative content validation and review export, historical replay/transaction failure evidence, and measured accessibility. Complete with independent review, focused commits, relevant checks and observed Git delivery.
-
+- **BL-022 — Validate and extend the Danish foundation drafts.** Review the [grammar map](docs/knowledge/danish-grammar-map.md), [construction catalogue](docs/knowledge/danish-sentence-catalogue.md), and pilot content for teaching order, linguistic naturalness, valency, accepted variants, and documented coverage gaps. Arrange appropriate Danish teaching review before labeling content specialist-approved; source and independent agent checks do not confer that status. Preserve stable IDs and add regression examples for corrected rules. The current source-backed pass reviews the later draft records without activating new runtime grammar.
 
 
 ## [todo]
@@ -18,7 +17,6 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 - **BL-007 — Define answer evaluation and feedback.** The pilot specifies normalization, separate target-satisfaction/linguistic-status facets, and correct/incorrect/valid-but-off-target/unavailable cases. Extend policies to partial credit, later grammar, and freer writing; retain raw input and avoid unsupported grammaticality claims. See [worked cases](docs/knowledge/beginner-slice-spec.md#concrete-worked-cases).
 - **BL-008 — Finalize the engine validation subset.** A [connected draft](docs/knowledge/beginner-slice-spec.md) now links six skills, three constructions, 23 vocabulary entries, three formats, and 99 licensed abstract sentence combinations. Validate naturalness, target isolation, review status, and content/API cases; define sampling and learner-success measures. The draft supplies implementation acceptance examples but does not establish teacher approval or learning efficacy.
 - **BL-021 — Specify Astrid branding within the shared UI family.** Preserve the sibling style/layout and reuse the theme/shell conventions. Develop the preferred red palette and distinct feedback semantics; explore a unique Denmark-related or Danish Astrid character logo. Complete when the palette, logo concept, asset requirements, and validation criteria are recorded. Exact visual choices remain open in Q18 and Q19. The [visual identity brief](docs/knowledge/visual-identity.md) is recorded; production assets remain in the later media phase unless the user brings them forward.
-- **BL-022 — Validate and extend the Danish foundation drafts.** Review the [grammar map](docs/knowledge/danish-grammar-map.md), [construction catalogue](docs/knowledge/danish-sentence-catalogue.md), and pilot content for teaching order, linguistic naturalness, valency, accepted variants, and documented coverage gaps. Arrange appropriate Danish teaching review before labeling content specialist-approved; source and independent agent checks do not confer that status. Preserve stable IDs and add regression examples for corrected rules.
 
 ## [new]
 
@@ -39,6 +37,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 No active work is currently blocked. Git writes and remote access succeeded through approved escalated commands; the foundation delivery is complete. Use the applicable approval mechanism for future Git operations that exceed the workspace sandbox.
 
 ## Completed work
+
+- **7 November 2026 — BL-024, pilot hardening:** Delivered [verified hardening](docs/knowledge/hardening-delivery.md) in four focused commits, fast-forwarded and pushed to `master` at `527aa3c`. Engine/server/frontend checks and 10 packaged Kubernetes browser journeys passed; cold-start recovery and historical replay passed with zero app restarts. The uniquely owned QA namespace was removed. The upgraded Compose preview is healthy; all remote CI jobs passed.
 
 - **7 November 2026 — BL-005, language-resource assessment:** Compared COR, COR.EXT, COR.SEM and DDO using primary access/version/reuse evidence. Recorded a proposed morphology-first approach, a 23-record candidate COR crosswalk including active infinitives, and explicit gaps in English equivalents, usage/frequency, valency and current-release terms. No data was imported; adoption and remaining evidence are BL-025.
 - **7 November 2026 — BL-020, Flow reuse boundary:** Recorded and implemented the [keep/adapt/omit manifest](docs/knowledge/flow-reuse-manifest.md), including Docker Compose, Kubernetes, shared UI family and explicitly private development sessions.

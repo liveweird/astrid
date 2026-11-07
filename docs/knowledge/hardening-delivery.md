@@ -41,3 +41,21 @@ The owned QA namespace and its disposable PVC were removed after verification; a
 ## Review limits
 
 Independent engineering review confirmed the substantive fixes. The [resource assessment](danish-resource-assessment.md), [candidate COR crosswalk](cor-pilot-crosswalk.md) and [pilot source review](pilot-source-review.md) improve provenance without importing dictionary data. No source audit constitutes Danish teacher approval, a legal opinion or a learning-effectiveness result.
+
+## Git and preview delivery
+
+Four focused commits (`d0aa4d9`, `423fa0f`, `1e58fed`, `527aa3c`) were fast-forwarded into `master` and pushed to GitHub. A live remote lookup confirmed `527aa3c160a2ae9c842a906e257e3fa668b731a3`. The tested image was then promoted to the private Compose preview, retaining the existing database volume; both services were healthy and `/api/v1/ready` returned `ready`. Every job in [remote hardening CI](https://github.com/liveweird/astrid/actions/runs/42321589927) passed, including the image and 10 packaged browser journeys.
+
+## Follow-up cache policy
+
+An independent review found that stable HTML/catalog URLs lacked an explicit cache policy. [HTTP caching rules](https://www.rfc-editor.org/rfc/rfc9111.html) permit heuristic caching in such cases; a retained entry page or catalog can become stale across image upgrades. Future API responses now carry `Cache-Control: no-store`, including inspector data, problems and guard failures; static files and SPA fallbacks carry conservative `no-cache`. This follows [the documented distinction between revalidation and storage](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching). Hashed assets deliberately receive the same conservative policy rather than a new caching optimization.
+
+Full server checks passed after the change (25 tests); independent review confirmed the header paths do not overlap and routing, MIME, ownership and response bodies are preserved. The change cannot retroactively replace an older response already held in a browser cache.
+
+## Locale-independent identities and knowledge checks
+
+A fresh-JVM reproduction found that the new validator's default-locale decimal formatting expected `G٠٠١` instead of `G001` under `ar-EG`, causing engine initialization to fail. Canonical IDs now use locale-independent decimal strings and ASCII padding. The same fresh-JVM reproduction then returned the expected 99-sentence catalog. Normal engine tests and the 37-case suite in a separate Arabic-locale worker passed, including the published compatibility fixture. These are 37 unique engine tests executed in two locale configurations, not 74 distinct tests. `check` includes the locale worker automatically.
+
+The complete documented local gate passed after the cache/locale follow-ups: engine, server, generated API, frontend coverage/lint/build, E2E typecheck and deployment rendering. An offline knowledge guard now checks the foundation record namespaces, required definitions, connected slice references, prerequisite cycles, source IDs and local file links. Nine negative/positive fixtures passed under both Python 3.9 and the development Python; independent review verified the final fixes. Anchors, external links, linguistic validity and teaching sufficiency are outside that guard.
+
+The [foundation source review](foundation-source-review.md) records later-map corrections; the [pilot review guide](pilot-review-guide.md) gives a short walkthrough. Older planning notes now distinguish delivered pilot choices from broader proposals, and construction support labels reflect actual implementation while retaining draft linguistic status.

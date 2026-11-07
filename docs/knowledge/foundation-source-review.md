@@ -2,7 +2,7 @@
 
 ## Scope and status — 7 November 2026
 
-Three independent reviewers covered G007–G058 and C004–C030; a separate review lead checked and consolidated material findings against the actual drafts and primary sources. The pilot G001–G006/C001–C003 had a separate [source review](pilot-source-review.md) and remains unchanged. The 58-skill map and 30-construction catalogue remain drafts, with no Danish teacher approval or learning-effectiveness claim.
+Three independent reviewers covered G007–G058 and C004–C030; a separate review lead checked and consolidated material findings against the actual drafts and primary sources. The pilot G001–G006/C001–C003 had a separate [source review](pilot-source-review.md) and its grammar/generation rules remain unchanged. Construction support-status labels now reflect the delivered implementation. The 58-skill map and 30-construction catalogue remain drafts, with no Danish teacher approval or learning-effectiveness claim.
 
 The resulting edits clarify the future authoring model. They do not activate new grammar, vocabulary or exercise formats. Prerequisite and scope repairs below are assistant proposals within the draft curriculum, not user-confirmed teaching decisions.
 
@@ -36,4 +36,4 @@ The later map still needs reciprocal G↔C authoring links and variant-specific 
 - **Source-limited:** G053's wider tense-perspective account needs a stronger dedicated reference. English equivalents, naturalness, discourse context and teaching order need appropriate Danish teaching review.
 - **Not a complete formal grammar:** “all variants” remains an unresolved coverage boundary. The catalogue names further extraction, ellipsis, presentation, cleft and register families without promising engine support.
 
-After these corrections the graph contains 58 unique skills and 123 prerequisite edges, 30 constructions, 23 lexical records and 16 grammar sources. A final independent lead re-review found no additional actionable issue in the grammar/catalogue diff and confirmed the active pilot records were unchanged. The offline structural guard passed; the inventory count is descriptive, not a permanent size limit.
+After these corrections the graph contains 58 unique skills and 123 prerequisite edges, 30 constructions, 23 lexical records and 16 grammar sources. A final independent lead re-review found no additional actionable issue in the grammar/catalogue diff and confirmed the active pilot rules were unchanged. A subsequent status-only update labels C001–C003 as implemented; it does not change their patterns or restrictions. The offline structural guard passed; the inventory count is descriptive, not a permanent size limit.

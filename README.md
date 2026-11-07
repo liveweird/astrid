@@ -78,6 +78,7 @@ The gate runs offline documentation integrity checks, strict Gradle checksum ver
 
 ```sh
 ./gradlew :engine:test                 # Focused language-engine tests
+./gradlew :engine:localeCompatibilityTest # Same suite in a fresh Arabic-locale JVM
 ./gradlew :server:test                 # API and real PostgreSQL integration tests
 npm --prefix web run gen:api           # Refresh committed types after an OpenAPI change
 npm --prefix web run check:api         # Check without rewriting committed types
