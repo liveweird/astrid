@@ -419,7 +419,9 @@ function usePracticeFocusQueue(error: string) {
   useEffect(() => {
     if (!error && request.sequence === 0) return;
     const refs = { item: itemHeadingRef, feedback: feedbackRef, summary: summaryHeadingRef, error: errorRef };
-    refs[error ? "error" : request.target].current?.focus();
+    const target = refs[error ? "error" : request.target].current;
+    target?.focus({ preventScroll: true });
+    target?.scrollIntoView({ block: "start", inline: "nearest" });
   }, [error, request]);
   return { errorRef, feedbackRef, itemHeadingRef, requestFocus, summaryHeadingRef };
 }
@@ -599,7 +601,7 @@ export default function Practice() {
   if (busy && !session) return <Group justify="center" mih={300}><Loader aria-label="Starting practice" /></Group>;
   if (!session) {
     return (
-      <Stack maw={760} className={classes.playground}>
+      <Stack maw={760} className={`${classes.playground} ${classes.practice}`}>
         {error && <Alert ref={errorRef} tabIndex={-1} color="red" icon={<IconAlertCircle />} title="Practice recovery unavailable">{error}</Alert>}
         <Button onClick={() => void startNewPractice()}>Start new practice</Button>
       </Stack>
@@ -630,7 +632,7 @@ export default function Practice() {
   };
 
   return (
-    <Stack gap="lg" maw={920} className={classes.playground}>
+    <Stack gap="lg" maw={920} className={`${classes.playground} ${classes.practice}`}>
       <Group justify="space-between" align="start">
         <Box><Title order={1} size="h2">{session.title}</Title><Text c="dimmed">A short practice in eight parts. Continue after any saved answer.</Text></Box>
         <Button variant="subtle" color="gray" disabled={busy} onClick={() => void startNewPractice()}>Start new practice</Button>

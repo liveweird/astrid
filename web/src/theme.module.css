@@ -144,3 +144,7 @@
     width: 100%;
   }
 }
+
+.practice :global([tabindex="-1"]) {
+  scroll-margin-block-start: calc(var(--app-shell-header-height, 3rem) + var(--mantine-spacing-md));
+}
