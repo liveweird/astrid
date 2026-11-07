@@ -1,0 +1,244 @@
+{
+  "schemaVersion": "practice-variation-audit-v1",
+  "focusId": "reading-basics",
+  "planRevision": "practice-1",
+  "semanticKeyDefinition": "ordered items: position + formatId + target(skill or lexical entry/sense/facet/direction) + inspector.lexicalIds + inspector.clauseRoles; excludes exercise/reproduction IDs and seed",
+  "presentationKeyDefinition": "ordered item position + GeneratedExercise.presentation.toString(); excludes request/reproduction metadata",
+  "pseudorandomSeedMethod": {
+    "generator": "java.util.SplittableRandom",
+    "streamSeedDecimal": "71826152769860",
+    "streamSeedHex": "0x415354524944",
+    "draw": "(int) nextLong(2147483648L), preserving draw order and duplicates"
+  },
+  "combined": {
+    "sampleCount": 8192,
+    "distinctSeedCount": 8192,
+    "distinctSemanticPlans": 294,
+    "distinctPresentations": 8075,
+    "semanticPlansSeenInBothCohorts": 294,
+    "presentationsSeenInBothCohorts": 62
+  },
+  "cohorts": [
+    {
+      "name": "sequential",
+      "sampleCount": 4096,
+      "distinctSeedCount": 4096,
+      "distinctSemanticPlans": 294,
+      "distinctPresentations": 4068,
+      "adjacentSeedPairCount": 4095,
+      "exactSemanticRepeatsAcrossAdjacentSeeds": 13,
+      "exactPresentationRepeatsAcrossAdjacentSeeds": 0,
+      "invariants": {
+        "plan_identity": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "pinned_revisions": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "eight_item_format_target_layout": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "recognition_covers_all_three_senses": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "recall_covers_all_three_senses": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "licensed_grammar_canonical_pairing": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "no_adjacent_noun_repeat": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "recognition_precedes_matching_recall": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        }
+      },
+      "perPositionDistributions": [
+        {
+          "position": 0,
+          "targets": {"lexical:L014:L014-S01:meaning:da-en": 1309, "lexical:L015:L015-S01:meaning:da-en": 1381, "lexical:L018:L018-S01:meaning:da-en": 1406},
+          "nouns": {"L014": 1309, "L015": 1381, "L018": 1406},
+          "subjects": {"none": 4096}
+        },
+        {
+          "position": 1,
+          "targets": {"skill:G005": 4096},
+          "nouns": {"L014": 1401, "L015": 1392, "L018": 1303},
+          "subjects": {"L001": 765, "L002": 537, "L003": 547, "L004": 505, "L005": 456, "L006": 542, "L007": 744}
+        },
+        {
+          "position": 2,
+          "targets": {"lexical:L014:L014-S01:meaning:da-en": 1386, "lexical:L015:L015-S01:meaning:da-en": 1323, "lexical:L018:L018-S01:meaning:da-en": 1387},
+          "nouns": {"L014": 1386, "L015": 1323, "L018": 1387},
+          "subjects": {"none": 4096}
+        },
+        {
+          "position": 3,
+          "targets": {"lexical:L014:L014-S01:singular-headword:en-da": 1309, "lexical:L015:L015-S01:singular-headword:en-da": 1381, "lexical:L018:L018-S01:singular-headword:en-da": 1406},
+          "nouns": {"L014": 1309, "L015": 1381, "L018": 1406},
+          "subjects": {"none": 4096}
+        },
+        {
+          "position": 4,
+          "targets": {"lexical:L014:L014-S01:meaning:da-en": 1401, "lexical:L015:L015-S01:meaning:da-en": 1392, "lexical:L018:L018-S01:meaning:da-en": 1303},
+          "nouns": {"L014": 1401, "L015": 1392, "L018": 1303},
+          "subjects": {"none": 4096}
+        },
+        {
+          "position": 5,
+          "targets": {"lexical:L014:L014-S01:singular-headword:en-da": 1386, "lexical:L015:L015-S01:singular-headword:en-da": 1323, "lexical:L018:L018-S01:singular-headword:en-da": 1387},
+          "nouns": {"L014": 1386, "L015": 1323, "L018": 1387},
+          "subjects": {"none": 4096}
+        },
+        {
+          "position": 6,
+          "targets": {"skill:G006": 4096},
+          "nouns": {"L014": 1309, "L015": 1381, "L018": 1406},
+          "subjects": {"L001": 760, "L002": 522, "L003": 492, "L004": 473, "L005": 508, "L006": 548, "L007": 793}
+        },
+        {
+          "position": 7,
+          "targets": {"lexical:L014:L014-S01:singular-headword:en-da": 1401, "lexical:L015:L015-S01:singular-headword:en-da": 1392, "lexical:L018:L018-S01:singular-headword:en-da": 1303},
+          "nouns": {"L014": 1401, "L015": 1392, "L018": 1303},
+          "subjects": {"none": 4096}
+        }
+      ],
+      "grammarCanonicalCoverage": {
+        "position1": {
+          "distinctCanonicalIds": 21,
+          "canonicalIdCounts": {"C002-L001-L011-L014": 244, "C002-L001-L011-L015": 260, "C002-L001-L011-L018": 261, "C002-L002-L011-L014": 183, "C002-L002-L011-L015": 171, "C002-L002-L011-L018": 183, "C002-L003-L011-L014": 200, "C002-L003-L011-L015": 181, "C002-L003-L011-L018": 166, "C002-L004-L011-L014": 166, "C002-L004-L011-L015": 168, "C002-L004-L011-L018": 171, "C002-L005-L011-L014": 147, "C002-L005-L011-L015": 168, "C002-L005-L011-L018": 141, "C002-L006-L011-L014": 188, "C002-L006-L011-L015": 195, "C002-L006-L011-L018": 159, "C002-L007-L011-L014": 273, "C002-L007-L011-L015": 249, "C002-L007-L011-L018": 222}
+        },
+        "position6": {
+          "distinctCanonicalIds": 21,
+          "canonicalIdCounts": {"C002-L001-L011-L014": 249, "C002-L001-L011-L015": 238, "C002-L001-L011-L018": 273, "C002-L002-L011-L014": 168, "C002-L002-L011-L015": 188, "C002-L002-L011-L018": 166, "C002-L003-L011-L014": 151, "C002-L003-L011-L015": 161, "C002-L003-L011-L018": 180, "C002-L004-L011-L014": 150, "C002-L004-L011-L015": 156, "C002-L004-L011-L018": 167, "C002-L005-L011-L014": 163, "C002-L005-L011-L015": 177, "C002-L005-L011-L018": 168, "C002-L006-L011-L014": 180, "C002-L006-L011-L015": 185, "C002-L006-L011-L018": 183, "C002-L007-L011-L014": 248, "C002-L007-L011-L015": 276, "C002-L007-L011-L018": 269}
+        }
+      }
+    },
+    {
+      "name": "pseudorandom",
+      "sampleCount": 4096,
+      "distinctSeedCount": 4096,
+      "distinctSemanticPlans": 294,
+      "distinctPresentations": 4069,
+      "invariants": {
+        "plan_identity": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "pinned_revisions": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "eight_item_format_target_layout": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "recognition_covers_all_three_senses": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "recall_covers_all_three_senses": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "licensed_grammar_canonical_pairing": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "no_adjacent_noun_repeat": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        },
+        "recognition_precedes_matching_recall": {
+          "checkedPlans": 4096,
+          "violationCount": 0,
+          "firstViolationSeeds": []
+        }
+      },
+      "perPositionDistributions": [
+        {
+          "position": 0,
+          "targets": {"lexical:L014:L014-S01:meaning:da-en": 1379, "lexical:L015:L015-S01:meaning:da-en": 1379, "lexical:L018:L018-S01:meaning:da-en": 1338},
+          "nouns": {"L014": 1379, "L015": 1379, "L018": 1338},
+          "subjects": {"none": 4096}
+        },
+        {
+          "position": 1,
+          "targets": {"skill:G005": 4096},
+          "nouns": {"L014": 1351, "L015": 1352, "L018": 1393},
+          "subjects": {"L001": 747, "L002": 508, "L003": 538, "L004": 520, "L005": 474, "L006": 565, "L007": 744}
+        },
+        {
+          "position": 2,
+          "targets": {"lexical:L014:L014-S01:meaning:da-en": 1366, "lexical:L015:L015-S01:meaning:da-en": 1365, "lexical:L018:L018-S01:meaning:da-en": 1365},
+          "nouns": {"L014": 1366, "L015": 1365, "L018": 1365},
+          "subjects": {"none": 4096}
+        },
+        {
+          "position": 3,
+          "targets": {"lexical:L014:L014-S01:singular-headword:en-da": 1379, "lexical:L015:L015-S01:singular-headword:en-da": 1379, "lexical:L018:L018-S01:singular-headword:en-da": 1338},
+          "nouns": {"L014": 1379, "L015": 1379, "L018": 1338},
+          "subjects": {"none": 4096}
+        },
+        {
+          "position": 4,
+          "targets": {"lexical:L014:L014-S01:meaning:da-en": 1351, "lexical:L015:L015-S01:meaning:da-en": 1352, "lexical:L018:L018-S01:meaning:da-en": 1393},
+          "nouns": {"L014": 1351, "L015": 1352, "L018": 1393},
+          "subjects": {"none": 4096}
+        },
+        {
+          "position": 5,
+          "targets": {"lexical:L014:L014-S01:singular-headword:en-da": 1366, "lexical:L015:L015-S01:singular-headword:en-da": 1365, "lexical:L018:L018-S01:singular-headword:en-da": 1365},
+          "nouns": {"L014": 1366, "L015": 1365, "L018": 1365},
+          "subjects": {"none": 4096}
+        },
+        {
+          "position": 6,
+          "targets": {"skill:G006": 4096},
+          "nouns": {"L014": 1379, "L015": 1379, "L018": 1338},
+          "subjects": {"L001": 743, "L002": 514, "L003": 499, "L004": 479, "L005": 541, "L006": 518, "L007": 802}
+        },
+        {
+          "position": 7,
+          "targets": {"lexical:L014:L014-S01:singular-headword:en-da": 1351, "lexical:L015:L015-S01:singular-headword:en-da": 1352, "lexical:L018:L018-S01:singular-headword:en-da": 1393},
+          "nouns": {"L014": 1351, "L015": 1352, "L018": 1393},
+          "subjects": {"none": 4096}
+        }
+      ],
+      "grammarCanonicalCoverage": {
+        "position1": {
+          "distinctCanonicalIds": 21,
+          "canonicalIdCounts": {"C002-L001-L011-L014": 276, "C002-L001-L011-L015": 229, "C002-L001-L011-L018": 242, "C002-L002-L011-L014": 175, "C002-L002-L011-L015": 162, "C002-L002-L011-L018": 171, "C002-L003-L011-L014": 173, "C002-L003-L011-L015": 189, "C002-L003-L011-L018": 176, "C002-L004-L011-L014": 159, "C002-L004-L011-L015": 171, "C002-L004-L011-L018": 190, "C002-L005-L011-L014": 156, "C002-L005-L011-L015": 156, "C002-L005-L011-L018": 162, "C002-L006-L011-L014": 174, "C002-L006-L011-L015": 208, "C002-L006-L011-L018": 183, "C002-L007-L011-L014": 238, "C002-L007-L011-L015": 237, "C002-L007-L011-L018": 269}
+        },
+        "position6": {
+          "distinctCanonicalIds": 21,
+          "canonicalIdCounts": {"C002-L001-L011-L014": 233, "C002-L001-L011-L015": 251, "C002-L001-L011-L018": 259, "C002-L002-L011-L014": 175, "C002-L002-L011-L015": 177, "C002-L002-L011-L018": 162, "C002-L003-L011-L014": 166, "C002-L003-L011-L015": 162, "C002-L003-L011-L018": 171, "C002-L004-L011-L014": 152, "C002-L004-L011-L015": 165, "C002-L004-L011-L018": 162, "C002-L005-L011-L014": 208, "C002-L005-L011-L015": 180, "C002-L005-L011-L018": 153, "C002-L006-L011-L014": 173, "C002-L006-L011-L015": 177, "C002-L006-L011-L018": 168, "C002-L007-L011-L014": 272, "C002-L007-L011-L015": 267, "C002-L007-L011-L018": 263}
+        }
+      }
+    }
+  ]
+}
