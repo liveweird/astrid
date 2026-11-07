@@ -10,7 +10,7 @@ These references were consulted during the initial planning discussion. They sup
 
 Use these as reference starting points. The proposed structural inventory requires broader coverage and linguistic review.
 
-The [grammar map](danish-grammar-map.md#source-register) now records 15 grammatical reference sources, including Danish Language Council material and university research on word order and conditionals. The [construction catalogue](danish-sentence-catalogue.md#source-basis) distinguishes neutral beginner models from later spoken/register variation. Their teaching order and original examples remain drafts requiring specialist review.
+The [grammar map](danish-grammar-map.md#source-register) now records 16 grammatical reference sources, including Danish Language Council material and university research on word order and conditionals. Supplementary thesis evidence is labeled separately from normative guidance. The [construction catalogue](danish-sentence-catalogue.md#source-basis) distinguishes neutral beginner models from later spoken/register variation. Their teaching order and original examples remain drafts requiring specialist review; the [foundation source review](foundation-source-review.md) records corrections and remaining gaps.
 
 ## Vocabulary and morphology data
 

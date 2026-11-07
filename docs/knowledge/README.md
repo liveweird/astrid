@@ -42,3 +42,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Proposed COR pilot crosswalk](cor-pilot-crosswalk.md): record-level candidate morphology identities and homograph safeguards; not an adopted import.
 - [Pilot source review](pilot-source-review.md): bounded linguistic source checks, precise locator gaps and qualifications.
 - [Hardening delivery](hardening-delivery.md): observed compatibility, transaction, accessibility and local Kubernetes evidence.
+- [Foundation source review](foundation-source-review.md): consolidated later-map corrections, coverage boundaries and source limitations.
+- [Pilot review guide](pilot-review-guide.md): a short proposed walkthrough for evaluating the engine before expanding it.
