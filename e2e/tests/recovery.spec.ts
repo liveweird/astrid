@@ -77,3 +77,50 @@ test("reconnects an expired existing session before generating again", async ({ 
   await page.getByRole("option", { name: "Supply the indefinite article" }).click();
   await expect(selector).toHaveValue("Supply the indefinite article");
 });
+
+test("replays the stored attempt after its committed response exceeds the browser deadline", async ({ page }) => {
+  const bodies: string[] = [];
+  const responseBodies: string[] = [];
+  let releaseFirstResponse: (() => void) | undefined;
+  let markFirstCommitted: (() => void) | undefined;
+  const firstResponseGate = new Promise<void>((resolve) => { releaseFirstResponse = resolve; });
+  const firstCommitted = new Promise<void>((resolve) => { markFirstCommitted = resolve; });
+
+  await page.route("**/api/v1/attempts", async (route) => {
+    bodies.push(route.request().postData() ?? "");
+    const response = await route.fetch();
+    const body = await response.text();
+    responseBodies.push(body);
+    if (bodies.length === 1) {
+      markFirstCommitted?.();
+      await firstResponseGate;
+    }
+    await route.fulfill({ response, body }).catch(() => {
+      // The browser is expected to have aborted the first intercepted response.
+    });
+  });
+
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
+  await page.getByLabel("Answer choices").getByRole("button").first().click();
+  await page.clock.install();
+  await page.getByRole("button", { name: "Check answer" }).click();
+  await firstCommitted;
+  await page.clock.fastForward(15_000);
+
+  const replay = page.getByRole("button", { name: "Check the same attempt" });
+  await expect(page.getByText("The result is not confirmed")).toBeVisible();
+  await expect(replay).toBeEnabled();
+  releaseFirstResponse?.();
+  await replay.click();
+  await expect(page.getByRole("status")).toBeVisible();
+
+  expect(bodies).toHaveLength(2);
+  expect(bodies[1]).toBe(bodies[0]);
+  expect(responseBodies).toHaveLength(2);
+  expect(responseBodies[1]).toBe(responseBodies[0]);
+  const storedAttempt = JSON.parse(responseBodies[1]!);
+  expect(storedAttempt.attemptId).toBe(JSON.parse(bodies[1]!).attemptId);
+  expect(storedAttempt.retryNumber).toBe(1);
+  await expect(page.getByRole("status").getByText(/Try 1/)).toBeVisible();
+});

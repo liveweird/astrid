@@ -1,6 +1,7 @@
 import type { Attempt, AttemptRequest, Catalog, DevelopmentSession, Exercise, InspectorDetails } from "./models";
 
 const CLIENT_HEADER = { "X-Astrid-Client": "playground" };
+const REQUEST_DEADLINE_MS = 15_000;
 
 export class ApiError extends Error {
   readonly status: number;
@@ -21,23 +22,29 @@ export class UncertainResultError extends Error {
 }
 
 async function readJson<T>(path: string, init?: RequestInit): Promise<T> {
-  let response: Response;
+  const controller = new AbortController();
+  const deadline = window.setTimeout(() => controller.abort(), REQUEST_DEADLINE_MS);
   try {
-    response = await fetch(path, { credentials: "same-origin", ...init });
-  } catch (cause) {
-    throw new UncertainResultError(cause);
-  }
-  if (!response.ok) {
-    const body = (await response.json().catch(() => null)) as { message?: unknown; detail?: unknown } | null;
-    const message = typeof body?.message === "string" ? body.message :
-      typeof body?.detail === "string" ? body.detail : `Request failed (${response.status}).`;
-    throw new ApiError(response.status, message);
-  }
-  try {
-    return (await response.json()) as T;
-  } catch (cause) {
-    // A committed mutation can still lose or truncate its response body in a proxy.
-    throw new UncertainResultError(cause);
+    let response: Response;
+    try {
+      response = await fetch(path, { credentials: "same-origin", ...init, signal: controller.signal });
+    } catch (cause) {
+      throw new UncertainResultError(cause);
+    }
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as { message?: unknown; detail?: unknown } | null;
+      const message = typeof body?.message === "string" ? body.message :
+        typeof body?.detail === "string" ? body.detail : `Request failed (${response.status}).`;
+      throw new ApiError(response.status, message);
+    }
+    try {
+      return (await response.json()) as T;
+    } catch (cause) {
+      // A committed mutation can still lose or truncate its response body in a proxy.
+      throw new UncertainResultError(cause);
+    }
+  } finally {
+    window.clearTimeout(deadline);
   }
 }
 

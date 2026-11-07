@@ -1,5 +1,5 @@
 import { MantineProvider } from "@mantine/core";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ComponentType } from "react";
 
@@ -44,7 +44,10 @@ async function renderPlayground() {
 }
 
 describe("Playground", () => {
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
 
   it("offers a reconnect action when the initial engine session is unavailable", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("offline"); }));
@@ -103,6 +106,55 @@ describe("Playground", () => {
     expect(attemptBodies[1]).toBe(attemptBodies[0]);
     expect(JSON.parse(attemptBodies[1]!)).toMatchObject({ hintUsed: true });
     expect(screen.getByText(/Supported practice/)).toBeVisible();
+  });
+
+  it("keeps the timed-out attempt frozen and replays its exact supported payload", async () => {
+    const attemptBodies: string[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+      if (path.endsWith("development-session")) return json(session);
+      if (path.endsWith("catalog")) return json(catalog);
+      if (path.endsWith("exercises")) return json(exercise);
+      attemptBodies.push(String(init?.body));
+      if (attemptBodies.length === 1) {
+        return new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            reject(new DOMException("The operation was aborted.", "AbortError"));
+          }, { once: true });
+        });
+      }
+      const submitted = JSON.parse(attemptBodies[1]!);
+      return json({ ...attempt, attemptId: submitted.attemptId, hintUsed: submitted.hintUsed });
+    }));
+    await renderPlayground();
+    const choice = await screen.findByRole("button", { name: "læser" });
+    await userEvent.click(screen.getByRole("button", { name: "Show hint" }));
+    expect(screen.getByText(exercise.hint)).toBeVisible();
+    await userEvent.click(choice);
+    await userEvent.click(screen.getByRole("button", { name: "Generation controls" }));
+
+    vi.useFakeTimers();
+    fireEvent.click(screen.getByRole("button", { name: "Check answer" }));
+    expect(choice).toBeDisabled();
+    await act(async () => vi.advanceTimersByTimeAsync(15_000));
+    vi.useRealTimers();
+
+    expect(await screen.findByText("The result is not confirmed")).toBeVisible();
+    const replay = screen.getByRole("button", { name: "Check the same attempt" });
+    expect(replay).toBeEnabled();
+    expect(choice).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "Exercise type" })).toBeDisabled();
+    expect(screen.getByText(exercise.hint)).toBeVisible();
+    expect(JSON.parse(attemptBodies[0]!)).toMatchObject({
+      exerciseId: exercise.id,
+      answer: { kind: "text", text: "læser" },
+      hintUsed: true,
+    });
+
+    await userEvent.click(replay);
+    expect(await screen.findByRole("status")).toBeVisible();
+    expect(attemptBodies).toHaveLength(2);
+    expect(attemptBodies[1]).toBe(attemptBodies[0]);
+    expect(screen.getByText("Try 1 · Supported practice", { exact: true })).toBeVisible();
   });
 
   it("keeps the displayed exercise and selector consistent when generation fails", async () => {
