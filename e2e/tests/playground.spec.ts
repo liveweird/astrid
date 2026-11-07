@@ -31,8 +31,11 @@ async function chooseFormat(page: Page, title: string) {
 }
 
 async function tabTo(page: Page, target: Locator, reverse = false) {
+  // Safari's default macOS focus policy uses Option-Tab for all clickable controls.
+  const macWebKit = process.platform === "darwin" && page.context().browser()?.browserType().name() === "webkit";
+  const tab = macWebKit ? "Alt+Tab" : "Tab";
   for (let step = 0; step < 40; step += 1) {
-    await page.keyboard.press(reverse ? "Shift+Tab" : "Tab");
+    await page.keyboard.press(reverse ? `Shift+${tab}` : tab);
     if (await target.evaluate((element) => element === document.activeElement)) return;
   }
   throw new Error(`Keyboard focus did not reach ${await target.getAttribute("aria-label") ?? "the expected control"}`);

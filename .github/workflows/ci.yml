@@ -95,7 +95,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: e2e/package-lock.json
-      - run: npm ci && npm run typecheck && npm audit --audit-level=high && npx playwright install --with-deps chromium
+      - run: npm ci && npm run typecheck && npm audit --audit-level=high && npx playwright install --with-deps chromium webkit
         working-directory: e2e
       - name: Run the packaged browser journeys
         run: |

@@ -46,6 +46,8 @@ Native development binds to `127.0.0.1`; `ASTRID_BIND_HOST` overrides it. The co
 
 Feedback reports both the requested target and the supported linguistic judgment. An acceptable fronted statement can miss the subject-first target. Unknown writing is not automatically invalid Danish. Hints and retries are recorded; there is no mastery or adaptive scheduling claim.
 
+API requests have a 15-second browser deadline, including their response body. An unconfirmed submission keeps the exact attempt available through “Check the same attempt.” Keep that page open for recovery. This bounds visible waiting in an active browser; it does not establish whether a timed-out write committed or guarantee server cleanup during a database outage. See the [recovery evidence](docs/knowledge/runtime-recovery.md).
+
 Seed, index, content revision and generator revision make exercises reproducible. A seeded cycle visits every eligible sentence before repeating (99 for present/order, 92 for articles).
 
 The optional inspector reveals private generation details. Set `ASTRID_INSPECTOR_ENABLED=true` and a random `ASTRID_INSPECTOR_KEY` of at least 32 characters in the server environment, then enter the key in the inspector. Generate one with `openssl rand -hex 32`. The key stays out of frontend builds and browser persistent storage. Restart the server after configuration changes.
@@ -89,11 +91,11 @@ Browser journeys run against the complete stack (port 8088 by default):
 ```sh
 npm --prefix e2e ci
 cd e2e
-npx playwright install chromium
+npx playwright install chromium webkit
 npm test
 ```
 
-Override `E2E_BASE_URL` for another private preview URL. The suite covers all formats, keyboard ordering on a narrow viewport, and replay after the server commits an attempt but its response is lost.
+Override `E2E_BASE_URL` for another private preview URL. The suite runs the same critical journeys in Chromium and WebKit, covering all formats, keyboard ordering on a narrow viewport and replay after a committed response is lost or exceeds the browser deadline. macOS WebKit uses Safari's native Option-Tab/Shift-Option-Tab traversal; no system preferences are changed. These are browser-engine checks, not native iOS-device testing.
 
 CI repeats the gates on pull requests and master, validates Kubernetes schemas and scans the packaged image. Dependency/action/image pins are intentional; update related runtime pins together. Commit focused changes with imperative subjects; PRs should explain behavior, link relevant backlog/issues, report executed checks and include screenshots for UI changes. Add forward-only database migrations rather than editing an applied migration.
 
@@ -105,7 +107,7 @@ CI repeats the gates on pull requests and master, validates Kubernetes schemas a
 
 The deterministic report is written to `engine/build/review/pilot-1.md`. It includes the 23 lexical records, sources and draft review status, all 99 sentences and reproducible exercise examples. The production engine remains free of file I/O; the export adapter runs only as a local build tool. Published compatibility fixtures guard 335 baseline outputs. Their generated origin establishes compatibility, while the independently specified worked examples and eventual Danish teaching review address linguistic correctness.
 
-CI also exports this report in the `server-reports` artifact. Run `python3 scripts/check-knowledge.py` for a fast offline check of foundation IDs, prerequisites, source references and local file links; it does not validate linguistic claims, link anchors or external sites.
+CI also exports this report in the `server-reports` artifact. Run `python3 scripts/check-knowledge.py` for a fast offline check of foundation IDs, prerequisites, source references, crosswalk rows and local file links; it does not validate linguistic claims, link anchors or external sites. The [coverage crosswalk](docs/knowledge/foundation-coverage.md) distinguishes existing assessed targets from support and later authoring proposals.
 
 ## Kubernetes
 
