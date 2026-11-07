@@ -57,6 +57,14 @@ The optional inspector reveals private generation details. Set `ASTRID_INSPECTOR
 
 `POSTGRES_CONNECT_RETRIES` defaults to 10 (allowed 0–15). Flyway retries initial database connections with waits capped at 8 seconds. Migration connections use a 3-second TCP connect timeout and 5-second login deadline, overriding URL timeout settings while retaining TLS and other connection options. Docker and Kubernetes startup grace periods cover the maximum supported bootstrap envelope; `scripts/check-startup-budget.py` guards their agreement. Reassess those budgets before adding slow migrations.
 
+## Use guided practice
+
+Open **http://localhost:8088/practice** for an eight-part session combining meaning recognition, sentence ordering, introduced-headword recall and article repair. Optional session introduction, item lessons and hints are recorded before display. Continue after any saved answer; retrying is optional. The summary preserves first and latest outcomes, support and possible earlier exposure. Completion does not establish mastery.
+
+Practice saves operation identities in this browser before sending them. Refresh resumes the URL-bound session and replays uncertain operations with their original identities; confirmed grades are read back without regrading. Recovery requires the original valid development cookie and browser storage. If either is unavailable, use **Start new practice**; old server history remains intact. Unsent drafts need not survive refresh. The standalone playground retains its existing in-tab recovery behavior.
+
+The [session contract](docs/knowledge/practice-sessions.md) records the pinned plan, ownership, persistence and transaction rules. This is one beginner focus using existing content, without adaptive scheduling or new language material.
+
 ## Structure and conventions
 
 | Path | Responsibility |
