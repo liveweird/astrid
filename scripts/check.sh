@@ -3,6 +3,8 @@
 set -eu
 cd "$(dirname "$0")/.."
 python3 scripts/check-toolchain.py
+python3 -m unittest discover -s scripts/tests -p 'test_*.py'
+python3 scripts/check-knowledge.py
 python3 scripts/check-startup-budget.py
 git diff --check
 ./gradlew check :engine:koverVerify :server:koverVerify :server:installDist --dependency-verification strict --no-daemon

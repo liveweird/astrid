@@ -74,7 +74,7 @@ With Docker running, `kubectl` installed, and dependencies installed in both `we
 ./scripts/check.sh
 ```
 
-The gate runs strict Gradle checksum verification, engine/server tests, detekt, coverage verification, distribution packaging, API type drift detection, frontend lint/tests/build, and deployment rendering. PostgreSQL integration tests use the pinned Testcontainers image. Do not skip Docker tests when reporting the whole suite as passing.
+The gate runs offline documentation integrity checks, strict Gradle checksum verification, engine/server tests, detekt, coverage verification, distribution packaging, API type drift detection, frontend lint/tests/build, and deployment rendering. PostgreSQL integration tests use the pinned Testcontainers image. Do not skip Docker tests when reporting the whole suite as passing.
 
 ```sh
 ./gradlew :engine:test                 # Focused language-engine tests
@@ -103,6 +103,8 @@ CI repeats the gates on pull requests and master, validates Kubernetes schemas a
 ```
 
 The deterministic report is written to `engine/build/review/pilot-1.md`. It includes the 23 lexical records, sources and draft review status, all 99 sentences and reproducible exercise examples. The production engine remains free of file I/O; the export adapter runs only as a local build tool. Published compatibility fixtures guard 335 baseline outputs. Their generated origin establishes compatibility, while the independently specified worked examples and eventual Danish teaching review address linguistic correctness.
+
+CI also exports this report in the `server-reports` artifact. Run `python3 scripts/check-knowledge.py` for a fast offline check of foundation IDs, prerequisites, source references and local file links; it does not validate linguistic claims, link anchors or external sites.
 
 ## Kubernetes
 

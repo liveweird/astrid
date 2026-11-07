@@ -21,8 +21,10 @@ jobs:
           java-version: 21.0.12
           cache: gradle
       - run: python3 scripts/check-toolchain.py
+      - run: python3 -m unittest discover -s scripts/tests -p 'test_*.py'
+      - run: python3 scripts/check-knowledge.py
       - run: python3 scripts/check-startup-budget.py
-      - run: ./gradlew check :engine:koverVerify :server:koverVerify :server:installDist --dependency-verification strict --no-daemon
+      - run: ./gradlew check :engine:exportPilotReview :engine:koverVerify :server:koverVerify :server:installDist --dependency-verification strict --no-daemon
       - name: Dependency state stays unchanged
         run: git diff --exit-code -- gradle/verification-metadata.xml '*gradle.lockfile'
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -31,6 +33,7 @@ jobs:
           name: server-reports
           path: |
             engine/build/reports/
+            engine/build/review/
             server/build/reports/
           retention-days: 7
   web:
