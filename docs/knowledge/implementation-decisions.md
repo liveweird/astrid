@@ -30,3 +30,7 @@ Compose publishes only loopback ports. Kubernetes uses ClusterIP and local port-
 ## Open points and assumptions
 
 The pilot remains draft linguistic content awaiting appropriate Danish teaching review. The final Astrid logo, production hosting/authentication, retention policy and future course/progression model remain open. One application replica is sufficient for this milestone; correctness relies on database locks rather than an in-memory idempotency cache. See the [reuse manifest](flow-reuse-manifest.md) for donor boundaries.
+
+## Recall and repair revision contract
+
+The user authorized typed present recall and guided single-word verb/article repair on 7 November 2026. BL-034 adds E004–E006 on `pilot-2/generator-2/evaluation-2`, retaining exact legacy `pilot-1/generator-1/evaluation-1` behavior and the same language inventory. The [extension contract](exercise-extension-proposal.md) defines controlled corruption, narrow licensed alternatives, optional prompt metadata, unchanged historical fingerprints/replay, and the compatible-reader rollback requirement. This is implementation in progress, not a delivery claim.
