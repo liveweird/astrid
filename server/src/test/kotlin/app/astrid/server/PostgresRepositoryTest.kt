@@ -1,18 +1,21 @@
-@file:Suppress("MaxLineLength") // The pinned container digest is intentionally kept intact.
+@file:Suppress("MaxLineLength", "MagicNumber") // Pinned digest and concrete migration/session bounds.
 
 package app.astrid.server
 
 import app.astrid.engine.GenerationRequest
 import app.astrid.engine.PilotEngine
+import app.astrid.engine.PracticePlanner
 import java.sql.DriverManager
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
@@ -28,6 +31,101 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
 class PostgresRepositoryTest {
+    @Test
+    fun `practice create attempts advance and ownership are atomic across pools`() = withRepositories { first, second ->
+        val owner = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        val outsider = first.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        val practiceId = UUID.randomUUID()
+        val request = PracticeSessionRequest(practiceId.toString(), "reading-basics", "practice-1", 20261107)
+        val requestPayload = wireJson.encodeToString(PracticeSessionRequest.serializer(), request)
+        val created = first.createPracticeSession(owner, request, requestPayload) { practiceFixture(owner, request) }
+        val initial = assertIs<PracticeCreateResult.Created>(created).session
+        assertEquals(8, initial.items.size)
+        assertNull(second.findPracticeSession(outsider.id, practiceId))
+        val replayed = second.createPracticeSession(owner, request, requestPayload) {
+            error("saved practice request must replay before planning")
+        }
+        assertEquals(initial, assertIs<PracticeCreateResult.Existing>(replayed).session)
+        val changed = request.copy(seed = request.seed + 1)
+        assertIs<PracticeCreateResult.RequestConflict>(
+            first.createPracticeSession(
+                owner,
+                changed,
+                wireJson.encodeToString(PracticeSessionRequest.serializer(), changed),
+            ) { practiceFixture(owner, changed) },
+        )
+
+        val exercise = initial.items.first().exercise
+        val failedRequest = practiceAttempt(exercise.id)
+        assertFailsWith<IllegalStateException> {
+            first.writeAttemptWithPractice(owner.id, failedRequest, attemptPayload(failedRequest)) { _, _, _, _ ->
+                error("offline")
+            }
+        }
+        assertTrue(checkNotNull(second.findPracticeSession(owner.id, practiceId)).items.first().attempts.isEmpty())
+
+        val trigger = installContextFailureTrigger(owner.id, UUID.fromString(failedRequest.attemptId))
+        try {
+            assertFails {
+                first.writeAttemptWithPractice(
+                    owner.id,
+                    failedRequest,
+                    attemptPayload(failedRequest),
+                ) { stored, retry, now, _ ->
+                    CreatedAttempt(
+                        attemptResponse(failedRequest.attemptId, stored, retry, now),
+                        PracticeAttemptContextDto(false, false, false, emptyList()),
+                    )
+                }
+            }
+        } finally {
+            dropContextFailureTrigger(trigger)
+        }
+        assertNull(second.findAttempt(owner.id, UUID.fromString(failedRequest.attemptId)))
+        assertTrue(checkNotNull(second.findPracticeSession(owner.id, practiceId)).items.first().attempts.isEmpty())
+
+        val requests = listOf(
+            failedRequest,
+            practiceAttempt(exercise.id).copy(answer = AttemptAnswerDto.Text("different")),
+        )
+        val gate = CompletableDeferred<Unit>()
+        val writes = listOf(first, second).zip(requests).map { (repository, attempt) ->
+            async {
+                gate.await()
+                repository.writeAttemptWithPractice(owner.id, attempt, attemptPayload(attempt)) { stored, retry, now, source ->
+                    assertNotNull(source)
+                    CreatedAttempt(
+                        attemptResponse(attempt.attemptId, stored, retry, now),
+                        PracticeAttemptContextDto(false, false, false, emptyList()),
+                    )
+                }
+            }
+        }
+        gate.complete(Unit)
+        val results = withTimeout(TIMEOUT_MILLIS) { writes.awaitAll() }
+        assertEquals(listOf(1, 2), results.map { assertIs<AttemptWriteResult.Created>(it).response.retryNumber }.sorted())
+        equalizePracticeAttemptTimes(owner.id, practiceId, 0)
+        val loadedAttempts = checkNotNull(first.findPracticeSession(owner.id, practiceId)).items.first().attempts
+        assertEquals(listOf(1, 2), loadedAttempts.map { it.response.retryNumber })
+        val expectedByRetry = requests.zip(results).sortedBy { (_, result) ->
+            assertIs<AttemptWriteResult.Created>(result).response.retryNumber
+        }
+        assertEquals(expectedByRetry.map { it.first.attemptId }, loadedAttempts.map { it.response.attemptId })
+        assertEquals(expectedByRetry.map { it.first.answer }, loadedAttempts.map { it.answer })
+
+        val advances = listOf(first, second).map { repository ->
+            async { repository.advancePracticeSession(owner.id, practiceId, 0) }
+        }
+        assertTrue(withTimeout(TIMEOUT_MILLIS) { advances.awaitAll() }.all { it is PracticeMutationResult.Success })
+        assertEquals(1, checkNotNull(first.findPracticeSession(owner.id, practiceId)).cursor)
+        val stale = practiceAttempt(exercise.id)
+        assertIs<AttemptWriteResult.PracticePositionConflict>(
+            second.writeAttemptWithPractice(owner.id, stale, attemptPayload(stale)) { _, _, _, _ ->
+                error("stale practice attempt must not evaluate")
+            },
+        )
+    }
+
     @Test
     fun `V2 preserves V1 grammar evidence and stores nullable lexical evidence with exact replay`() = runBlocking {
         val databaseName = "astrid_migration_${UUID.randomUUID().toString().replace("-", "")}"
@@ -312,6 +410,114 @@ class PostgresRepositoryTest {
             false,
         )
         return Fixture(session, exercise, request, wireJson.encodeToString(AttemptRequest.serializer(), request))
+    }
+
+    private fun practiceFixture(owner: SessionRecord, request: PracticeSessionRequest): NewPracticeSession {
+        val plan = PracticePlanner().plan(request.focusId, request.planRevision, request.seed)
+        return NewPracticeSession(
+            plan.title,
+            plan.contentRevision,
+            plan.generatorRevision,
+            plan.evaluationRevision,
+            plan.prerequisiteSkillIds,
+            plan.introduction.map { IntroductionDto(it.title, it.body) },
+            plan.items.map { item ->
+                val id = UUID.randomUUID()
+                NewPracticeItem(
+                    item.position,
+                    StoredExercise(
+                        id,
+                        owner.id,
+                        item.exercise.formatId,
+                        item.exercise.targetSkillId,
+                        item.exercise.reproduction.seed,
+                        item.exercise.reproduction.index,
+                        item.exercise.contentRevision,
+                        item.exercise.generatorRevision,
+                        item.exercise.toResponse(id.toString()),
+                        item.exercise.reproductionFingerprint(),
+                    ),
+                    item.targetDescriptor.label,
+                    item.answerExposureKeys,
+                    item.promptExposureKeys,
+                    item.lessonExposureKeys,
+                    item.hintExposureKeys,
+                    item.feedbackExposureKeys,
+                )
+            },
+        )
+    }
+
+    private fun practiceAttempt(exerciseId: UUID) = AttemptRequest(
+        UUID.randomUUID().toString(),
+        exerciseId.toString(),
+        AttemptAnswerDto.Text("wrong"),
+        false,
+    )
+
+    private fun attemptPayload(request: AttemptRequest) =
+        wireJson.encodeToString(AttemptRequest.serializer(), request)
+
+    private fun installContextFailureTrigger(ownerId: UUID, attemptId: UUID): String {
+        val suffix = UUID.randomUUID().toString().replace("-", "")
+        val function = "fail_practice_context_$suffix"
+        val trigger = "practice_context_trigger_$suffix"
+        DriverManager.getConnection(postgres.jdbcUrl, postgres.username, postgres.password).use { connection ->
+            connection.createStatement().use { statement ->
+                statement.execute(
+                    """CREATE FUNCTION $function() RETURNS trigger AS ${'$'}${'$'}
+                        BEGIN
+                            IF NEW.owner_session_id = '$ownerId'::uuid AND NEW.attempt_id = '$attemptId'::uuid THEN
+                                RAISE EXCEPTION 'forced practice context failure';
+                            END IF;
+                            RETURN NEW;
+                        END;
+                        ${'$'}${'$'} LANGUAGE plpgsql""".trimIndent(),
+                )
+                statement.execute(
+                    "CREATE TRIGGER $trigger BEFORE INSERT ON practice_attempt_context " +
+                        "FOR EACH ROW EXECUTE FUNCTION $function()",
+                )
+            }
+        }
+        return "$trigger:$function"
+    }
+
+    private fun dropContextFailureTrigger(names: String) {
+        val (trigger, function) = names.split(':')
+        DriverManager.getConnection(postgres.jdbcUrl, postgres.username, postgres.password).use { connection ->
+            connection.createStatement().use { statement ->
+                statement.execute("DROP TRIGGER IF EXISTS $trigger ON practice_attempt_context")
+                statement.execute("DROP FUNCTION IF EXISTS $function()")
+            }
+        }
+    }
+
+    private fun equalizePracticeAttemptTimes(ownerId: UUID, practiceId: UUID, position: Int) {
+        DriverManager.getConnection(postgres.jdbcUrl, postgres.username, postgres.password).use { connection ->
+            connection.prepareStatement(
+                """UPDATE attempts SET created_at = 1
+                    WHERE session_id = ? AND attempt_id IN (
+                        SELECT attempt_id FROM practice_attempt_context
+                        WHERE owner_session_id = ? AND practice_session_id = ? AND position = ?
+                    )""".trimIndent(),
+            ).use { statement ->
+                statement.setObject(1, ownerId)
+                statement.setObject(2, ownerId)
+                statement.setObject(3, practiceId)
+                statement.setInt(4, position)
+                assertEquals(2, statement.executeUpdate())
+            }
+            connection.prepareStatement(
+                """UPDATE practice_attempt_context SET created_at = 1
+                    WHERE owner_session_id = ? AND practice_session_id = ? AND position = ?""".trimIndent(),
+            ).use { statement ->
+                statement.setObject(1, ownerId)
+                statement.setObject(2, practiceId)
+                statement.setInt(3, position)
+                assertEquals(2, statement.executeUpdate())
+            }
+        }
     }
 
     private fun attemptResponse(attemptId: String, stored: StoredExercise, retry: Int, createdAt: Long) = AttemptResponse(

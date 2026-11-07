@@ -9,6 +9,8 @@ class InMemoryAstridRepository(private val clock: () -> Long = System::currentTi
     private val sessions = mutableMapOf<String, SessionRecord>()
     private val exercises = mutableMapOf<Pair<UUID, UUID>, StoredExercise>()
     private val attempts = mutableMapOf<Pair<UUID, UUID>, Pair<String, AttemptResponse>>()
+    private val practiceSessions = mutableMapOf<Pair<UUID, UUID>, MemoryPracticeSession>()
+    private val practiceRequests = mutableMapOf<Pair<UUID, UUID>, String>()
 
     override suspend fun findSession(tokenHash: String, now: Long) = mutex.withLock {
         sessions[tokenHash]?.takeIf { it.expiresAt > now }
@@ -26,11 +28,11 @@ class InMemoryAstridRepository(private val clock: () -> Long = System::currentTi
         exercises[sessionId to exerciseId]
     }
 
-    override suspend fun writeAttempt(
+    override suspend fun writeAttemptWithPractice(
         sessionId: UUID,
         request: AttemptRequest,
         requestPayload: String,
-        create: suspend (StoredExercise, Int, Long) -> AttemptResponse,
+        create: suspend (StoredExercise, Int, Long, PracticeAttemptSource?) -> CreatedAttempt,
     ): AttemptWriteResult = mutex.withLock {
         val attemptId = UUID.fromString(request.attemptId)
         val key = sessionId to attemptId
@@ -40,14 +42,135 @@ class InMemoryAstridRepository(private val clock: () -> Long = System::currentTi
         }
         val exerciseId = UUID.fromString(request.exerciseId)
         val exercise = exercises[sessionId to exerciseId] ?: return@withLock AttemptWriteResult.ExerciseMissing
+        val practice = practiceSessions.values.singleOrNull { candidate ->
+            candidate.ownerSessionId == sessionId && candidate.items.any { it.exercise.id == exerciseId }
+        }
+        val practiceItem = practice?.items?.single { it.exercise.id == exerciseId }
+        if (practice != null && practiceItem!!.position != practice.cursor) {
+            return@withLock AttemptWriteResult.PracticePositionConflict
+        }
         val retry = attempts.values.count { (_, response) -> response.exerciseId == request.exerciseId } + 1
-        val response = create(exercise, retry, clock())
-        attempts[key] = requestPayload to response
-        AttemptWriteResult.Created(response)
+        val source = practice?.let { current ->
+            PracticeAttemptSource(
+                current.focusId,
+                current.planRevision,
+                current.seed,
+                checkNotNull(practiceItem).position,
+                current.introductionOpened,
+                current.items.map {
+                    PracticeExposureState(
+                        it.position,
+                        it.answerExposureKeys,
+                        it.promptExposureKeys,
+                        it.lessonExposureKeys,
+                        it.hintExposureKeys,
+                        it.feedbackExposureKeys,
+                        it.lessonOpened,
+                        it.hintOpened,
+                        it.attempts.isNotEmpty(),
+                    )
+                },
+            )
+        }
+        val created = create(exercise, retry, clock(), source)
+        check((practice == null) == (created.practiceContext == null)) { "Practice attempt context mismatch" }
+        attempts[key] = requestPayload to created.response
+        if (practiceItem != null) {
+            practiceItem.attempts += StoredPracticeAttempt(
+                created.response,
+                checkNotNull(created.practiceContext),
+                request.answer,
+            )
+        }
+        AttemptWriteResult.Created(created.response)
     }
 
     override suspend fun findAttempt(sessionId: UUID, attemptId: UUID) = mutex.withLock {
         attempts[sessionId to attemptId]?.second
+    }
+
+    override suspend fun createPracticeSession(
+        ownerSession: SessionRecord,
+        request: PracticeSessionRequest,
+        requestPayload: String,
+        create: suspend () -> NewPracticeSession,
+    ): PracticeCreateResult = mutex.withLock {
+        val id = UUID.fromString(request.practiceSessionId)
+        val key = ownerSession.id to id
+        practiceSessions[key]?.let {
+            return@withLock if (practiceRequests.getValue(key) == requestPayload) {
+                PracticeCreateResult.Existing(it.snapshot())
+            } else {
+                PracticeCreateResult.RequestConflict
+            }
+        }
+        val plan = create()
+        val stored = MemoryPracticeSession(
+            id,
+            ownerSession.id,
+            ownerSession.expiresAt,
+            request.focusId,
+            plan.title,
+            request.planRevision,
+            request.seed,
+            plan.contentRevision,
+            plan.generatorRevision,
+            plan.evaluationRevision,
+            prerequisiteSkillIds = plan.prerequisiteSkillIds.toList(),
+            introduction = plan.introduction.toList(),
+            items = plan.items.sortedBy { it.position }.map { MemoryPracticeItem(it) }.toMutableList(),
+        )
+        plan.items.forEach { exercises[ownerSession.id to it.exercise.id] = it.exercise }
+        practiceRequests[key] = requestPayload
+        practiceSessions[key] = stored
+        PracticeCreateResult.Created(stored.snapshot())
+    }
+
+    override suspend fun findPracticeSession(ownerSessionId: UUID, practiceSessionId: UUID) = mutex.withLock {
+        practiceSessions[ownerSessionId to practiceSessionId]?.snapshot()
+    }
+
+    override suspend fun openPracticeSupport(
+        ownerSessionId: UUID,
+        practiceSessionId: UUID,
+        request: PracticeSupportRequest,
+    ): PracticeMutationResult = mutex.withLock {
+        val stored = practiceSessions[ownerSessionId to practiceSessionId]
+            ?: return@withLock PracticeMutationResult.Missing
+        when (request.kind) {
+            "introduction" -> {
+                if (request.position == null) stored.introductionOpened = true
+                else return@withLock PracticeMutationResult.Conflict
+            }
+            "lesson", "hint" -> {
+                val position = request.position ?: return@withLock PracticeMutationResult.Conflict
+                if (position !in 0 until stored.items.size || position > stored.cursor) {
+                    return@withLock PracticeMutationResult.Conflict
+                }
+                val item = stored.items.single { it.position == position }
+                if (request.kind == "lesson") item.lessonOpened = true else item.hintOpened = true
+            }
+            else -> return@withLock PracticeMutationResult.Conflict
+        }
+        PracticeMutationResult.Success(stored.snapshot())
+    }
+
+    override suspend fun advancePracticeSession(
+        ownerSessionId: UUID,
+        practiceSessionId: UUID,
+        position: Int,
+    ): PracticeMutationResult = mutex.withLock {
+        val stored = practiceSessions[ownerSessionId to practiceSessionId]
+            ?: return@withLock PracticeMutationResult.Missing
+        when {
+            position < stored.cursor -> PracticeMutationResult.Success(stored.snapshot())
+            position > stored.cursor || position !in stored.items.indices -> PracticeMutationResult.Conflict
+            stored.items.single { it.position == position }.attempts.isEmpty() -> PracticeMutationResult.Conflict
+            else -> {
+                stored.cursor += 1
+                PracticeMutationResult.Success(stored.snapshot())
+            }
+        }
     }
 
     override suspend fun ready() = true
@@ -62,6 +185,49 @@ class InMemoryAstridRepository(private val clock: () -> Long = System::currentTi
         exercises[entry.key] = entry.value.copy(
             contentRevision = "retired-content",
             reproductionFingerprint = "0".repeat(64),
+        )
+    }
+
+    private class MemoryPracticeSession(
+        val id: UUID,
+        val ownerSessionId: UUID,
+        val sessionExpiresAt: Long,
+        val focusId: String,
+        val title: String,
+        val planRevision: String,
+        val seed: Int,
+        val contentRevision: String,
+        val generatorRevision: String,
+        val evaluationRevision: String,
+        var cursor: Int = 0,
+        var introductionOpened: Boolean = false,
+        val prerequisiteSkillIds: List<String>,
+        val introduction: List<IntroductionDto>,
+        val items: MutableList<MemoryPracticeItem>,
+    ) {
+        fun snapshot() = StoredPracticeSession(
+            id, ownerSessionId, sessionExpiresAt, focusId, title, planRevision, seed,
+            contentRevision, generatorRevision, evaluationRevision, cursor, introductionOpened,
+            prerequisiteSkillIds.toList(), introduction.toList(), items.map(MemoryPracticeItem::snapshot),
+        )
+    }
+
+    private class MemoryPracticeItem(item: NewPracticeItem) {
+        val position = item.position
+        val exercise = item.exercise
+        val targetLabel = item.targetLabel
+        val answerExposureKeys = item.answerExposureKeys.toList()
+        val promptExposureKeys = item.promptExposureKeys.toList()
+        val lessonExposureKeys = item.lessonExposureKeys.toList()
+        val hintExposureKeys = item.hintExposureKeys.toList()
+        val feedbackExposureKeys = item.feedbackExposureKeys.toList()
+        var lessonOpened = false
+        var hintOpened = false
+        var attempts = mutableListOf<StoredPracticeAttempt>()
+
+        fun snapshot() = StoredPracticeItem(
+            position, exercise, targetLabel, answerExposureKeys, promptExposureKeys, lessonExposureKeys, hintExposureKeys,
+            feedbackExposureKeys, lessonOpened, hintOpened, attempts.toList(),
         )
     }
 }
