@@ -7,7 +7,19 @@ export default defineConfig({
     host: "127.0.0.1",
     port: 5180,
     strictPort: true,
-    proxy: { "/api": "http://127.0.0.1:8088" },
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:8088",
+        configure(proxy) {
+          proxy.on("proxyReq", (proxyRequest, request) => {
+            const origin = request.headers.origin;
+            if (origin === "http://127.0.0.1:5180" || origin === "http://localhost:5180") {
+              proxyRequest.setHeader("Origin", "http://127.0.0.1:8088");
+            }
+          });
+        },
+      },
+    },
   },
   build: {
     rolldownOptions: {
@@ -36,14 +48,14 @@ export default defineConfig({
         "src/main.tsx",
         "src/vite-env.d.ts",
       ],
-      // Full-source baseline after prompt, navigation, recovery and theme regressions (2026-11-07): statements
-      // 86.12, branches 79.18, functions 82.08, lines 89.62. Floors sit at the
+      // Full-source baseline after keyboard, accessibility and session-recovery regressions
+      // (2026-11-07): statements 88.01, branches 81.22, functions 87.01, lines 90.65. Floors sit at the
       // integer below each result and must move upward as coverage grows.
       thresholds: {
-        statements: 86,
-        branches: 79,
-        functions: 82,
-        lines: 89,
+        statements: 88,
+        branches: 81,
+        functions: 87,
+        lines: 90,
       },
     },
   },

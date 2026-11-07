@@ -3,7 +3,7 @@ import {
   Paper, Select, SimpleGrid, Stack, Text, Title,
 } from "@mantine/core";
 import { IconAlertCircle, IconBulb, IconRefresh } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ApiError, bootstrapPlayground, createExercise, submitAttempt, UncertainResultError,
 } from "./api/client";
@@ -31,6 +31,7 @@ function answerFor(exercise: Exercise, text: string, order: string[]): AttemptAn
 }
 
 function messageFor(error: unknown) {
+  if (error instanceof ApiError && error.status === 401) return "Your learning session expired. Reconnect to continue.";
   if (error instanceof ApiError && error.status === 409) return "The engine revision changed. Generate a new exercise.";
   if (error instanceof ApiError) return error.message;
   return "The learning engine could not be reached. Check that the server is running.";
@@ -41,14 +42,40 @@ function activeSelection(catalog: Catalog | null, exercise: Exercise | null, req
   return { id, format: catalog?.formats.find((candidate) => candidate.id === id) };
 }
 
-function ErrorRecoveryActions({ reloadRequired, hasExercise }: { reloadRequired: boolean; hasExercise: boolean }) {
-  if (reloadRequired) {
+type RecoveryRequired = "engine" | "session" | null;
+
+function recoveryFor(error: unknown): RecoveryRequired {
+  if (!(error instanceof ApiError)) return null;
+  if (error.status === 401) return "session";
+  if (error.status === 409) return "engine";
+  return null;
+}
+
+function ErrorRecoveryActions({ recoveryRequired, hasExercise }: {
+  recoveryRequired: RecoveryRequired; hasExercise: boolean;
+}) {
+  if (recoveryRequired === "session") {
+    return <Button color="red" variant="light" onClick={() => window.location.reload()}>Reconnect session</Button>;
+  }
+  if (recoveryRequired === "engine") {
     return <Button color="red" variant="light" onClick={() => window.location.reload()}>Reload engine</Button>;
   }
   if (!hasExercise) {
     return <Button color="red" variant="light" onClick={() => window.location.reload()}>Try connection again</Button>;
   }
   return null;
+}
+
+function useExerciseFocus(attempt: Attempt | null, exercise: Exercise | null) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const afterRender = useRef(false);
+  useEffect(() => {
+    if (!afterRender.current) return;
+    headingRef.current?.focus();
+    afterRender.current = false;
+  }, [attempt, exercise]);
+  const requestFocus = () => { afterRender.current = true; };
+  return [headingRef, requestFocus] as const;
 }
 
 export default function Playground() {
@@ -68,7 +95,8 @@ export default function Playground() {
   const [uncertain, setUncertain] = useState(false);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
-  const [reloadRequired, setReloadRequired] = useState(false);
+  const [recoveryRequired, setRecoveryRequired] = useState<RecoveryRequired>(null);
+  const [exerciseHeadingRef, requestExerciseFocus] = useExerciseFocus(attempt, exercise);
 
   const generate = async (nextFormat: string, nextSeed: number, nextIndex: number, knownCatalog = catalog) => {
     if (!knownCatalog) return;
@@ -76,7 +104,7 @@ export default function Playground() {
     if (!format) return;
     setBusy(true);
     setError("");
-    setReloadRequired(false);
+    setRecoveryRequired(null);
     try {
       const created = await createExercise({
         formatId: format.id,
@@ -86,6 +114,7 @@ export default function Playground() {
         contentRevision: knownCatalog.contentRevision,
         generatorRevision: knownCatalog.generatorRevision,
       });
+      requestExerciseFocus();
       setExercise(created);
       setFormatId(created.formatId);
       setSeed(nextSeed);
@@ -100,7 +129,7 @@ export default function Playground() {
       setUncertain(false);
     } catch (caught) {
       setError(messageFor(caught));
-      setReloadRequired(caught instanceof ApiError && caught.status === 409);
+      setRecoveryRequired(recoveryFor(caught));
     } finally {
       setBusy(false);
     }
@@ -129,7 +158,7 @@ export default function Playground() {
     setPending(request);
     setBusy(true);
     setError("");
-    setReloadRequired(false);
+    setRecoveryRequired(null);
     setUncertain(false);
     try {
       setAttempt(await submitAttempt(request));
@@ -139,7 +168,7 @@ export default function Playground() {
       else {
         setPending(null);
         setError(messageFor(caught));
-        setReloadRequired(caught instanceof ApiError && caught.status === 409);
+        setRecoveryRequired(recoveryFor(caught));
       }
     } finally {
       setBusy(false);
@@ -157,6 +186,7 @@ export default function Playground() {
   };
 
   const retryKnownAttempt = () => {
+    requestExerciseFocus();
     setAttempt(null);
     setText("");
     setOrder([]);
@@ -189,7 +219,7 @@ export default function Playground() {
         <Alert color="red" icon={<IconAlertCircle size={20} />} title="The exercise could not continue">
           <Stack gap="sm">
             <Text>{error}</Text>
-            <ErrorRecoveryActions reloadRequired={reloadRequired} hasExercise={Boolean(exercise)} />
+            <ErrorRecoveryActions recoveryRequired={recoveryRequired} hasExercise={Boolean(exercise)} />
           </Stack>
         </Alert>
       )}
@@ -243,7 +273,7 @@ export default function Playground() {
                 </Box>
               )}
               <Box>
-                <Title order={3} size="h4">{exercise.instruction}</Title>
+                <Title ref={exerciseHeadingRef} tabIndex={-1} order={3} size="h4">{exercise.instruction}</Title>
                 <Text c="dimmed" mt={4}>{exercise.context}</Text>
               </Box>
               <ExercisePrompt
@@ -300,6 +330,7 @@ export default function Playground() {
                 label="Exercise type"
                 data={catalog?.formats.map((item) => ({ value: item.id, label: item.title })) ?? []}
                 value={activeFormatId}
+                searchable
                 disabled={busy || uncertain}
                 onChange={(value) => { if (value) void generate(value, seed, index); }}
               />

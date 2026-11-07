@@ -130,6 +130,31 @@ describe("Playground", () => {
     expect(selector).toHaveValue("Choose the present form");
   });
 
+  it("offers session reconnection when a protected call reports an expired session", async () => {
+    let exerciseRequests = 0;
+    vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+      if (path.endsWith("development-session")) return json(session);
+      if (path.endsWith("catalog")) return json(catalog);
+      exerciseRequests += 1;
+      if (exerciseRequests === 1) return json(exercise);
+      return Response.json(
+        { detail: "The session is no longer valid." },
+        { status: 401, headers: { "Content-Type": "application/json" } },
+      );
+    }));
+    await renderPlayground();
+    await screen.findByRole("button", { name: "læser" });
+    await userEvent.click(screen.getByRole("button", { name: "Generation controls" }));
+    await userEvent.click(screen.getByRole("combobox", { name: "Exercise type" }));
+    await userEvent.click(screen.getByRole("option", { name: "Supply the indefinite article" }));
+
+    expect(await screen.findByText("Your learning session expired. Reconnect to continue.")).toBeVisible();
+    const reconnect = screen.getByRole("button", { name: "Reconnect session" });
+    expect(reconnect).toBeVisible();
+    expect(screen.getByRole("button", { name: "læser" })).toBeVisible();
+    await userEvent.click(reconnect);
+  });
+
   it("retries the same next index until generation succeeds", async () => {
     const generatedIndexes: number[] = [];
     vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {

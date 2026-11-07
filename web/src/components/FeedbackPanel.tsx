@@ -21,13 +21,13 @@ export default function FeedbackPanel({ attempt }: { attempt: Attempt }) {
       color={met ? "teal" : "orange"}
       variant="light"
       icon={met ? <IconCircleCheck size={20} /> : <IconAlertTriangle size={20} />}
-      title={met ? "Good work" : "Look at the target once more"}
+      title={<Text c="var(--mantine-color-text)" fw={650}>{met ? "Good work" : "Look at the target once more"}</Text>}
       role="status"
     >
       <Stack gap="xs">
         <Group gap="xs">
-          <Badge color={met ? "teal" : "orange"}>{targetLabel(attempt.targetSatisfaction)}</Badge>
-          <Badge color={attempt.linguisticStatus === "acceptable" ? "teal" : "gray"}>
+          <Badge variant="default">{targetLabel(attempt.targetSatisfaction)}</Badge>
+          <Badge variant="default">
             {languageLabel(attempt.linguisticStatus)}
           </Badge>
         </Group>

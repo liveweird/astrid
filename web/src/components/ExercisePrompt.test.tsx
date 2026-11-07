@@ -1,6 +1,7 @@
 import { MantineProvider } from "@mantine/core";
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useState } from "react";
 import type { Exercise } from "../api/models";
 import ExercisePrompt from "./ExercisePrompt";
 
@@ -80,5 +81,27 @@ describe("ExercisePrompt", () => {
     );
     expect(screen.getByLabelText("Remove jeg from position 1")).toHaveTextContent("Jeg");
     expect(screen.getByLabelText("Remove I from position 2")).toHaveTextContent("I");
+  });
+
+  it("moves focus when a keyboard action removes the focused ordering button", async () => {
+    function OrderingHarness() {
+      const [order, setOrder] = useState<string[]>([]);
+      return (
+        <ExercisePrompt
+          exercise={exercise("E003")} text="" order={order} disabled={false}
+          onText={vi.fn()} onOrder={setOrder}
+        />
+      );
+    }
+    render(<MantineProvider env="test"><OrderingHarness /></MantineProvider>);
+    screen.getByRole("button", { name: "jeg" }).focus();
+    await userEvent.keyboard("{Enter}");
+    expect(screen.getByRole("button", { name: "læser" })).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    expect(screen.getByRole("button", { name: "I" })).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    expect(screen.getByLabelText("Remove I from position 3")).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    expect(screen.getByRole("button", { name: "I" })).toHaveFocus();
   });
 });

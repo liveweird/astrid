@@ -2,7 +2,7 @@ import { MantineProvider } from "@mantine/core";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
-import { theme } from "./theme";
+import { cssVariablesResolver, theme } from "./theme";
 
 vi.mock("./Playground", () => ({ default: () => <div>Learning workspace</div> }));
 
@@ -25,7 +25,11 @@ describe("App theme", () => {
   it("reports the effective dark preference and switches the whole document to explicit light", async () => {
     localStorage.clear();
     vi.stubGlobal("matchMedia", vi.fn(darkPreference));
-    render(<MantineProvider env="test" theme={theme} defaultColorScheme="auto"><App /></MantineProvider>);
+    render(
+      <MantineProvider env="test" theme={theme} cssVariablesResolver={cssVariablesResolver} defaultColorScheme="auto">
+        <App />
+      </MantineProvider>,
+    );
 
     await userEvent.click(screen.getByRole("button", { name: "Use light theme" }));
 

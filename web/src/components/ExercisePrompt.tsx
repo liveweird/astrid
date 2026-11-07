@@ -1,4 +1,5 @@
 import { Button, Group, Paper, Stack, Text, TextInput } from "@mantine/core";
+import { useEffect, useRef } from "react";
 import type { Exercise } from "../api/models";
 
 type Props = {
@@ -18,22 +19,38 @@ function orderedBlockText(value: string, index: number) {
 
 export default function ExercisePrompt({ exercise, text, order, disabled, onText, onOrder }: Props) {
   const { prompt, formatId } = exercise;
+  const availableRefs = useRef(new Map<string, HTMLButtonElement>());
+  const chosenRefs = useRef(new Map<string, HTMLButtonElement>());
+  const focusTarget = useRef<{ id: string; area: "available" | "chosen" } | null>(null);
+
+  useEffect(() => {
+    const target = focusTarget.current;
+    if (!target) return;
+    const refs = target.area === "available" ? availableRefs.current : chosenRefs.current;
+    refs.get(target.id)?.focus();
+    focusTarget.current = null;
+  }, [order]);
+
   if (formatId === "E003") {
     const chosen = new Set(order);
     const available = prompt.blocks.filter((block) => !chosen.has(block.id));
     const blocksById = new Map(prompt.blocks.map((block) => [block.id, block]));
     return (
       <Stack gap="sm">
-        <Paper withBorder p="md" mih={70} aria-label="Your sentence">
+        <Paper withBorder p="md" mih={70} aria-label="Your sentence" aria-live="polite">
           <Group gap="xs">
             {order.length === 0 && <Text c="dimmed">Choose the parts in sentence order.</Text>}
             {order.map((id, index) => (
               <Button
                 key={id}
+                ref={(node) => { if (node) chosenRefs.current.set(id, node); else chosenRefs.current.delete(id); }}
                 variant="light"
                 color="gray"
                 disabled={disabled}
-                onClick={() => onOrder(order.filter((candidate) => candidate !== id))}
+                onClick={() => {
+                  focusTarget.current = { id, area: "available" };
+                  onOrder(order.filter((candidate) => candidate !== id));
+                }}
                 aria-label={`Remove ${blocksById.get(id)?.text ?? "part"} from position ${index + 1}`}
               >
                 <span lang="da">{orderedBlockText(blocksById.get(id)?.text ?? "", index)}</span>
@@ -44,7 +61,19 @@ export default function ExercisePrompt({ exercise, text, order, disabled, onText
         </Paper>
         <Group gap="xs" aria-label="Available sentence parts">
           {available.map((block) => (
-            <Button key={block.id} variant="default" disabled={disabled} onClick={() => onOrder([...order, block.id])}>
+            <Button
+              key={block.id}
+              ref={(node) => {
+                if (node) availableRefs.current.set(block.id, node); else availableRefs.current.delete(block.id);
+              }}
+              variant="default"
+              disabled={disabled}
+              onClick={() => {
+                const next = available.find((candidate) => candidate.id !== block.id);
+                focusTarget.current = next ? { id: next.id, area: "available" } : { id: block.id, area: "chosen" };
+                onOrder([...order, block.id]);
+              }}
+            >
               <span lang="da">{block.text}</span>
             </Button>
           ))}
@@ -76,7 +105,7 @@ export default function ExercisePrompt({ exercise, text, order, disabled, onText
   }
 
   return (
-    <Group gap="xs" align="end" wrap="nowrap" aria-label="Danish sentence cloze">
+    <Group gap="xs" align="end" wrap="wrap" aria-label="Danish sentence cloze">
       {prompt.before && <Text lang="da" pb={9}>{prompt.before}</Text>}
       <TextInput
         label="Missing word"
