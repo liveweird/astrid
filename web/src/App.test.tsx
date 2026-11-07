@@ -2,6 +2,7 @@ import { MantineProvider } from "@mantine/core";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
+import { APP_VERSION } from "./changelog/version";
 import { cssVariablesResolver, theme } from "./theme";
 
 vi.mock("./Playground", () => ({ default: () => <div>Learning workspace</div> }));
@@ -99,7 +100,7 @@ describe("App theme", () => {
     );
 
     expect(screen.getByTitle("What's new")).toBeVisible();
-    expect(screen.getAllByRole("link", { name: /v0\.2\.0/ })[0]).toHaveAttribute("href", "/changelog");
+    expect(screen.getAllByRole("link", { name: (name) => name.includes(`v${APP_VERSION}`) })[0]).toHaveAttribute("href", "/changelog");
   });
 
   it("retains the shell and unread marker when the lazy changelog fails", async () => {

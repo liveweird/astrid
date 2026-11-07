@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.3.0",
+    date: "2026-11-07",
+    body: `**Choose your practice focus.**
+
+- Start fresh with **Mixed practice** or **Present verb forms**. Saved runs resume directly, and cancelling a new selection keeps your current practice.
+- Practise present verbs in six parts: choose the form, recall it in writing, and repair one wrong word.
+- Verb summaries keep these three operations separate. Select the ones to revisit in a new, source-linked review.`,
+  },
+  {
     version: "0.2.0",
     date: "2026-11-07",
     body: `**Application version and changelog.**
