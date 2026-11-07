@@ -5,7 +5,7 @@ This register tracks open and resolved questions through the delivered private p
 | ID | Question or open point | Related work |
 | --- | --- | --- |
 | Q01 | **Resolved:** The initial material targets English-speaking complete beginners. See [Product direction](product-direction.md). | BL-001 |
-| Q02 | **Partly resolved:** General everyday Danish is the confirmed initial priority. The [first slice](beginner-slice-spec.md) proposes observable present-statement/article/form outcomes; final learning-success measures, proficiency range, and use of CEFR remain open. | BL-001, BL-008 |
+| Q02 | **Partly resolved:** General everyday Danish is the confirmed initial priority. The [first slice](beginner-slice-spec.md) proposes observable present-statement/article/form outcomes; final learning-success measures, proficiency range, and use of CEFR remain open. The [outcome reference note](beginner-outcome-reference.md) separates official activity descriptors from Astrid's narrow pilot evidence. | BL-001, BL-008 |
 | Q03 | What does coverage of sentence variants include: register, colloquial forms, exceptional constructions, and advanced grammar? | BL-001, BL-003 |
 | Q04 | What session structure, progression, topic choice, and learner control do we want? | BL-009 |
 | Q05 | The [grammar draft](danish-grammar-map.md) defines 58 skills and prerequisite relationships. How will a Danish teaching specialist validate the sequence and coverage? | BL-022 |
@@ -24,6 +24,8 @@ This register tracks open and resolved questions through the delivered private p
 | Q18 | Which red palette and light/dark accent shades should Astrid use, and how should brand, incorrect-answer, destructive-action, and system-error treatments be distinguished? | BL-021 |
 | Q19 | Which unique logo direction should be developed: a Denmark-related symbol, an Astrid character portrait, or a combination? What illustration and small-icon treatment should it use? | BL-021 |
 | Q20 | Which [usage](frequency-and-usage-resources.md) and [bilingual](bilingual-resources.md) candidates fit Astrid's intended data use and distribution? Which need publisher clarification, attribution/adaptation decisions or reference-only treatment before any import? | BL-025 |
+| Q21 | After trying the playground, which [exercise extension](exercise-extension-proposal.md) should come first: finite-form recall, guided repair, or vocabulary recognition/recall? What support and lexical-target contract should it use? | BL-006, BL-007 |
+| Q22 | For future generation/grading changes, should unsupported unsubmitted exercises be explicitly retired, or remain assessable under their original generation and evaluation rules? Saved attempts must retain exact replay under either policy. | BL-007, BL-010 |
 
 ## Resolved clarifications
 
