@@ -91,7 +91,7 @@ object PilotReview {
                         format,
                         index.toString(),
                         exercise.id,
-                        exercise.inspector.canonicalSentence ?: exercise.prompt.cue.orEmpty(),
+                        exercise.inspector.canonicalSentence.orEmpty(),
                         promptSummary(exercise),
                     ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
                 )
@@ -101,6 +101,12 @@ object PilotReview {
 
     private fun promptSummary(exercise: GeneratedExercise): String =
         when {
+            exercise.prompt.cue != null && exercise.prompt.choices.isNotEmpty() ->
+                "Cue (${exercise.prompt.cueLanguage}): ${exercise.prompt.cue} " +
+                    "[${exercise.prompt.choices.joinToString(", ")}]"
+            exercise.prompt.cue != null ->
+                "Cue (${exercise.prompt.cueLanguage}): ${exercise.prompt.cue} → " +
+                    exercise.prompt.inputLabel.orEmpty()
             exercise.prompt.choices.isNotEmpty() ->
                 "${exercise.prompt.before}___${exercise.prompt.after} [${exercise.prompt.choices.joinToString(", ")}]"
             exercise.prompt.blocks.isNotEmpty() ->

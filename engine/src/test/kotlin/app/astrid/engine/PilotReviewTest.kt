@@ -36,6 +36,15 @@ class PilotReviewTest {
         assertTrue("E006-pilot-3-generator-3-C" in first)
         assertTrue("E007-pilot-3-generator-3-L" in first)
         assertTrue("E008-pilot-3-generator-3-L" in first)
+        val lexicalExampleRows = first.lineSequence().filter { it.startsWith("| E007 |") || it.startsWith("| E008 |") }.toList()
+        assertEquals(4, lexicalExampleRows.size)
+        assertTrue(lexicalExampleRows.all { " |  | Cue (" in it })
+        assertTrue(lexicalExampleRows.filter { it.startsWith("| E007 |") }.all { "Cue (da):" in it })
+        assertTrue(
+            lexicalExampleRows.filter { it.startsWith("| E008 |") }
+                .all { "Cue (en):" in it && "→ Danish singular headword" in it },
+        )
+        assertTrue("letter (written message)" in first)
         assertTrue("[replace: " in first)
         val legacy = PilotReview.renderLegacyMarkdown()
         assertTrue("Content revision: `pilot-1`" in legacy)
