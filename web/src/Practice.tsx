@@ -283,36 +283,39 @@ function handleOperationFailure(
   handlers.setError(practiceError(caught));
 }
 
-function SupportSections({ session, disabled, onSupport }: {
+function SupportSections({ session, disabled, introductionContentRef, lessonContentRef, onSupport }: {
   session: PracticeSession;
   disabled: boolean;
+  introductionContentRef: React.RefObject<HTMLParagraphElement | null>;
+  lessonContentRef: React.RefObject<HTMLParagraphElement | null>;
   onSupport: (kind: "introduction" | "lesson" | "hint", position?: number) => void;
 }) {
   const exercise = session.currentExercise;
   const item = session.items.find((candidate) => candidate.position === session.cursor);
-  const [introductionValue, setIntroductionValue] = useState<string | null>(session.introductionOpened ? "introduction" : null);
-  const [lessonValue, setLessonValue] = useState<string | null>(item?.lessonOpened ? "lesson" : null);
-  const previousIntroduction = useRef(session.introductionOpened);
-  const previousLesson = useRef({ position: item?.position, opened: item?.lessonOpened });
-  useEffect(() => {
-    if (!previousIntroduction.current && session.introductionOpened) setIntroductionValue("introduction");
-    previousIntroduction.current = session.introductionOpened;
-  }, [session.introductionOpened]);
-  useEffect(() => {
-    const previous = previousLesson.current;
-    if (previous.position !== item?.position) setLessonValue(item?.lessonOpened ? "lesson" : null);
-    else if (!previous.opened && item?.lessonOpened) setLessonValue("lesson");
-    previousLesson.current = { position: item?.position, opened: item?.lessonOpened };
-  }, [item?.lessonOpened, item?.position]);
+  const [introductionDisclosure, setIntroductionDisclosure] = useState({
+    value: session.introductionOpened ? "introduction" : null as string | null,
+    userCollapsed: false,
+  });
+  const [lessonDisclosure, setLessonDisclosure] = useState({
+    position: item?.position,
+    value: item?.lessonOpened ? "lesson" : null as string | null,
+    userCollapsed: false,
+  });
+  const introductionValue = session.introductionOpened && !introductionDisclosure.userCollapsed
+    ? "introduction" : introductionDisclosure.value;
+  const lessonValue = lessonDisclosure.position !== item?.position
+    ? item?.lessonOpened ? "lesson" : null
+    : item?.lessonOpened && !lessonDisclosure.userCollapsed ? "lesson" : lessonDisclosure.value;
   return (
     <Stack gap="sm">
       {session.introduction.length > 0 && (
         <Accordion
           variant="contained"
+          transitionDuration={0}
           value={introductionValue}
           onChange={(value) => {
             if (value === "introduction" && !session.introductionOpened) onSupport("introduction");
-            else setIntroductionValue(value);
+            else setIntroductionDisclosure({ value, userCollapsed: value === null && session.introductionOpened });
           }}
         >
           <Accordion.Item value="introduction">
@@ -320,10 +323,16 @@ function SupportSections({ session, disabled, onSupport }: {
             <Accordion.Panel>
               {session.introductionOpened ? (
                 <SimpleGrid minColWidth="min(100%, 18rem)">
-                  {session.introduction.map((section) => (
+                  {session.introduction.map((section, index) => (
                     <Box key={`${section.title}-${section.body}`}>
                       <Title order={3} size="h4">{section.title}</Title>
-                      <Text size="sm" mt={4}>{section.body}</Text>
+                      <Text
+                        ref={index === 0 ? introductionContentRef : undefined}
+                        data-practice-focus={index === 0 ? "introduction" : undefined}
+                        tabIndex={index === 0 ? -1 : undefined}
+                        size="sm"
+                        mt={4}
+                      >{section.body}</Text>
                     </Box>
                   ))}
                 </SimpleGrid>
@@ -335,19 +344,28 @@ function SupportSections({ session, disabled, onSupport }: {
       {exercise && exercise.introduction.length > 0 && item && (
         <Accordion
           variant="contained"
+          transitionDuration={0}
           value={lessonValue}
           onChange={(value) => {
             if (value === "lesson" && !item.lessonOpened) onSupport("lesson", item.position);
-            else setLessonValue(value);
+            else setLessonDisclosure({
+              position: item.position, value, userCollapsed: value === null && item.lessonOpened,
+            });
           }}
         >
           <Accordion.Item value="lesson">
             <Accordion.Control disabled={disabled}>Learn this first</Accordion.Control>
             <Accordion.Panel>
-              {item.lessonOpened ? exercise.introduction.map((section) => (
+              {item.lessonOpened ? exercise.introduction.map((section, index) => (
                 <Box key={`${section.title}-${section.body}`} mb="sm">
                   <Title order={3} size="h4">{section.title}</Title>
-                  <Text size="sm" mt={4}>{section.body}</Text>
+                  <Text
+                    ref={index === 0 ? lessonContentRef : undefined}
+                    data-practice-focus={index === 0 ? "lesson" : undefined}
+                    tabIndex={index === 0 ? -1 : undefined}
+                    size="sm"
+                    mt={4}
+                  >{section.body}</Text>
                 </Box>
               )) : <Text size="sm">Saving support before it is shown…</Text>}
             </Accordion.Panel>
@@ -393,11 +411,29 @@ function AttemptContextNote({ item }: { item: PracticeSession["items"][number] }
   );
 }
 
+function PracticeHint({ focusRef, hint }: { focusRef: React.RefObject<HTMLDivElement | null>; hint: string }) {
+  return (
+    <Alert ref={focusRef} data-practice-focus="hint" tabIndex={-1} color="gray" icon={<IconBulb size={18} />}>
+      {hint}
+    </Alert>
+  );
+}
+
 function itemSupportDescription(attempt: Attempt) {
   return attempt.hintUsed ? "Item lesson or hint opened" : "No item lesson or hint opened";
 }
 
-type PracticeFocusTarget = "item" | "feedback" | "summary" | "error";
+type PracticeFocusTarget = "item" | "feedback" | "summary" | "error" | "introduction" | "lesson" | "hint";
+
+function pendingFocus(entry: PracticeOutboxEntry, session: PracticeSession): PracticeFocusTarget {
+  if (entry.kind === "attempt") return "feedback";
+  if (entry.kind === "advance") return session.cursor + 1 === session.itemCount ? "summary" : "item";
+  if (entry.kind !== "support") return "item";
+  try {
+    const { kind } = JSON.parse(entry.body) as { kind?: unknown };
+    return kind === "introduction" || kind === "lesson" || kind === "hint" ? kind : "item";
+  } catch { return "item"; }
+}
 
 function reconciledFocus(previousCursor: number | undefined, next: PracticeSession | null, requested: PracticeFocusTarget) {
   if (!next) return "error";
@@ -410,6 +446,9 @@ function usePracticeFocusQueue(error: string) {
   const feedbackRef = useRef<HTMLDivElement>(null);
   const errorRef = useRef<HTMLDivElement>(null);
   const summaryHeadingRef = useRef<HTMLHeadingElement>(null);
+  const introductionContentRef = useRef<HTMLParagraphElement>(null);
+  const lessonContentRef = useRef<HTMLParagraphElement>(null);
+  const hintRef = useRef<HTMLDivElement>(null);
   const [request, setRequest] = useState<{ target: PracticeFocusTarget; sequence: number }>({
     target: "item", sequence: 0,
   });
@@ -418,12 +457,18 @@ function usePracticeFocusQueue(error: string) {
   };
   useEffect(() => {
     if (!error && request.sequence === 0) return;
-    const refs = { item: itemHeadingRef, feedback: feedbackRef, summary: summaryHeadingRef, error: errorRef };
+    const refs = {
+      item: itemHeadingRef, feedback: feedbackRef, summary: summaryHeadingRef, error: errorRef,
+      introduction: introductionContentRef, lesson: lessonContentRef, hint: hintRef,
+    };
     const target = refs[error ? "error" : request.target].current;
     target?.focus({ preventScroll: true });
     target?.scrollIntoView({ block: "start", inline: "nearest" });
   }, [error, request]);
-  return { errorRef, feedbackRef, itemHeadingRef, requestFocus, summaryHeadingRef };
+  return {
+    errorRef, feedbackRef, hintRef, introductionContentRef, itemHeadingRef,
+    lessonContentRef, requestFocus, summaryHeadingRef,
+  };
 }
 
 export default function Practice() {
@@ -437,7 +482,8 @@ export default function Practice() {
   const [pendingEntry, setPendingEntry] = useState<PracticeOutboxEntry | null>(null);
   const [error, setError] = useState("");
   const [recoveryUnavailable, setRecoveryUnavailable] = useState(false);
-  const { errorRef, feedbackRef, itemHeadingRef, requestFocus, summaryHeadingRef } = usePracticeFocusQueue(error);
+  const focusQueue = usePracticeFocusQueue(error);
+  const { errorRef, feedbackRef, hintRef, introductionContentRef, itemHeadingRef, lessonContentRef, requestFocus, summaryHeadingRef } = focusQueue;
   const generationRef = useRef(0);
 
   const applyState = (next: PracticeSession) => {
@@ -623,7 +669,7 @@ export default function Practice() {
   const support = (kind: "introduction" | "lesson" | "hint", position?: number) => {
     if (!run) return;
     const body = kind === "introduction" ? { kind } : { kind, position };
-    void perform(outboxEntry(run, "support", `${kind}-${position ?? "session"}`, body), "item");
+    void perform(outboxEntry(run, "support", `${kind}-${position ?? "session"}`, body), kind);
   };
   const advance = () => {
     if (!run || !item) return;
@@ -651,21 +697,19 @@ export default function Practice() {
         onStartNew={() => void startNewPractice()}
         onRetry={() => {
           if (!pendingEntry) return;
-          const retryFocus = pendingEntry.kind === "attempt" ? "feedback" :
-            pendingEntry.kind === "advance" && session.cursor + 1 === session.itemCount ? "summary" : "item";
-          void perform(pendingEntry, retryFocus);
+          void perform(pendingEntry, pendingFocus(pendingEntry, session));
         }}
       />
       {session.state === "completed" ? <PracticeSummary session={session} headingRef={summaryHeadingRef} /> : exercise && item ? (
         <>
-          <SupportSections session={session} disabled={blocked} onSupport={support} />
+          <SupportSections session={session} disabled={blocked} introductionContentRef={introductionContentRef} lessonContentRef={lessonContentRef} onSupport={support} />
           <Paper withBorder shadow="xs" className={classes.exerciseCard}>
             <Stack gap="lg">
               <Group justify="space-between"><Text fw={650}>Practice item {item.position + 1}</Text><Badge variant="light" color="astrid">{exercise.targetSkillId ?? "Vocabulary"}</Badge></Group>
               <Divider />
               <Box><Title ref={itemHeadingRef} tabIndex={-1} order={2} size="h4">{exercise.instruction}</Title><Text c="dimmed" mt={4}>{exercise.context}</Text></Box>
               <ExercisePrompt exercise={exercise} text={text} order={order} disabled={blocked || Boolean(attempt)} onText={setText} onOrder={setOrder} />
-              {item.hintOpened && <Alert color="gray" icon={<IconBulb size={18} />}>{exercise.hint}</Alert>}
+              {item.hintOpened && <PracticeHint focusRef={hintRef} hint={exercise.hint} />}
               {attempt && <FeedbackPanel
                 attempt={attempt}
                 focusRef={feedbackRef}

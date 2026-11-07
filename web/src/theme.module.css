@@ -145,6 +145,7 @@
   }
 }
 
-.practice :global([tabindex="-1"]) {
+.practice :global([tabindex="-1"]),
+.practice :global([data-practice-focus]) {
   scroll-margin-block-start: calc(var(--app-shell-header-height, 3rem) + var(--mantine-spacing-md));
 }

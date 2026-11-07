@@ -112,7 +112,7 @@ it("records support before revealing it, permits retries after wrong answers, an
   expect(await screen.findByText("Use the support when you want it.")).toBeVisible();
   expect(sent.find((request) => request.path.endsWith("/support"))?.body).toBe('{"kind":"introduction"}');
   await user.click(screen.getByRole("button", { name: "Session introduction" }));
-  expect(screen.queryByText("Use the support when you want it.")).not.toBeVisible();
+  expect(screen.queryByText("Use the support when you want it.")).not.toBeInTheDocument();
 
   await user.click(screen.getByRole("button", { name: "Learn this first" }));
   expect(await screen.findByText("A noun for something you read.")).toBeVisible();
@@ -136,6 +136,120 @@ it("records support before revealing it, permits retries after wrong answers, an
   expect(screen.getByRole("article", { name: /book · meaning/ })).toHaveTextContent("0 fully met");
   expect(screen.getByRole("article", { name: /book · meaning/ })).toHaveTextContent("1 target not met");
 });
+
+it("focuses each support disclosure only after its durable acknowledgement", async () => {
+  const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };
+  saveRunRecovery(run);
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const sessionIntroduction = [
+    { title: "A short introduction", body: "Use the support when you want it." },
+    { title: "A second introduction", body: "Keep going at your own pace." },
+  ];
+  const lessonIntroduction = [
+    ...exercise.introduction,
+    { title: "A second example", body: "The word can name a printed work." },
+  ];
+  let serverState = state({
+    introduction: sessionIntroduction,
+    currentExercise: { ...exercise, introduction: lessonIntroduction },
+  });
+  let releaseSupport: (() => void) | null = null;
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("/support")) {
+      const request = JSON.parse(String(init?.body)) as { kind: "introduction" | "lesson" | "hint" };
+      return new Promise<Response>((resolve) => {
+        releaseSupport = () => {
+          const item = serverState.items[0]!;
+          serverState = state({
+            introduction: sessionIntroduction,
+            currentExercise: { ...exercise, introduction: lessonIntroduction },
+            introductionOpened: request.kind === "introduction" || serverState.introductionOpened,
+            items: [{
+              ...item,
+              lessonOpened: request.kind === "lesson" || item.lessonOpened,
+              hintOpened: request.kind === "hint" || item.hintOpened,
+            }],
+          });
+          resolve(json(serverState));
+        };
+      });
+    }
+    if (path.includes("/practice-sessions/")) return json(serverState);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  const elsewhere = document.createElement("button");
+  document.body.append(elsewhere);
+
+  const introduction = await screen.findByRole("button", { name: "Session introduction" });
+  await user.click(introduction);
+  await waitFor(() => expect(releaseSupport).not.toBeNull());
+  elsewhere.focus();
+  releaseSupport!(); releaseSupport = null;
+  const introductionContent = await screen.findByText("Use the support when you want it.");
+  await waitFor(() => expect(introductionContent).toHaveFocus());
+
+  const lesson = screen.getByRole("button", { name: "Learn this first" });
+  await user.click(lesson);
+  await waitFor(() => expect(releaseSupport).not.toBeNull());
+  elsewhere.focus();
+  releaseSupport!(); releaseSupport = null;
+  const lessonContent = await screen.findByText("A noun for something you read.");
+  await waitFor(() => expect(lessonContent).toHaveFocus());
+
+  await user.click(screen.getByRole("button", { name: "Show hint" }));
+  await waitFor(() => expect(releaseSupport).not.toBeNull());
+  elsewhere.focus();
+  releaseSupport!();
+  const hint = await screen.findByText("Think of something with pages.");
+  await waitFor(() => expect(hint.closest("[data-practice-focus='hint']")).toHaveFocus());
+});
+
+it.each(["introduction", "lesson", "hint"] as const)(
+  "restores %s focus after manually retrying a committed support response loss",
+  async (kind) => {
+    const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };
+    saveRunRecovery(run);
+    window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+    let serverState = state();
+    const supportBodies: string[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+      if (path.endsWith("practice-context")) return json(context());
+      if (path.endsWith("/support")) {
+        supportBodies.push(String(init?.body));
+        const item = serverState.items[0]!;
+        serverState = state({
+          introductionOpened: kind === "introduction" || serverState.introductionOpened,
+          items: [{
+            ...item,
+            lessonOpened: kind === "lesson" || item.lessonOpened,
+            hintOpened: kind === "hint" || item.hintOpened,
+          }],
+        });
+        if (supportBodies.length === 1) throw new TypeError("response lost after commit");
+        return json(serverState);
+      }
+      if (path.includes("/practice-sessions/")) return json(serverState);
+      throw new Error(`Unexpected ${path}`);
+    }));
+    const user = userEvent.setup();
+    render(<MantineProvider env="test"><Practice /></MantineProvider>);
+    const triggerName = kind === "introduction" ? "Session introduction" : kind === "lesson" ? "Learn this first" : "Show hint";
+    await user.click(await screen.findByRole("button", { name: triggerName }));
+    await user.click(await screen.findByRole("button", { name: "Retry saved operation" }));
+
+    const target = await waitFor(() => {
+      const element = document.querySelector<HTMLElement>(`[data-practice-focus='${kind}']`);
+      expect(element).toHaveFocus();
+      return element;
+    });
+    expect(target).toBeVisible();
+    expect(supportBodies).toHaveLength(2);
+    expect(supportBodies[1]).toBe(supportBodies[0]);
+  },
+);
 
 it("replays an uncertain answer byte-for-byte after refresh and blocks editing meanwhile", async () => {
   const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };
