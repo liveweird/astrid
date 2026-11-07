@@ -1,0 +1,35 @@
+# Pilot Danish Teaching Review Handoff
+
+## Status and boundary
+
+This is a **proposed review process**, not a user-approved rubric, an arranged specialist engagement, or evidence that the content is approved. It covers the existing private beginner pilot only. It does not activate corrections, expand the curriculum, set a pass threshold, make a CEFR commitment, or establish learning efficacy.
+
+Software checks have already exercised IDs, deterministic generation, prerequisite references, and the bounded inventory. Those checks cannot decide whether the Danish is natural, whether the explanations are pedagogically appropriate, or whether learners understand and transfer the material. See the distinction recorded in the [beginner slice](beginner-slice-spec.md#initial-draft-review-and-checks) and [beginner outcome reference](beginner-outcome-reference.md#what-the-pilot-currently-demonstrates).
+
+## Prepare the review packet
+
+- From the repository root, run `./gradlew :engine:exportPilotReview`. Record the command result and identify the revisions printed at the top of `engine/build/review/pilot-1.md`; the current expected identifiers are content `pilot-1` and generator `generator-1`, with review state `draft-not-teacher-reviewed`.
+- Give the specialist that generated report together with the [23-entry vocabulary seed](danish-vocabulary-seed.md), [beginner-slice specification](beginner-slice-spec.md), and [variation audit](pilot-variation-audit.md). The export is the item-by-item review surface; the linked documents explain intended senses, constraints, targets, and observed distribution.
+- Confirm all 23 lexical records and 99 canonical sentences. The export contains only six prompt examples; it does **not** contain complete instructions, context, lessons, hints or feedback. Include access to the matching private preview and the [live review guide](pilot-review-guide.md). At fixed seed `20261107`, inspect indices 0–98 for E001/E003 and 0–91 for E002 to traverse each complete cycle. Capture the visible teaching unit and relevant correct, off-target and unsupported-answer feedback with its revisions/coordinates. Do not approve uninspected prompt contexts from canonical sentences alone. Use the audit’s counts to notice imbalance, not as a teaching-balance target.
+
+## Specialist checklist
+
+For each lexical entry, judge the selected Danish form and sense, English gloss, gender/article where applicable, usage constraint, and suitability for an English-speaking complete beginner. Flag misleading exclusions, ambiguous reference—especially pronouns—and cases where an introduction or gloss would encourage the wrong generalization.
+
+For each of the 99 sentences, judge grammaticality, idiomatic naturalness in the stated everyday sense, semantic plausibility, and whether the prompt supplies enough context for pronoun reference or `Det er …`. Check that the allowlists remain suitably narrow without implying that excluded Danish is ungrammatical.
+
+For each format, inspect instructions, prompt, choices or blocks, introduction, hint, expected response, and feedback as one teaching unit:
+
+- **E001:** Does it isolate finite-present recognition while keeping the lemma, meaning, and surrounding sentence supported?
+- **E002:** Does it isolate the introduced noun’s unstressed indefinite article without confusing it with numeral `en/én` or `et/ét`?
+- **E003:** Does it clearly request subject-first order while keeping the noun phrase intact and acknowledging grammatical fronting as acceptable Danish but off target?
+
+Across all formats, ask whether G001–G003 support G004–G006 in a sensible prerequisite order; whether answer disclosure is intentional, proportionate, optional and recorded as supported practice; whether examples, English meanings, and hints are accurate and proportionate; and whether feedback distinguishes **target not met** from **linguistically acceptable**. Current lessons and hints intentionally reveal answers; that alone is not a defect or evidence of independent performance. Use the worked off-target cases in the [slice specification](beginner-slice-spec.md#concrete-worked-cases) as explicit review cases. Treat the [extension proposal](exercise-extension-proposal.md) only as later context; it is not part of this approval request.
+
+## Record issues and outcomes
+
+Use stable IDs such as `DTR-001`. Each record should include export revisions, lexical/canonical/format IDs, exact seed and index when applicable, the visible reproducer, affected field, severity (`blocking`, `substantive`, or `editorial`), teaching rationale, proposed correction, reviewer, date, and status (`open`, `needs-discussion`, `accepted-for-correction`, `rejected`, or `verified`). Severity labels organize follow-up; they are not learner-performance thresholds.
+
+Approval must be explicit and scoped: record separately whether the reviewer accepts the lexical inventory, sentence inventory, each format’s teaching treatment, and any exceptions. Silence, corrected software, or “no engineering defect” is not teaching approval.
+
+Published snapshots and all **335 archived `pilot-1/generator-1` outputs and their provenance remain immutable**. Apply accepted corrections to new authored revisions and separate fixtures; preserve original stored attempt responses and replay them before revision checks. Content, prompt, support or sampling changes require appropriate new content/generator revisions. Grading changes also require an evaluation revision and an explicit decision to retire affected old instances or retain their original evaluator; a version number alone is insufficient. Follow the [revision policy](exercise-extension-proposal.md#revision-decision-before-release), regenerate the review packet, link issues to new reproducers, and obtain specialist verification before changing review status. Learning comprehensibility and transfer still require learner trials; specialist approval alone does not establish efficacy.
