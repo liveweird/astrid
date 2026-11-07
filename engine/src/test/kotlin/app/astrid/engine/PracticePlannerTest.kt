@@ -36,6 +36,8 @@ class PracticePlannerTest {
         )
         assertEquals("L015", grammarNoun(plan.items[1]))
         assertEquals("L014", grammarNoun(plan.items[6]))
+        assertEquals("Simple subject-first statements", plan.items[1].targetDescriptor.label)
+        assertEquals(plan.items[0].exercise.lexicalTarget, plan.items[0].targetDescriptor.lexicalTarget)
         assertEquals(plan.introduction.distinct(), plan.introduction)
     }
 
