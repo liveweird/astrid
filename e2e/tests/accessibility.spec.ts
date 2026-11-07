@@ -3,6 +3,7 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import { openGenerationControls } from "../support/generation-controls.js";
 import { expectHighlightedFormatVisible } from "../support/format-select.js";
 import { PILOT_FORMAT_TITLES } from "../support/formats.js";
+import { chooseVocabulary, VOCABULARY } from "../support/vocabulary.js";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
@@ -51,7 +52,7 @@ async function scanLearningStates(page: Page) {
   await scan(page);
   await chooseFormat(page, "Arrange a subject-first statement");
   await scan(page);
-  for (const title of PILOT_FORMAT_TITLES.slice(3)) {
+  for (const title of PILOT_FORMAT_TITLES.slice(3, 6)) {
     await chooseFormat(page, title);
     await scan(page);
     const label = title === "Supply the present form" ? "Present form" :
@@ -133,3 +134,30 @@ test("open format lists remain accessible with enlarged text", async ({ page }) 
     await expect(list).toBeHidden();
   }
 });
+
+for (const theme of ["light", "dark"] as const) {
+  test(`vocabulary prompts and constrained feedback have no WCAG A/AA violations in ${theme} mode`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await openPlayground(page);
+    await chooseVocabulary(page, "Recognize the meaning");
+    await scan(page);
+    await page.getByLabel("Answer choices").getByRole("button").first().click();
+    await page.getByRole("button", { name: "Check answer" }).click();
+    await expect(page.getByRole("status")).toBeVisible();
+    await scan(page);
+
+    const exercise = await chooseVocabulary(page, "Recall the Danish headword");
+    const target = VOCABULARY.find((entry) => entry.meaning === exercise.prompt.cue)!;
+    const input = page.getByRole("textbox", { name: "Danish singular headword", exact: true });
+    await scan(page);
+    await input.fill(`${target.headword === "brev" ? "et" : "en"} ${target.headword}`);
+    await page.getByRole("button", { name: "Check answer" }).click();
+    await expect(page.getByRole("status").getByText("One-word response required", { exact: true })).toBeVisible();
+    await scan(page);
+    await page.getByRole("button", { name: "Try again" }).click();
+    await input.fill("unfamiliar");
+    await page.getByRole("button", { name: "Check answer" }).click();
+    await expect(page.getByRole("status")).toBeVisible();
+    await scan(page);
+  });
+}
