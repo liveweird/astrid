@@ -2,9 +2,9 @@
 
 ## Status and boundary
 
-**7 November 2026 — User-authorized iteration, implemented and verified.** Following positive playground feedback, the user selected typed finite-form recall followed by guided single-word repair. The contract below records implementation decisions for that work; vocabulary assessment remains a proposal. The existing [beginner slice](beginner-slice-spec.md) supplies 23 lexical entries and G001–G006. Only G004/G005/G006 are directly assessed; G001/G002/G003 support those tasks.
+**7 November 2026 — User-authorized iteration, implemented and verified.** Following positive playground feedback, the user selected typed finite-form recall followed by guided single-word repair. The contract below records implementation decisions for that work; vocabulary assessment was subsequently authorized as BL-036; its contract is being specified. The existing [beginner slice](beginner-slice-spec.md) supplies 23 lexical entries and G001–G006. Only G004/G005/G006 are directly assessed; G001/G002/G003 support those tasks.
 
-Implement typed finite-form recall first and bounded error repair second. Vocabulary recognition/recall remains a separately reviewed target expansion. These options address the [product requirements](product-direction.md) using existing engine and interface primitives. They establish neither teaching approval nor learning effectiveness.
+Implement typed finite-form recall first and bounded error repair second. Vocabulary recognition/recall is the next authorized target expansion, with a separate implementation contract. These options address the [product requirements](product-direction.md) using existing engine and interface primitives. They establish neither teaching approval nor learning effectiveness.
 
 ## Three bounded options
 
@@ -84,7 +84,7 @@ Priority is user-confirmed and the bounded revision policy is selected above. Ap
 
 ## Recommended next milestone — proposal
 
-**7 November 2026 — Assistant recommendation, not implementation authorization.** After delivery of recall and repair, prioritize explicit vocabulary assessment. Current exercises assess grammar while supplying meanings; they do not directly test recognition or recall of the selected word sense.
+**7 November 2026 — Initially recommended, subsequently user-authorized (“Go for it”).** After delivery of recall and repair, prioritize explicit vocabulary assessment. Current exercises assess grammar while supplying meanings; they do not directly test recognition or recall of the selected word sense.
 
 Start with the existing readable-object trio L014/L015/L018 (`bog`, `avis`, `brev`). Add Danish-to-English meaning recognition with related alternatives, then English-to-Danish recall of the introduced singular headword. Scope “letter” to a written message, and request the introduced headword rather than unrestricted translation. This tests a new target contract without expanding the language inventory or importing data.
 
@@ -92,4 +92,4 @@ Before implementation, specify lexical entry/sense, assessed facet and direction
 
 Acceptance: both directions operate deterministically across all three entries; distractors are distinct and related; grading fixtures cover the agreed cases; ordinary support does not identify the answer; accessible browser journeys preserve support evidence and exact replay. The selected content remains draft, pending Danish teaching review. No format IDs or API schema are selected by this proposal.
 
-After this bounded addition, propose short mixed sessions combining introduced vocabulary and grammar, with results reported separately by target and support used. Session size, sequencing and summary behavior need their own contract (BL-009); mixing alone does not establish mastery. Later grammar expansion can activate questions or negation after reviewing their prerequisites and content. BL-035 still tracks feedback on the delivered recall/repair iteration; BL-036 tracks this proposed vocabulary milestone.
+After this bounded addition, propose short mixed sessions combining introduced vocabulary and grammar, with results reported separately by target and support used. Session size, sequencing and summary behavior need their own contract (BL-009); mixing alone does not establish mastery. Later grammar expansion can activate questions or negation after reviewing their prerequisites and content. BL-035 still tracks feedback on the delivered recall/repair iteration; BL-036 tracks this authorized vocabulary milestone.
