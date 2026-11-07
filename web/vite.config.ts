@@ -43,6 +43,15 @@ export default defineConfig({
     },
   },
   build: {
+    modulePreload: {
+      resolveDependencies(filename, deps, { hostType }) {
+        // WebKit can retain a failed modulepreload across reloads (bugs.webkit.org/show_bug.cgi?id=270357).
+        // Let the lazy import fetch this entry itself; retain CSS, shared dependencies and HTML preloads.
+        return hostType === "js" && /(?:^|\/)Changelog-[^/]+\.js$/.test(filename)
+          ? deps.filter((dependency) => dependency !== filename)
+          : deps;
+      },
+    },
     rolldownOptions: {
       output: {
         codeSplitting: {

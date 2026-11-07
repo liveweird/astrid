@@ -129,20 +129,31 @@ test("visiting release notes preserves an uncertain practice answer and its owne
   expect(restored.items[0]!.attemptCount).toBe(1);
 });
 
-test("a failed changelog chunk keeps navigation available and can reload safely", async ({ page }) => {
-  const apiRequests: string[] = [];
-  page.on("request", (request) => {
-    if (new URL(request.url()).pathname.startsWith("/api/")) apiRequests.push(request.url());
+for (const failure of ["interrupted", "HTTP 503"] as const) {
+  test(`an ${failure} changelog chunk keeps navigation available and can reload safely`, async ({ page }) => {
+    const apiRequests: string[] = [];
+    page.on("request", (request) => {
+      if (new URL(request.url()).pathname.startsWith("/api/")) apiRequests.push(request.url());
+    });
+    let chunkRequests = 0;
+    await page.route("**/assets/Changelog-*.js", async (route) => {
+      chunkRequests += 1;
+      if (chunkRequests > 1) await route.continue();
+      else if (failure === "interrupted") await route.abort("connectionfailed");
+      else await route.fulfill({
+        status: 503, contentType: "text/javascript", headers: { "Cache-Control": "no-store" }, body: "Unavailable",
+      });
+    });
+    await page.goto("/changelog");
+    await expect(page.getByRole("alert")).toContainText("Changelog");
+    await expect(page.getByRole("navigation")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Practice", exact: true })).toBeVisible();
+    await expect(page.getByTitle("What's new", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Reload changelog", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Changelog", exact: true })).toBeVisible();
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    await expect(page.getByTitle("What's new", { exact: true })).toHaveCount(0);
+    expect(chunkRequests).toBe(2);
+    expect(apiRequests).toEqual([]);
   });
-  await page.route("**/assets/Changelog-*.js", (route) => route.abort("connectionfailed"), { times: 1 });
-  await page.goto("/changelog");
-  await expect(page.getByRole("alert")).toContainText("Changelog");
-  await expect(page.getByRole("navigation")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Practice", exact: true })).toBeVisible();
-  await expect(page.getByTitle("What's new", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Reload changelog", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Changelog", exact: true })).toBeVisible();
-  await expect(page.getByRole("alert")).toHaveCount(0);
-  await expect(page.getByTitle("What's new", { exact: true })).toHaveCount(0);
-  expect(apiRequests).toEqual([]);
-});
+}
