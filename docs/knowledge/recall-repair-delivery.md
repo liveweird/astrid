@@ -36,3 +36,5 @@ All five [feature CI jobs](https://github.com/liveweird/astrid/actions/runs/4236
 Six focused source/planning/review commits through `1bfeb80` were pushed to the feature branch and fast-forwarded into local `master`. The verified image now serves `http://localhost:8088`; all eight new-flow Chromium/WebKit main-preview checks passed. A legacy exercise created before the upgrade was read, submitted under `evaluation-1`, and replayed exactly afterward.
 
 The main PostgreSQL container, process and mounts were unchanged. A private pre-upgrade dump is retained outside version control. Ownership checks preceded removal of the temporary QA app, database volume and network; no QA containers remain. Both main services are healthy with zero restarts. BL-034 is complete; expanded-playground feedback is BL-035.
+
+**Master verification observed:** All five [automatic master CI jobs](https://github.com/liveweird/astrid/actions/runs/42361458460) passed on delivery commit `79c7c51`. This closes the previously running post-push verification; the next vocabulary milestone remains a proposal.

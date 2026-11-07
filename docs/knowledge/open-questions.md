@@ -13,7 +13,7 @@ This register tracks open and resolved questions through the delivered private p
 | Q07 | The [pilot specification](beginner-slice-spec.md) proposes explicit grading and normalization cases. Which policies should extend to later formats and free writing, including partial correctness? | BL-007, BL-022 |
 | Q08 | **Pilot resolved:** deterministic typed constructions and explicit bounded grading rules; no runtime AI dependency. Broader generation methods remain open. | BL-010 |
 | Q09 | How should progress, mastery, review timing, and uncertainty about error causes be represented? | BL-011 |
-| Q10 | A six-skill, three-construction, 23-entry slice with three exercise formats is implemented with draft language content. What specialist review, sampling, and learner evidence should establish its readiness and effectiveness? | BL-008, BL-022 |
+| Q10 | A six-skill, three-construction, 23-entry slice with six exercise entries is implemented with draft language content. What specialist review, sampling, and learner evidence should establish its readiness and effectiveness? | BL-008, BL-022 |
 | Q11 | Which proposed principles should become broader-course design rules? The pilot already operationalizes the bounded [implementation decisions](implementation-decisions.md). | BL-006, BL-007, BL-008 |
 | Q12 | **Pilot resolved:** pure Kotlin engine, Ktor/Exposed R2DBC/Flyway/PostgreSQL and React/Mantine, with Compose and private Kubernetes. See [implementation decisions](implementation-decisions.md). | BL-012 |
 | Q13 | Which specific mobile distribution approach should deliver the online web interface: browser installation, a web wrapper, or another approach? | BL-013 |
@@ -27,6 +27,7 @@ This register tracks open and resolved questions through the delivered private p
 | Q21 | **Resolved for this iteration:** after positive initial review, the user authorized typed finite-present recall followed by guided single-word verb/article repair. The bounded [extension contract](exercise-extension-proposal.md) retains current grammar and vocabulary. Vocabulary assessment remains a later target expansion. | BL-034, BL-006, BL-007 |
 | Q22 | **Working decision for BL-034:** retain exact legacy generation and evaluation alongside the new revision pair; saved attempts retain exact replay. The general retirement policy for later revisions remains open. See the [revision contract](exercise-extension-proposal.md#revision-decision-before-release). | BL-034, BL-007, BL-010 |
 | Q23 | Which [server-outage policy](server-outage-boundary.md), fault model and measured budgets should bound HTTP completion, abandoned leases and shutdown while retaining uncertain-attempt replay? Browser waiting is bounded; server cleanup remains a separate open decision. | BL-032 |
+| Q24 | Should the next implementation activate the proposed vocabulary recognition/headword-recall milestone for `bog/avis/brev`? Lexical target identity, response constraints and support/feedback contracts need specification before activation; subsequent mixed-session design remains Q04. | BL-036, BL-006, BL-007, BL-009 |
 
 ## Resolved clarifications
 

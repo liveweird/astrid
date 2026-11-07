@@ -81,3 +81,15 @@ No database migration is required. Saved attempt payloads remain unchanged and r
 | Independent reviewer/integration owner: review and `e2e/` | After implementation: inspect examples and compatibility evidence; exercise each new operation and failure path. |
 
 Priority is user-confirmed and the bounded revision policy is selected above. Appropriate Danish teaching review remains outstanding: all new examples retain draft status, and agent review does not confer teaching approval. Vocabulary additionally needs agreement on lexical target identity, glosses and treatment of extra articles or alternative words. Learning outcomes and delayed-check criteria remain open; no numerical mastery thresholds, scheduler, media, accounts or mobile packaging are proposed.
+
+## Recommended next milestone — proposal
+
+**7 November 2026 — Assistant recommendation, not implementation authorization.** After delivery of recall and repair, prioritize explicit vocabulary assessment. Current exercises assess grammar while supplying meanings; they do not directly test recognition or recall of the selected word sense.
+
+Start with the existing readable-object trio L014/L015/L018 (`bog`, `avis`, `brev`). Add Danish-to-English meaning recognition with related alternatives, then English-to-Danish recall of the introduced singular headword. Scope “letter” to a written message, and request the introduced headword rather than unrestricted translation. This tests a new target contract without expanding the language inventory or importing data.
+
+Before implementation, specify lexical entry/sense, assessed facet and direction independently of G skill IDs. Define correct, wrong introduced meaning, response-constraint and unknown cases; an extra article must not imply that the noun is unknown. Prevent target gloss/headword leakage in ordinary support, retain optional recorded teaching reveals, and give English choices appropriate language markup and feedback labels. Preserve all published revision behavior and saved results.
+
+Acceptance: both directions operate deterministically across all three entries; distractors are distinct and related; grading fixtures cover the agreed cases; ordinary support does not identify the answer; accessible browser journeys preserve support evidence and exact replay. The selected content remains draft, pending Danish teaching review. No format IDs or API schema are selected by this proposal.
+
+After this bounded addition, propose short mixed sessions combining introduced vocabulary and grammar, with results reported separately by target and support used. Session size, sequencing and summary behavior need their own contract (BL-009); mixing alone does not establish mastery. Later grammar expansion can activate questions or negation after reviewing their prerequisites and content. BL-035 still tracks feedback on the delivered recall/repair iteration; BL-036 tracks this proposed vocabulary milestone.
