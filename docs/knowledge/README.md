@@ -47,6 +47,7 @@ The broad language map and the small validation subset serve different purposes.
 - [Danish teaching review handoff](pilot-teaching-review.md): proposed specialist packet, full-inventory review, issue records and immutable-revision safeguards.
 - [Runtime database recovery](runtime-recovery.md): observed paused-database behavior, bounded browser waiting and exact attempt recovery.
 - [Server outage boundary](server-outage-boundary.md): proposed local/remote cleanup invariants, pinned-contract findings and future failure-matrix acceptance.
+- [Static delivery](static-delivery.md): measured uncompressed assets, Flow plugin reuse and transport/browser acceptance.
 - [Text resizing and reflow](text-resize-reflow.md): measured enlarged-text defects, corrections and regression evidence.
 - [Keyboard navigation and selection](keyboard-navigation.md): confirmed navigation/Enter defects, bounded corrections and acceptance requirements.
 - [Unicode input boundary](unicode-input-boundary.md): reproduced malformed-surrogate replay gap, transport validation and length policy.

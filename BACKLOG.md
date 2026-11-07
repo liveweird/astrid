@@ -6,6 +6,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [next]
 
+- **BL-033 — Reuse static response compression.** The [measured transport gap](docs/knowledge/static-delivery.md) shows the deployed JavaScript/CSS totals 769299 bytes and ignores gzip negotiation; Flow already uses Ktor Compression. Reuse the pinned plugin for eligible static text, preserve decoded bytes/cache/security behavior, verify negotiation and complete browser/CI/Git delivery. This is transport hardening within the existing pilot.
+
 
 
 
@@ -13,6 +15,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 
 ## [todo]
+
+- **BL-031 — Review the playable engine before extending it.** Use the [walkthrough](docs/knowledge/pilot-review-guide.md) to capture user feedback on target difficulty, sentence variation, grammar explanations, feedback and interaction. Choose the next bounded operation with that evidence; the [recall/repair proposal](docs/knowledge/exercise-extension-proposal.md) remains unadopted. Complete when feedback and an agreed next iteration are recorded.
 
 - **BL-022 — Validate and extend the Danish foundation drafts.** Review the [grammar map](docs/knowledge/danish-grammar-map.md), [construction catalogue](docs/knowledge/danish-sentence-catalogue.md), and pilot content for teaching order, linguistic naturalness, valency, accepted variants, and documented coverage gaps. Arrange appropriate Danish teaching review before labeling content specialist-approved; source and independent agent checks do not confer that status. Preserve stable IDs and add regression examples for corrected rules. The source-backed pass and [coverage crosswalk](docs/knowledge/foundation-coverage.md) are complete as drafts. A [proposed specialist handoff](docs/knowledge/pilot-teaching-review.md) now specifies the packet, live teaching-unit review, issue records and revision safeguards; no engagement or approval is arranged. Teaching review and concrete content activation remain outstanding.
 - **BL-025 — Resolve resource adoption and corpus gaps.** The [morphology](docs/knowledge/danish-resource-assessment.md), [usage](docs/knowledge/frequency-and-usage-resources.md) and [bilingual](docs/knowledge/bilingual-resources.md) assessments now distinguish candidate coverage, editions, terms and mapping limits. Before any import, select the intended use/distribution, clarify conditional rights, pin releases and decide how authored English senses and upstream derivation are reviewed. COR and the [candidate crosswalk](docs/knowledge/cor-pilot-crosswalk.md) remain unadopted.
