@@ -56,4 +56,12 @@ class InMemoryAstridRepository(private val clock: () -> Long = System::currentTi
         val entry = exercises.entries.single { it.key.second == exerciseId }
         exercises[entry.key] = entry.value.copy(reproductionFingerprint = "0".repeat(64))
     }
+
+    suspend fun tamperRevision(exerciseId: UUID) = mutex.withLock {
+        val entry = exercises.entries.single { it.key.second == exerciseId }
+        exercises[entry.key] = entry.value.copy(
+            contentRevision = "retired-content",
+            reproductionFingerprint = "0".repeat(64),
+        )
+    }
 }

@@ -1,6 +1,9 @@
 package app.astrid.server
 
 import app.astrid.engine.PilotEngine
+import app.astrid.engine.Answer
+import app.astrid.engine.Evaluation
+import app.astrid.engine.GeneratedExercise
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -21,11 +24,12 @@ fun Application.astridModule(
     config: ServerConfig = ServerConfig.fromEnvironment(),
     repository: AstridRepository,
     engine: PilotEngine = PilotEngine(),
+    evaluator: suspend (GeneratedExercise, Answer) -> Evaluation = engine::evaluate,
     clock: () -> Long = System::currentTimeMillis,
 ) {
     install(ContentNegotiation) { json(wireJson) }
     install(RequestBodyLimit) { bodyLimit { MAX_BODY_BYTES } }
     installProblemHandling()
     installSecurityHeadersAndGuards(config)
-    routing { astridRoutes(config, repository, engine, clock) }
+    routing { astridRoutes(config, repository, engine, evaluator, clock) }
 }

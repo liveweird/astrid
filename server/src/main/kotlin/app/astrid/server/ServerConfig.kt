@@ -17,6 +17,7 @@ data class ServerConfig(
     val postgresUser: String,
     val postgresPassword: String,
     val poolMaxSize: Int,
+    val connectRetries: Int = 10,
 ) {
     companion object {
         fun fromEnvironment(env: Map<String, String> = System.getenv()): ServerConfig {
@@ -26,6 +27,10 @@ data class ServerConfig(
             val key = env["ASTRID_INSPECTOR_KEY"]?.takeIf { it.length >= 32 }
             val poolSize = env["POSTGRES_POOL_MAX_SIZE"]?.toIntOrNull() ?: 10
             require(poolSize in 1..100) { "POSTGRES_POOL_MAX_SIZE must be between 1 and 100" }
+            val connectRetries = env["POSTGRES_CONNECT_RETRIES"]?.let { raw ->
+                requireNotNull(raw.toIntOrNull()) { "POSTGRES_CONNECT_RETRIES must be an integer" }
+            } ?: 10
+            require(connectRetries in 0..15) { "POSTGRES_CONNECT_RETRIES must be between 0 and 15" }
             return ServerConfig(
                 developmentMode = flag("ASTRID_DEVELOPMENT_MODE"),
                 inspectorEnabled = flag("ASTRID_INSPECTOR_ENABLED") && key != null,
@@ -52,6 +57,7 @@ data class ServerConfig(
                 postgresUser = env["POSTGRES_USER"] ?: "astrid",
                 postgresPassword = env["POSTGRES_PASSWORD"] ?: "astrid",
                 poolMaxSize = poolSize,
+                connectRetries = connectRetries,
             )
         }
     }

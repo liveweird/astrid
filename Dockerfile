@@ -29,6 +29,6 @@ COPY --from=web --chown=10001:10001 /web/dist/ web/
 ENV WEB_STATIC_DIR=/app/web ASTRID_DEVELOPMENT_MODE=false ASTRID_BIND_HOST=0.0.0.0
 USER 10001
 EXPOSE 8088
-HEALTHCHECK --interval=15s --timeout=3s --start-period=45s --retries=3 \
+HEALTHCHECK --interval=15s --timeout=3s --start-period=240s --retries=3 \
     CMD curl -fsS http://127.0.0.1:8088/api/v1/ready >/dev/null || exit 1
 ENTRYPOINT ["/app/bin/server"]

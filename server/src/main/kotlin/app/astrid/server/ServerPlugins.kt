@@ -17,6 +17,7 @@ import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.path
 import io.ktor.server.response.respond
 import kotlinx.serialization.SerializationException
+import kotlinx.coroutines.CancellationException
 
 internal fun Application.installProblemHandling() {
     install(StatusPages) {
@@ -38,6 +39,7 @@ internal fun Application.installProblemHandling() {
                 problem(415, "unsupported_media_type", "Request body must use application/json", call.request.path()),
             )
         }
+        exception<CancellationException> { _, cause -> throw cause }
         exception<Throwable> { call, cause ->
             call.application.log.error("Unhandled request failure", cause)
             call.respond(

@@ -32,6 +32,8 @@ class OpenApiContractTest {
     private val validator = OpenApiInteractionValidator.createForInlineApiSpecification(rawSpec)
         .withLevelResolver(
             LevelResolver.create()
+                // This harness is deliberately response-only. ApplicationTest exercises positive and malformed
+                // request decoding; here path/method existence and every observed response status/body stay strict.
                 .withLevel("validation.request", ValidationReport.Level.IGNORE)
                 .withLevel("validation.request.path.missing", ValidationReport.Level.ERROR)
                 .withLevel("validation.request.operation.notAllowed", ValidationReport.Level.ERROR)
@@ -59,6 +61,20 @@ class OpenApiContractTest {
             setBody("{")
         }
         validate(HttpMethod.Post, "/api/v1/development-session", malformedSession)
+        val unknownSession = client.post("/api/v1/development-session") {
+            trustedHost()
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody("""{"unexpected":true}""")
+        }
+        validate(HttpMethod.Post, "/api/v1/development-session", unknownSession)
+        val oversizedSession = client.post("/api/v1/development-session") {
+            trustedHost()
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody("""{"padding":"${"x".repeat(17 * 1024)}"}""")
+        }
+        validate(HttpMethod.Post, "/api/v1/development-session", oversizedSession)
         val cookie = sessionResponse.headers[HttpHeaders.SetCookie]!!
             .substringAfter("astrid_session=").substringBefore(';')
         validate(HttpMethod.Get, "/api/v1/catalog", client.get("/api/v1/catalog") {
@@ -73,6 +89,18 @@ class OpenApiContractTest {
             setBody(EXERCISE_REQUEST)
         }
         validate(HttpMethod.Post, "/api/v1/exercises", exerciseResponse)
+        listOf("E002" to "G006", "E003" to "G005").forEach { (format, skill) ->
+            val response = client.post("/api/v1/exercises") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                contentType(ContentType.Application.Json)
+                setBody(
+                    """{"formatId":"$format","targetSkillId":"$skill","seed":0,"index":0,"contentRevision":"pilot-1","generatorRevision":"generator-1"}""",
+                )
+            }
+            validate(HttpMethod.Post, "/api/v1/exercises", response)
+        }
         val exerciseId = (wireJson.parseToJsonElement(exerciseResponse.bodyAsText()) as JsonObject)
             .getValue("id").jsonPrimitive.content
         val attemptId = UUID.randomUUID()
@@ -97,6 +125,34 @@ class OpenApiContractTest {
         validate(HttpMethod.Get, "/api/v1/exercises/not-a-uuid", problem)
     }
 
+    @Test
+    fun `security and production mode responses conform to declared api statuses`() = testApplication {
+        application { astridModule(config(developmentMode = false), InMemoryAstridRepository()) }
+        val forbiddenCatalog = client.get("/api/v1/catalog") {
+            trustedHost()
+            header(HttpHeaders.Origin, "https://attacker.example")
+        }
+        validate(HttpMethod.Get, "/api/v1/catalog", forbiddenCatalog)
+        val forbiddenHealth = client.get("/api/v1/health") {
+            trustedHost()
+            header("X-Forwarded-Host", "attacker.example")
+        }
+        validate(HttpMethod.Get, "/api/v1/health", forbiddenHealth)
+        val forbiddenReady = client.get("/api/v1/ready") {
+            trustedHost()
+            header(HttpHeaders.Origin, "https://attacker.example")
+        }
+        validate(HttpMethod.Get, "/api/v1/ready", forbiddenReady)
+        validate(HttpMethod.Get, "/api/v1/catalog", client.get("/api/v1/catalog") { trustedHost() })
+        val createExercise = client.post("/api/v1/exercises") {
+            trustedHost()
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody(EXERCISE_REQUEST)
+        }
+        validate(HttpMethod.Post, "/api/v1/exercises", createExercise)
+    }
+
     private suspend fun validate(method: HttpMethod, path: String, response: HttpResponse) {
         val body = response.bodyAsText()
         val request = SimpleRequest.Builder(method.value, path).build()
@@ -114,8 +170,8 @@ class OpenApiContractTest {
         header(HttpHeaders.Host, "localhost:8088")
     }
 
-    private fun config() = ServerConfig(
-        developmentMode = true,
+    private fun config(developmentMode: Boolean = true) = ServerConfig(
+        developmentMode = developmentMode,
         inspectorEnabled = false,
         inspectorKey = null,
         secureCookie = false,

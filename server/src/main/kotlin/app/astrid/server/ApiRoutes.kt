@@ -4,6 +4,9 @@ package app.astrid.server
 
 import app.astrid.engine.GenerationRequest
 import app.astrid.engine.PilotEngine
+import app.astrid.engine.Answer
+import app.astrid.engine.Evaluation
+import app.astrid.engine.GeneratedExercise
 import io.ktor.http.ContentType
 import io.ktor.http.Cookie
 import io.ktor.http.HttpHeaders
@@ -42,6 +45,7 @@ internal fun Route.astridRoutes(
     config: ServerConfig,
     repository: AstridRepository,
     engine: PilotEngine,
+    evaluator: suspend (GeneratedExercise, Answer) -> Evaluation,
     clock: () -> Long,
 ) {
     route("/api/v1") {
@@ -49,7 +53,7 @@ internal fun Route.astridRoutes(
         sessionRoutes(config, repository, clock)
         catalogRoute(config, repository, engine, clock)
         exerciseRoutes(config, repository, engine, clock)
-        attemptRoutes(config, repository, engine, clock)
+        attemptRoutes(config, repository, engine, evaluator, clock)
         inspectorRoute(config, repository, engine, clock)
     }
     staticRoutes(config)
@@ -126,6 +130,7 @@ private fun Route.attemptRoutes(
     config: ServerConfig,
     repository: AstridRepository,
     engine: PilotEngine,
+    evaluator: suspend (GeneratedExercise, Answer) -> Evaluation,
     clock: () -> Long,
 ) {
     post("/attempts") {
@@ -133,7 +138,7 @@ private fun Route.attemptRoutes(
         val session = requireSession(call, config, repository, clock)
         val request = call.receive<AttemptRequest>().validated()
         val result = repository.writeAttempt(session.id, request, wireJson.encodeToString(request)) { stored, retry, time ->
-            evaluateAttempt(engine, stored, request, retry, time)
+            evaluateAttempt(engine, evaluator, stored, request, retry, time)
         }
         when (result) {
             is AttemptWriteResult.Created -> call.respond(result.response)
@@ -187,6 +192,7 @@ private suspend fun ApplicationCall.serveStaticOrSpa(root: File) {
 @Suppress("TooGenericExceptionCaught") // Any engine failure is an unavailable grade; coroutine cancellation still propagates.
 private suspend fun evaluateAttempt(
     engine: PilotEngine,
+    evaluator: suspend (GeneratedExercise, Answer) -> Evaluation,
     stored: StoredExercise,
     request: AttemptRequest,
     retry: Int,
@@ -195,7 +201,7 @@ private suspend fun evaluateAttempt(
     val generated = regenerateVerified(engine, stored)
     request.answer.validateFor(generated.formatId, generated.prompt.blocks.map { it.id }.toSet())
     val evaluation = try {
-        engine.evaluate(generated, request.answer.toEngineAnswer())
+        evaluator(generated, request.answer.toEngineAnswer())
     } catch (cause: CancellationException) {
         throw cause
     } catch (cause: Exception) {
@@ -257,7 +263,7 @@ private fun requireInspectorKey(call: ApplicationCall, expected: String) {
 }
 
 private fun ApplicationCall.uuidParameter(name: String): UUID =
-    parameters[name]?.let { runCatching { UUID.fromString(it) }.getOrNull() } ?: throw BadRequest("Invalid $name")
+    parameters[name]?.let { parseStrictUuid(it, name) } ?: throw BadRequest("Invalid $name")
 
 private fun ExerciseRequest.validated(): ExerciseRequest {
     if (formatId.length !in 1..MAX_IDENTIFIER_LENGTH || targetSkillId.length !in 1..MAX_IDENTIFIER_LENGTH) {
@@ -271,14 +277,20 @@ private fun ExerciseRequest.validated(): ExerciseRequest {
 }
 
 private fun AttemptRequest.validated(): AttemptRequest {
-    runCatching { UUID.fromString(attemptId) }.getOrElse { throw BadRequest("Invalid attemptId") }
-    runCatching { UUID.fromString(exerciseId) }.getOrElse { throw BadRequest("Invalid exerciseId") }
+    parseStrictUuid(attemptId, "attemptId")
+    parseStrictUuid(exerciseId, "exerciseId")
     when (val value = answer) {
         is AttemptAnswerDto.Text -> if (value.text.length > MAX_TEXT_LENGTH) throw BadRequest("Text answer is too long")
         is AttemptAnswerDto.Order -> if (value.blockIds.size > MAX_BLOCK_COUNT ||
             value.blockIds.any { it.length !in 1..MAX_REVISION_LENGTH }) throw BadRequest("Invalid block answer")
     }
     return this
+}
+
+private fun parseStrictUuid(value: String, field: String): UUID {
+    val parsed = runCatching { UUID.fromString(value) }.getOrElse { throw BadRequest("Invalid $field") }
+    if (!value.equals(parsed.toString(), ignoreCase = true)) throw BadRequest("Invalid $field")
+    return parsed
 }
 
 private fun AttemptAnswerDto.validateFor(formatId: String, expectedBlocks: Set<String>) {

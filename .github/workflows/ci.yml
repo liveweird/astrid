@@ -21,6 +21,7 @@ jobs:
           java-version: 21.0.12
           cache: gradle
       - run: python3 scripts/check-toolchain.py
+      - run: python3 scripts/check-startup-budget.py
       - run: ./gradlew check :engine:koverVerify :server:koverVerify :server:installDist --dependency-verification strict --no-daemon
       - name: Dependency state stays unchanged
         run: git diff --exit-code -- gradle/verification-metadata.xml '*gradle.lockfile'

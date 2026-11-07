@@ -11,3 +11,4 @@ data:
   POSTGRES_R2DBC_URL: r2dbc:postgresql://postgres:5432/astrid
   POSTGRES_USER: astrid
   POSTGRES_DB: astrid
+  POSTGRES_CONNECT_RETRIES: "10"

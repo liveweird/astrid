@@ -3,6 +3,7 @@
 set -eu
 cd "$(dirname "$0")/.."
 python3 scripts/check-toolchain.py
+python3 scripts/check-startup-budget.py
 git diff --check
 ./gradlew check :engine:koverVerify :server:koverVerify :server:installDist --dependency-verification strict --no-daemon
 npm --prefix web run check:api

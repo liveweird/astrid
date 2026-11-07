@@ -12,6 +12,7 @@ paths:
         '400': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }
         '415': { $ref: '#/components/responses/Problem' }
   /api/v1/catalog:
     get:
@@ -19,6 +20,8 @@ paths:
       responses:
         '200': { description: Catalog, content: { application/json: { schema: { $ref: '#/components/schemas/Catalog' } } } }
         '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
   /api/v1/exercises:
     post:
       operationId: createExercise
@@ -29,6 +32,7 @@ paths:
         '400': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
         '409': { $ref: '#/components/responses/Problem' }
         '413': { $ref: '#/components/responses/Problem' }
         '415': { $ref: '#/components/responses/Problem' }
@@ -40,6 +44,7 @@ paths:
         '200': { description: Exercise, content: { application/json: { schema: { $ref: '#/components/schemas/Exercise' } } } }
         '400': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
         '409': { $ref: '#/components/responses/Problem' }
   /api/v1/attempts:
@@ -65,6 +70,7 @@ paths:
         '200': { description: Attempt, content: { application/json: { schema: { $ref: '#/components/schemas/Attempt' } } } }
         '400': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
   /api/v1/dev/exercises/{id}:
     get:
@@ -81,11 +87,16 @@ paths:
         '409': { $ref: '#/components/responses/Problem' }
   /api/v1/health:
     get:
-      responses: { '200': { description: Live, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } } }
+      operationId: getHealth
+      responses:
+        '200': { description: Live, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } }
+        '403': { $ref: '#/components/responses/Problem' }
   /api/v1/ready:
     get:
+      operationId: getReadiness
       responses:
         '200': { description: Ready, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } }
+        '403': { $ref: '#/components/responses/Problem' }
         '503': { description: Unavailable, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } }
 components:
   parameters:
