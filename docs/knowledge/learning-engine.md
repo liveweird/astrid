@@ -88,10 +88,13 @@ The [follow-up contract](targeted-follow-up.md) records the selected implementat
 
 **7 November 2026 — User-authorized:** “OK, go for it” selects BL-041: choose an existing learning focus before starting a fresh guided run. Start with present verb forms: selection (E001), typed recall (E004) and guided repair (E005) already assess G004 in the standalone playground, while delivered `practice-1` and `follow-up-1` assess order/articles and selected vocabulary. G004 currently acts as supplied prerequisite knowledge in those runs.
 
-Offer clear entry choices for verb forms, sentence order, articles and vocabulary, reusing existing content, teaching support and graders. Prioritize a complete verb-focused run plus source-linked follow-up before extending the chooser to other profiles. Preserve the original mixed plan and all saved runs; a new choice must not silently replace an active or uncertain run.
+The wider chooser proposal includes verb forms, sentence order, articles and vocabulary, reusing existing content, teaching support and graders. The authorized first scope is Mixed practice plus a complete verb-focused run and source-linked follow-up; other profiles are deferred. Preserve the original mixed plan and all saved runs; a new choice must not silently replace an active or uncertain run.
 
 Before implementation, specify profile IDs/revisions, eligibility, size, ordering, introduction prerequisites, source review selection and verb-specific possible-exposure keys. Keep the grammar target distinct from how it was assessed: choosing a form, recalling it and repairing one should remain distinguishable in summaries rather than being treated as equivalent evidence. Retain first/latest results, support, response constraints, uncertainty and exact owner-bound recovery. Define these rules without changing published generation or grading.
 
 This recommendation advances the engine with existing language material. New tenses, later grammar, broad vocabulary expansion, scheduling and mastery policy remain separate decisions. BL-035 user review and BL-022 Danish teaching review remain open; neither is presumed complete by this proposal.
 
 The [topic-practice contract](topic-practice.md) specifies the selected first scope, six-item verb plan, assessment modes, feedback-aware exposure, version-two follow-ups and chooser continuity.
+
+
+**Observed delivery:** BL-041 is complete at `0.3.0`, with two focus choices, six verb items and separate selection/recall/repair evidence. The [delivery record](topic-practice.md#observed-delivery--7-november-2026) includes review corrections, complete browser/CI verification and backed-up preview promotion. Further profiles remain proposals; user and Danish teaching review remain outstanding.

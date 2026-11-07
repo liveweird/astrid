@@ -41,3 +41,6 @@ The preview now serves `0.2.0`, source `8d1e1c3`, from immutable image `sha256:1
 Before promotion, a 238,598-byte mode-0600 PostgreSQL backup was captured and verified readable. The upgrade preserved immutable evidence for 1,585 exercises, 529 attempts, 79 practice sessions, 572 items and 314 attempt contexts, the same database process/mounts, schema versions 1/2/3 and all three evaluators. An isolated original-practice response remained byte-identical. All 24 live Chromium/WebKit smoke journeys passed without retries. Ownership-guarded cleanup removed only the temporary QA containers, volume and network, leaving the main processes/mounts unchanged.
 
 Private build hashes, screenshots, HTTP probes, archive and verification logs remain ignored under `.local/app-versioning/`. This completion record accompanies the authorized focused merge/push. BL-040 is complete; app versioning is separate from new curriculum and broader course work.
+
+
+**Subsequent release:** BL-041 advances the private preview to `0.3.0` for topic-based practice. Its [delivery record](topic-practice.md#observed-delivery--7-november-2026) supersedes the running-version statement in the historical `0.2.0` evidence above. The published `0.1.0` and `0.2.0` changelog entries are unchanged.
