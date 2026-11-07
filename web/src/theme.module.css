@@ -23,6 +23,12 @@
   letter-spacing: -0.02em;
 }
 
+.versionStamp {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 .playground {
   container-name: playground;
   container-type: inline-size;

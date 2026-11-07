@@ -5,6 +5,17 @@ import App from "./App";
 import { cssVariablesResolver, theme } from "./theme";
 
 vi.mock("./Playground", () => ({ default: () => <div>Learning workspace</div> }));
+const changelogTestState = vi.hoisted(() => ({ fail: false }));
+vi.mock("./pages/Changelog", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./pages/Changelog")>();
+  return {
+    default: function TestChangelog() {
+      if (changelogTestState.fail) throw new Error("lazy changelog chunk unavailable");
+      const Changelog = actual.default;
+      return <Changelog />;
+    },
+  };
+});
 
 function darkPreference(query: string): MediaQueryList {
   return {
@@ -20,10 +31,14 @@ function darkPreference(query: string): MediaQueryList {
 }
 
 describe("App theme", () => {
+  beforeEach(() => {
+    changelogTestState.fail = false;
+    localStorage.clear();
+    window.history.replaceState(null, "", "/");
+  });
   afterEach(() => vi.unstubAllGlobals());
 
   it("reports the effective dark preference and switches the whole document to explicit light", async () => {
-    localStorage.clear();
     vi.stubGlobal("matchMedia", vi.fn(darkPreference));
     render(
       <MantineProvider env="test" theme={theme} cssVariablesResolver={cssVariablesResolver} defaultColorScheme="auto">
@@ -59,5 +74,77 @@ describe("App theme", () => {
 
     expect(burger).toHaveAttribute("aria-expanded", "true");
     expect(navigation).toHaveAttribute("data-mobile-opened");
+  });
+
+  it("links to a lazy changelog and clears the what's-new marker when it opens", async () => {
+    window.history.replaceState(null, "", "/changelog");
+    render(
+      <MantineProvider env="test" theme={theme} cssVariablesResolver={cssVariablesResolver}>
+        <App />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByRole("link", { name: "Changelog" })).toHaveAttribute("data-active", "true");
+    expect(await screen.findByRole("heading", { level: 1, name: "Changelog" })).toBeVisible();
+    await waitFor(() => expect(screen.queryByTitle("What's new")).not.toBeInTheDocument());
+    expect(screen.getByRole("link", { name: "Engine playground" })).toHaveAttribute("href", "/");
+    expect(screen.queryByText("Learning workspace")).not.toBeInTheDocument();
+  });
+
+  it("shows an accessible what's-new marker and a linked build stamp", () => {
+    render(
+      <MantineProvider env="test" theme={theme} cssVariablesResolver={cssVariablesResolver}>
+        <App />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByTitle("What's new")).toBeVisible();
+    expect(screen.getAllByRole("link", { name: /v0\.2\.0/ })[0]).toHaveAttribute("href", "/changelog");
+  });
+
+  it("retains the shell and unread marker when the lazy changelog fails", async () => {
+    const report = vi.spyOn(console, "error").mockImplementation(() => {});
+    changelogTestState.fail = true;
+    window.history.replaceState(null, "", "/changelog");
+    try {
+      render(
+        <MantineProvider env="test" theme={theme} cssVariablesResolver={cssVariablesResolver}>
+          <App />
+        </MantineProvider>,
+      );
+
+      expect(await screen.findByRole("alert")).toHaveTextContent("Changelog unavailable");
+      expect(screen.getByRole("navigation")).toBeVisible();
+      expect(screen.getByRole("link", { name: "Engine playground" })).toHaveAttribute("href", "/");
+      expect(screen.getByTitle("What's new")).toBeVisible();
+      expect(screen.getByRole("button", { name: "Reload changelog" })).toBeVisible();
+    } finally {
+      report.mockRestore();
+    }
+  });
+
+  it("keeps changelog and in-memory rail controls usable when storage is blocked", async () => {
+    const getItem = vi.spyOn(localStorage, "getItem").mockImplementation(() => {
+      throw new DOMException("Storage denied", "SecurityError");
+    });
+    const setItem = vi.spyOn(localStorage, "setItem").mockImplementation(() => {
+      throw new DOMException("Storage denied", "SecurityError");
+    });
+    window.history.replaceState(null, "", "/changelog");
+    try {
+      render(
+        <MantineProvider env="test" theme={theme} cssVariablesResolver={cssVariablesResolver}>
+          <App />
+        </MantineProvider>,
+      );
+
+      expect(await screen.findByRole("heading", { level: 1, name: "Changelog" })).toBeVisible();
+      expect(screen.queryByText("Learning workspace")).not.toBeInTheDocument();
+      await userEvent.click(screen.getByRole("button", { name: "Collapse navigation" }));
+      expect(screen.getByRole("button", { name: "Expand navigation" })).toBeVisible();
+    } finally {
+      getItem.mockRestore();
+      setItem.mockRestore();
+    }
   });
 });

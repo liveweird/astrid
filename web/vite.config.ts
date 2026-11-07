@@ -1,8 +1,29 @@
 import react from "@vitejs/plugin-react";
+import { execFileSync } from "node:child_process";
 import { defineConfig } from "vitest/config";
+
+function git(...args: string[]) {
+  try {
+    return execFileSync("/usr/bin/git", args, {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    return "";
+  }
+}
+
+const localCommit = git("rev-parse", "--short", "HEAD");
+const commit = process.env.GIT_SHA
+  || (localCommit ? `${localCommit}${git("status", "--porcelain") ? "+dirty" : ""}` : "unknown");
+const commitTime = process.env.GIT_COMMIT_TIME || git("log", "-1", "--format=%cI");
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    __APP_COMMIT__: JSON.stringify(commit),
+    __APP_COMMIT_TIME__: JSON.stringify(commitTime),
+  },
   server: {
     host: "127.0.0.1",
     port: 5180,
