@@ -6,9 +6,7 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [next]
 
-- **BL-039 — Targeted follow-up practice (authorized, in progress).** Connect completed summaries to learner-selected grammar/vocabulary review runs using existing formats/content. Document selection, prerequisites, bounded size, variation, frozen lineage and cross-run exposure before implementation; verify persistence, ownership, exact replay and unchanged historical results. Deliver independently reviewed focused commits merged/pushed. See the [milestone](docs/knowledge/learning-engine.md#targeted-follow-up-practice). Broader scheduling/proficiency remains BL-011.
-
-- **BL-035 — Review the expanded playground and guided practice.** Proposed next step: try `/practice` for an eight-part session, then all eight standalone entries under “Generation controls.” Assess pacing, instruction/feedback clarity, typed Danish input, repair, response constraints, support, recovery, summaries and repetition before choosing the next bounded engine/content iteration. Record reproducible coordinates for corrections. The [review guide](docs/knowledge/pilot-review-guide.md) covers both flows; specialist validation remains BL-022.
+- **BL-035 — Review the expanded playground, guided practice and targeted reviews.** Proposed next step: try `/practice` for an eight-part session, then all eight standalone entries under “Generation controls.” Assess pacing, instruction/feedback clarity, typed Danish input, repair, response constraints, support, recovery, summaries and repetition before choosing the next bounded engine/content iteration. From a completed summary, try selecting a single vocabulary direction and a grammar target for separate follow-up runs; assess selection, source links and possible earlier exposure. Record reproducible coordinates for corrections. The [review guide](docs/knowledge/pilot-review-guide.md) covers both flows; specialist validation remains BL-022.
 
 ## [todo]
 
@@ -40,6 +38,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 No active work is currently blocked. Git writes and remote access succeeded through approved escalated commands; the foundation delivery is complete. Use the applicable approval mechanism for future Git operations that exceed the workspace sandbox.
 
 ## Completed work
+
+- **7 November 2026 — BL-039, targeted follow-up practice:** Added learner-selected, source-linked review runs with truthful one-to-eight-item plans, separate lexical directions, frozen ancestral exposure and atomic browser recovery. Independent review, all five [source CI jobs](https://github.com/liveweird/astrid/actions/runs/42388919244), 130 native and 130 Linux browser journeys passed without retries/flakies. The backed-up preview passed 22 smoke journeys, preserved all five immutable histories, PostgreSQL process/mounts and all three evaluators. Owned QA resources were removed. See the [contract and delivery evidence](docs/knowledge/targeted-follow-up.md#observed-delivery--7-november-2026). This completion record accompanies focused merge/push; BL-035 remains user review.
 
 - **7 November 2026 — BL-038, portalled format navigation:** Fixed the confirmed short-window picker detachment using supported viewport-fixed positioning and synchronized test setup with intended generation focus. Independent review, 24 repeated candidate cases, 114 packaged native journeys and all five [source CI jobs](https://github.com/liveweird/astrid/actions/runs/42383404784) passed; Linux browser journeys had no retries/flaky results. The backed-up preview passed 14 smoke checks, preserved all five immutable histories, the database process/mounts and all three evaluators. Owned QA resources were removed. See the [follow-up evidence](docs/knowledge/practice-continuity.md#standalone-format-navigation-follow-up--bl-038). This completion record accompanies the focused Git delivery.
 

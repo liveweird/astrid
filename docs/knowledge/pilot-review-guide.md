@@ -30,6 +30,12 @@ Open `http://localhost:8088/practice` for **Words and simple statements**, an ei
 
 Assess pacing, exercise transitions, explanation clarity and whether the summary helps decide what to revisit. The [variation audit](practice-variation-audit.md) distinguishes 294 meaningful current plans from additional choice/block shuffles; more reviewed language content remains necessary for lasting variety.
 
+## Try targeted follow-up practice
+
+From a completed summary, choose targets with the **Review …** checkboxes, then **Start selected review**. Nothing is preselected. Try one written-headword target: it produces one item, with recognition kept separate. Then return through **Source practice** and choose sentence order or articles: grammar review uses several distinct sentences, and articles alternate supply and repair.
+
+Check whether selecting targets feels useful and whether source exposure is understandable. Refresh a review midway, complete it, and compare its first/latest outcomes with the unchanged source. Reviews retain possible earlier exposure rather than implying independent mastery. The [follow-up contract](targeted-follow-up.md) records the finite vocabulary pool and saved-lineage boundaries.
+
 ## Inspect variation
 
 Record the format, seed and index under “Generation controls.” Reusing those coordinates and revisions reproduces the exercise presentation; the API's persisted UUID is a separate identity. Change the index or use “Next exercise” to sample variation. The finite pools contain 99 sentences for present/order and 92 for articles, while vocabulary directions each cycle through three selected senses. Long-term variety needs more reviewed content.
