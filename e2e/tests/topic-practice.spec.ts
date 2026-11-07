@@ -75,7 +75,7 @@ test("selection, recall and repair stay separate through six answers and a froze
   for (let position = 0; position < 6; position += 1) {
     const answer = wrongAnswer(state.currentExercise!);
     if (state.currentExercise!.formatId === "E001") {
-      await page.getByRole("group", { name: "Answer choices", exact: true }).getByRole("button", { name: answer.text, exact: true }).click();
+      await page.getByRole("button", { name: answer.text, exact: true }).click();
     } else await page.getByRole("textbox").fill(answer.text!);
     await page.getByRole("button", { name: "Check answer", exact: true }).click();
     await expect(page.getByRole("status")).toBeVisible();
@@ -172,7 +172,7 @@ test("cancelling topic selection restores an uncertain answer and its exact retr
     else await route.continue();
   });
   const answer = wrongAnswer(old.currentExercise!);
-  await page.getByRole("group", { name: "Answer choices", exact: true }).getByRole("button", { name: answer.text, exact: true }).click();
+  await page.getByRole("button", { name: answer.text, exact: true }).click();
   await page.getByRole("button", { name: "Check answer", exact: true }).click();
   await expect(page.getByRole("alert")).toBeVisible();
   await page.getByRole("button", { name: "Start new practice", exact: true }).click();

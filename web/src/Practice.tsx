@@ -604,7 +604,7 @@ function PracticeChooser({ selected, busy, canCancel, message, onSelect, onStart
               <Radio
                 value={profileKey(profile)}
                 label={profile.title}
-                description={`${profile.description} ${profile.itemCount} parts.`}
+                description={profile.description}
                 disabled={busy}
               />
             </Paper>
