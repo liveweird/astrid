@@ -252,7 +252,7 @@ test("practice explains a stale answer from another tab and restores the current
   await expect(page.getByText("Part 2 of 8", { exact: true })).toBeVisible();
   await chooseWrong(other, state.currentExercise!);
   await other.getByRole("button", { name: "Check answer", exact: true }).click();
-  await expect(other.getByRole("alert")).toContainText(/another tab/);
+  await expect(other.getByRole("alert")).toContainText(/another tab/i);
   await expect(other.getByText("Part 2 of 8", { exact: true })).toBeVisible();
   expect((await readPractice(page.request, state.id)).items[0]!.attemptCount).toBe(1);
   await other.close();
