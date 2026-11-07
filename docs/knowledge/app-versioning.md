@@ -44,3 +44,6 @@ Private build hashes, screenshots, HTTP probes, archive and verification logs re
 
 
 **Subsequent release:** BL-041 advances the private preview to `0.3.0` for topic-based practice. Its [delivery record](topic-practice.md#observed-delivery--7-november-2026) supersedes the running-version statement in the historical `0.2.0` evidence above. The published `0.1.0` and `0.2.0` changelog entries are unchanged.
+
+
+**Subsequent release:** BL-043 advances the private preview to `0.4.0` for standalone sentence writing and short reading comprehension. Its [delivery record](writing-reading-contract.md#observed-delivery--7-november-2026) supersedes the running-version statement for `0.3.0`; published `0.1.0`–`0.3.0` release notes remain unchanged. Learning revisions advance separately to pair four while existing guided plans retain pair three.

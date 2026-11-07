@@ -1,10 +1,10 @@
-# Proposed Exercise Family Expansion
+# Exercise Family Expansion
 
 ## Status and rationale
 
 **7 November 2026 — Confirmed user interest:** The user asked whether now is a good time to consider more exercise types, observing that the current variety is small. The initial exchange authorized discussion and proposal development. **Subsequent user selection:** “OK, start with these” authorizes implementation of the recommended first batch: constrained sentence writing and short reading comprehension, initially in the standalone playground. Error diagnosis and transformations remain later proposals.
 
-**Assistant recommendation:** Prioritize new reading/writing operations. The eight current catalog entries largely reuse choice, gap filling, ordering and guided single-word repair. Additional topic chooser entries remain optional BL-042 polish. The earlier recommendation to start specifically with question transformations is superseded by the sequence below, which first explores current language material.
+**Assistant recommendation:** Prioritize new reading/writing operations. The eight catalog entries available before BL-043 largely reused choice, gap filling, ordering and guided single-word repair. Additional topic chooser entries remain optional BL-042 polish. The earlier recommendation to start specifically with question transformations is superseded by the sequence below, which first explores current language material.
 
 ## Proposed sequence
 
@@ -25,13 +25,16 @@ The user selected the first-batch families; later priorities remain assistant pr
 - Keep error location, correction, grammar acceptability and preserved meaning distinct. A planted corruption is presentation data, not a licensed canonical sentence.
 - Check the full teaching unit for answer leakage, and record support, retry and prior exposure. Existing exact-form exposure rules do not automatically cover propositions, whole sentences or diagnosis.
 - Start with bounded explicit grading against licensed structures/answers. No unrestricted translation, free composition or new AI-grading dependency is selected.
-- Define response/API fields, new revision boundaries and compatibility before code changes. Preserve all published generation/grading and saved replay; family IDs, run sizes and scoring remain open.
+- Define response/API fields, new revision boundaries and compatibility before code changes. Preserve all published generation/grading and saved replay. The selected first-batch IDs and grading policy are defined in the implementation contract; later families remain unspecified.
 
 ## Validation and open decisions
 
 BL-006 owns family specifications; BL-007 covers grading and BL-008 the validation subset. Select worked success, wrong-target, valid-alternative, response-constraint and unknown cases before implementation. Check grammar isolation, ambiguity, real task variety, accessibility and historical compatibility. Language remains draft until appropriately reviewed under BL-022; automated checks do not establish teaching approval or learning efficacy.
 
-Open decisions include the first writing target, whether writing uses an optional word bank, initial text length, reading-answer language, acceptable sentence variants, diagnosis interaction and when each family enters guided practice. The implementation stays within the existing lexicon and active beginner constructions.
+The first-batch implementation choices are G005 subject-first writing, an optional unordered language reference, three-fact Danish passages, English reading answers and explicitly bounded accepted sentence variants. The [implementation contract](writing-reading-contract.md) records these choices and their rationale. Diagnosis interaction and guided-practice integration remain open; the implementation stays within the existing lexicon and active beginner constructions.
 
 
 The selected first batch is governed by the [writing/reading implementation contract](writing-reading-contract.md), including concrete grading cases, new public/private fields, revision boundaries and ownership.
+
+
+**Observed first-batch delivery:** Both selected families are available in the ten-entry standalone playground at `0.4.0`; see the [verified delivery](writing-reading-contract.md#observed-delivery--7-november-2026). User review should inform subsequent integration or family choices. This does not select diagnosis, transformations or new content.

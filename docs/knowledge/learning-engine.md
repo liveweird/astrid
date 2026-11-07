@@ -124,3 +124,6 @@ Proposed completion: both new grammar focuses can create/resume runs, report the
 
 
 **Subsequent user authorization:** “OK, start with these” selects constrained sentence writing and short reading comprehension for standalone implementation under BL-043. The earlier unselected-implementation status is superseded for these two families only; later diagnosis/transformations and guided-practice integration remain separate decisions. The [family record](exercise-family-expansion.md) and working agreement capture scope.
+
+
+**7 November 2026 — New families delivered:** BL-043 adds standalone E009 whole-sentence writing and E010 participant/action/object reading at app `0.4.0`, with `pilot-4/generator-4/evaluation-4`. Writing separately reports target, meaning, bounded language diagnosis and response shape; reading queries three actual generated facts. The [implementation and delivery record](writing-reading-contract.md#observed-delivery--7-november-2026) covers all 99 writing meanings, 24 reading units and retained revision evidence. This supersedes earlier current-version/catalog statements; existing guided plans remain pinned to revision three. User/teaching review and guided integration remain separate.
