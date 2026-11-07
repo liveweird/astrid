@@ -73,3 +73,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Practice continuity follow-up](practice-continuity.md): readable support, real shared-outbox scenarios and actual process-restart evidence.
 
 - [Targeted follow-up practice](targeted-follow-up.md): authorized learner selection, finite review plans, frozen source exposure and recovery acceptance.
+
+- [Application versioning](app-versioning.md): Flow-derived version stamp, lazy changelog, build identity and release conventions.

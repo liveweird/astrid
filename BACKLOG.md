@@ -6,6 +6,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [next]
 
+- **BL-040 — Port Flow application versioning and changelog (authorized, in progress).** Add an application version source, linked build stamp, lazy English changelog and device-local unseen indicator, with build metadata and version/entry/OpenAPI consistency checks. Preserve learning revisions and recovery. See the [contract](docs/knowledge/app-versioning.md); complete after independent review, packaged verification and focused merge/push.
+
 - **BL-035 — Review the expanded playground, guided practice and targeted reviews.** Proposed next step: try `/practice` for an eight-part session, then all eight standalone entries under “Generation controls.” Assess pacing, instruction/feedback clarity, typed Danish input, repair, response constraints, support, recovery, summaries and repetition before choosing the next bounded engine/content iteration. From a completed summary, try selecting a single vocabulary direction and a grammar target for separate follow-up runs; assess selection, source links and possible earlier exposure. Record reproducible coordinates for corrections. The [review guide](docs/knowledge/pilot-review-guide.md) covers both flows; specialist validation remains BL-022.
 
 ## [todo]
