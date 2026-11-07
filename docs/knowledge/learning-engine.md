@@ -58,11 +58,11 @@ Keep learning rules and content independent of web screens, account for phone in
 
 ## Vocabulary assessment implementation
 
-The user-authorized [vocabulary contract](vocabulary-assessment.md) adds meaning recognition and introduced-headword recall for three existing senses, bringing the catalog to eight entries. Lexical targets are distinct from grammar skills, and response constraints are assessed separately from identifying a headword. The initial three-format description above is historical; [delivery evidence](vocabulary-delivery.md) tracks the current iteration. Mixed sessions and progression remain proposals.
+The user-authorized [vocabulary contract](vocabulary-assessment.md) adds meaning recognition and introduced-headword recall for three existing senses, bringing the catalog to eight entries. Lexical targets are distinct from grammar skills, and response constraints are assessed separately from identifying a headword. The initial three-format description above is historical; [delivery evidence](vocabulary-delivery.md) tracks the current iteration. Short practice sessions were subsequently authorized as BL-009; broader progression remains a proposal.
 
 ## Recommended next milestone: short practice sessions
 
-**7 November 2026 — Assistant proposal, not implementation authorization.** The engine now supports eight exercise entries across grammar and vocabulary. Next, connect those capabilities into a bounded practice flow using the existing content and graders.
+**7 November 2026 — Initially proposed, subsequently user-authorized (“go with that”).** The engine now supports eight exercise entries across grammar and vocabulary. Next, connect those capabilities into a bounded practice flow using the existing content and graders.
 
 Propose a short session (around eight items as an illustrative starting point): a clear focus, an optional introduction to its words/rule, a deterministic sequence mixing suitable recognition, recall, ordering and repair operations, explanatory feedback/retries, and an end summary. Select items by target coverage and prerequisites rather than mechanically showing every format once. Keep manual engine controls available for development inspection.
 
@@ -70,4 +70,4 @@ Report results separately by grammar target and lexical sense/direction. Disting
 
 Retain the planned item order, exercise revisions and attempt references so refreshing/resuming within a still-valid development session does not silently generate a new sequence, duplicate grading, or lose exact uncertain-attempt replay. Define expired-session recovery explicitly; cross-device accounts are outside this milestone. Avoid adjacent repetition where the finite inventory permits it, while acknowledging the three-word vocabulary pool.
 
-Before implementation, specify session size/focus choices, prerequisite/support sequencing, completion rules, persistence/resume and summary aggregation. Acceptance should cover reproducible ordering, target coverage, exposure/support evidence, partial/unknown outcomes, reload and lost-response recovery, accessible keyboard progress and summary, and unchanged standalone exercises. BL-009 owns this proposal; BL-035 remains user review of the expanded playground. New content, later grammar, adaptive scheduling, streaks and mastery thresholds are separate decisions.
+Before implementation, specify session size/focus choices, prerequisite/support sequencing, completion rules, persistence/resume and summary aggregation. Acceptance should cover reproducible ordering, target coverage, exposure/support evidence, partial/unknown outcomes, reload and lost-response recovery, accessible keyboard progress and summary, and unchanged standalone exercises. BL-009 owns this authorized implementation; BL-035 remains user review of the expanded playground. New content, later grammar, adaptive scheduling, streaks and mastery thresholds are separate decisions.
