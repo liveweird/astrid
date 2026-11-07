@@ -95,7 +95,9 @@ private fun Route.catalogRoute(
             CatalogResponse(
                 catalog.contentRevision,
                 catalog.generatorRevision,
-                EVALUATION_REVISION,
+                checkNotNull(engine.evaluationRevision(catalog.contentRevision, catalog.generatorRevision)) {
+                    "Catalog exposed an unsupported revision pair"
+                },
                 catalog.skills.map { SkillDto(it.id, it.title, it.explanation, it.prerequisiteIds) },
                 catalog.formats.map { FormatDto(it.id, it.title, it.targetSkillId) },
                 catalog.sentenceCount,
@@ -217,7 +219,9 @@ private suspend fun evaluateAttempt(
         evaluation.issues.map { IssueDto(it.code, it.message) },
         evaluation.feedback,
         evaluation.completedSentence.orEmpty(),
-        EVALUATION_REVISION,
+        checkNotNull(engine.evaluationRevision(generated.contentRevision, generated.generatorRevision)) {
+            "Regenerated exercise has an unsupported revision pair"
+        },
         request.hintUsed,
         retry,
         createdAt,
@@ -311,7 +315,7 @@ private fun AttemptAnswerDto.validateFor(formatId: String, expectedBlocks: Set<S
 }
 
 private fun generate(engine: PilotEngine, request: ExerciseRequest) =
-    if (request.contentRevision != CONTENT_REVISION || request.generatorRevision != GENERATOR_REVISION) {
+    if (engine.evaluationRevision(request.contentRevision, request.generatorRevision) == null) {
         throw Conflict("Unsupported content or generator revision")
     } else try {
         engine.generate(request.toGenerationRequest())

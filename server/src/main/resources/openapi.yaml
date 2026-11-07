@@ -112,9 +112,9 @@ components:
       properties:
         mode: { type: string, enum: [development] }
         inspectorEnabled: { type: boolean }
-        contentRevision: { type: string, enum: [pilot-1] }
-        generatorRevision: { type: string, enum: [generator-1] }
-        evaluationRevision: { type: string, enum: [evaluation-1] }
+        contentRevision: { type: string, enum: [pilot-2] }
+        generatorRevision: { type: string, enum: [generator-2] }
+        evaluationRevision: { type: string, enum: [evaluation-2] }
     Catalog:
       type: object
       additionalProperties: false
@@ -172,11 +172,13 @@ components:
       additionalProperties: false
       required: [before, after, choices, blocks, punctuation]
       properties:
-        before: { type: string }
-        after: { type: string, description: Includes final punctuation for text and choice exercises. }
+        before: { type: string, description: Sentence content before the answer slot. }
+        after: { type: string, description: Sentence content after the answer slot; includes final punctuation for text and choice exercises. }
         choices: { type: array, items: { type: string } }
         blocks: { type: array, items: { $ref: '#/components/schemas/Block' } }
         punctuation: { type: string, description: Supplied separately for the ordering exercise only. }
+        inputLabel: { type: string, nullable: true, description: Label for the text entry field when the exercise needs one. }
+        replacementWord: { type: string, nullable: true, description: 'Corrupted word to replace; this is context, not the answer.' }
     Block: { type: object, additionalProperties: false, required: [id, text], properties: { id: { type: string }, text: { type: string } } }
     Introduction: { type: object, additionalProperties: false, required: [title, body], properties: { title: { type: string }, body: { type: string } } }
     AttemptRequest:

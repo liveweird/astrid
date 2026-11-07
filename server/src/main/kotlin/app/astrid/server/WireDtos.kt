@@ -7,6 +7,9 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 internal const val CONTENT_REVISION = "pilot-1"
 internal const val GENERATOR_REVISION = "generator-1"
 internal const val EVALUATION_REVISION = "evaluation-1"
+internal const val CURRENT_CONTENT_REVISION = "pilot-2"
+internal const val CURRENT_GENERATOR_REVISION = "generator-2"
+internal const val CURRENT_EVALUATION_REVISION = "evaluation-2"
 
 @Serializable
 class DevelopmentSessionRequest
@@ -15,9 +18,9 @@ class DevelopmentSessionRequest
 data class DevelopmentSessionResponse(
     val mode: String = "development",
     val inspectorEnabled: Boolean,
-    val contentRevision: String = CONTENT_REVISION,
-    val generatorRevision: String = GENERATOR_REVISION,
-    val evaluationRevision: String = EVALUATION_REVISION,
+    val contentRevision: String = CURRENT_CONTENT_REVISION,
+    val generatorRevision: String = CURRENT_GENERATOR_REVISION,
+    val evaluationRevision: String = CURRENT_EVALUATION_REVISION,
 )
 
 @Serializable
@@ -61,6 +64,8 @@ data class ExercisePromptDto(
     val choices: List<String> = emptyList(),
     val blocks: List<PromptBlockDto> = emptyList(),
     val punctuation: String = ".",
+    val inputLabel: String? = null,
+    val replacementWord: String? = null,
 )
 
 @Serializable

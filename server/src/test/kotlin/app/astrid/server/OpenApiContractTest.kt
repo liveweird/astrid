@@ -101,6 +101,18 @@ class OpenApiContractTest {
             }
             validate(HttpMethod.Post, "/api/v1/exercises", response)
         }
+        listOf("E004" to "G004", "E005" to "G004", "E006" to "G006").forEach { (format, skill) ->
+            val response = client.post("/api/v1/exercises") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                contentType(ContentType.Application.Json)
+                setBody(
+                    """{"formatId":"$format","targetSkillId":"$skill","seed":0,"index":0,"contentRevision":"pilot-2","generatorRevision":"generator-2"}""",
+                )
+            }
+            validate(HttpMethod.Post, "/api/v1/exercises", response)
+        }
         val exerciseId = (wireJson.parseToJsonElement(exerciseResponse.bodyAsText()) as JsonObject)
             .getValue("id").jsonPrimitive.content
         val attemptId = UUID.randomUUID()
