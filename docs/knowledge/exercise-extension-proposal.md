@@ -2,7 +2,7 @@
 
 ## Status and boundary
 
-**7 November 2026 — User-authorized iteration, implementation in progress.** Following positive playground feedback, the user selected typed finite-form recall followed by guided single-word repair. The contract below records implementation decisions for that work; vocabulary assessment remains a proposal. The existing [beginner slice](beginner-slice-spec.md) supplies 23 lexical entries and G001–G006. Only G004/G005/G006 are directly assessed; G001/G002/G003 support those tasks.
+**7 November 2026 — User-authorized iteration, implemented and verified.** Following positive playground feedback, the user selected typed finite-form recall followed by guided single-word repair. The contract below records implementation decisions for that work; vocabulary assessment remains a proposal. The existing [beginner slice](beginner-slice-spec.md) supplies 23 lexical entries and G001–G006. Only G004/G005/G006 are directly assessed; G001/G002/G003 support those tasks.
 
 Implement typed finite-form recall first and bounded error repair second. Vocabulary recognition/recall remains a separately reviewed target expansion. These options address the [product requirements](product-direction.md) using existing engine and interface primitives. They establish neither teaching approval nor learning effectiveness.
 
@@ -54,7 +54,7 @@ Reuse existing text, choice and ordering primitives. Repair needs clear replacem
 
 Review the “Good work” treatment in [FeedbackPanel](../../web/src/components/FeedbackPanel.tsx) if a future task permits `met` alongside a known non-target issue. This is conditional design work, not a confirmed current defect.
 
-Typed Danish words must support accessible entry of `æ`, `ø` and `å`. Character-entry assistance does not itself reveal a linguistic answer and should not automatically count as a hint. Provide keyboard-accessible character buttons preserving selection/caret and returning focus to the input. Respect disabled input states; insertion alone does not set `hintUsed`. Implementation is in progress.
+Typed Danish words must support accessible entry of `æ`, `ø` and `å`. Character-entry assistance does not itself reveal a linguistic answer and should not automatically count as a hint. Provide keyboard-accessible character buttons preserving selection/caret and returning focus to the input. Respect disabled input states; insertion alone does not set `hintUsed`. The [delivery record](recall-repair-delivery.md) records observed verification.
 
 ## Later transformations
 

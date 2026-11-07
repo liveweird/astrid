@@ -29,4 +29,10 @@ No database migration is needed. New prompt metadata is omitted from legacy resp
 - Independent engine/API and web reviews completed. Fixed the repair export omitting its corruption, dark repair-word contrast, complement-free punctuation, and a dark feedback-footer contrast issue exposed by expanded Axe coverage.
 - Toolchain, knowledge, startup-budget and documentation guards passed. The exact runtime image passed the configured fixed HIGH/CRITICAL scan. npm audits passed the high-severity threshold; the unchanged frontend tooling tree still reports moderate advisories.
 
-Linux browser verification, GitHub CI, main-preview promotion and final Git delivery are pending at this checkpoint. BL-034 remains active until those checks complete.
+## Integration and preview acceptance
+
+All five [feature CI jobs](https://github.com/liveweird/astrid/actions/runs/42360766547) passed on `1bfeb80`, including **46 browser journeys in 3.3 minutes with no retry/flaky result**. The separate emulated Linux matrix passed all 46 with retries disabled and a 90-second per-test execution allowance; the larger accessibility scans exceeded its original 30-second emulation allowance. Native and GitHub CI deadlines and application assertion deadlines remain unchanged.
+
+Six focused source/planning/review commits through `1bfeb80` were pushed to the feature branch and fast-forwarded into local `master`. The verified image now serves `http://localhost:8088`; all eight new-flow Chromium/WebKit main-preview checks passed. A legacy exercise created before the upgrade was read, submitted under `evaluation-1`, and replayed exactly afterward.
+
+The main PostgreSQL container, process and mounts were unchanged. A private pre-upgrade dump is retained outside version control. Ownership checks preceded removal of the temporary QA app, database volume and network; no QA containers remain. Both main services are healthy with zero restarts. BL-034 is complete; expanded-playground feedback is BL-035.
