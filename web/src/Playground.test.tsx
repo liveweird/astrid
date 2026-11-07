@@ -4,22 +4,30 @@ import userEvent from "@testing-library/user-event";
 import type { ComponentType } from "react";
 
 const session = {
-  mode: "development", inspectorEnabled: false, contentRevision: "pilot-1",
-  generatorRevision: "generator-1", evaluationRevision: "evaluation-1",
+  mode: "development", inspectorEnabled: false, contentRevision: "pilot-2",
+  generatorRevision: "generator-2", evaluationRevision: "evaluation-2",
 };
 const catalog = {
-  contentRevision: "pilot-1", generatorRevision: "generator-1", evaluationRevision: "evaluation-1",
+  contentRevision: "pilot-2", generatorRevision: "generator-2", evaluationRevision: "evaluation-2",
   sentenceCount: 99,
-  skills: [{ id: "G004", title: "Present form", explanation: "Choose a present verb.", prerequisiteIds: [] }],
+  skills: [
+    { id: "G004", title: "Present form", explanation: "Choose a present verb.", prerequisiteIds: [] },
+    { id: "G005", title: "Subject-first statements", explanation: "Arrange a statement.", prerequisiteIds: [] },
+    { id: "G006", title: "Indefinite articles", explanation: "Choose an article.", prerequisiteIds: [] },
+  ],
   formats: [
     { id: "E001", title: "Choose the present form", targetSkillId: "G004" },
     { id: "E002", title: "Supply the indefinite article", targetSkillId: "G006" },
+    { id: "E003", title: "Arrange a subject-first statement", targetSkillId: "G005" },
+    { id: "E004", title: "Supply the present form", targetSkillId: "G004" },
+    { id: "E005", title: "Repair the verb form", targetSkillId: "G004" },
+    { id: "E006", title: "Repair the indefinite article", targetSkillId: "G006" },
   ],
 };
 const exercise = {
   id: "011835c0-bb42-47ef-b21e-ae21411b24a1",
   formatId: "E001", targetSkillId: "G004", supportSkillIds: [],
-  contentRevision: "pilot-1", generatorRevision: "generator-1",
+  contentRevision: "pilot-2", generatorRevision: "generator-2",
   instruction: "Choose the present-tense verb.", context: "You are describing what happens now.",
   prompt: { before: "Jeg", after: "en bog", choices: ["læse", "læser"], blocks: [], punctuation: "." },
   introduction: [{ title: "læse · to read", body: "Present form: læser" }],
@@ -30,7 +38,7 @@ const attempt = {
   exerciseId: exercise.id,
   targetSatisfaction: "met", linguisticStatus: "acceptable", issues: [],
   feedback: "You selected the present form.", completedSentence: "Jeg læser en bog.",
-  evaluationRevision: "evaluation-1", hintUsed: false, retryNumber: 1, createdAt: 1,
+  evaluationRevision: "evaluation-2", hintUsed: false, retryNumber: 1, createdAt: 1,
 };
 
 function json(body: unknown) {
@@ -64,17 +72,7 @@ async function verifyKeyboardFormatSelection(
     },
     introduction: [],
   };
-  const catalogWithOrdering = {
-    ...catalog,
-    skills: [
-      ...catalog.skills,
-      { id: "G005", title: "Subject-first statements", explanation: "Arrange a statement.", prerequisiteIds: [] },
-    ],
-    formats: [
-      ...catalog.formats,
-      { id: "E003", title: "Arrange a subject-first statement", targetSkillId: "G005" },
-    ],
-  };
+  const catalogWithOrdering = catalog;
   const exerciseBodies: Array<Record<string, unknown>> = [];
   vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
     if (path.endsWith("development-session")) return json(session);
@@ -179,6 +177,115 @@ async function verifyKnownSubmissionErrorFocus() {
   expect(reload).toHaveFocus();
 }
 
+async function verifyCurrentCatalogFormats() {
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json(session);
+    if (path.endsWith("catalog")) return json(catalog);
+    return json(exercise);
+  }));
+  await renderPlayground();
+  await screen.findByRole("button", { name: "læser" });
+  await userEvent.click(screen.getByRole("button", { name: "Generation controls" }));
+  await userEvent.click(screen.getByRole("combobox", { name: "Exercise type" }));
+
+  expect(screen.getAllByRole("option")).toHaveLength(6);
+  for (const format of catalog.formats) {
+    expect(screen.getByRole("option", { name: format.title })).toBeVisible();
+  }
+}
+
+async function verifyRepairSupportTracking() {
+  const repairExercise = {
+    ...exercise,
+    id: "f17d982e-7e7f-460f-b922-76e08ccce812",
+    formatId: "E005",
+    instruction: "Repair the verb form with one word.",
+    context: "The highlighted verb is not in the present form.",
+    prompt: {
+      before: "Jeg", after: "en bog.", choices: [], blocks: [], punctuation: "",
+      inputLabel: "Replacement verb", replacementWord: "læse",
+    },
+  };
+  const attemptBodies: Array<Record<string, unknown>> = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json(session);
+    if (path.endsWith("catalog")) return json(catalog);
+    if (path.endsWith("exercises")) return json(repairExercise);
+    const submitted = JSON.parse(String(init?.body)) as Record<string, unknown>;
+    attemptBodies.push(submitted);
+    return json({
+      ...attempt,
+      attemptId: submitted.attemptId,
+      exerciseId: repairExercise.id,
+      hintUsed: submitted.hintUsed,
+    });
+  }));
+  const user = userEvent.setup();
+  await renderPlayground();
+  const input = await screen.findByLabelText("Replacement verb");
+  await user.type(input, "l");
+  await user.click(screen.getByRole("button", { name: "Insert æ" }));
+  await user.type(input, "ser");
+  await user.click(screen.getByRole("button", { name: "Check answer" }));
+  await screen.findByRole("status");
+
+  expect(attemptBodies[0]).toMatchObject({
+    exerciseId: repairExercise.id,
+    answer: { kind: "text", text: "læser" },
+    hintUsed: false,
+  });
+
+  await user.click(screen.getByRole("button", { name: "Try again" }));
+  await user.click(screen.getByRole("button", { name: "Learn this first" }));
+  await user.type(screen.getByLabelText("Replacement verb"), "læser");
+  await user.click(screen.getByRole("button", { name: "Check answer" }));
+  await waitFor(() => expect(attemptBodies).toHaveLength(2));
+  expect(attemptBodies[1]).toMatchObject({ hintUsed: true });
+}
+
+async function verifyRepairUncertainRecovery() {
+  const repairExercise = {
+    ...exercise,
+    id: "230f23b7-d1a4-45ac-a262-f5ff0130df78",
+    formatId: "E006",
+    targetSkillId: "G006",
+    instruction: "Repair the article with one word.",
+    prompt: {
+      before: "Jeg har", after: "hund.", choices: [], blocks: [], punctuation: "",
+      inputLabel: "Replacement article", replacementWord: "et",
+    },
+    introduction: [],
+  };
+  const attemptBodies: string[] = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json(session);
+    if (path.endsWith("catalog")) return json(catalog);
+    if (path.endsWith("exercises")) return json(repairExercise);
+    attemptBodies.push(String(init?.body));
+    if (attemptBodies.length === 1) throw new TypeError("response connection closed");
+    const submitted = JSON.parse(attemptBodies[1]!);
+    return json({ ...attempt, attemptId: submitted.attemptId, exerciseId: repairExercise.id });
+  }));
+  const user = userEvent.setup();
+  await renderPlayground();
+  const input = await screen.findByLabelText("Replacement article");
+  await user.type(input, "en");
+  await user.click(screen.getByRole("button", { name: "Check answer" }));
+  await screen.findByText("The result is not confirmed");
+
+  expect(input).toBeDisabled();
+  expect(input).toHaveValue("en");
+  for (const character of ["æ", "ø", "å"]) {
+    expect(screen.getByRole("button", { name: `Insert ${character}` })).toBeDisabled();
+  }
+  await user.click(screen.getByRole("button", { name: "Check the same attempt" }));
+  await screen.findByRole("status");
+  expect(attemptBodies[1]).toBe(attemptBodies[0]);
+  expect(JSON.parse(attemptBodies[1]!)).toMatchObject({
+    answer: { kind: "text", text: "en" }, hintUsed: false,
+  });
+}
+
 describe("Playground", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -215,6 +322,12 @@ describe("Playground", () => {
     ]);
     expect(screen.getByText("99 sentence combinations")).toBeVisible();
   });
+
+  it("renders all six current exercise formats from the catalog", verifyCurrentCatalogFormats);
+
+  it("submits repair text unsupported, then keeps lesson support sticky for a retry", verifyRepairSupportTracking);
+
+  it("freezes repair input and its character controls while recovering an uncertain attempt", verifyRepairUncertainRecovery);
 
   it("freezes the answer and replays the exact payload after an uncertain submission", async () => {
     const attemptBodies: string[] = [];

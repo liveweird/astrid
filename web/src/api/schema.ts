@@ -157,11 +157,11 @@ export interface components {
             mode: "development";
             inspectorEnabled: boolean;
             /** @enum {string} */
-            contentRevision: "pilot-1";
+            contentRevision: "pilot-2";
             /** @enum {string} */
-            generatorRevision: "generator-1";
+            generatorRevision: "generator-2";
             /** @enum {string} */
-            evaluationRevision: "evaluation-1";
+            evaluationRevision: "evaluation-2";
         };
         Catalog: {
             contentRevision: string;
@@ -206,13 +206,18 @@ export interface components {
             hint: string;
         };
         Prompt: {
+            /** @description Sentence content before the answer slot. */
             before: string;
-            /** @description Includes final punctuation for text and choice exercises. */
+            /** @description Sentence content after the answer slot; includes final punctuation for text and choice exercises. */
             after: string;
             choices: string[];
             blocks: components["schemas"]["Block"][];
             /** @description Supplied separately for the ordering exercise only. */
             punctuation: string;
+            /** @description Label for the text entry field when the exercise needs one. */
+            inputLabel?: string | null;
+            /** @description Corrupted word to replace; this is context, not the answer. */
+            replacementWord?: string | null;
         };
         Block: {
             id: string;

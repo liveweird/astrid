@@ -40,7 +40,7 @@ export default function FeedbackPanel({ attempt, focusRef }: { attempt: Attempt;
           <Text size="sm">This answer is outside the pilot’s licensed patterns. It is not a general judgment about Danish.</Text>
         )}
         {attempt.issues.map((issue) => <Text size="sm" key={issue.code}>{issue.message}</Text>)}
-        <Text size="xs" c="dimmed">
+        <Text size="xs" c="var(--mantine-color-text)">
           Try {attempt.retryNumber}{attempt.hintUsed ? " · Supported practice" : " · No support opened"}
         </Text>
       </Stack>

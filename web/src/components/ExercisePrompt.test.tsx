@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { Exercise } from "../api/models";
 import ExercisePrompt from "./ExercisePrompt";
 
-function exercise(formatId: string): Exercise {
+function exercise(formatId: string, promptMetadata: Partial<Exercise["prompt"]> = {}): Exercise {
   return {
     id: "011835c0-bb42-47ef-b21e-ae21411b24a1",
     formatId,
@@ -23,6 +23,7 @@ function exercise(formatId: string): Exercise {
         { id: "b1", text: "jeg" }, { id: "b2", text: "læser" }, { id: "b3", text: "I" },
       ] : [],
       punctuation: ".",
+      ...promptMetadata,
     },
     introduction: [],
     hint: "Start with the subject.",
@@ -60,6 +61,141 @@ describe("ExercisePrompt", () => {
     const sentence = screen.getByLabelText("Danish sentence cloze");
     expect(sentence.textContent?.match(/\./g)).toHaveLength(1);
     expect(sentence).toHaveTextContent("bog.");
+  });
+
+  it("uses prompt metadata to show the corrupted word and repair field without revealing an answer", () => {
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={exercise("E005", {
+            before: "Jeg ",
+            after: " en bog.",
+            inputLabel: "Replacement verb",
+            replacementWord: "læse",
+          })}
+          text="" order={[]} disabled={false} onText={vi.fn()} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    const corruptedSentence = screen.getByRole("group", { name: "Danish sentence to repair" });
+    expect(corruptedSentence).toHaveTextContent("Word to replace");
+    const markedWord = screen.getByText("læse");
+    expect(markedWord.previousSibling?.previousSibling?.textContent).toBe("Jeg ");
+    expect(markedWord.nextSibling?.textContent).toBe(" en bog.");
+    expect(screen.getByText("Word to replace:")).toHaveAttribute("lang", "en");
+    expect(screen.getByLabelText("Replacement verb")).toHaveAccessibleDescription("Enter one word");
+    expect(screen.queryByText("læser")).not.toBeInTheDocument();
+  });
+
+  it("preserves engine-owned spacing around a repaired C001 sentence", () => {
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={exercise("E005", {
+            before: "Hun ",
+            after: ".",
+            inputLabel: "Replacement verb",
+            replacementWord: "sove",
+          })}
+          text="" order={[]} disabled={false} onText={vi.fn()} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    const markedWord = screen.getByText("sove");
+    expect(markedWord.previousSibling?.previousSibling?.textContent).toBe("Hun ");
+    expect(markedWord.nextSibling?.textContent).toBe(".");
+    expect(markedWord.parentElement?.textContent).not.toContain("sove .");
+  });
+
+  it("uses the supplied input label for recall and keeps the legacy fallback", () => {
+    const { rerender } = render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={exercise("E004", { inputLabel: "Present form" })}
+          text="" order={[]} disabled={false} onText={vi.fn()} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+    expect(screen.getByLabelText("Present form")).toBeVisible();
+
+    rerender(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={exercise("E002")}
+          text="" order={[]} disabled={false} onText={vi.fn()} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+    expect(screen.getByLabelText("Missing word")).toBeVisible();
+  });
+
+  it("inserts Danish characters at the selection, restores the caret, and returns focus", async () => {
+    function TextHarness() {
+      const [text, setText] = useState("bla");
+      return (
+        <ExercisePrompt
+          exercise={exercise("E005", {
+            inputLabel: "Replacement verb",
+            replacementWord: "ble",
+          })}
+          text={text} order={[]} disabled={false} onText={setText} onOrder={vi.fn()}
+        />
+      );
+    }
+    render(<MantineProvider env="test"><TextHarness /></MantineProvider>);
+    const input = screen.getByLabelText("Replacement verb") as HTMLInputElement;
+    input.focus();
+    input.setSelectionRange(1, 2);
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+
+    expect(input).toHaveValue("bæa");
+    expect(input).toHaveFocus();
+    expect(input).toHaveProperty("selectionStart", 2);
+    expect(input).toHaveProperty("selectionEnd", 2);
+  });
+
+  it("returns focus and restores the caret when insertion leaves the controlled value unchanged", async () => {
+    function TextHarness() {
+      const [text, setText] = useState("æ");
+      return (
+        <ExercisePrompt
+          exercise={exercise("E004", { inputLabel: "Present form" })}
+          text={text} order={[]} disabled={false} onText={setText} onOrder={vi.fn()}
+        />
+      );
+    }
+    render(<MantineProvider env="test"><TextHarness /></MantineProvider>);
+    const input = screen.getByLabelText("Present form") as HTMLInputElement;
+    input.focus();
+    input.setSelectionRange(0, 1);
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+
+    expect(input).toHaveValue("æ");
+    expect(input).toHaveFocus();
+    expect(input).toHaveProperty("selectionStart", 1);
+    expect(input).toHaveProperty("selectionEnd", 1);
+  });
+
+  it("disables the text field and every Danish character button together", () => {
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={exercise("E006", {
+            inputLabel: "Replacement article",
+            replacementWord: "et",
+          })}
+          text="" order={[]} disabled onText={vi.fn()} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+    expect(screen.getByLabelText("Replacement article")).toBeDisabled();
+    for (const character of ["æ", "ø", "å"]) {
+      expect(screen.getByRole("button", { name: `Insert ${character}` })).toBeDisabled();
+    }
   });
 
   it("lets a keyboard user append a sentence block without dragging", async () => {

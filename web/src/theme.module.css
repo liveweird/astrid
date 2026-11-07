@@ -33,6 +33,21 @@
   padding: min(1rem, 16px);
 }
 
+.repairSentence {
+  font-size: var(--mantine-font-size-lg);
+  line-height: 1.7;
+}
+
+.replacementWord {
+  background: light-dark(#fff3bf, #665200);
+  border-block-end: 2px solid currentColor;
+  border-radius: var(--mantine-radius-xs);
+  color: light-dark(#3b2f00, #fff3bf);
+  padding-inline: 0.2em;
+  text-decoration: line-through 2px;
+  text-decoration-skip-ink: none;
+}
+
 @container playground (min-width: 48rem) {
   .exerciseCard {
     padding: var(--mantine-spacing-xl);
