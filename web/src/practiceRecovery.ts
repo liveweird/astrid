@@ -1,4 +1,4 @@
-export type PracticeOperationKind = "creation" | "support" | "attempt" | "advance";
+type PracticeOperationKind = "creation" | "support" | "attempt" | "advance";
 
 export type PracticeRunRecovery = {
   ownerSessionId: string;
@@ -56,11 +56,11 @@ function restoreIfUnchanged(key: string, expected: string, previous: string | nu
   }
 }
 
-export function runKey(practiceSessionId: string) {
+function runKey(practiceSessionId: string) {
   return `${RUN_PREFIX}${practiceSessionId}`;
 }
 
-export function outboxKey(entry: Pick<PracticeOutboxEntry, "practiceSessionId" | "kind" | "identity">) {
+function outboxKey(entry: Pick<PracticeOutboxEntry, "practiceSessionId" | "kind" | "identity">) {
   return `${OUTBOX_PREFIX}${entry.practiceSessionId}.${entry.kind}.${entry.identity}`;
 }
 

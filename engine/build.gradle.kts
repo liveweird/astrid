@@ -103,8 +103,19 @@ kover {
     reports {
         verify {
             rule {
-                minBound(85)
+                // Line-coverage floor: the integer below the measured value, RAISED as coverage
+                // grows, never lowered. Re-measure with `:engine:koverXmlReport` (`check` runs only
+                // koverVerify, which reports pass/fail, not the actual).
+                // 2026-11-07, scaffold alignment: actual 96.75% -> floor 96.
+                minBound(96)
+                // Branch-coverage floor, same rule.
+                // 2026-11-07, scaffold alignment: actual 83.21% -> floor 83.
+                minBound(83, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
             }
         }
     }
+}
+
+tasks.named("check") {
+    dependsOn(tasks.named("koverVerify"))
 }

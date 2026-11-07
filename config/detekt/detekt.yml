@@ -1,35 +1,42 @@
-# The Flow zero-findings policy, scoped to the smaller Astrid application.
+# Repo-specific detekt tuning, layered on top of the bundled defaults (buildUponDefaultConfig).
+# Policy: fix findings in code first; add a rule override here ONLY for a deliberate repo idiom,
+# and give every override a one-line comment naming that idiom. No baseline file.
+
+# The zero-findings gate, stated rather than inherited: detekt's bundled default is already 0, but a
+# major bump or a `buildUponDefaultConfig = false` must never be able to relax it silently.
 build:
   maxIssues: 0
 
 complexity:
+  # Above the bundled 60: route registrars and content catalogues list their entries declaratively.
+  # Tests are exempt — scenario tests are named sentences and read top-to-bottom.
   LongMethod:
     excludes: ['**/src/test/**']
     threshold: 80
+  # Data-only wire DTOs (the *Dto classes) and test fixture builders carry naturally wide
+  # signatures; nothing behavioral hides in them.
   LongParameterList:
     excludes: ['**/src/test/**']
     functionThreshold: 10
     constructorThreshold: 14
     ignoreDataClasses: true
+  # Catalogues and cohesive boundary services (PilotEngine, ApiRoutes, PracticePlanner) are flat
+  # tables of small operations; splitting them by function count would fork one concern across files.
+  # All sibling repos (flow, lettuce, toadie) disable this rule for the same reason.
   TooManyFunctions:
-    # Catalogues and cohesive boundary services expose several small operations.
     active: false
+  # Per-feature test suites are deliberately comprehensive (one file per feature).
   LargeClass:
     excludes: ['**/src/test/**']
 
 style:
-  WildcardImport:
-    # Ktor route registration convention, inherited from the donor.
-    active: false
+  # 140 columns instead of the bundled 120: wire-field lists and reviewed prompt strings read
+  # better unbroken.
   MaxLineLength:
     maxLineLength: 140
+  # Reviewed content IDs/counts (PilotContent.kt) and fixture seeds are intentional data.
   MagicNumber:
-    # Reviewed content IDs/counts and fixture seeds are intentional data.
     excludes: ['**/src/test/**', '**/PilotContent.kt']
+  # Stated rather than inherited: the bundled default is off, and unused imports must stay a gate.
   UnusedImports:
     active: true
-
-naming:
-  MatchingDeclarationName:
-    # A cohesive model file can contain several related data shapes.
-    active: false

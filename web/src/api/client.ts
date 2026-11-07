@@ -1,6 +1,6 @@
 import type {
   Attempt, AttemptRequest, Catalog, DevelopmentSession, Exercise, InspectorDetails,
-  PracticeContext, PracticeCreationRequest, PracticeProfiles, PracticeSession,
+  PracticeContext, PracticeProfiles, PracticeSession,
 } from "./models";
 
 const CLIENT_HEADER = { "X-Astrid-Client": "playground" };
@@ -51,7 +51,7 @@ async function readJson<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
-export function serializedJsonInit(serializedBody: string, extraHeaders?: HeadersInit): RequestInit {
+function serializedJsonInit(serializedBody: string, extraHeaders?: HeadersInit): RequestInit {
   return {
     method: "POST",
     headers: { "Content-Type": "application/json", ...CLIENT_HEADER, ...extraHeaders },
@@ -66,7 +66,7 @@ function jsonInit(_method: "POST", body: unknown, extraHeaders?: HeadersInit): R
 export const startDevelopmentSession = () =>
   readJson<DevelopmentSession>("/api/v1/development-session", jsonInit("POST", {}));
 
-export const loadCatalog = () => readJson<Catalog>("/api/v1/catalog");
+const loadCatalog = () => readJson<Catalog>("/api/v1/catalog");
 
 export function createExercise(request: {
   formatId: string; targetSkillId?: string | null; seed: number; index: number;
@@ -152,13 +152,6 @@ export const advancePracticeSession = (
   `/api/v1/practice-sessions/${encodeURIComponent(practiceSessionId)}/advance`,
   serializedJsonInit(serializedBody, { "X-Astrid-Practice-Owner": ownerSessionId }),
 );
-
-export function practiceCreationBody(request: PracticeCreationRequest) {
-  return JSON.stringify(request);
-}
-
-export const loadAttempt = (attemptId: string) =>
-  readJson<Attempt>(`/api/v1/attempts/${encodeURIComponent(attemptId)}`);
 
 export const inspectExercise = (exerciseId: string, key: string) =>
   readJson<InspectorDetails>(`/api/v1/dev/exercises/${encodeURIComponent(exerciseId)}`, {
