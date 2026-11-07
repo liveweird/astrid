@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { openGenerationControls } from "../support/generation-controls.js";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
@@ -30,7 +31,7 @@ async function selectFormatOption(page: Page, selector: Locator, title: string) 
 
 async function chooseFormat(page: Page, title: string) {
   const selector = page.getByRole("combobox", { name: "Exercise type" });
-  if (!(await selector.isVisible())) await page.getByRole("button", { name: "Generation controls" }).click();
+  await openGenerationControls(page);
   await selectFormatOption(page, selector, title);
   await expect(selector).toHaveValue(title);
 }

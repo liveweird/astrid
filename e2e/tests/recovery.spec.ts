@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { openGenerationControls } from "../support/generation-controls.js";
 
 test("reconnects after the initial development session fails", async ({ page }) => {
   let failSession = true;
@@ -31,7 +32,7 @@ test("offers a full engine reload after a revision conflict", async ({ page }) =
 
   await page.goto("/");
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
-  await page.getByRole("button", { name: "Generation controls" }).click();
+  await openGenerationControls(page);
   const selector = page.getByRole("combobox", { name: "Exercise type" });
   await selector.click();
   await page.getByRole("option", { name: "Supply the indefinite article" }).click();
@@ -62,7 +63,7 @@ test("reconnects an expired existing session before generating again", async ({ 
 
   await page.goto("/");
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
-  await page.getByRole("button", { name: "Generation controls" }).click();
+  await openGenerationControls(page);
   let selector = page.getByRole("combobox", { name: "Exercise type" });
   await selector.click();
   await page.getByRole("option", { name: "Supply the indefinite article" }).click();
@@ -71,7 +72,7 @@ test("reconnects an expired existing session before generating again", async ({ 
 
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
   expect(sessionRequests).toBe(2);
-  await page.getByRole("button", { name: "Generation controls" }).click();
+  await openGenerationControls(page);
   selector = page.getByRole("combobox", { name: "Exercise type" });
   await selector.click();
   await page.getByRole("option", { name: "Supply the indefinite article" }).click();

@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { openGenerationControls, waitForGenerationControls } from "../support/generation-controls.js";
 
 function channelToLinear(value: number) {
   const normalized = value / 255;
@@ -24,7 +25,7 @@ async function openPlayground(page: Page) {
 
 async function chooseFormat(page: Page, title: string) {
   const selector = page.getByRole("combobox", { name: "Exercise type" });
-  if (!(await selector.isVisible())) await page.getByRole("button", { name: "Generation controls" }).click();
+  await openGenerationControls(page);
   await selector.click();
   await page.getByRole("option", { name: title }).click();
   await expect(selector).toHaveValue(title);
@@ -114,6 +115,7 @@ test("completes, retries and advances an ordering exercise with the keyboard", a
   const controls = page.getByRole("button", { name: "Generation controls" });
   await tabTo(page, controls);
   await page.keyboard.press("Enter");
+  await waitForGenerationControls(page);
   const index = page.getByRole("textbox", { name: "Next generation index" });
   await tabTo(page, index);
   await page.keyboard.press("ControlOrMeta+A");
@@ -126,6 +128,7 @@ test("completes, retries and advances an ordering exercise with the keyboard", a
   await expect(orderingOption).toBeVisible();
   await page.keyboard.press("ArrowDown");
   await expect(orderingOption).toHaveAttribute("data-combobox-selected", "true");
+  await expect(selector).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(selector).toHaveValue("Arrange a subject-first statement");
 
