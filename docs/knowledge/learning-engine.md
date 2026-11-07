@@ -98,3 +98,14 @@ The [topic-practice contract](topic-practice.md) specifies the selected first sc
 
 
 **Observed delivery:** BL-041 is complete at `0.3.0`, with two focus choices, six verb items and separate selection/recall/repair evidence. The [delivery record](topic-practice.md#observed-delivery--7-november-2026) includes review corrections, complete browser/CI verification and backed-up preview promotion. Further profiles remain proposals; user and Danish teaching review remain outstanding.
+
+
+## Proposed next milestone: focused order and article practice
+
+**7 November 2026 — Assistant recommendation, not yet user-selected:** After BL-041, complete focused practice for the remaining grammar already assessed by the pilot. BL-042 proposes a subject-first sentence-order profile using E003/G005 and an indefinite-article profile using E002/E006/G006. Together with present verbs, these would provide three explicit beginner grammar focuses without adding language material or changing published graders.
+
+Keep supplying an article and repairing one distinguishable in new-run summaries and selected reviews. Define profile, assessment and follow-up revisions before implementation; preserve every old target key, stored plan, result and replay. Reuse shared profile/planning/review mechanisms while retaining supported-revision validation and chooser cancellation/owner continuity. Run size, sampling, exact keys and implementation architecture remain design choices, not confirmed requirements.
+
+BL-035 user feedback on the current chooser, pacing and operation summaries should inform this milestone; it is not presumed complete or an automatic implementation blocker. BL-022 teaching review remains outstanding. Vocabulary-only practice should be considered with the finite three-sense assessment pool visible, rather than extending runs through repeated cues. A subsequent new exercise family could use constrained sentence transformations, but its grammar coverage, teaching examples and grading policy require a separate design and user selection. This recommendation activates neither new curriculum nor scheduling, accounts, mobile packaging or media.
+
+Proposed completion: both new grammar focuses can create/resume runs, report their intended operations, start varied source-linked reviews and pass compatibility/recovery/accessibility checks. The current application remains `0.3.0` until implementation is selected and delivered.

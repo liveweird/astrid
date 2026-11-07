@@ -21,6 +21,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [new]
 
+- **BL-042 — Complete focused practice for existing beginner grammar (recommended, not authorized).** Add subject-first sentence-order and indefinite-article profiles using current E003/G005 and E002/E006/G006 content/graders. Keep article supply and repair evidence separate in new runs/reviews, reuse common profile mechanisms, and preserve all legacy snapshots/keys/replay. Define revisions, prerequisites and sampling before implementation. Complete when both profiles support reliable creation/resume, operation-specific summaries and varied source-linked reviews with independent review and required checks. See the [proposal](docs/knowledge/learning-engine.md#proposed-next-milestone-focused-order-and-article-practice). BL-035 user feedback should inform the work; BL-022 teaching review remains open. This recommendation does not activate new language material or exercise families.
+
 - **BL-032 — Define bounded server-outage work.** Proposed follow-up to the [observed lifecycle limitation](docs/knowledge/server-outage-boundary.md): choose a fault model and evidence-based request/cleanup/shutdown budgets, then prove lease fencing, eventual remote cleanup, bounded retained work and exact replay before adopting a policy. No server deadline or production SLO is selected.
 
 - **BL-010 — Compare generation and grading approaches.** Examine reviewed templates, structural generation, and possible AI assistance against accuracy, naturalness, variety, and diagnostic needs. Complete with broader-course tradeoffs and a recommendation. The pilot already uses deterministic typed generation and bounded explicit grading; this item does not reopen its published revisions.
