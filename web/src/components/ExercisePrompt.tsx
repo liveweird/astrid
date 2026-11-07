@@ -96,6 +96,36 @@ export default function ExercisePrompt({ exercise, text, order, disabled, onText
     focusTarget.current = null;
   }, [order]);
 
+  if (exercise.lexicalTarget) {
+    return (
+      <Stack gap="sm">
+        {prompt.cue && <Text lang={prompt.cueLanguage ?? undefined} size="xl" fw={650}>{prompt.cue}</Text>}
+        {prompt.choices.length > 0 ? (
+          <Group gap="xs" role="group" aria-label="Answer choices">
+            {prompt.choices.map((choice) => (
+              <Button
+                key={choice}
+                variant={text === choice ? "filled" : "default"}
+                disabled={disabled}
+                onClick={() => onText(choice)}
+                aria-pressed={text === choice}
+              >
+                <span lang={prompt.answerLanguage ?? undefined}>{choice}</span>
+              </Button>
+            ))}
+          </Group>
+        ) : (
+          <DanishTextInput
+            label={inputLabel ?? "Danish singular headword"}
+            text={text}
+            disabled={disabled}
+            onText={onText}
+          />
+        )}
+      </Stack>
+    );
+  }
+
   if (formatId === "E003") {
     const chosen = new Set(order);
     const available = prompt.blocks.filter((block) => !chosen.has(block.id));

@@ -24,4 +24,24 @@ describe("InspectorPanel", () => {
     expect(screen.queryByText("Jeg sover.")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Inspector key")).toHaveValue(key);
   });
+
+  it("renders private lexical evidence without grammar-only labels", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({
+      exercise: {}, seed: 9, index: 1,
+      lexicalSource: {
+        entryId: "L018", senseId: "L018-S01", headword: "brev",
+        gloss: "letter (written message)", article: "et",
+      },
+    })));
+    render(<MantineProvider env="test"><InspectorPanel exerciseId="exercise-lexical" /></MantineProvider>);
+    await userEvent.type(screen.getByLabelText("Inspector key"), "a-secure-inspector-key-with-32-chars");
+    await userEvent.click(screen.getByRole("button", { name: "Inspect this exercise" }));
+
+    expect(await screen.findByText("L018 · L018-S01")).toBeVisible();
+    expect(screen.getByText("brev")).toHaveAttribute("lang", "da");
+    expect(screen.getByText("letter (written message)")).toHaveAttribute("lang", "en");
+    expect(screen.queryByText("Canonical sentence")).not.toBeInTheDocument();
+    expect(screen.queryByText("Construction")).not.toBeInTheDocument();
+    expect(screen.getByText("seed 9, index 1")).toBeVisible();
+  });
 });

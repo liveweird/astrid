@@ -74,11 +74,40 @@ function PlaygroundIntroduction({ sentenceCount }: { sentenceCount: number }) {
       <Group justify="space-between" align="start">
         <Box>
           <Title order={2}>Danish engine playground</Title>
-          <Text c="dimmed">Practise one grammar target at a time with generated everyday sentences.</Text>
+          <Text c="dimmed">Practise one language target at a time with generated exercises.</Text>
         </Box>
         <Badge variant="light" color="gray">{sentenceCount} sentence combinations</Badge>
       </Group>
     </Box>
+  );
+}
+
+function lexicalTargetLabel(format: Catalog["formats"][number] | undefined) {
+  const task = format?.lexicalTask;
+  if (!task) return null;
+  if (task.facet === "meaning" && task.direction === "da-en") return "Meaning · Danish → English";
+  if (task.facet === "singular-headword" && task.direction === "en-da") {
+    return "Singular headword · English → Danish";
+  }
+  return "Vocabulary target";
+}
+
+function ExerciseIdentity({ catalog, exercise, format }: {
+  catalog: Catalog | null;
+  exercise: Exercise | null;
+  format: Catalog["formats"][number] | undefined;
+}) {
+  const skill = catalog?.skills.find((candidate) => candidate.id === format?.targetSkillId);
+  const lexicalLabel = lexicalTargetLabel(format);
+  return (
+    <Group justify="space-between" align="start">
+      <Box>
+        <Text fw={650}>{format?.title ?? "Exercise"}</Text>
+        {skill && <Text size="sm" c="dimmed">Target: {skill.title}</Text>}
+        {lexicalLabel && <Text size="sm" c="dimmed">Target: {lexicalLabel}</Text>}
+      </Box>
+      {exercise?.targetSkillId && <Badge color="astrid" variant="light">{exercise.targetSkillId}</Badge>}
+    </Group>
   );
 }
 
@@ -135,7 +164,7 @@ export default function Playground() {
     try {
       const created = await createExercise({
         formatId: format.id,
-        targetSkillId: format.targetSkillId,
+        ...(format.targetSkillId ? { targetSkillId: format.targetSkillId } : {}),
         seed: nextSeed,
         index: nextIndex,
         contentRevision: knownCatalog.contentRevision,
@@ -227,7 +256,6 @@ export default function Playground() {
     return <Group justify="center" mih={300}><Loader aria-label="Starting learning engine" /></Group>;
   }
   const { id: activeFormatId, format } = activeSelection(catalog, exercise, formatId);
-  const skill = catalog?.skills.find((candidate) => candidate.id === format?.targetSkillId);
   const answerReady = exercise?.formatId === "E003" ? order.length === exercise.prompt.blocks.length : text.trim().length > 0;
 
   return (
@@ -253,13 +281,7 @@ export default function Playground() {
       )}
       <Paper withBorder shadow="xs" className={classes.exerciseCard}>
         <Stack gap="lg">
-          <Group justify="space-between" align="start">
-            <Box>
-              <Text fw={650}>{format?.title ?? "Exercise"}</Text>
-              {skill && <Text size="sm" c="dimmed">Target: {skill.title}</Text>}
-            </Box>
-            <Badge color="astrid" variant="light">{exercise?.targetSkillId}</Badge>
-          </Group>
+          <ExerciseIdentity catalog={catalog} exercise={exercise} format={format} />
           <Divider />
           {exercise && (
             <>

@@ -157,11 +157,11 @@ export interface components {
             mode: "development";
             inspectorEnabled: boolean;
             /** @enum {string} */
-            contentRevision: "pilot-2";
+            contentRevision: "pilot-3";
             /** @enum {string} */
-            generatorRevision: "generator-2";
+            generatorRevision: "generator-3";
             /** @enum {string} */
-            evaluationRevision: "evaluation-2";
+            evaluationRevision: "evaluation-3";
         };
         Catalog: {
             contentRevision: string;
@@ -181,11 +181,18 @@ export interface components {
         Format: {
             id: string;
             title: string;
-            targetSkillId: string;
+            targetSkillId?: string | null;
+            lexicalTask?: components["schemas"]["LexicalTask"];
+        };
+        LexicalTask: {
+            /** @enum {string} */
+            facet: "meaning" | "singular-headword";
+            /** @enum {string} */
+            direction: "da-en" | "en-da";
         };
         ExerciseRequest: {
             formatId: string;
-            targetSkillId: string;
+            targetSkillId?: string | null;
             seed: number;
             index: number;
             contentRevision: string;
@@ -195,7 +202,8 @@ export interface components {
             /** Format: uuid */
             id: string;
             formatId: string;
-            targetSkillId: string;
+            targetSkillId?: string | null;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
             supportSkillIds: string[];
             contentRevision: string;
             generatorRevision: string;
@@ -204,6 +212,14 @@ export interface components {
             prompt: components["schemas"]["Prompt"];
             introduction: components["schemas"]["Introduction"][];
             hint: string;
+        };
+        LexicalTarget: {
+            entryId: string;
+            senseId: string;
+            /** @enum {string} */
+            facet: "meaning" | "singular-headword";
+            /** @enum {string} */
+            direction: "da-en" | "en-da";
         };
         Prompt: {
             /** @description Sentence content before the answer slot. */
@@ -218,6 +234,12 @@ export interface components {
             inputLabel?: string | null;
             /** @description Corrupted word to replace; this is context, not the answer. */
             replacementWord?: string | null;
+            /** @description Vocabulary cue shown separately from sentence fragments. */
+            cue?: string | null;
+            /** @enum {string|null} */
+            cueLanguage?: "da" | "en" | null;
+            /** @enum {string|null} */
+            answerLanguage?: "da" | "en" | null;
         };
         Block: {
             id: string;
@@ -255,6 +277,10 @@ export interface components {
             targetSatisfaction: "met" | "not-met" | "unevaluable";
             /** @enum {string} */
             linguisticStatus: "acceptable" | "known-issue" | "unknown";
+            /** @enum {string|null} */
+            linguisticScope?: "english-choice" | "danish-headword" | null;
+            /** @enum {string|null} */
+            responseConstraintStatus?: "met" | "not-met" | null;
             issues: components["schemas"]["Issue"][];
             feedback: string;
             completedSentence: string;
@@ -272,11 +298,19 @@ export interface components {
             exercise: components["schemas"]["Exercise"];
             seed: number;
             index: number;
-            canonicalSentenceId: string;
-            constructionId: string;
+            canonicalSentenceId?: string | null;
+            constructionId?: string | null;
             lexicalIds: string[];
             clauseRoles: string[];
-            canonicalSentence: string;
+            canonicalSentence?: string | null;
+            lexicalSource?: components["schemas"]["LexicalSource"];
+        };
+        LexicalSource: {
+            entryId: string;
+            senseId: string;
+            headword: string;
+            gloss: string;
+            article: string;
         };
         Problem: {
             type: string;

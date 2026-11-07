@@ -62,7 +62,7 @@ export const startDevelopmentSession = () =>
 export const loadCatalog = () => readJson<Catalog>("/api/v1/catalog");
 
 export function createExercise(request: {
-  formatId: string; targetSkillId: string; seed: number; index: number;
+  formatId: string; targetSkillId?: string | null; seed: number; index: number;
   contentRevision: string; generatorRevision: string;
 }) {
   return readJson<Exercise>("/api/v1/exercises", jsonInit("POST", request));
@@ -76,7 +76,7 @@ export async function bootstrapPlayground(seed: number, index: number) {
   if (!format) throw new Error("The engine catalog has no exercise formats.");
   const exercise = await createExercise({
     formatId: format.id,
-    targetSkillId: format.targetSkillId,
+    ...(format.targetSkillId ? { targetSkillId: format.targetSkillId } : {}),
     seed,
     index,
     contentRevision: catalog.contentRevision,

@@ -42,6 +42,64 @@ function renderPrompt(formatId: string, onText = vi.fn(), onOrder = vi.fn()) {
 }
 
 describe("ExercisePrompt", () => {
+  it("renders a Danish vocabulary cue with English meaning choices and no sentence shell", async () => {
+    const onText = vi.fn();
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E007", {
+              before: "", after: "", punctuation: "", cue: "avis", cueLanguage: "da", answerLanguage: "en",
+              choices: ["book", "newspaper", "letter (written message)"],
+            }),
+            targetSkillId: null,
+            lexicalTarget: { entryId: "L015", senseId: "L015-S01", facet: "meaning", direction: "da-en" },
+          }}
+          text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("avis")).toHaveAttribute("lang", "da");
+    const choices = screen.getByRole("group", { name: "Answer choices" });
+    expect(choices).not.toHaveAttribute("lang", "da");
+    for (const choice of ["book", "newspaper", "letter (written message)"]) {
+      expect(screen.getByText(choice)).toHaveAttribute("lang", "en");
+    }
+    expect(screen.queryByLabelText("Danish sentence with answer choices")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "newspaper" }));
+    expect(onText).toHaveBeenCalledWith("newspaper");
+  });
+
+  it("renders an English vocabulary cue with the Danish headword input and character helper", async () => {
+    const onText = vi.fn();
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E008", {
+              before: "", after: "", punctuation: "", cue: "book", cueLanguage: "en", answerLanguage: "da",
+              choices: [], inputLabel: "Danish singular headword",
+            }),
+            targetSkillId: null,
+            lexicalTarget: {
+              entryId: "L014", senseId: "L014-S01", facet: "singular-headword", direction: "en-da",
+            },
+          }}
+          text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("book")).toHaveAttribute("lang", "en");
+    const input = screen.getByLabelText("Danish singular headword");
+    expect(input).toHaveAttribute("lang", "da");
+    await userEvent.type(input, "bog");
+    expect(onText).toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Insert ø" })).toBeEnabled();
+    expect(screen.queryByText("avis")).not.toBeInTheDocument();
+  });
+
   it("offers closely related form choices as buttons", async () => {
     const onText = vi.fn();
     renderPrompt("E001", onText);

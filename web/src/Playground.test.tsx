@@ -286,6 +286,65 @@ async function verifyRepairUncertainRecovery() {
   });
 }
 
+async function verifyVocabularyCatalog() {
+  const vocabularyCatalog = {
+    ...catalog,
+    contentRevision: "pilot-3",
+    generatorRevision: "generator-3",
+    evaluationRevision: "evaluation-3",
+    formats: [
+      ...catalog.formats,
+      { id: "E007", title: "Recognize the meaning", targetSkillId: null,
+        lexicalTask: { facet: "meaning", direction: "da-en" } },
+      { id: "E008", title: "Recall the Danish headword", targetSkillId: null,
+        lexicalTask: { facet: "singular-headword", direction: "en-da" } },
+    ],
+  };
+  const vocabularyExercise = {
+    ...exercise,
+    id: "9127eaf0-32dd-437c-8ce2-6e1a81f2b27f",
+    formatId: "E007",
+    targetSkillId: null,
+    contentRevision: "pilot-3",
+    generatorRevision: "generator-3",
+    instruction: "Choose the English meaning.",
+    context: "Choose the meaning of the Danish headword.",
+    prompt: {
+      before: "", after: "", choices: ["book", "newspaper", "letter (written message)"], blocks: [], punctuation: "",
+      cue: "avis", cueLanguage: "da", answerLanguage: "en",
+    },
+    lexicalTarget: { entryId: "L015", senseId: "L015-S01", facet: "meaning", direction: "da-en" },
+    introduction: [],
+  };
+  const exerciseBodies: Array<Record<string, unknown>> = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json({
+      ...session,
+      contentRevision: "pilot-3", generatorRevision: "generator-3", evaluationRevision: "evaluation-3",
+    });
+    if (path.endsWith("catalog")) return json(vocabularyCatalog);
+    const body = JSON.parse(String(init?.body));
+    exerciseBodies.push(body);
+    return json(exerciseBodies.length === 1 ? exercise : vocabularyExercise);
+  }));
+
+  await renderPlayground();
+  await screen.findByRole("button", { name: "læser" });
+  await userEvent.click(screen.getByRole("button", { name: "Generation controls" }));
+  await userEvent.click(screen.getByRole("combobox", { name: "Exercise type" }));
+  expect(screen.getAllByRole("option")).toHaveLength(8);
+  await userEvent.click(screen.getByRole("option", { name: "Recognize the meaning" }));
+
+  expect(await screen.findByText("Target: Meaning · Danish → English")).toBeVisible();
+  expect(screen.getByText("avis")).toHaveAttribute("lang", "da");
+  expect(screen.queryByText("G004")).not.toBeInTheDocument();
+  expect(screen.queryByText(/L015(?:-S01)?/)).not.toBeInTheDocument();
+  expect(exerciseBodies[1]).toEqual({
+    formatId: "E007", seed: 20261107, index: 0,
+    contentRevision: "pilot-3", generatorRevision: "generator-3",
+  });
+}
+
 describe("Playground", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -324,6 +383,8 @@ describe("Playground", () => {
   });
 
   it("renders all six current exercise formats from the catalog", verifyCurrentCatalogFormats);
+
+  it("renders the eight-format catalog and omits a grammar selector for vocabulary generation", verifyVocabularyCatalog);
 
   it("submits repair text unsupported, then keeps lesson support sticky for a retry", verifyRepairSupportTracking);
 
