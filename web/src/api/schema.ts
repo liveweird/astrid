@@ -100,6 +100,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/practice-context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getPracticeContext"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/practice-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createPracticeSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/practice-sessions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getPracticeSession"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/practice-sessions/{id}/support": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["openPracticeSupport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/practice-sessions/{id}/advance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["advancePracticeSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dev/exercises/{id}": {
         parameters: {
             query?: never;
@@ -294,6 +374,126 @@ export interface components {
             code: string;
             message: string;
         };
+        PracticeContext: {
+            /** Format: uuid */
+            ownerSessionId: string;
+            /** Format: int64 */
+            sessionExpiresAt: number;
+            /** @enum {string} */
+            focusId: "reading-basics";
+            title: string;
+            /** @enum {string} */
+            planRevision: "practice-1";
+            /** @enum {integer} */
+            itemCount: 8;
+        };
+        PracticeSessionRequest: {
+            /** Format: uuid */
+            practiceSessionId: string;
+            /** @enum {string} */
+            focusId: "reading-basics";
+            /** @enum {string} */
+            planRevision: "practice-1";
+            seed: number;
+        };
+        PracticeSupportRequest: {
+            /** @enum {string} */
+            kind: "introduction" | "lesson" | "hint";
+            position?: number;
+        };
+        PracticeAdvanceRequest: {
+            position: number;
+        };
+        PracticeSession: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            ownerSessionId: string;
+            focusId: string;
+            title: string;
+            planRevision: string;
+            seed: number;
+            contentRevision: string;
+            generatorRevision: string;
+            evaluationRevision: string;
+            /** Format: int64 */
+            sessionExpiresAt: number;
+            /** @enum {string} */
+            state: "active" | "completed";
+            cursor: number;
+            /** @enum {integer} */
+            itemCount: 8;
+            prerequisiteSkillIds: string[];
+            introduction: components["schemas"]["Introduction"][];
+            introductionOpened: boolean;
+            items: components["schemas"]["PracticeItem"][];
+            currentExercise?: components["schemas"]["Exercise"];
+            summary: components["schemas"]["PracticeSummary"];
+        };
+        PracticeItem: {
+            position: number;
+            /** Format: uuid */
+            exerciseId: string;
+            formatId: string;
+            targetSkillId?: string | null;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lessonOpened: boolean;
+            hintOpened: boolean;
+            attemptIds: string[];
+            attemptCount: number;
+            firstAttempt?: components["schemas"]["Attempt"];
+            lastAttempt?: components["schemas"]["Attempt"];
+            firstAnswer?: components["schemas"]["TextAnswer"] | components["schemas"]["OrderAnswer"];
+            lastAnswer?: components["schemas"]["TextAnswer"] | components["schemas"]["OrderAnswer"];
+            firstAttemptContext?: components["schemas"]["PracticeAttemptContext"];
+            lastAttemptContext?: components["schemas"]["PracticeAttemptContext"];
+        };
+        PracticeAttemptContext: {
+            introductionOpened: boolean;
+            lessonOpened: boolean;
+            hintOpened: boolean;
+            priorExposure: components["schemas"]["PracticePriorExposure"][];
+        };
+        PracticePriorExposure: {
+            position: number;
+            /** @enum {string} */
+            source: "prompt" | "lesson" | "hint" | "feedback";
+            keys: string[];
+        };
+        PracticeSummary: {
+            plannedItems: number;
+            attemptedItems: number;
+            completedItems: number;
+            attemptCount: number;
+            retryCount: number;
+            introductionOpened: boolean;
+            rows: components["schemas"]["PracticeSummaryRow"][];
+        };
+        PracticeSummaryRow: {
+            label: string;
+            targetSkillId?: string | null;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            plannedItems: number;
+            attemptedItems: number;
+            advancedItems: number;
+            attemptCount: number;
+            retryCount: number;
+            firstOutcomes: components["schemas"]["PracticeOutcomeCounts"];
+            latestOutcomes: components["schemas"]["PracticeOutcomeCounts"];
+            firstWithSupport: number;
+            firstWithPriorExposure: number;
+            lessonOpenedItems: number;
+            hintOpenedItems: number;
+        };
+        PracticeOutcomeCounts: {
+            fullyMet: number;
+            targetMet: number;
+            targetNotMet: number;
+            unevaluable: number;
+            languageUnknown: number;
+            languageKnownIssue: number;
+            responseConstraintNotMet: number;
+        };
         Inspector: {
             exercise: components["schemas"]["Exercise"];
             seed: number;
@@ -337,6 +537,7 @@ export interface components {
     };
     parameters: {
         Client: "playground";
+        PracticeOwner: string;
         Id: string;
     };
     requestBodies: never;
@@ -517,6 +718,169 @@ export interface operations {
             401: components["responses"]["Problem"];
             403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
+        };
+    };
+    getPracticeContext: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Practice context */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeContext"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+        };
+    };
+    createPracticeSession: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Astrid-Client": components["parameters"]["Client"];
+                "X-Astrid-Practice-Owner": components["parameters"]["PracticeOwner"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PracticeSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description Resumed practice session */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            /** @description Created practice session */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            413: components["responses"]["Problem"];
+            415: components["responses"]["Problem"];
+        };
+    };
+    getPracticeSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Practice session */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+        };
+    };
+    openPracticeSupport: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Astrid-Client": components["parameters"]["Client"];
+                "X-Astrid-Practice-Owner": components["parameters"]["PracticeOwner"];
+            };
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PracticeSupportRequest"];
+            };
+        };
+        responses: {
+            /** @description Practice session */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            413: components["responses"]["Problem"];
+            415: components["responses"]["Problem"];
+        };
+    };
+    advancePracticeSession: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Astrid-Client": components["parameters"]["Client"];
+                "X-Astrid-Practice-Owner": components["parameters"]["PracticeOwner"];
+            };
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PracticeAdvanceRequest"];
+            };
+        };
+        responses: {
+            /** @description Practice session */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            413: components["responses"]["Problem"];
+            415: components["responses"]["Problem"];
         };
     };
     inspectExercise: {

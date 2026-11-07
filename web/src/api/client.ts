@@ -1,4 +1,7 @@
-import type { Attempt, AttemptRequest, Catalog, DevelopmentSession, Exercise, InspectorDetails } from "./models";
+import type {
+  Attempt, AttemptRequest, Catalog, DevelopmentSession, Exercise, InspectorDetails,
+  PracticeContext, PracticeCreationRequest, PracticeSession,
+} from "./models";
 
 const CLIENT_HEADER = { "X-Astrid-Client": "playground" };
 const REQUEST_DEADLINE_MS = 15_000;
@@ -48,12 +51,16 @@ async function readJson<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
-function jsonInit(method: "POST", body: unknown, extraHeaders?: HeadersInit): RequestInit {
+export function serializedJsonInit(serializedBody: string, extraHeaders?: HeadersInit): RequestInit {
   return {
-    method,
+    method: "POST",
     headers: { "Content-Type": "application/json", ...CLIENT_HEADER, ...extraHeaders },
-    body: JSON.stringify(body),
+    body: serializedBody,
   };
+}
+
+function jsonInit(_method: "POST", body: unknown, extraHeaders?: HeadersInit): RequestInit {
+  return serializedJsonInit(JSON.stringify(body), extraHeaders);
 }
 
 export const startDevelopmentSession = () =>
@@ -94,6 +101,49 @@ export async function submitAttempt(request: AttemptRequest) {
     if (error instanceof ApiError && error.status >= 500) throw new UncertainResultError(error);
     throw error;
   }
+}
+
+export async function submitSerializedAttempt(serializedBody: string) {
+  try {
+    return await readJson<Attempt>("/api/v1/attempts", serializedJsonInit(serializedBody));
+  } catch (error) {
+    if (error instanceof ApiError && error.status >= 500) throw new UncertainResultError(error);
+    throw error;
+  }
+}
+
+export const loadPracticeContext = () => readJson<PracticeContext>("/api/v1/practice-context");
+
+export const loadPracticeSession = (practiceSessionId: string) =>
+  readJson<PracticeSession>(`/api/v1/practice-sessions/${encodeURIComponent(practiceSessionId)}`);
+
+export const createPracticeSession = (
+  ownerSessionId: string,
+  serializedBody: string,
+) => readJson<PracticeSession>("/api/v1/practice-sessions", serializedJsonInit(serializedBody, {
+  "X-Astrid-Practice-Owner": ownerSessionId,
+}));
+
+export const updatePracticeSupport = (
+  practiceSessionId: string,
+  ownerSessionId: string,
+  serializedBody: string,
+) => readJson<PracticeSession>(
+  `/api/v1/practice-sessions/${encodeURIComponent(practiceSessionId)}/support`,
+  serializedJsonInit(serializedBody, { "X-Astrid-Practice-Owner": ownerSessionId }),
+);
+
+export const advancePracticeSession = (
+  practiceSessionId: string,
+  ownerSessionId: string,
+  serializedBody: string,
+) => readJson<PracticeSession>(
+  `/api/v1/practice-sessions/${encodeURIComponent(practiceSessionId)}/advance`,
+  serializedJsonInit(serializedBody, { "X-Astrid-Practice-Owner": ownerSessionId }),
+);
+
+export function practiceCreationBody(request: PracticeCreationRequest) {
+  return JSON.stringify(request);
 }
 
 export const loadAttempt = (attemptId: string) =>

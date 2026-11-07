@@ -15,3 +15,12 @@ export type AttemptRequest = Omit<components["schemas"]["AttemptRequest"], "answ
 export type Attempt = components["schemas"]["Attempt"];
 
 export type InspectorDetails = components["schemas"]["Inspector"];
+
+export type PracticeContext = components["schemas"]["PracticeContext"];
+export type PracticeAttemptContext = components["schemas"]["PracticeAttemptContext"];
+export type PracticeItem = components["schemas"]["PracticeItem"];
+export type PracticeOutcomeCounts = components["schemas"]["PracticeOutcomeCounts"];
+export type PracticeSummaryRow = components["schemas"]["PracticeSummaryRow"];
+export type PracticeSummary = components["schemas"]["PracticeSummary"];
+export type PracticeSession = components["schemas"]["PracticeSession"];
+export type PracticeCreationRequest = components["schemas"]["PracticeSessionRequest"];
