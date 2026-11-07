@@ -51,6 +51,11 @@ function bindUrl(practiceSessionId: string) {
   window.history.replaceState(null, "", url);
 }
 
+function abandonCurrentPractice(run: PracticeRunRecovery | null) {
+  const previous = run ?? currentRecovery();
+  if (previous) abandonRun(previous.practiceSessionId);
+}
+
 function outboxEntry(run: PracticeRunRecovery, kind: PracticeOutboxEntry["kind"], identity: string, body: unknown) {
   return {
     ownerSessionId: run.ownerSessionId,
@@ -73,6 +78,7 @@ async function createAutomaticPractice() {
   saveRunRecovery(run);
   const creation = outboxEntry(run, "creation", request.practiceSessionId, request);
   saveOutboxEntry(creation);
+  bindUrl(run.practiceSessionId);
   const session = await createPracticeSession(run.ownerSessionId, creation.body);
   removeOutboxEntry(creation);
   return { run, session };
@@ -399,6 +405,25 @@ function reconciledFocus(previousCursor: number | undefined, next: PracticeSessi
   return next.cursor !== previousCursor ? "item" : requested;
 }
 
+function usePracticeFocusQueue(error: string) {
+  const itemHeadingRef = useRef<HTMLHeadingElement>(null);
+  const feedbackRef = useRef<HTMLDivElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+  const summaryHeadingRef = useRef<HTMLHeadingElement>(null);
+  const [request, setRequest] = useState<{ target: PracticeFocusTarget; sequence: number }>({
+    target: "item", sequence: 0,
+  });
+  const requestFocus = (target: PracticeFocusTarget) => {
+    setRequest((current) => ({ target, sequence: current.sequence + 1 }));
+  };
+  useEffect(() => {
+    if (!error && request.sequence === 0) return;
+    const refs = { item: itemHeadingRef, feedback: feedbackRef, summary: summaryHeadingRef, error: errorRef };
+    refs[error ? "error" : request.target].current?.focus();
+  }, [error, request]);
+  return { errorRef, feedbackRef, itemHeadingRef, requestFocus, summaryHeadingRef };
+}
+
 export default function Practice() {
   const [run, setRun] = useState<PracticeRunRecovery | null>(null);
   const [session, setSession] = useState<PracticeSession | null>(null);
@@ -410,14 +435,8 @@ export default function Practice() {
   const [pendingEntry, setPendingEntry] = useState<PracticeOutboxEntry | null>(null);
   const [error, setError] = useState("");
   const [recoveryUnavailable, setRecoveryUnavailable] = useState(false);
-  const itemHeadingRef = useRef<HTMLHeadingElement>(null);
-  const feedbackRef = useRef<HTMLDivElement>(null);
-  const errorRef = useRef<HTMLDivElement>(null);
-  const summaryHeadingRef = useRef<HTMLHeadingElement>(null);
+  const { errorRef, feedbackRef, itemHeadingRef, requestFocus, summaryHeadingRef } = usePracticeFocusQueue(error);
   const generationRef = useRef(0);
-  useEffect(() => {
-    if (error) window.setTimeout(() => errorRef.current?.focus(), 0);
-  }, [error]);
 
   const applyState = (next: PracticeSession) => {
     setSession(next);
@@ -534,13 +553,12 @@ export default function Practice() {
       setPendingEntry(result.pending);
       if (!result.pending) {
         setUncertain(null);
-        const focusRefs = { item: itemHeadingRef, feedback: feedbackRef, summary: summaryHeadingRef, error: errorRef };
-        window.setTimeout(() => focusRefs[reconciledFocus(session?.cursor, result.session, focus)].current?.focus(), 0);
+        requestFocus(reconciledFocus(session?.cursor, result.session, focus));
       }
     } catch (caught) {
       if (generation !== generationRef.current) return;
       handleOperationFailure(caught, entry, run, operationHandlers);
-      window.setTimeout(() => errorRef.current?.focus(), 0);
+      requestFocus("error");
     } finally {
       if (generation === generationRef.current) setBusy(false);
     }
@@ -550,7 +568,7 @@ export default function Practice() {
     generationRef.current += 1;
     setBusy(true);
     setError("");
-    if (run) abandonRun(run.practiceSessionId);
+    abandonCurrentPractice(run);
     setRun(null);
     setSession(null);
     setAttempt(null);
@@ -655,7 +673,7 @@ export default function Practice() {
               <Group justify="space-between" className={classes.exerciseActions}>
                 <Button variant="subtle" color="gray" disabled={blocked || item.hintOpened || Boolean(attempt)} onClick={() => support("hint", item.position)}>Show hint</Button>
                 <Group className={classes.exercisePrimaryActions}>
-                  {attempt && <Button variant="default" disabled={blocked} onClick={() => { setAttempt(null); setText(""); setOrder([]); itemHeadingRef.current?.focus(); }}>Try again</Button>}
+                  {attempt && <Button variant="default" disabled={blocked} onClick={() => { setAttempt(null); setText(""); setOrder([]); requestFocus("item"); }}>Try again</Button>}
                   {attempt ? <Button loading={busy} disabled={blocked} onClick={advance}>Continue</Button> : <Button loading={busy} disabled={!answerReady || blocked} onClick={submit}>Check answer</Button>}
                 </Group>
               </Group>

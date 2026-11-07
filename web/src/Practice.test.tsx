@@ -654,3 +654,31 @@ it("focuses unavailable recovery instead of replaying a foreign-owner queued ope
   await waitFor(() => expect(screen.getByRole("alert")).toHaveFocus());
   expect(screen.getByRole("alert")).toHaveTextContent("will not be replayed under a new owner");
 });
+
+
+it("binds an uncertain creation before sending and abandons its original recovery on explicit restart", async () => {
+  let creations = 0;
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("practice-sessions")) {
+      const body = JSON.parse(String(init?.body)) as { practiceSessionId: string };
+      expect(new URLSearchParams(window.location.search).get("session")).toBe(body.practiceSessionId);
+      creations += 1;
+      if (creations === 1) throw new TypeError("creation response lost");
+      return json({ ...state(), id: body.practiceSessionId }, 201);
+    }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  render(<MantineProvider env="test"><Practice /></MantineProvider>);
+  await screen.findByRole("alert");
+  const original = new URLSearchParams(window.location.search).get("session");
+  expect(original).not.toBeNull();
+  expect(listOutbox(original!)).toHaveLength(1);
+  await user.click(screen.getByRole("button", { name: "Start new practice" }));
+  await screen.findByRole("button", { name: "Check answer" });
+  expect(new URLSearchParams(window.location.search).get("session")).not.toBe(original);
+  expect(localStorage.getItem(`astrid.practice.v1.run.${original}`)).toBeNull();
+  expect(listOutbox(original!)).toEqual([]);
+});
