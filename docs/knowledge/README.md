@@ -63,3 +63,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Vocabulary assessment contract](vocabulary-assessment.md): authorized recognition/headword-recall targets, feedback facets, revision and migration safeguards, and acceptance evidence.
 
 - [Vocabulary delivery](vocabulary-delivery.md): observed compatibility, migration, inspector, grading and browser verification for BL-036.
+
+- [Short practice sessions](practice-sessions.md): authorized BL-009 plan, possible-exposure evidence, owner-bound recovery and transaction acceptance.
