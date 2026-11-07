@@ -18,7 +18,7 @@ Optional introduction, lessons and hints are recorded before release. Continue a
 | Compatibility | All 335 and 952 retained engine cases and 978 published fingerprints remain unchanged; all three evaluator pairs submit and replay exactly |
 | Other gates | Knowledge/toolchain/startup guards, 11 script tests, strict dependency verification, Compose/Kubernetes rendering, dependency audit policy and pinned image scan pass |
 
-All five jobs in the [source CI run](https://github.com/liveweird/astrid/actions/runs/42373281826) passed at `d8262cc`. The packaged Linux job passed all 94 Chromium/WebKit journeys in 6.2 minutes without retries or flaky results. No implementation changed after that verified source commit; this documentation-only completion record accompanies the authorized master delivery.
+All five jobs in the [source CI run](https://github.com/liveweird/astrid/actions/runs/42373281826) passed at `d8262cc`. The packaged Linux job passed all 94 Chromium/WebKit journeys in 6.2 minutes without retries or flaky results. The subsequent [master CI run](https://github.com/liveweird/astrid/actions/runs/42374564854) also passed all five jobs. No implementation changed after that verified source commit; this documentation-only completion record accompanies the authorized master delivery.
 
 ## Review and recovery corrections
 

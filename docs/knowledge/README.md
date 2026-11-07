@@ -67,3 +67,7 @@ The broad language map and the small validation subset serve different purposes.
 - [Short practice sessions](practice-sessions.md): authorized BL-009 plan, possible-exposure evidence, owner-bound recovery and transaction acceptance.
 
 - [Guided practice delivery](practice-delivery.md): local verification, independent review corrections and rollout evidence for BL-009.
+
+- [Practice variation inventory](practice-variation-audit.md): independently checked semantic/presentation counts, finite bounds and reproducible frozen method.
+
+- [Practice continuity follow-up](practice-continuity.md): readable support, real shared-outbox scenarios and actual process-restart evidence.

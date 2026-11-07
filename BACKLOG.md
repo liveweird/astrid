@@ -6,7 +6,7 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [next]
 
-- **BL-037 — Verify practice continuity and variation.** Bounded continuation within the existing engine scope while the user is away: reproduce support-disclosure focus, test two live tabs sharing pending attempts, verify owned app/database restart recovery, and audit meaningful versus cosmetic plan variation. Fix confirmed defects, keep content/revision boundaries and focused Git delivery, and record actual evidence. This does not activate broader lessons, accounts or adaptive progression.
+- **BL-037 — Verify practice continuity and variation.** Bounded continuation within the existing engine scope while the user is away: reproduce support-disclosure focus, test two live tabs sharing pending attempts, verify owned app/database restart recovery, and audit meaningful versus cosmetic plan variation. Fix confirmed defects, keep content/revision boundaries and focused Git delivery, and record actual evidence. Local implementation/verification are complete; final CI and preview promotion remain. This does not activate broader lessons, accounts or adaptive progression.
 
 - **BL-035 — Review the expanded engine playground.** Proposed next step: try all eight entries under “Generation controls,” including vocabulary meaning recognition and headword recall; assess instruction/feedback clarity, typed Danish input, guided repair, response constraints and repetition, then choose the next bounded engine/content iteration. Record reproducible coordinates for corrections. The [review guide](docs/knowledge/pilot-review-guide.md) covers all eight entries; specialist validation remains BL-022.
 
