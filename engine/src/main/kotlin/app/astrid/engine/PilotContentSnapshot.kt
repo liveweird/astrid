@@ -53,7 +53,13 @@ internal object PilotContentValidator {
         identityIssues("sentence", snapshot.sentences.map { it.id })
         identityIssues("review", snapshot.lexicalReview.map { it.id })
         requireIds("skill", snapshot.skills.map { it.id }, EXPECTED_SKILL_IDS)
-        requireIds("format", snapshot.formats.map { it.id }, setOf("E001", "E002", "E003"))
+        val expectedFormats =
+            if (snapshot.contentRevision == PilotContent.CONTENT_REVISION) {
+                setOf("E001", "E002", "E003")
+            } else {
+                setOf("E001", "E002", "E003", "E004", "E005", "E006")
+            }
+        requireIds("format", snapshot.formats.map { it.id }, expectedFormats)
         val lexicalIds =
             snapshot.humanPronouns.map { it.id } + snapshot.identifyingPronoun.id +
                 snapshot.verbs.map { it.lexicalId } + snapshot.nouns.map { it.id } +
@@ -75,7 +81,15 @@ internal object PilotContentValidator {
         snapshot.formats.forEach { format ->
             if (format.targetSkillId !in skillIds) add(issue(format.id, "unknown target ${format.targetSkillId}"))
         }
-        val expectedTargets = mapOf("E001" to "G004", "E002" to "G006", "E003" to "G005")
+        val expectedTargets =
+            mapOf(
+                "E001" to "G004",
+                "E002" to "G006",
+                "E003" to "G005",
+                "E004" to "G004",
+                "E005" to "G004",
+                "E006" to "G006",
+            )
         snapshot.formats.forEach { format ->
             expectedTargets[format.id]?.let { expected ->
                 if (format.targetSkillId != expected) add(issue(format.id, "expected target $expected"))

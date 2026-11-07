@@ -18,6 +18,7 @@ internal object PilotEvaluator {
     ): Evaluation {
         val text = answer.normalizedTextOrNull() ?: return typeMismatch(answer)
         val completed = completeTextExercise(exercise, text)
+        val evaluatesNamedVerb = exercise.formatId == "E004" || exercise.formatId == "E005"
         return when (text) {
             key.present -> result(
                 TargetStatus.MET,
@@ -37,15 +38,49 @@ internal object PilotEvaluator {
                 answer,
                 text,
             )
-            else -> result(
-                TargetStatus.NOT_MET,
-                LinguisticStatus.UNKNOWN,
-                listOf(issue("UNRECOGNIZED_FORM", "This form is not one of the introduced forms for the named verb.")),
-                "That does not match the introduced finite present form. Astrid does not classify it as invalid Danish generally.",
-                completed,
-                answer,
-                text,
-            )
+            else ->
+                if (evaluatesNamedVerb && isLicensedFiniteSubstitution(exercise, text)) {
+                    result(
+                        TargetStatus.NOT_MET,
+                        LinguisticStatus.ACCEPTABLE,
+                        listOf(issue("NAMED_VERB_REQUIRED", "The replacement makes a licensed statement but uses a different verb.")),
+                        "This is an acceptable licensed statement, but the task asks for the named verb.",
+                        completed,
+                        answer,
+                        text,
+                    )
+                } else {
+                    unrecognizedPresentForm(completed, answer, text)
+                }
+        }
+    }
+
+    private fun unrecognizedPresentForm(
+        completed: String,
+        answer: Answer,
+        text: String,
+    ): Evaluation =
+        result(
+            TargetStatus.NOT_MET,
+            LinguisticStatus.UNKNOWN,
+            listOf(issue("UNRECOGNIZED_FORM", "This form is not one of the introduced forms for the named verb.")),
+            "That does not match the introduced finite present form. Astrid does not classify it as invalid Danish generally.",
+            completed,
+            answer,
+            text,
+        )
+
+    private fun isLicensedFiniteSubstitution(
+        exercise: GeneratedExercise,
+        replacement: String,
+    ): Boolean {
+        val original = exercise.source.sentence
+        return PilotContent.sentences.any { candidate ->
+            candidate.id != original.id &&
+                candidate.constructionId == original.constructionId &&
+                candidate.subject == original.subject &&
+                candidate.complement == original.complement &&
+                candidate.verb.present == replacement
         }
     }
 

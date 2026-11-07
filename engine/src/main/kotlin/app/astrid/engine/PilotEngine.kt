@@ -3,19 +3,31 @@ package app.astrid.engine
 class PilotEngine {
     fun catalog(): Catalog =
         Catalog(
-            skills = PilotContent.skills,
-            formats = PilotContent.formats,
-            sentenceCount = PilotContent.sentences.size,
-            contentRevision = PilotContent.CONTENT_REVISION,
-            generatorRevision = PilotContent.GENERATOR_REVISION,
+            skills = PilotContent.currentSnapshot.skills,
+            formats = PilotContent.currentSnapshot.formats,
+            sentenceCount = PilotContent.currentSnapshot.sentences.size,
+            contentRevision = PilotContent.CURRENT_CONTENT_REVISION,
+            generatorRevision = PilotContent.CURRENT_GENERATOR_REVISION,
         )
+
+    fun supportedRevisionPairs(): List<RevisionPair> = SUPPORTED_REVISION_PAIRS
+
+    fun evaluationRevision(
+        contentRevision: String,
+        generatorRevision: String,
+    ): String? =
+        when (RevisionPair(contentRevision, generatorRevision)) {
+            LEGACY_REVISION_PAIR -> PilotContent.LEGACY_EVALUATION_REVISION
+            CURRENT_REVISION_PAIR -> PilotContent.CURRENT_EVALUATION_REVISION
+            else -> null
+        }
 
     fun generate(request: GenerationRequest): GeneratedExercise {
         validate(request)
         val candidates =
             when (request.formatId) {
-                "E001", "E003" -> PilotContent.sentences
-                "E002" -> PilotContent.sentences.filter { it.complement != null }
+                "E001", "E003", "E004", "E005" -> PilotContent.sentences
+                "E002", "E006" -> PilotContent.sentences.filter { it.complement != null }
                 else -> error("Unreachable format ${request.formatId}")
             }
         val candidateIndex = permutedIndex(request.seed, request.index, candidates.size)
@@ -31,14 +43,23 @@ class PilotEngine {
     private fun validate(request: GenerationRequest) {
         require(request.seed >= 0) { "seed must be non-negative" }
         require(request.index in 0..MAX_INDEX) { "index must be between 0 and $MAX_INDEX" }
-        require(request.contentRevision == PilotContent.CONTENT_REVISION) {
-            "Unsupported content revision: ${request.contentRevision}"
+        val pair = RevisionPair(request.contentRevision, request.generatorRevision)
+        require(pair in SUPPORTED_REVISION_PAIRS) {
+            "Unsupported revision pair: ${request.contentRevision}/${request.generatorRevision}"
         }
-        require(request.generatorRevision == PilotContent.GENERATOR_REVISION) {
-            "Unsupported generator revision: ${request.generatorRevision}"
-        }
-        val expectedTarget = mapOf("E001" to "G004", "E002" to "G006", "E003" to "G005")[request.formatId]
+        val expectedTarget =
+            mapOf(
+                "E001" to "G004",
+                "E002" to "G006",
+                "E003" to "G005",
+                "E004" to "G004",
+                "E005" to "G004",
+                "E006" to "G006",
+            )[request.formatId]
         requireNotNull(expectedTarget) { "Unsupported format: ${request.formatId}" }
+        require(pair == CURRENT_REVISION_PAIR || request.formatId in LEGACY_FORMAT_IDS) {
+            "Format ${request.formatId} is unsupported by ${request.contentRevision}/${request.generatorRevision}"
+        }
         require(request.targetSkillId == expectedTarget) {
             "Format ${request.formatId} requires target $expectedTarget"
         }
@@ -55,12 +76,15 @@ class PilotEngine {
                 "E001" -> presentExercise(sentence, publicParts, request.seed, candidateIndex)
                 "E002" -> articleExercise(sentence, publicParts)
                 "E003" -> orderExercise(publicParts, request.seed, candidateIndex)
+                "E004" -> supplyPresentExercise(sentence, publicParts)
+                "E005" -> repairPresentExercise(sentence, publicParts)
+                "E006" -> repairArticleExercise(sentence, publicParts)
                 else -> error("Unreachable format ${request.formatId}")
             }
         val lexicalIds =
             sentence.subject.lexicalIds + sentence.verb.lexicalId + sentence.complement.orEmptyLexicalIds()
         return GeneratedExercise(
-            id = "${request.formatId}-${sentence.id}-${request.seed}-${request.index}",
+            id = exerciseId(request, sentence),
             formatId = request.formatId,
             targetSkillId = request.targetSkillId,
             supportSkillIds =
@@ -93,6 +117,16 @@ class PilotEngine {
                 ),
         )
     }
+
+    private fun exerciseId(
+        request: GenerationRequest,
+        sentence: Sentence,
+    ): String =
+        if (RevisionPair(request.contentRevision, request.generatorRevision) == LEGACY_REVISION_PAIR) {
+            "${request.formatId}-${sentence.id}-${request.seed}-${request.index}"
+        } else {
+            "${request.formatId}-${request.contentRevision}-${request.generatorRevision}-${sentence.id}-${request.seed}-${request.index}"
+        }
 
     private fun presentExercise(
         sentence: Sentence,
@@ -130,6 +164,65 @@ class PilotEngine {
                     after = " $noun.",
                 ),
             answerKey = AnswerKey.Article(article, noun),
+        )
+    }
+
+    private fun supplyPresentExercise(
+        sentence: Sentence,
+        parts: List<Constituent>,
+    ): ExerciseParts {
+        val verbIndex = parts.indexOfFirst { it.role == "FINITE_VERB" }
+        return ExerciseParts(
+            instruction = "Type the finite present form of ${sentence.verb.lemma} (‘to ${sentence.verb.gloss}’).",
+            prompt =
+                ExercisePrompt(
+                    before = displayFragment(parts.take(verbIndex)),
+                    after = displayFragment(parts.drop(verbIndex + 1), final = true),
+                    inputLabel = "Present form",
+                ),
+            answerKey = AnswerKey.PresentForm(sentence.verb.lemma, sentence.verb.present),
+        )
+    }
+
+    private fun repairPresentExercise(
+        sentence: Sentence,
+        parts: List<Constituent>,
+    ): ExerciseParts {
+        val verbIndex = parts.indexOfFirst { it.role == "FINITE_VERB" }
+        return ExerciseParts(
+            instruction =
+                "The present statement contains one verb-form error. Keep the verb ${sentence.verb.lemma} " +
+                    "(‘to ${sentence.verb.gloss}’) and type its replacement.",
+            prompt =
+                ExercisePrompt(
+                    before = displayFragment(parts.take(verbIndex)),
+                    after = displayFragment(parts.drop(verbIndex + 1), final = true),
+                    inputLabel = "Replacement verb",
+                    replacementWord = sentence.verb.lemma,
+                ),
+            answerKey = AnswerKey.PresentForm(sentence.verb.lemma, sentence.verb.present),
+        )
+    }
+
+    private fun repairArticleExercise(
+        sentence: Sentence,
+        parts: List<Constituent>,
+    ): ExerciseParts {
+        val complement = requireNotNull(sentence.complement)
+        val expectedArticle = complement.text.substringBefore(' ')
+        val noun = complement.text.substringAfter(' ')
+        val wrongArticle = if (expectedArticle == "en") "et" else "en"
+        return ExerciseParts(
+            instruction =
+                "The statement contains one indefinite-article error. Type the replacement unstressed article.",
+            prompt =
+                ExercisePrompt(
+                    before = displayFragment(parts.dropLast(1)),
+                    after = " $noun.",
+                    inputLabel = "Replacement article",
+                    replacementWord = wrongArticle,
+                ),
+            answerKey = AnswerKey.Article(expectedArticle, noun),
         )
     }
 
@@ -189,6 +282,7 @@ class PilotEngine {
     }
 
     private fun introductionFor(formatId: String, sentence: Sentence): List<IntroductionSection> =
+        if (formatId in NEW_FORMAT_IDS) newIntroductionFor(formatId, sentence) else
         buildList {
             val verb = sentence.verb
             add(
@@ -209,6 +303,48 @@ class PilotEngine {
                 )
             }
             add(targetIntroduction(formatId))
+        }
+
+    private fun newIntroductionFor(
+        formatId: String,
+        sentence: Sentence,
+    ): List<IntroductionSection> =
+        buildList {
+            add(
+                IntroductionSection(
+                    "Meet the verb",
+                    "${sentence.verb.lemma} means ‘to ${sentence.verb.gloss}’. " +
+                        "Its finite present form is ${sentence.verb.present}.",
+                ),
+            )
+            sentence.complement?.let { phrase ->
+                val noun = PilotContent.nouns.single { it.id == phrase.lexicalIds.last() }
+                add(
+                    IntroductionSection(
+                        "Learn the noun with its article",
+                        "${phrase.text} means ‘a${if (noun.gloss.first() in "aeiou") "n" else ""} ${noun.gloss}’.",
+                    ),
+                )
+            }
+            add(
+                when (formatId) {
+                "E004" ->
+                    IntroductionSection(
+                        "Supply a finite verb",
+                        "Use the named verb in the finite present. Danish present forms stay the same across subject pronouns.",
+                    )
+                "E005" ->
+                    IntroductionSection(
+                        "Repair one verb form",
+                        "Replace only the marked verb. Keep the named verb and make it finite present.",
+                    )
+                else ->
+                    IntroductionSection(
+                        "Repair one article",
+                        "Replace only the marked unstressed article. Recall whether the named noun is learned with en or et.",
+                    )
+                },
+            )
         }
 
     private fun targetIntroduction(formatId: String): IntroductionSection =
@@ -235,7 +371,10 @@ class PilotEngine {
         when (formatId) {
             "E001" -> "Look for the introduced form that can be the finite verb in a present statement."
             "E002" -> "Recall the noun together with its stored gender; do not infer the article from its English meaning."
-            else -> "Find the subject block first, then place the finite verb after it."
+            "E003" -> "Find the subject block first, then place the finite verb after it."
+            "E004" -> "Use the finite present form of the named verb; it does not change with the subject."
+            "E005" -> "Keep the same verb and replace its infinitive with the finite present form."
+            else -> "Recall the noun together with its stored gender, then replace only the article."
         }
 
     private fun Constituent?.orEmptyLexicalIds(): List<String> = this?.lexicalIds.orEmpty()
@@ -296,6 +435,12 @@ class PilotEngine {
     )
 
     private companion object {
+        val LEGACY_REVISION_PAIR = RevisionPair(PilotContent.CONTENT_REVISION, PilotContent.GENERATOR_REVISION)
+        val CURRENT_REVISION_PAIR =
+            RevisionPair(PilotContent.CURRENT_CONTENT_REVISION, PilotContent.CURRENT_GENERATOR_REVISION)
+        val SUPPORTED_REVISION_PAIRS = listOf(LEGACY_REVISION_PAIR, CURRENT_REVISION_PAIR)
+        val LEGACY_FORMAT_IDS = setOf("E001", "E002", "E003")
+        val NEW_FORMAT_IDS = setOf("E004", "E005", "E006")
         const val MAX_INDEX = 1_000_000
         const val ORDER_SHUFFLE_XOR = 0x5a5a5a5a
         const val GOLDEN_GAMMA = -7046029254386353131L

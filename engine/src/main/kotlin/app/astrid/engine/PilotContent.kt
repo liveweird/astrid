@@ -21,6 +21,10 @@ internal data class NounEntry(
 internal object PilotContent {
     const val CONTENT_REVISION = "pilot-1"
     const val GENERATOR_REVISION = "generator-1"
+    const val CURRENT_CONTENT_REVISION = "pilot-2"
+    const val CURRENT_GENERATOR_REVISION = "generator-2"
+    const val LEGACY_EVALUATION_REVISION = "evaluation-1"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-2"
 
     val humanPronouns =
         listOf(
@@ -103,6 +107,14 @@ internal object PilotContent {
             ExerciseFormat("E003", "Arrange a subject-first statement", "G005"),
         )
 
+    val currentFormats =
+        formats +
+            listOf(
+                ExerciseFormat("E004", "Supply the present form", "G004"),
+                ExerciseFormat("E005", "Repair the verb form", "G004"),
+                ExerciseFormat("E006", "Repair the indefinite article", "G006"),
+            )
+
     val snapshot =
         PilotContentSnapshot(
             contentRevision = CONTENT_REVISION,
@@ -117,8 +129,23 @@ internal object PilotContent {
             lexicalReview = PilotReviewMetadata.records(humanPronouns, identifyingPronoun, verbs, nouns),
         )
 
+    val currentSnapshot =
+        PilotContentSnapshot(
+            contentRevision = CURRENT_CONTENT_REVISION,
+            generatorRevision = CURRENT_GENERATOR_REVISION,
+            skills = skills,
+            formats = currentFormats,
+            humanPronouns = humanPronouns,
+            identifyingPronoun = identifyingPronoun,
+            verbs = verbs,
+            nouns = nouns,
+            sentences = sentences,
+            lexicalReview = PilotReviewMetadata.records(humanPronouns, identifyingPronoun, verbs, nouns),
+        )
+
     init {
         PilotContentValidator.requireValid(snapshot)
+        PilotContentValidator.requireValid(currentSnapshot)
     }
 
     private fun buildSentences(): List<Sentence> {

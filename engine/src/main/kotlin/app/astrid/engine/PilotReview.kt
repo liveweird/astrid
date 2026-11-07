@@ -1,8 +1,11 @@
 package app.astrid.engine
 
 object PilotReview {
-    fun renderMarkdown(): String {
-        val snapshot = PilotContent.snapshot
+    fun renderMarkdown(): String = renderSnapshot(PilotContent.currentSnapshot)
+
+    fun renderLegacyMarkdown(): String = renderSnapshot(PilotContent.snapshot)
+
+    private fun renderSnapshot(snapshot: PilotContentSnapshot): String {
         return buildString {
             appendLine("# Astrid pilot content review")
             appendLine()
@@ -15,7 +18,7 @@ object PilotReview {
             appendLine()
             appendLexicalInventory(snapshot.lexicalReview)
             appendSentenceInventory(snapshot.sentences)
-            appendExamples()
+            appendExamples(snapshot)
         }
     }
 
@@ -58,17 +61,29 @@ object PilotReview {
         appendLine()
     }
 
-    private fun StringBuilder.appendExamples() {
+    private fun StringBuilder.appendExamples(snapshot: PilotContentSnapshot) {
         val engine = PilotEngine()
         appendLine("## Reproducible exercise examples")
         appendLine()
-        appendLine("All examples use content `pilot-1`, generator `generator-1`, and seed 47.")
+        appendLine(
+            "All examples use content `${snapshot.contentRevision}`, generator `${snapshot.generatorRevision}`, and seed 47.",
+        )
         appendLine()
         appendLine("| Format | Index | Exercise ID | Canonical sentence | Prompt |")
         appendLine("| --- | ---: | --- | --- | --- |")
-        listOf("E001" to "G004", "E002" to "G006", "E003" to "G005").forEach { (format, target) ->
+        snapshot.formats.map { it.id to it.targetSkillId }.forEach { (format, target) ->
             listOf(0, 1).forEach { index ->
-                val exercise = engine.generate(GenerationRequest(format, target, seed = REVIEW_SEED, index = index))
+                val exercise =
+                    engine.generate(
+                        GenerationRequest(
+                            format,
+                            target,
+                            seed = REVIEW_SEED,
+                            index = index,
+                            contentRevision = snapshot.contentRevision,
+                            generatorRevision = snapshot.generatorRevision,
+                        ),
+                    )
                 appendLine(
                     listOf(
                         format,
@@ -88,6 +103,8 @@ object PilotReview {
                 "${exercise.prompt.before}___${exercise.prompt.after} [${exercise.prompt.choices.joinToString(", ")}]"
             exercise.prompt.blocks.isNotEmpty() ->
                 exercise.prompt.blocks.joinToString(" / ") { "${it.id}:${it.text}" } + exercise.prompt.punctuation
+            exercise.prompt.replacementWord != null ->
+                "${exercise.prompt.before}[replace: ${exercise.prompt.replacementWord}]${exercise.prompt.after}"
             else -> "${exercise.prompt.before}___${exercise.prompt.after}"
         }
 

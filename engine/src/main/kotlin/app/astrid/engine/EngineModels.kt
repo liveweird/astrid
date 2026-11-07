@@ -17,6 +17,11 @@ data class Catalog(
     val generatorRevision: String,
 )
 
+data class RevisionPair(
+    val contentRevision: String,
+    val generatorRevision: String,
+)
+
 data class Skill(
     val id: String,
     val title: String,
@@ -63,6 +68,8 @@ data class ExercisePrompt(
     val choices: List<String> = emptyList(),
     val blocks: List<OrderBlock> = emptyList(),
     val punctuation: String = ".",
+    val inputLabel: String? = null,
+    val replacementWord: String? = null,
 )
 
 data class OrderBlock(

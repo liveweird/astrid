@@ -12,11 +12,11 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-val pilotReviewOutput = layout.buildDirectory.file("review/pilot-1.md")
+val pilotReviewOutput = layout.buildDirectory.file("review/pilot-2.md")
 
 tasks.register<JavaExec>("exportPilotReview") {
     group = "verification"
-    description = "Writes the deterministic pilot content review to engine/build/review/pilot-1.md"
+    description = "Writes the deterministic current pilot content review to engine/build/review/pilot-2.md"
     dependsOn(tasks.testClasses)
     classpath = sourceSets.test.get().runtimeClasspath
     mainClass.set("app.astrid.engine.PilotReviewExportMain")
@@ -24,6 +24,22 @@ tasks.register<JavaExec>("exportPilotReview") {
         org.gradle.process.CommandLineArgumentProvider { listOf(pilotReviewOutput.get().asFile.absolutePath) },
     )
     outputs.file(pilotReviewOutput)
+}
+
+val legacyPilotReviewOutput = layout.buildDirectory.file("review/pilot-1.md")
+
+tasks.register<JavaExec>("exportLegacyPilotReview") {
+    group = "verification"
+    description = "Writes the deterministic legacy pilot content review to engine/build/review/pilot-1.md"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PilotReviewExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf("--legacy", legacyPilotReviewOutput.get().asFile.absolutePath)
+        },
+    )
+    outputs.file(legacyPilotReviewOutput)
 }
 
 tasks.test {
