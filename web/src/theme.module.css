@@ -149,3 +149,7 @@
 .practice :global([data-practice-focus]) {
   scroll-margin-block-start: calc(var(--app-shell-header-height, 3rem) + var(--mantine-spacing-md));
 }
+
+.practice .exercisePrimaryActions :global(.mantine-Button-inner) {
+  transition: none;
+}

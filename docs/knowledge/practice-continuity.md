@@ -20,6 +20,8 @@ Twenty Chromium/WebKit scenarios pass with retries disabled:
 
 A capitalization-sensitive stale-tab assertion was corrected to recognize both valid intermediate/final message forms without depending on readback timing.
 
+The first follow-up CI run exposed two WebKit contrast failures that passed on retry. Trace evidence showed the newly enabled Continue label still fading out of Mantine's loading state: light/dark contrast measured 1.04:1/1.03:1, below the 3:1 requirement at 200% text. Practice primary-action labels now leave loading at full opacity, while loading controls and spinners remain intact. The browser journeys assert immediate label opacity and retain the full accessibility scans; no colors, exclusions or contrast thresholds changed.
+
 ## Actual process-restart evidence
 
 The private protocol verified the exact candidate image and owned project/service/container/volume labels before mutation. It never restarted the main preview or its database. Both Chromium and WebKit passed these phases:

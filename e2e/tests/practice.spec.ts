@@ -300,6 +300,9 @@ for (const theme of ["light", "dark"] as const) {
     await expect(page.getByRole("region", { name: "Session introduction", exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Session introduction", exact: true }).click();
     await checkWrong(page, state);
+    const continueButton = page.getByRole("button", { name: "Continue", exact: true });
+    await expect(continueButton).toBeEnabled();
+    expect(await continueButton.locator(".mantine-Button-inner").evaluate((element) => getComputedStyle(element).opacity)).toBe("1");
     await expectFeedbackBadgesUnclipped(page);
     await scan(page);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
