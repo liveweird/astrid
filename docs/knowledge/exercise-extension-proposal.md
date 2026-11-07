@@ -2,7 +2,7 @@
 
 ## Status and boundary
 
-**7 November 2026 — User-authorized iteration, implemented and verified.** Following positive playground feedback, the user selected typed finite-form recall followed by guided single-word repair. The contract below records implementation decisions for that work; vocabulary assessment was subsequently authorized as BL-036; its contract is being specified. The existing [beginner slice](beginner-slice-spec.md) supplies 23 lexical entries and G001–G006. Only G004/G005/G006 are directly assessed; G001/G002/G003 support those tasks.
+**7 November 2026 — User-authorized iteration, implemented and verified.** Following positive playground feedback, the user selected typed finite-form recall followed by guided single-word repair. The contract below records implementation decisions for that work; vocabulary assessment was subsequently authorized and delivered as BL-036 under the [lexical contract](vocabulary-assessment.md). The existing [beginner slice](beginner-slice-spec.md) supplies 23 lexical entries and G001–G006. Only G004/G005/G006 are directly assessed; G001/G002/G003 support those tasks.
 
 Implement typed finite-form recall first and bounded error repair second. Vocabulary recognition/recall is the next authorized target expansion, with a separate implementation contract. These options address the [product requirements](product-direction.md) using existing engine and interface primitives. They establish neither teaching approval nor learning effectiveness.
 
@@ -14,7 +14,7 @@ Implement typed finite-form recall first and bounded error repair second. Vocabu
 | 2 | **Single-target repair:** “This present statement contains one verb-form error. Keep the same verb; type its replacement: `Hun læse en avis.`” Expected: `læser`. Article variant: “Replace the incorrect unstressed article: `Vi har en brev.`” Expected: `et`. | Assess G004 or G006 separately. Collect one replacement word, initially avoiding whole-sentence grading. Generate a licensed canonical sentence, then present one controlled corruption; do not license the corrupted sentence as valid content. |
 | 3 | **Meaning recognition, then headword recall:** Show `avis`; choose **book / newspaper / letter (written message)**. Reverse task: “Type the Danish singular headword introduced for ‘newspaper’, without its article.” Expected: `avis`. | Assess L015’s selected meaning in different reading/writing directions. Use the existing readable-object trio L014/L015/L018: `bog/avis/brev`. |
 
-The third option needs a lexical target contract before implementation. The [seed](danish-vocabulary-seed.md) provides curated English glosses and semantic allowlists, but these remain draft teaching content without Danish-teacher approval.
+The third option is now implemented under the separate [lexical target contract](vocabulary-assessment.md). The [seed](danish-vocabulary-seed.md) provides curated English glosses and semantic allowlists, but these remain draft teaching content without Danish-teacher approval.
 
 Repair introduces recognition of an existing error, but naming its category remains guided repair, not unrestricted diagnosis. Selection, supply, order, repair, comprehension and composition are different operations. Shuffling, decorative changes or changing input widgets alone should not inflate the format count. These options add neither passage comprehension nor composition.
 
@@ -80,7 +80,7 @@ No database migration is required. Saved attempt payloads remain unchanged and r
 | Web developer: `web/` | After contract agreement, parallel with server: reuse controls; verify language markup, keyboard/input access and support tracking. |
 | Independent reviewer/integration owner: review and `e2e/` | After implementation: inspect examples and compatibility evidence; exercise each new operation and failure path. |
 
-Priority is user-confirmed and the bounded revision policy is selected above. Appropriate Danish teaching review remains outstanding: all new examples retain draft status, and agent review does not confer teaching approval. Vocabulary additionally needs agreement on lexical target identity, glosses and treatment of extra articles or alternative words. Learning outcomes and delayed-check criteria remain open; no numerical mastery thresholds, scheduler, media, accounts or mobile packaging are proposed.
+Priority is user-confirmed and the bounded revision policy is selected above. Appropriate Danish teaching review remains outstanding: all new examples retain draft status, and agent review does not confer teaching approval. The current vocabulary contract resolves lexical identity, selected glosses and bounded extra-article/alternative-word handling for the three selected senses; broader vocabulary grading remains future work. Learning outcomes and delayed-check criteria remain open; no numerical mastery thresholds, scheduler, media, accounts or mobile packaging are proposed.
 
 ## Recommended next milestone — proposal
 
@@ -90,7 +90,7 @@ Start with the existing readable-object trio L014/L015/L018 (`bog`, `avis`, `bre
 
 Before implementation, specify lexical entry/sense, assessed facet and direction independently of G skill IDs. Define correct, wrong introduced meaning, response-constraint and unknown cases; an extra article must not imply that the noun is unknown. Prevent target gloss/headword leakage in ordinary support, retain optional recorded teaching reveals, and give English choices appropriate language markup and feedback labels. Preserve all published revision behavior and saved results.
 
-Acceptance: both directions operate deterministically across all three entries; distractors are distinct and related; grading fixtures cover the agreed cases; ordinary support does not identify the answer; accessible browser journeys preserve support evidence and exact replay. The selected content remains draft, pending Danish teaching review. No format IDs or API schema are selected by this proposal.
+Acceptance: both directions operate deterministically across all three entries; distractors are distinct and related; grading fixtures cover the agreed cases; ordinary support does not identify the answer; accessible browser journeys preserve support evidence and exact replay. The selected content remains draft, pending Danish teaching review. This paragraph records the original recommendation; the subsequent [adopted contract](vocabulary-assessment.md) selects E007/E008 and their API metadata.
 
 After this bounded addition, propose short mixed sessions combining introduced vocabulary and grammar, with results reported separately by target and support used. Session size, sequencing and summary behavior need their own contract (BL-009); mixing alone does not establish mastery. Later grammar expansion can activate questions or negation after reviewing their prerequisites and content. BL-035 still tracks feedback on the delivered recall/repair iteration; BL-036 tracks this authorized vocabulary milestone.
 
