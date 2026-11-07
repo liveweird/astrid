@@ -6,11 +6,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [next]
 
-- **BL-030 — Preserve replay integrity at the Unicode boundary.** Reject unpaired surrogates before storage, retain valid Unicode and align the text-length limit with code points. The [regressions and 12 real-PostgreSQL cases](docs/knowledge/unicode-input-boundary.md) and independent review passed. Complete final CI, merge and push.
 
-- **BL-028 — Correct enlarged-text reflow.** A true 200% root font exposed clipped controls/labels and a skip-link overlap that the earlier ineffective initialization missed. The [correction and checks](docs/knowledge/text-resize-reflow.md) are reviewed, with both complete 38-journey local matrices passing; finish pinned-Node-24 GitHub CI and Git delivery without reducing text size or hiding page overflow.
 
-- **BL-027 — Verify the web interface across rendering engines.** Evaluate the same critical journeys in Chromium and WebKit, preserve native keyboard traversal, and resolve the [confirmed keyboard interaction gaps](docs/knowledge/keyboard-navigation.md). Both native and Linux-container matrices passed; validate pinned-Node-24 Linux WebKit on a branch CI run before enabling its project on master. This supports future web-interface reuse without claiming native iOS/Safari-device testing.
 
 - **BL-026 — Recover visibly from a stalled runtime database.** A separately owned QA stack reproduced a submission still waiting after 35 seconds while PostgreSQL was paused. Browser waiting/cancellation fixes, independent review, real outage/restart/replay and isolated restore checks passed. Complete final CI, preview promotion and ownership-scoped QA cleanup. Do not equate a browser timeout with a known rollback or an assured server cleanup deadline.
 
@@ -28,6 +25,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [new]
 
+- **BL-032 — Define bounded server-outage work.** Proposed follow-up to the [observed lifecycle limitation](docs/knowledge/server-outage-boundary.md): choose a fault model and evidence-based request/cleanup/shutdown budgets, then prove lease fencing, eventual remote cleanup, bounded retained work and exact replay before adopting a policy. No server deadline or production SLO is selected.
+
 - **BL-009 — Explore session and progression design.** Assess guided instruction, independent practice, mixed practice, learner control, and session shape. Complete when options and a proposed learning flow are documented.
 - **BL-010 — Compare generation and grading approaches.** Examine reviewed templates, structural generation, and possible AI assistance against accuracy, naturalness, variety, and diagnostic needs. Complete with broader-course tradeoffs and a recommendation. The pilot already uses deterministic typed generation and bounded explicit grading; this item does not reopen its published revisions.
 - **BL-011 — Explore progress and review strategy.** Consider recognition versus production, mastery evidence, spaced practice, and uncertainty. Complete with a proposed model and evaluation criteria; no scheduling algorithm is selected.
@@ -44,6 +43,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 No active work is currently blocked. Git writes and remote access succeeded through approved escalated commands; the foundation delivery is complete. Use the applicable approval mechanism for future Git operations that exceed the workspace sandbox.
 
 ## Completed work
+
+- **7 November 2026 — BL-027, BL-028 and BL-030:** Delivered Unicode replay validation, rendering-engine coverage, enlarged/short-window reflow and keyboard recovery focus through `3ca0533`, merged/pushed to master. All five [branch](https://github.com/liveweird/astrid/actions/runs/42340567827) and [master CI jobs](https://github.com/liveweird/astrid/actions/runs/42341038761) passed, including 38 browser journeys without retries. Local checks also passed 44 frontend tests, 80 repeated keyboard selections and 12 real-PostgreSQL Unicode cases. See [keyboard](docs/knowledge/keyboard-navigation.md), [reflow](docs/knowledge/text-resize-reflow.md) and [Unicode evidence](docs/knowledge/unicode-input-boundary.md).
 
 - **7 November 2026 — Resource/variation research extension:** Independently researched and lead-validated usage/frequency and bilingual candidates, with exact edition/reuse boundaries and no application imports. Measured the [pilot inventory](docs/knowledge/pilot-variation-audit.md): 99 distinct sentences, 290 eligible format–sentence pairs, 46/46 article balance and a deliberately uneven verb-family distribution. These are authoring inputs; BL-025 adoption and BL-006 future format decisions remain open.
 

@@ -26,6 +26,7 @@ This register tracks open and resolved questions through the delivered private p
 | Q20 | Which [usage](frequency-and-usage-resources.md) and [bilingual](bilingual-resources.md) candidates fit Astrid's intended data use and distribution? Which need publisher clarification, attribution/adaptation decisions or reference-only treatment before any import? | BL-025 |
 | Q21 | After trying the playground, which [exercise extension](exercise-extension-proposal.md) should come first: finite-form recall, guided repair, or vocabulary recognition/recall? What support and lexical-target contract should it use? | BL-006, BL-007 |
 | Q22 | For future generation/grading changes, should unsupported unsubmitted exercises be explicitly retired, or remain assessable under their original generation and evaluation rules? Saved attempts must retain exact replay under either policy. | BL-007, BL-010 |
+| Q23 | Which [server-outage policy](server-outage-boundary.md), fault model and measured budgets should bound HTTP completion, abandoned leases and shutdown while retaining uncertain-attempt replay? Browser waiting is bounded; server cleanup remains a separate open decision. | BL-032 |
 
 ## Resolved clarifications
 
