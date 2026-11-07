@@ -44,8 +44,11 @@ The broad language map and the small validation subset serve different purposes.
 - [Hardening delivery](hardening-delivery.md): observed compatibility, transaction, accessibility and local Kubernetes evidence.
 - [Foundation source review](foundation-source-review.md): consolidated later-map corrections, coverage boundaries and source limitations.
 - [Pilot review guide](pilot-review-guide.md): a short proposed walkthrough for evaluating the engine before expanding it.
+- [Danish teaching review handoff](pilot-teaching-review.md): proposed specialist packet, full-inventory review, issue records and immutable-revision safeguards.
 - [Runtime database recovery](runtime-recovery.md): observed paused-database behavior, bounded browser waiting and exact attempt recovery.
 - [Text resizing and reflow](text-resize-reflow.md): measured enlarged-text defects, corrections and regression evidence.
+- [Keyboard navigation and selection](keyboard-navigation.md): confirmed navigation/Enter defects, bounded corrections and acceptance requirements.
+- [Unicode input boundary](unicode-input-boundary.md): reproduced malformed-surrogate replay gap, transport validation and length policy.
 - [Foundation coverage crosswalk](foundation-coverage.md): proposed links for all 58 skills and 30 constructions, distinguishing pilot targets, support, later overlays and gaps.
 - [Pilot variation inventory](pilot-variation-audit.md): measured sentence, format and target distributions without changing published generation.
 - [Frequency and usage resources](frequency-and-usage-resources.md): candidate ranking/corpus evidence, edition differences and published reuse conditions.
