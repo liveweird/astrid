@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
@@ -18,11 +18,20 @@ async function openPlayground(page: Page) {
   await expect(page.getByRole("heading", { name: "Danish engine playground" })).toBeVisible();
 }
 
+async function selectFormatOption(page: Page, selector: Locator, title: string) {
+  await selector.click();
+  await selector.fill(title);
+  const option = page.getByRole("option", { name: title });
+  await expect(option).toBeVisible();
+  await selector.press("ArrowDown");
+  await expect(option).toHaveAttribute("data-combobox-selected", "true");
+  await selector.press("Enter");
+}
+
 async function chooseFormat(page: Page, title: string) {
   const selector = page.getByRole("combobox", { name: "Exercise type" });
   if (!(await selector.isVisible())) await page.getByRole("button", { name: "Generation controls" }).click();
-  await selector.click();
-  await page.getByRole("option", { name: title }).click();
+  await selectFormatOption(page, selector, title);
   await expect(selector).toHaveValue(title);
 }
 
@@ -52,8 +61,7 @@ async function scanLearningStates(page: Page) {
     } else await route.continue();
   });
   const selector = page.getByRole("combobox", { name: "Exercise type" });
-  await selector.click();
-  await page.getByRole("option", { name: "Choose the present form" }).click();
+  await selectFormatOption(page, selector, "Choose the present form");
   await expect(page.getByRole("button", { name: "Reload engine" })).toBeVisible();
   await scan(page);
 
