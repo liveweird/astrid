@@ -17,7 +17,8 @@ Update the relevant records as discussion or work changes the project. Documenta
 | Assumptions, proposed principles, and tenets | [Assumptions and principles](assumptions-and-principles.md) |
 | Unresolved questions and other open points | [Open questions](open-questions.md) |
 | Sources and research needs | [Research and sources](research-and-sources.md) |
-| Work items, priorities, dependencies, and completion history | [Backlog](../../BACKLOG.md) |
+| Open work items, priorities and dependencies | [Backlog](../../BACKLOG.md) |
+| Delivery evidence for completed work | The topic contract's "Observed delivery" section; release notes in `web/src/changelog/entries.ts`; Git history |
 
 Keep detailed requirements in their topic documents and link from the backlog. The backlog plans work; it does not replace the knowledge base.
 
@@ -41,7 +42,7 @@ New general principles or rules must retain proposal status unless the user adop
 
 Use stable item IDs and an observable completion condition. Mark proposed work as such when it goes beyond confirmed requirements. Planning an item does not authorize implementation, external publication, or a change in product scope.
 
-Move completed items into a dated completion history with a result or evidence reference. This preserves the five requested active statuses without inventing another one. Update status when the actual condition changes; `[blocked]` should not merely mean that a task is later in the sequence.
+Tag every top-level item with its own status (`- [todo] **BL-nnn — Title.** …`) under thematic `##` sections, as the sibling apps do. Items an agent adds start as `[new]`; only the user promotes an item to `[todo]` or `[next]`. Remove a completed item; record its evidence in the relevant topic contract ("Observed delivery"), not in the backlog. *Supersedes, 7 November 2026: the earlier convention of `##` status headings and a dated completion history in `BACKLOG.md`.* Update status when the actual condition changes; `[blocked]` should not merely mean that a task is later in the sequence.
 
 ## Confirmed workflow decisions
 
@@ -52,7 +53,7 @@ Move completed items into a dated completion history with a result or evidence r
 - **Superseded constraint:** The initial discovery-only restriction ended when the user authorized the engine playground on 7 November 2026.
 - **6 November 2026 — Foundation design and Git delivery:** The user authorized the next language/engine design pass and requested reasonably sized commits with merge/push to GitHub. Keep the existing changes, use cohesive commit boundaries, and merge/push the reviewed work within that scope. This delivery concerns the drafts and first-slice specification; the engine playground is the following milestone.
 
-The existing root `AGENTS.md` remains unchanged under the earlier instruction not to modify it. Its initial empty-directory description is historical; consult the knowledge index and backlog for current project state.
+- **7 November 2026 — Agent guidance aligned with the sibling apps:** The user authorized replacing the root `AGENTS.md` (superseding the earlier instruction not to modify it) with a pointer to the root `CLAUDE.md`, which is the single "how to work here" guide for every agent, as in Flow. Topic conventions live in `.claude/docs/`; this knowledge base keeps product, language and decision records.
 
 ## Git access troubleshooting
 
