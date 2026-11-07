@@ -1,12 +1,12 @@
 # Project Backlog
 
-Work planning for the Danish learning app. Updated 7 November 2026. The private engine playground and verified hardening are delivered and pushed. Current priority is user feedback and Danish teaching review; broader content and media remain later work.
+Work planning for the Danish learning app. Updated 7 November 2026. The private engine playground and verified hardening are delivered and pushed. The initial user review is positive; current priority is choosing the next engine iteration and arranging appropriate Danish teaching review. Broader content and media remain later work.
 
 Statuses follow the [working agreement](docs/knowledge/working-agreement.md). The ordering below is an initial proposed sequence; it does not imply the user has approved the assistant's design proposals.
 
 ## [next]
 
-- **BL-031 — Review the playable engine before extending it.** Use the [walkthrough](docs/knowledge/pilot-review-guide.md) to capture user feedback on target difficulty, sentence variation, grammar explanations, feedback and interaction. Choose the next bounded operation with that evidence; the [recall/repair proposal](docs/knowledge/exercise-extension-proposal.md) remains unadopted. Complete when feedback and an agreed next iteration are recorded.
+- **BL-031 — Choose the next engine iteration after the initial review.** The [first user review](docs/knowledge/pilot-review-guide.md#initial-user-review--7-november-2026) is positive: simple, promising, a good direction, with no reported dislikes or disagreements. Feedback capture is complete; selection of the next bounded iteration remains open. The [recommendation](docs/knowledge/exercise-extension-proposal.md) is typed finite-form recall, then guided single-target repair. Complete when an agreed next iteration is recorded.
 
 ## [todo]
 

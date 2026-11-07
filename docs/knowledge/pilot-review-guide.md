@@ -28,3 +28,9 @@ Capture the coordinates, answer and expected result when something seems wrong. 
 - whether the interaction or variation becomes repetitive.
 
 Use this feedback to choose the next engine work. Danish teaching review and learner trials remain separate from automated software checks; these attempts are practice evidence, with no mastery judgment.
+
+## Initial user review — 7 November 2026
+
+The user tried the playground and described it as simple, promising, and a start in a good direction. They reported nothing they disliked or disagreed with. This is positive feedback on the version tried; no specific defect or requested correction was raised.
+
+Keep the current direction as the basis for the next discussion. The feedback does not establish Danish teaching approval, learning effectiveness, an exhaustive review of every case, or selection of a new exercise operation. The [extension recommendation](exercise-extension-proposal.md) remains typed finite-form recall first, then guided single-target repair; the user's next-step choice remains open in Q21.
