@@ -99,7 +99,14 @@ private fun Route.catalogRoute(
                     "Catalog exposed an unsupported revision pair"
                 },
                 catalog.skills.map { SkillDto(it.id, it.title, it.explanation, it.prerequisiteIds) },
-                catalog.formats.map { FormatDto(it.id, it.title, it.targetSkillId) },
+                catalog.formats.map { format ->
+                    FormatDto(
+                        format.id,
+                        format.title,
+                        format.targetSkillId,
+                        format.lexicalTask?.let { LexicalTaskDto(it.facet, it.direction) },
+                    )
+                },
                 catalog.sentenceCount,
             ),
         )
@@ -225,6 +232,8 @@ private suspend fun evaluateAttempt(
         request.hintUsed,
         retry,
         createdAt,
+        evaluation.linguisticScope?.wireValue,
+        evaluation.responseConstraintStatus?.wireValue,
     )
 }
 
@@ -272,7 +281,8 @@ private fun ApplicationCall.uuidParameter(name: String): UUID =
     parameters[name]?.let { parseStrictUuid(it, name) } ?: throw BadRequest("Invalid $name")
 
 private fun ExerciseRequest.validated(): ExerciseRequest {
-    if (formatId.length !in 1..MAX_IDENTIFIER_LENGTH || targetSkillId.length !in 1..MAX_IDENTIFIER_LENGTH) {
+    if (formatId.length !in 1..MAX_IDENTIFIER_LENGTH ||
+        (targetSkillId != null && targetSkillId.length !in 1..MAX_IDENTIFIER_LENGTH)) {
         throw BadRequest("Invalid exercise identifiers")
     }
     if (contentRevision.length !in 1..MAX_REVISION_LENGTH || generatorRevision.length !in 1..MAX_REVISION_LENGTH) {

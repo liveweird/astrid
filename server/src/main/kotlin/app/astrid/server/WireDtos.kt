@@ -7,9 +7,9 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 internal const val CONTENT_REVISION = "pilot-1"
 internal const val GENERATOR_REVISION = "generator-1"
 internal const val EVALUATION_REVISION = "evaluation-1"
-internal const val CURRENT_CONTENT_REVISION = "pilot-2"
-internal const val CURRENT_GENERATOR_REVISION = "generator-2"
-internal const val CURRENT_EVALUATION_REVISION = "evaluation-2"
+internal const val CURRENT_CONTENT_REVISION = "pilot-3"
+internal const val CURRENT_GENERATOR_REVISION = "generator-3"
+internal const val CURRENT_EVALUATION_REVISION = "evaluation-3"
 
 @Serializable
 class DevelopmentSessionRequest
@@ -32,7 +32,15 @@ data class SkillDto(
 )
 
 @Serializable
-data class FormatDto(val id: String, val title: String, val targetSkillId: String)
+data class LexicalTaskDto(val facet: String, val direction: String)
+
+@Serializable
+data class FormatDto(
+    val id: String,
+    val title: String,
+    val targetSkillId: String? = null,
+    val lexicalTask: LexicalTaskDto? = null,
+)
 
 @Serializable
 data class CatalogResponse(
@@ -47,7 +55,7 @@ data class CatalogResponse(
 @Serializable
 data class ExerciseRequest(
     val formatId: String,
-    val targetSkillId: String,
+    val targetSkillId: String? = null,
     val seed: Int,
     val index: Int,
     val contentRevision: String,
@@ -66,16 +74,28 @@ data class ExercisePromptDto(
     val punctuation: String = ".",
     val inputLabel: String? = null,
     val replacementWord: String? = null,
+    val cue: String? = null,
+    val cueLanguage: String? = null,
+    val answerLanguage: String? = null,
 )
 
 @Serializable
 data class IntroductionDto(val title: String, val body: String)
 
 @Serializable
+data class LexicalTargetDto(
+    val entryId: String,
+    val senseId: String,
+    val facet: String,
+    val direction: String,
+)
+
+@Serializable
 data class ExerciseResponse(
     val id: String,
     val formatId: String,
-    val targetSkillId: String,
+    val targetSkillId: String? = null,
+    val lexicalTarget: LexicalTargetDto? = null,
     val supportSkillIds: List<String>,
     val contentRevision: String,
     val generatorRevision: String,
@@ -123,6 +143,8 @@ data class AttemptResponse(
     val hintUsed: Boolean,
     val retryNumber: Int,
     val createdAt: Long,
+    val linguisticScope: String? = null,
+    val responseConstraintStatus: String? = null,
 )
 
 @Serializable
@@ -139,13 +161,23 @@ data class ProblemResponse(
 data class HealthResponse(val status: String)
 
 @Serializable
+data class LexicalSourceDto(
+    val entryId: String,
+    val senseId: String,
+    val headword: String,
+    val gloss: String,
+    val article: String,
+)
+
+@Serializable
 data class ExerciseInspectorDto(
     val exercise: ExerciseResponse,
     val seed: Int,
     val index: Int,
-    val canonicalSentenceId: String,
-    val constructionId: String,
+    val canonicalSentenceId: String? = null,
+    val constructionId: String? = null,
     val lexicalIds: List<String>,
     val clauseRoles: List<String>,
-    val canonicalSentence: String,
+    val canonicalSentence: String? = null,
+    val lexicalSource: LexicalSourceDto? = null,
 )

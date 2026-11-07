@@ -11,6 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -22,10 +23,125 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.AfterClass
+import org.flywaydb.core.Flyway
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
 class PostgresRepositoryTest {
+    @Test
+    fun `V2 preserves V1 grammar evidence and stores nullable lexical evidence with exact replay`() = runBlocking {
+        val databaseName = "astrid_migration_${UUID.randomUUID().toString().replace("-", "")}"
+        postgres.createDatabase(databaseName)
+        val config = postgres.config(databaseName)
+        Flyway.configure()
+            .dataSource(config.jdbcUrl, config.postgresUser, config.postgresPassword)
+            .locations("classpath:db/migration")
+            .target("1")
+            .load()
+            .migrate()
+
+        val engine = PilotEngine()
+        val sessionId = UUID.randomUUID()
+        val grammarId = UUID.randomUUID()
+        val grammar = engine.generate(GenerationRequest("E001", "G004", 19, 3, "pilot-1", "generator-1"))
+        DriverManager.getConnection(config.jdbcUrl, config.postgresUser, config.postgresPassword).use { connection ->
+            connection.prepareStatement(
+                "INSERT INTO development_sessions (id, token_hash, expires_at, created_at) VALUES (?, ?, ?, ?)",
+            ).use { statement ->
+                statement.setObject(1, sessionId)
+                statement.setString(2, "a".repeat(64))
+                statement.setLong(3, Long.MAX_VALUE)
+                statement.setLong(4, 1)
+                assertEquals(1, statement.executeUpdate())
+            }
+            connection.prepareStatement(
+                """INSERT INTO exercises
+                    (id, session_id, format_id, target_skill_id, seed, generation_index, content_revision,
+                     generator_revision, presentation_payload, reproduction_fingerprint, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".trimIndent(),
+            ).use { statement ->
+                statement.setObject(1, grammarId)
+                statement.setObject(2, sessionId)
+                statement.setString(3, grammar.formatId)
+                statement.setString(4, grammar.targetSkillId)
+                statement.setInt(5, grammar.reproduction.seed)
+                statement.setInt(6, grammar.reproduction.index)
+                statement.setString(7, grammar.contentRevision)
+                statement.setString(8, grammar.generatorRevision)
+                statement.setString(9, wireJson.encodeToString(ExerciseResponse.serializer(), grammar.toResponse(grammarId.toString())))
+                statement.setString(10, grammar.reproductionFingerprint())
+                statement.setLong(11, 1)
+                assertEquals(1, statement.executeUpdate())
+            }
+        }
+
+        migrate(config)
+        val repository = PostgresRepository.connect(config, wireJson)
+        try {
+            val restoredGrammar = assertNotNull(repository.findExercise(sessionId, grammarId))
+            assertEquals("G004", restoredGrammar.targetSkillId)
+            assertEquals(grammar.reproductionFingerprint(), engine.generate(restoredGrammar.generationRequest()).reproductionFingerprint())
+
+            val lexicalId = UUID.randomUUID()
+            val lexical = engine.generate(GenerationRequest("E008", null, 47, 1, "pilot-3", "generator-3"))
+            val storedLexical = StoredExercise(
+                lexicalId,
+                sessionId,
+                lexical.formatId,
+                lexical.targetSkillId,
+                lexical.reproduction.seed,
+                lexical.reproduction.index,
+                lexical.contentRevision,
+                lexical.generatorRevision,
+                lexical.toResponse(lexicalId.toString()),
+                lexical.reproductionFingerprint(),
+            )
+            repository.insertExercise(storedLexical)
+            val restoredLexical = assertNotNull(repository.findExercise(sessionId, lexicalId))
+            assertNull(restoredLexical.targetSkillId)
+            assertNotNull(restoredLexical.presentation.lexicalTarget)
+            assertEquals(storedLexical.presentation, restoredLexical.presentation)
+            assertEquals(lexical.reproductionFingerprint(), engine.generate(restoredLexical.generationRequest()).reproductionFingerprint())
+
+            val request = AttemptRequest(
+                UUID.randomUUID().toString(),
+                lexicalId.toString(),
+                AttemptAnswerDto.Text("avis"),
+                false,
+            )
+            val payload = wireJson.encodeToString(AttemptRequest.serializer(), request)
+            val callbacks = AtomicInteger()
+            val created = repository.writeAttempt(sessionId, request, payload) { exercise, retry, createdAt ->
+                callbacks.incrementAndGet()
+                AttemptResponse(
+                    request.attemptId,
+                    exercise.id.toString(),
+                    "met",
+                    "acceptable",
+                    emptyList(),
+                    "Correct",
+                    "",
+                    "evaluation-3",
+                    false,
+                    retry,
+                    createdAt,
+                    "danish-headword",
+                    "met",
+                )
+            }
+            val createdResponse = assertIs<AttemptWriteResult.Created>(created).response
+            val replayed = repository.writeAttempt(sessionId, request, payload) { _, _, _ ->
+                callbacks.incrementAndGet()
+                error("saved attempt must replay before regeneration")
+            }
+            assertEquals(1, callbacks.get())
+            assertEquals(createdResponse, assertIs<AttemptWriteResult.Existing>(replayed).response)
+            assertEquals("danish-headword", repository.findAttempt(sessionId, UUID.fromString(request.attemptId))?.linguisticScope)
+        } finally {
+            repository.close()
+        }
+    }
+
     @Test
     fun `readiness reports database state without swallowing caller cancellation`() = withRepositories { first, second ->
         assertEquals(true, first.ready())
@@ -236,9 +352,25 @@ class PostgresRepositoryTest {
         }
     }
 
-    private fun PostgreSQLContainer.config() = ServerConfig(
+    private fun PostgreSQLContainer.createDatabase(databaseName: String) {
+        DriverManager.getConnection(jdbcUrl, username, password).use { connection ->
+            connection.createStatement().use { statement -> statement.executeUpdate("CREATE DATABASE $databaseName") }
+        }
+    }
+
+    private fun StoredExercise.generationRequest() = GenerationRequest(
+        formatId,
+        targetSkillId,
+        seed,
+        index,
+        contentRevision,
+        generatorRevision,
+    )
+
+    private fun PostgreSQLContainer.config(databaseName: String? = null) = ServerConfig(
         true, false, null, false, false, emptySet(), emptySet(), 60_000, null,
-        jdbcUrl, "r2dbc:postgresql://$host:${getMappedPort(5432)}/astrid_test", username, password, 4,
+        databaseName?.let { "jdbc:postgresql://$host:${getMappedPort(5432)}/$it" } ?: jdbcUrl,
+        "r2dbc:postgresql://$host:${getMappedPort(5432)}/${databaseName ?: "astrid_test"}", username, password, 4,
     )
 
     private data class Fixture(

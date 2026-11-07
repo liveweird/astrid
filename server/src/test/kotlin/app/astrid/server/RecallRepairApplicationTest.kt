@@ -35,9 +35,9 @@ class RecallRepairApplicationTest {
         application { astridModule(config(), InMemoryAstridRepository()) }
         val (cookieValue, sessionBody) = createSession()
         val session = wireJson.parseToJsonElement(sessionBody).jsonObject
-        assertEquals("pilot-2", session.getValue("contentRevision").jsonPrimitive.content)
-        assertEquals("generator-2", session.getValue("generatorRevision").jsonPrimitive.content)
-        assertEquals("evaluation-2", session.getValue("evaluationRevision").jsonPrimitive.content)
+        assertEquals("pilot-3", session.getValue("contentRevision").jsonPrimitive.content)
+        assertEquals("generator-3", session.getValue("generatorRevision").jsonPrimitive.content)
+        assertEquals("evaluation-3", session.getValue("evaluationRevision").jsonPrimitive.content)
 
         val catalogResponse = client.get("/api/v1/catalog") {
             trustedHost()
@@ -45,11 +45,11 @@ class RecallRepairApplicationTest {
         }
         assertEquals(HttpStatusCode.OK, catalogResponse.status)
         val catalog = wireJson.parseToJsonElement(catalogResponse.bodyAsText()).jsonObject
-        assertEquals("pilot-2", catalog.getValue("contentRevision").jsonPrimitive.content)
-        assertEquals("generator-2", catalog.getValue("generatorRevision").jsonPrimitive.content)
-        assertEquals("evaluation-2", catalog.getValue("evaluationRevision").jsonPrimitive.content)
+        assertEquals("pilot-3", catalog.getValue("contentRevision").jsonPrimitive.content)
+        assertEquals("generator-3", catalog.getValue("generatorRevision").jsonPrimitive.content)
+        assertEquals("evaluation-3", catalog.getValue("evaluationRevision").jsonPrimitive.content)
         assertEquals(
-            listOf("E001", "E002", "E003", "E004", "E005", "E006"),
+            listOf("E001", "E002", "E003", "E004", "E005", "E006", "E007", "E008"),
             (catalog.getValue("formats") as JsonArray).map { it.jsonObject.getValue("id").jsonPrimitive.content },
         )
     }
@@ -116,6 +116,10 @@ class RecallRepairApplicationTest {
         )
         assertFalse("inputLabel" in serialized)
         assertFalse("replacementWord" in serialized)
+        assertFalse("lexicalTarget" in serialized)
+        assertFalse("cue" in serialized)
+        assertFalse("cueLanguage" in serialized)
+        assertFalse("answerLanguage" in serialized)
         val restored = wireJson.decodeFromString(ExerciseResponse.serializer(), serialized)
         assertNull(restored.prompt.inputLabel)
         assertNull(restored.prompt.replacementWord)
@@ -124,6 +128,10 @@ class RecallRepairApplicationTest {
         val decoded = wireJson.decodeFromString(ExercisePromptDto.serializer(), oldPrompt)
         assertNull(decoded.inputLabel)
         assertNull(decoded.replacementWord)
+        assertNull(decoded.cue)
+        assertNull(decoded.cueLanguage)
+        assertNull(decoded.answerLanguage)
+        assertEquals(oldPrompt, wireJson.encodeToString(ExercisePromptDto.serializer(), decoded))
     }
 
     @Test

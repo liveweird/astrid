@@ -8,7 +8,7 @@ data class StoredExercise(
     val id: UUID,
     val sessionId: UUID,
     val formatId: String,
-    val targetSkillId: String,
+    val targetSkillId: String?,
     val seed: Int,
     val index: Int,
     val contentRevision: String,

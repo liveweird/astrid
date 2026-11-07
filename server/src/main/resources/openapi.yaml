@@ -112,9 +112,9 @@ components:
       properties:
         mode: { type: string, enum: [development] }
         inspectorEnabled: { type: boolean }
-        contentRevision: { type: string, enum: [pilot-2] }
-        generatorRevision: { type: string, enum: [generator-2] }
-        evaluationRevision: { type: string, enum: [evaluation-2] }
+        contentRevision: { type: string, enum: [pilot-3] }
+        generatorRevision: { type: string, enum: [generator-3] }
+        evaluationRevision: { type: string, enum: [evaluation-3] }
     Catalog:
       type: object
       additionalProperties: false
@@ -138,15 +138,26 @@ components:
     Format:
       type: object
       additionalProperties: false
-      required: [id, title, targetSkillId]
-      properties: { id: { type: string }, title: { type: string }, targetSkillId: { type: string } }
+      required: [id, title]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        targetSkillId: { type: string, nullable: true }
+        lexicalTask: { $ref: '#/components/schemas/LexicalTask' }
+    LexicalTask:
+      type: object
+      additionalProperties: false
+      required: [facet, direction]
+      properties:
+        facet: { type: string, enum: [meaning, singular-headword] }
+        direction: { type: string, enum: [da-en, en-da] }
     ExerciseRequest:
       type: object
       additionalProperties: false
-      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      required: [formatId, seed, index, contentRevision, generatorRevision]
       properties:
         formatId: { type: string, maxLength: 32 }
-        targetSkillId: { type: string, maxLength: 32 }
+        targetSkillId: { type: string, nullable: true, maxLength: 32 }
         seed: { type: integer, minimum: 0 }
         index: { type: integer, minimum: 0, maximum: 1000000 }
         contentRevision: { type: string, maxLength: 64 }
@@ -154,11 +165,12 @@ components:
     Exercise:
       type: object
       additionalProperties: false
-      required: [id, formatId, targetSkillId, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      required: [id, formatId, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
       properties:
         id: { type: string, format: uuid }
         formatId: { type: string }
-        targetSkillId: { type: string }
+        targetSkillId: { type: string, nullable: true }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
         supportSkillIds: { type: array, items: { type: string } }
         contentRevision: { type: string }
         generatorRevision: { type: string }
@@ -167,6 +179,15 @@ components:
         prompt: { $ref: '#/components/schemas/Prompt' }
         introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
         hint: { type: string }
+    LexicalTarget:
+      type: object
+      additionalProperties: false
+      required: [entryId, senseId, facet, direction]
+      properties:
+        entryId: { type: string }
+        senseId: { type: string }
+        facet: { type: string, enum: [meaning, singular-headword] }
+        direction: { type: string, enum: [da-en, en-da] }
     Prompt:
       type: object
       additionalProperties: false
@@ -179,6 +200,9 @@ components:
         punctuation: { type: string, description: Supplied separately for the ordering exercise only. }
         inputLabel: { type: string, nullable: true, description: Label for the text entry field when the exercise needs one. }
         replacementWord: { type: string, nullable: true, description: 'Corrupted word to replace; this is context, not the answer.' }
+        cue: { type: string, nullable: true, description: 'Vocabulary cue shown separately from sentence fragments.' }
+        cueLanguage: { type: string, nullable: true, enum: [da, en] }
+        answerLanguage: { type: string, nullable: true, enum: [da, en] }
     Block: { type: object, additionalProperties: false, required: [id, text], properties: { id: { type: string }, text: { type: string } } }
     Introduction: { type: object, additionalProperties: false, required: [title, body], properties: { title: { type: string }, body: { type: string } } }
     AttemptRequest:
@@ -217,6 +241,8 @@ components:
         exerciseId: { type: string, format: uuid }
         targetSatisfaction: { type: string, enum: [met, not-met, unevaluable] }
         linguisticStatus: { type: string, enum: [acceptable, known-issue, unknown] }
+        linguisticScope: { type: string, nullable: true, enum: [english-choice, danish-headword] }
+        responseConstraintStatus: { type: string, nullable: true, enum: [met, not-met] }
         issues: { type: array, items: { $ref: '#/components/schemas/Issue' } }
         feedback: { type: string }
         completedSentence: { type: string }
@@ -228,16 +254,27 @@ components:
     Inspector:
       type: object
       additionalProperties: false
-      required: [exercise, seed, index, canonicalSentenceId, constructionId, lexicalIds, clauseRoles, canonicalSentence]
+      required: [exercise, seed, index, lexicalIds, clauseRoles]
       properties:
         exercise: { $ref: '#/components/schemas/Exercise' }
         seed: { type: integer }
         index: { type: integer }
-        canonicalSentenceId: { type: string }
-        constructionId: { type: string }
+        canonicalSentenceId: { type: string, nullable: true }
+        constructionId: { type: string, nullable: true }
         lexicalIds: { type: array, items: { type: string } }
         clauseRoles: { type: array, items: { type: string } }
-        canonicalSentence: { type: string }
+        canonicalSentence: { type: string, nullable: true }
+        lexicalSource: { $ref: '#/components/schemas/LexicalSource' }
+    LexicalSource:
+      type: object
+      additionalProperties: false
+      required: [entryId, senseId, headword, gloss, article]
+      properties:
+        entryId: { type: string }
+        senseId: { type: string }
+        headword: { type: string }
+        gloss: { type: string }
+        article: { type: string }
     Problem:
       type: object
       additionalProperties: false

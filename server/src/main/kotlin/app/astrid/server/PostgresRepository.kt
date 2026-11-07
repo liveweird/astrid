@@ -42,7 +42,7 @@ class PostgresRepository private constructor(
         val id = javaUUID("id")
         val sessionId = javaUUID("session_id")
         val formatId = varchar("format_id", 32)
-        val targetSkillId = varchar("target_skill_id", 32)
+        val targetSkillId = varchar("target_skill_id", 32).nullable()
         val seed = integer("seed")
         val generationIndex = integer("generation_index")
         val contentRevision = varchar("content_revision", 64)

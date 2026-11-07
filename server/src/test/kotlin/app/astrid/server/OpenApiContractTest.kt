@@ -45,7 +45,7 @@ class OpenApiContractTest {
     fun `spec parses and validates critical runtime responses`() = testApplication {
         val parse = OpenAPIV3Parser().readContents(rawSpec)
         assertNotNull(parse.openAPI, "OpenAPI parse failed: ${parse.messages}")
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(inspectorKey = "k".repeat(32)), InMemoryAstridRepository()) }
 
         val sessionResponse = client.post("/api/v1/development-session") {
             trustedHost()
@@ -113,6 +113,41 @@ class OpenApiContractTest {
             }
             validate(HttpMethod.Post, "/api/v1/exercises", response)
         }
+        val lexicalResponse = client.post("/api/v1/exercises") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """{"formatId":"E007","seed":47,"index":0,"contentRevision":"pilot-3","generatorRevision":"generator-3"}""",
+            )
+        }
+        validate(HttpMethod.Post, "/api/v1/exercises", lexicalResponse)
+        val lexicalId = (wireJson.parseToJsonElement(lexicalResponse.bodyAsText()) as JsonObject)
+            .getValue("id").jsonPrimitive.content
+        val lexicalAttemptId = UUID.randomUUID()
+        validate(
+            HttpMethod.Post,
+            "/api/v1/attempts",
+            client.post("/api/v1/attempts") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                contentType(ContentType.Application.Json)
+                setBody(
+                    """{"attemptId":"$lexicalAttemptId","exerciseId":"$lexicalId","answer":{"kind":"text","text":"book"},"hintUsed":false}""",
+                )
+            },
+        )
+        validate(
+            HttpMethod.Get,
+            "/api/v1/dev/exercises/$lexicalId",
+            client.get("/api/v1/dev/exercises/$lexicalId") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Inspector-Key", "k".repeat(32))
+            },
+        )
         val exerciseId = (wireJson.parseToJsonElement(exerciseResponse.bodyAsText()) as JsonObject)
             .getValue("id").jsonPrimitive.content
         val attemptId = UUID.randomUUID()
@@ -182,10 +217,10 @@ class OpenApiContractTest {
         header(HttpHeaders.Host, "localhost:8088")
     }
 
-    private fun config(developmentMode: Boolean = true) = ServerConfig(
+    private fun config(developmentMode: Boolean = true, inspectorKey: String? = null) = ServerConfig(
         developmentMode = developmentMode,
-        inspectorEnabled = false,
-        inspectorKey = null,
+        inspectorEnabled = inspectorKey != null,
+        inspectorKey = inspectorKey,
         secureCookie = false,
         trustedForwardedHeaders = false,
         allowedOrigins = setOf("http://localhost:8088"),
