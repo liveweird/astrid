@@ -4,6 +4,9 @@ package app.astrid.server
 
 import app.astrid.engine.GenerationRequest
 import app.astrid.engine.PilotEngine
+import app.astrid.engine.PracticeAttemptContextCalculator
+import app.astrid.engine.PracticeItemExposureObservation
+import app.astrid.engine.PracticeExposureSnapshot
 import app.astrid.engine.Answer
 import app.astrid.engine.Evaluation
 import app.astrid.engine.GeneratedExercise
@@ -55,6 +58,7 @@ internal fun Route.astridRoutes(
         catalogRoute(config, repository, engine, clock)
         exerciseRoutes(config, repository, engine, clock)
         attemptRoutes(config, repository, engine, evaluator, clock)
+        practiceRoutes(config, repository, engine, clock)
         inspectorRoute(config, repository, engine, clock)
     }
     staticRoutes(config)
@@ -147,20 +151,61 @@ private fun Route.attemptRoutes(
         requireMutationHeaders(call)
         val session = requireSession(call, config, repository, clock)
         val request = call.receive<AttemptRequest>().validated()
-        val result = repository.writeAttempt(session.id, request, wireJson.encodeToString(request)) { stored, retry, time ->
-            evaluateAttempt(engine, evaluator, stored, request, retry, time)
+        val result = repository.writeAttemptWithPractice(
+            session.id,
+            request,
+            wireJson.encodeToString(request),
+        ) { stored, retry, time, practice ->
+            val context = practice?.toAttemptContext()
+            CreatedAttempt(evaluateAttempt(engine, evaluator, stored, request, retry, time), context)
         }
         when (result) {
             is AttemptWriteResult.Created -> call.respond(result.response)
             is AttemptWriteResult.Existing -> call.respond(result.response)
             AttemptWriteResult.PayloadConflict -> throw Conflict("Attempt id was already used with a different payload")
             AttemptWriteResult.ExerciseMissing -> throw NotFound("Exercise not found")
+            AttemptWriteResult.PracticePositionConflict -> throw Conflict("Practice item is no longer current")
         }
     }
     get("/attempts/{id}") {
         val session = requireSession(call, config, repository, clock)
         call.respond(repository.findAttempt(session.id, call.uuidParameter("id")) ?: throw NotFound())
     }
+}
+
+private fun PracticeAttemptSource.toAttemptContext(): PracticeAttemptContextDto {
+    val snapshots = items.map { state ->
+        PracticeExposureSnapshot(
+            state.position,
+            state.answerExposureKeys,
+            state.promptExposureKeys,
+            state.lessonExposureKeys,
+            state.hintExposureKeys,
+            state.feedbackExposureKeys,
+        )
+    }
+    val byPosition = items.associateBy { it.position }
+    val current = snapshots.single { it.position == position }
+    val calculated = PracticeAttemptContextCalculator.calculate(
+        current,
+        introductionOpened,
+        snapshots.map { item ->
+            val state = byPosition.getValue(item.position)
+            PracticeItemExposureObservation(
+                item,
+                promptReleased = item.position <= position,
+                lessonOpened = state.lessonOpened,
+                hintOpened = state.hintOpened,
+                feedbackReleased = state.feedbackReleased,
+            )
+        },
+    )
+    return PracticeAttemptContextDto(
+        calculated.introductionOpened,
+        calculated.lessonOpened,
+        calculated.hintOpened,
+        calculated.priorExposure.map { PracticePriorExposureDto(it.position, it.source.wireValue, it.keys) },
+    )
 }
 
 private fun Route.inspectorRoute(
@@ -253,7 +298,7 @@ private suspend fun newSession(
     return session
 }
 
-private suspend fun requireSession(
+internal suspend fun requireSession(
     call: ApplicationCall,
     config: ServerConfig,
     repository: AstridRepository,
@@ -264,7 +309,7 @@ private suspend fun requireSession(
     return repository.findSession(hashToken(token), clock()) ?: throw Unauthorized()
 }
 
-private fun requireMutationHeaders(call: ApplicationCall) {
+internal fun requireMutationHeaders(call: ApplicationCall) {
     if (call.request.header(CLIENT_HEADER) != "playground") throw Forbidden("Missing required playground client header")
     val media = call.request.headers[HttpHeaders.ContentType] ?: throw BadRequest("Request body is missing or not JSON")
     if (media.isBlank() || call.request.contentType().withoutParameters() != ContentType.Application.Json) {
@@ -310,7 +355,7 @@ private fun AttemptRequest.validated(): AttemptRequest {
     return this
 }
 
-private fun parseStrictUuid(value: String, field: String): UUID {
+internal fun parseStrictUuid(value: String, field: String): UUID {
     val parsed = runCatching { UUID.fromString(value) }.getOrElse { throw BadRequest("Invalid $field") }
     if (!value.equals(parsed.toString(), ignoreCase = true)) throw BadRequest("Invalid $field")
     return parsed

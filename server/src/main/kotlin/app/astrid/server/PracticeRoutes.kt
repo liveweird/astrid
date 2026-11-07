@@ -1,0 +1,267 @@
+@file:Suppress("ThrowsCount")
+
+package app.astrid.server
+
+import app.astrid.engine.GeneratedExercise
+import app.astrid.engine.LinguisticStatus
+import app.astrid.engine.PracticeAttemptContext
+import app.astrid.engine.PracticeExposureSource
+import app.astrid.engine.PracticePlanner
+import app.astrid.engine.PracticePriorExposure
+import app.astrid.engine.PracticeSummaryAttemptObservation
+import app.astrid.engine.PracticeSummaryCalculator
+import app.astrid.engine.PracticeSummarySnapshotItemObservation
+import app.astrid.engine.PracticeTargetDescriptor
+import app.astrid.engine.ResponseConstraintStatus
+import app.astrid.engine.TargetStatus
+import app.astrid.engine.PilotEngine
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.request.header
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import java.util.UUID
+import kotlinx.serialization.encodeToString
+
+private const val PRACTICE_OWNER_HEADER = "X-Astrid-Practice-Owner"
+private const val PRACTICE_FOCUS = "reading-basics"
+private const val PRACTICE_REVISION = "practice-1"
+private const val PRACTICE_ITEM_COUNT = 8
+
+internal fun Route.practiceRoutes(
+    config: ServerConfig,
+    repository: AstridRepository,
+    engine: PilotEngine,
+    clock: () -> Long,
+) {
+    val planner = PracticePlanner(engine)
+    get("/practice-context") {
+        val owner = requirePracticeSession(call, config, repository, clock)
+        val plan = planner.plan(PRACTICE_FOCUS, PRACTICE_REVISION, 0)
+        call.respond(
+            PracticeContextResponse(
+                owner.id.toString(), owner.expiresAt, plan.focusId, plan.title, plan.planRevision, plan.items.size,
+            ),
+        )
+    }
+    post("/practice-sessions") {
+        requireMutationHeaders(call)
+        val owner = requirePracticeSession(call, config, repository, clock)
+        requirePracticeOwner(call, owner.id)
+        val request = call.receive<PracticeSessionRequest>().validated()
+        val result = repository.createPracticeSession(owner, request, wireJson.encodeToString(request)) {
+            val plan = try {
+                planner.plan(request.focusId, request.planRevision, request.seed)
+            } catch (cause: IllegalArgumentException) {
+                throw Conflict(cause.message ?: "Unsupported practice plan").apply { initCause(cause) }
+            }
+            NewPracticeSession(
+                plan.title,
+                plan.contentRevision,
+                plan.generatorRevision,
+                plan.evaluationRevision,
+                plan.prerequisiteSkillIds,
+                plan.introduction.map { IntroductionDto(it.title, it.body) },
+                plan.items.map { item ->
+                    val id = UUID.randomUUID()
+                    NewPracticeItem(
+                        item.position,
+                        item.exercise.toStoredPractice(id, owner.id),
+                        item.targetDescriptor.label,
+                        item.answerExposureKeys,
+                        item.promptExposureKeys,
+                        item.lessonExposureKeys,
+                        item.hintExposureKeys,
+                        item.feedbackExposureKeys,
+                    )
+                },
+            )
+        }
+        when (result) {
+            is PracticeCreateResult.Created -> call.respond(HttpStatusCode.Created, result.session.toResponse())
+            is PracticeCreateResult.Existing -> call.respond(result.session.toResponse())
+            PracticeCreateResult.RequestConflict -> throw Conflict("Practice session id was already used with a different request")
+        }
+    }
+    get("/practice-sessions/{id}") {
+        val owner = requirePracticeSession(call, config, repository, clock)
+        val stored = repository.findPracticeSession(owner.id, call.practiceId()) ?: throw NotFound()
+        call.respond(stored.toResponse())
+    }
+    post("/practice-sessions/{id}/support") {
+        requireMutationHeaders(call)
+        val owner = requirePracticeSession(call, config, repository, clock)
+        requirePracticeOwner(call, owner.id)
+        val request = call.receive<PracticeSupportRequest>().validated()
+        call.respond(repository.openPracticeSupport(owner.id, call.practiceId(), request).response())
+    }
+    post("/practice-sessions/{id}/advance") {
+        requireMutationHeaders(call)
+        val owner = requirePracticeSession(call, config, repository, clock)
+        requirePracticeOwner(call, owner.id)
+        val request = call.receive<PracticeAdvanceRequest>()
+        if (request.position !in 0 until PRACTICE_ITEM_COUNT) throw BadRequest("Invalid practice position")
+        call.respond(repository.advancePracticeSession(owner.id, call.practiceId(), request.position).response())
+    }
+}
+
+private suspend fun requirePracticeSession(
+    call: ApplicationCall,
+    config: ServerConfig,
+    repository: AstridRepository,
+    clock: () -> Long,
+): SessionRecord = requireSession(call, config, repository, clock)
+
+private fun requirePracticeOwner(call: ApplicationCall, expected: UUID) {
+    val raw = call.request.header(PRACTICE_OWNER_HEADER) ?: throw BadRequest("Practice owner header is required")
+    val supplied = parseStrictUuid(raw, "practice owner")
+    if (supplied != expected) throw Conflict("Practice owner does not match the authenticated session")
+}
+
+private fun PracticeSessionRequest.validated(): PracticeSessionRequest {
+    parseStrictUuid(practiceSessionId, "practiceSessionId")
+    if (focusId != PRACTICE_FOCUS || planRevision != PRACTICE_REVISION) throw Conflict("Unsupported practice plan")
+    if (seed < 0) throw BadRequest("Invalid practice seed")
+    return this
+}
+
+private fun PracticeSupportRequest.validated(): PracticeSupportRequest {
+    when (kind) {
+        "introduction" -> if (position != null) throw BadRequest("Introduction support must not include a position")
+        "lesson", "hint" -> if (position !in 0 until PRACTICE_ITEM_COUNT) {
+            throw BadRequest("Item support requires a valid position")
+        }
+        else -> throw BadRequest("Invalid practice support kind")
+    }
+    return this
+}
+
+private fun ApplicationCall.practiceId(): UUID =
+    parameters["id"]?.let { parseStrictUuid(it, "id") } ?: throw BadRequest("Invalid id")
+
+private fun PracticeMutationResult.response() = when (this) {
+    is PracticeMutationResult.Success -> session.toResponse()
+    PracticeMutationResult.Missing -> throw NotFound()
+    PracticeMutationResult.Conflict -> throw Conflict("Practice operation conflicts with current progress")
+}
+
+private fun GeneratedExercise.toStoredPractice(id: UUID, ownerSessionId: UUID) = StoredExercise(
+    id,
+    ownerSessionId,
+    formatId,
+    targetSkillId,
+    reproduction.seed,
+    reproduction.index,
+    contentRevision,
+    generatorRevision,
+    toResponse(id.toString()),
+    reproductionFingerprint(),
+)
+
+private fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
+    val summary = PracticeSummaryCalculator.calculate(
+        items.size,
+        introductionOpened,
+        items.map { stored ->
+            PracticeSummarySnapshotItemObservation(
+                stored.position,
+                PracticeTargetDescriptor(
+                    stored.targetLabel,
+                    stored.exercise.targetSkillId,
+                    stored.exercise.presentation.lexicalTarget?.let {
+                        app.astrid.engine.LexicalTarget(it.entryId, it.senseId, it.facet, it.direction)
+                    },
+                ),
+                advanced = stored.position < cursor,
+                lessonOpened = stored.lessonOpened,
+                hintOpened = stored.hintOpened,
+                attempts = stored.attempts.map { attempt ->
+                    PracticeSummaryAttemptObservation(
+                        enumByWire<TargetStatus>(attempt.response.targetSatisfaction),
+                        enumByWire<LinguisticStatus>(attempt.response.linguisticStatus),
+                        attempt.response.responseConstraintStatus?.let { enumByWire<ResponseConstraintStatus>(it) },
+                        attempt.context.toEngine(),
+                        attempt.response.hintUsed,
+                    )
+                },
+            )
+        },
+    )
+    return PracticeSessionResponse(
+        id.toString(), ownerSessionId.toString(), focusId, title, planRevision, seed,
+        contentRevision, generatorRevision, evaluationRevision, sessionExpiresAt,
+        if (cursor == items.size) "completed" else "active", cursor, items.size,
+        prerequisiteSkillIds, introduction, introductionOpened,
+        items.map { it.toDto() }, items.singleOrNull { it.position == cursor }?.exercise?.presentation,
+        summary.toDto(includeRows = cursor == items.size),
+    )
+}
+
+private fun StoredPracticeItem.toDto(): PracticeItemDto = PracticeItemDto(
+    position,
+    exercise.id.toString(),
+    exercise.formatId,
+    exercise.targetSkillId,
+    exercise.presentation.lexicalTarget,
+    lessonOpened,
+    hintOpened,
+    attempts.map { it.response.attemptId },
+    attempts.size,
+    attempts.firstOrNull()?.response,
+    attempts.lastOrNull()?.response,
+    attempts.firstOrNull()?.answer,
+    attempts.lastOrNull()?.answer,
+    attempts.firstOrNull()?.context,
+    attempts.lastOrNull()?.context,
+)
+
+private fun PracticeAttemptContextDto.toEngine() = PracticeAttemptContext(
+    introductionOpened,
+    lessonOpened,
+    hintOpened,
+    priorExposure.map { exposure ->
+        PracticePriorExposure(
+            exposure.position,
+            PracticeExposureSource.entries.single { it.wireValue == exposure.source },
+            exposure.keys,
+        )
+    },
+)
+
+private fun app.astrid.engine.PracticeSummary.toDto(includeRows: Boolean) = PracticeSummaryDto(
+    plannedItems, attemptedItems, completedItems, attemptCount, retryCount, introductionOpened,
+    rows.takeIf { includeRows }.orEmpty().map { row ->
+        PracticeSummaryRowDto(
+            row.label,
+            row.targetSkillId,
+            row.lexicalTarget?.let { LexicalTargetDto(it.entryId, it.senseId, it.facet, it.direction) },
+            row.plannedItems,
+            row.attemptedItems,
+            row.advancedItems,
+            row.attemptCount,
+            row.retryCount,
+            row.first.toDto(),
+            row.latest.toDto(),
+            row.firstWithSupport,
+            row.firstWithPriorExposure,
+            row.lessonOpenedItems,
+            row.hintOpenedItems,
+        )
+    },
+)
+
+private fun app.astrid.engine.PracticeOutcomeCounts.toDto() = PracticeOutcomeCountsDto(
+    fullyMet, targetMet, targetNotMet, unevaluable, languageUnknown, languageKnownIssue, responseConstraintNotMet,
+)
+
+private inline fun <reified T : Enum<T>> enumByWire(value: String): T = enumValues<T>().single { entry ->
+    when (entry) {
+        is TargetStatus -> entry.wireValue
+        is LinguisticStatus -> entry.wireValue
+        is ResponseConstraintStatus -> entry.wireValue
+        else -> error("Unsupported wire enum")
+    } == value
+}

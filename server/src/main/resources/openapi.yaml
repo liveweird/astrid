@@ -72,6 +72,66 @@ paths:
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+  /api/v1/practice-context:
+    get:
+      operationId: getPracticeContext
+      responses:
+        '200': { description: Practice context, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeContext' } } } }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+  /api/v1/practice-sessions:
+    post:
+      operationId: createPracticeSession
+      parameters: [{ $ref: '#/components/parameters/Client' }, { $ref: '#/components/parameters/PracticeOwner' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSessionRequest' } } } }
+      responses:
+        '200': { description: Resumed practice session, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSession' } } } }
+        '201': { description: Created practice session, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSession' } } } }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }
+        '415': { $ref: '#/components/responses/Problem' }
+  /api/v1/practice-sessions/{id}:
+    get:
+      operationId: getPracticeSession
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200': { description: Practice session, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSession' } } } }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+  /api/v1/practice-sessions/{id}/support:
+    post:
+      operationId: openPracticeSupport
+      parameters: [{ $ref: '#/components/parameters/Id' }, { $ref: '#/components/parameters/Client' }, { $ref: '#/components/parameters/PracticeOwner' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSupportRequest' } } } }
+      responses:
+        '200': { description: Practice session, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSession' } } } }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }
+        '415': { $ref: '#/components/responses/Problem' }
+  /api/v1/practice-sessions/{id}/advance:
+    post:
+      operationId: advancePracticeSession
+      parameters: [{ $ref: '#/components/parameters/Id' }, { $ref: '#/components/parameters/Client' }, { $ref: '#/components/parameters/PracticeOwner' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeAdvanceRequest' } } } }
+      responses:
+        '200': { description: Practice session, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSession' } } } }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }
+        '415': { $ref: '#/components/responses/Problem' }
   /api/v1/dev/exercises/{id}:
     get:
       operationId: inspectExercise
@@ -101,6 +161,7 @@ paths:
 components:
   parameters:
     Client: { name: X-Astrid-Client, in: header, required: true, schema: { type: string, enum: [playground] } }
+    PracticeOwner: { name: X-Astrid-Practice-Owner, in: header, required: true, schema: { type: string, format: uuid } }
     Id: { name: id, in: path, required: true, schema: { type: string, format: uuid } }
   responses:
     Problem: { description: Safe problem, content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } } }
@@ -251,6 +312,145 @@ components:
         retryNumber: { type: integer, minimum: 1 }
         createdAt: { type: integer, format: int64 }
     Issue: { type: object, additionalProperties: false, required: [code, message], properties: { code: { type: string }, message: { type: string } } }
+    PracticeContext:
+      type: object
+      additionalProperties: false
+      required: [ownerSessionId, sessionExpiresAt, focusId, title, planRevision, itemCount]
+      properties:
+        ownerSessionId: { type: string, format: uuid }
+        sessionExpiresAt: { type: integer, format: int64 }
+        focusId: { type: string, enum: [reading-basics] }
+        title: { type: string }
+        planRevision: { type: string, enum: [practice-1] }
+        itemCount: { type: integer, enum: [8] }
+    PracticeSessionRequest:
+      type: object
+      additionalProperties: false
+      required: [practiceSessionId, focusId, planRevision, seed]
+      properties:
+        practiceSessionId: { type: string, format: uuid }
+        focusId: { type: string, enum: [reading-basics] }
+        planRevision: { type: string, enum: [practice-1] }
+        seed: { type: integer, minimum: 0 }
+    PracticeSupportRequest:
+      type: object
+      additionalProperties: false
+      required: [kind]
+      properties:
+        kind: { type: string, enum: [introduction, lesson, hint] }
+        position: { type: integer, minimum: 0, maximum: 7 }
+    PracticeAdvanceRequest:
+      type: object
+      additionalProperties: false
+      required: [position]
+      properties:
+        position: { type: integer, minimum: 0, maximum: 7 }
+    PracticeSession:
+      type: object
+      additionalProperties: false
+      required: [id, ownerSessionId, focusId, title, planRevision, seed, contentRevision, generatorRevision, evaluationRevision, sessionExpiresAt, state, cursor, itemCount, prerequisiteSkillIds, introduction, introductionOpened, items, summary]
+      properties:
+        id: { type: string, format: uuid }
+        ownerSessionId: { type: string, format: uuid }
+        focusId: { type: string }
+        title: { type: string }
+        planRevision: { type: string }
+        seed: { type: integer }
+        contentRevision: { type: string }
+        generatorRevision: { type: string }
+        evaluationRevision: { type: string }
+        sessionExpiresAt: { type: integer, format: int64 }
+        state: { type: string, enum: [active, completed] }
+        cursor: { type: integer, minimum: 0, maximum: 8 }
+        itemCount: { type: integer, enum: [8] }
+        prerequisiteSkillIds: { type: array, items: { type: string } }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        introductionOpened: { type: boolean }
+        items: { type: array, items: { $ref: '#/components/schemas/PracticeItem' } }
+        currentExercise: { $ref: '#/components/schemas/Exercise' }
+        summary: { $ref: '#/components/schemas/PracticeSummary' }
+    PracticeItem:
+      type: object
+      additionalProperties: false
+      required: [position, exerciseId, formatId, lessonOpened, hintOpened, attemptIds, attemptCount]
+      properties:
+        position: { type: integer }
+        exerciseId: { type: string, format: uuid }
+        formatId: { type: string }
+        targetSkillId: { type: string, nullable: true }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        lessonOpened: { type: boolean }
+        hintOpened: { type: boolean }
+        attemptIds: { type: array, items: { type: string, format: uuid } }
+        attemptCount: { type: integer, minimum: 0 }
+        firstAttempt: { $ref: '#/components/schemas/Attempt' }
+        lastAttempt: { $ref: '#/components/schemas/Attempt' }
+        firstAnswer:
+          oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }]
+        lastAnswer:
+          oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }]
+        firstAttemptContext: { $ref: '#/components/schemas/PracticeAttemptContext' }
+        lastAttemptContext: { $ref: '#/components/schemas/PracticeAttemptContext' }
+    PracticeAttemptContext:
+      type: object
+      additionalProperties: false
+      required: [introductionOpened, lessonOpened, hintOpened, priorExposure]
+      properties:
+        introductionOpened: { type: boolean }
+        lessonOpened: { type: boolean }
+        hintOpened: { type: boolean }
+        priorExposure: { type: array, items: { $ref: '#/components/schemas/PracticePriorExposure' } }
+    PracticePriorExposure:
+      type: object
+      additionalProperties: false
+      required: [position, source, keys]
+      properties:
+        position: { type: integer }
+        source: { type: string, enum: [prompt, lesson, hint, feedback] }
+        keys: { type: array, items: { type: string } }
+    PracticeSummary:
+      type: object
+      additionalProperties: false
+      required: [plannedItems, attemptedItems, completedItems, attemptCount, retryCount, introductionOpened, rows]
+      properties:
+        plannedItems: { type: integer }
+        attemptedItems: { type: integer }
+        completedItems: { type: integer }
+        attemptCount: { type: integer }
+        retryCount: { type: integer }
+        introductionOpened: { type: boolean }
+        rows: { type: array, items: { $ref: '#/components/schemas/PracticeSummaryRow' } }
+    PracticeSummaryRow:
+      type: object
+      additionalProperties: false
+      required: [label, plannedItems, attemptedItems, advancedItems, attemptCount, retryCount, firstOutcomes, latestOutcomes, firstWithSupport, firstWithPriorExposure, lessonOpenedItems, hintOpenedItems]
+      properties:
+        label: { type: string }
+        targetSkillId: { type: string, nullable: true }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        plannedItems: { type: integer }
+        attemptedItems: { type: integer }
+        advancedItems: { type: integer }
+        attemptCount: { type: integer }
+        retryCount: { type: integer }
+        firstOutcomes: { $ref: '#/components/schemas/PracticeOutcomeCounts' }
+        latestOutcomes: { $ref: '#/components/schemas/PracticeOutcomeCounts' }
+        firstWithSupport: { type: integer }
+        firstWithPriorExposure: { type: integer }
+        lessonOpenedItems: { type: integer }
+        hintOpenedItems: { type: integer }
+    PracticeOutcomeCounts:
+      type: object
+      additionalProperties: false
+      required: [fullyMet, targetMet, targetNotMet, unevaluable, languageUnknown, languageKnownIssue, responseConstraintNotMet]
+      properties:
+        fullyMet: { type: integer }
+        targetMet: { type: integer }
+        targetNotMet: { type: integer }
+        unevaluable: { type: integer }
+        languageUnknown: { type: integer }
+        languageKnownIssue: { type: integer }
+        responseConstraintNotMet: { type: integer }
     Inspector:
       type: object
       additionalProperties: false
