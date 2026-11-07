@@ -79,6 +79,46 @@ class KnowledgeCheckTests(unittest.TestCase):
         self.assertTrue(any("no reference to a defined construction" in message for message in messages))
         self.assertTrue(any("no reference to a defined vocabulary entry" in message for message in messages))
 
+    def test_optional_coverage_tables_match_dynamic_catalogues(self):
+        self.write(
+            "docs/knowledge/foundation-coverage.md",
+            """# Coverage
+| Grammar | Construction |
+| --- | --- |
+| G001 | C001 |
+| G002 | C001 |
+
+| Construction | Grammar |
+| --- | --- |
+| C001 | G001, G002, L001 |
+""",
+        )
+        result = check_knowledge.check_repository(self.root)
+        self.assertTrue(result.ok, [problem.message for problem in result.problems])
+        self.assertEqual(result.counts["coverage_grammar_rows"], 2)
+        self.assertEqual(result.counts["coverage_construction_rows"], 1)
+
+    def test_optional_coverage_reports_missing_duplicate_and_unknown_rows(self):
+        self.write(
+            "docs/knowledge/foundation-coverage.md",
+            """# Coverage
+| G001 | C001 |
+| G001 | C999 |
+| G999 | C001 |
+| C999 | G001 |
+| C999 | G002 |
+""",
+        )
+        messages = self.messages()
+        self.assertTrue(any("duplicate G001" in message for message in messages))
+        self.assertTrue(any("duplicate C999" in message for message in messages))
+        self.assertTrue(any("undefined identifier G999" in message for message in messages))
+        self.assertTrue(any("undefined identifier C999" in message for message in messages))
+        self.assertTrue(any("missing row for G002" in message for message in messages))
+        self.assertTrue(any("missing row for C001" in message for message in messages))
+        self.assertTrue(any("reference to undefined G999" in message for message in messages))
+        self.assertTrue(any("reference to undefined C999" in message for message in messages))
+
     def test_duplicate_and_missing_definitions_are_reported(self):
         path = "docs/knowledge/danish-sentence-catalogue.md"
         self.write(path, "# Catalogue\n### C001 One\n### C001 Again\nUses C999.\n")

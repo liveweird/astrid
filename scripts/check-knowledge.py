@@ -18,6 +18,7 @@ FOUNDATION_PATHS = {
     "vocabulary": Path("docs/knowledge/danish-vocabulary-seed.md"),
     "slice": Path("docs/knowledge/beginner-slice-spec.md"),
 }
+COVERAGE_PATH = Path("docs/knowledge/foundation-coverage.md")
 
 HEADING_RE = re.compile(r"^###\s+([GC]\d{3})\b")
 LEXICON_ROW_RE = re.compile(r"^\s*\|\s*`?(L\d{3})`?\s*\|")
@@ -29,6 +30,7 @@ SOURCE_DEFINITION_RE = re.compile(r"^\s*-\s+\*\*(S\d+)\s+[\u2013\u2014-]")
 SOURCE_REFERENCE_RE = re.compile(r"\bS\d+\b")
 MARKDOWN_LINK_RE = re.compile(r"(?<!!)\[[^\]\n]*\]\(([^)\n]+)\)")
 REFERENCE_LINK_RE = re.compile(r"^\s*\[[^\]]+\]:\s*(\S+)")
+COVERAGE_ROW_RE = re.compile(r"^\s*\|\s*`?([GC]\d{3})`?\s*\|")
 
 
 @dataclass(frozen=True)
@@ -60,7 +62,10 @@ def _lines(path: Path) -> List[str]:
 
 
 def _definitions(
-    path: Path, lines: Sequence[str], pattern: re.Pattern[str]
+    path: Path,
+    lines: Sequence[str],
+    pattern: re.Pattern[str],
+    kind: str = "definition",
 ) -> Tuple[Dict[str, int], List[Problem]]:
     definitions: Dict[str, int] = {}
     problems: List[Problem] = []
@@ -74,7 +79,7 @@ def _definitions(
                 Problem(
                     path,
                     line_number,
-                    f"duplicate {identifier} definition (first defined on line "
+                    f"duplicate {identifier} {kind} (first found on line "
                     f"{definitions[identifier]})",
                 )
             )
@@ -241,6 +246,30 @@ def _check_sources(path: Path, lines: Sequence[str]) -> Tuple[int, List[Problem]
     return len(definitions), problems
 
 
+def _check_coverage_rows(
+    path: Path,
+    lines: Sequence[str],
+    grammar: Mapping[str, int],
+    constructions: Mapping[str, int],
+) -> Tuple[Dict[str, int], List[Problem]]:
+    rows, problems = _definitions(path, lines, COVERAGE_ROW_RE, "coverage row")
+    expected = set(grammar) | set(constructions)
+    for identifier, line_number in rows.items():
+        if identifier not in expected:
+            problems.append(
+                Problem(path, line_number, f"coverage row has undefined identifier {identifier}")
+            )
+    for identifier in sorted(expected - set(rows)):
+        problems.append(
+            Problem(path, 1, f"coverage table is missing row for {identifier}")
+        )
+    counts = {
+        "coverage_grammar_rows": sum(identifier.startswith("G") for identifier in rows),
+        "coverage_construction_rows": sum(identifier.startswith("C") for identifier in rows),
+    }
+    return counts, problems
+
+
 def _local_link_target(raw_target: str) -> str | None:
     target = raw_target.strip()
     if target.startswith("<") and ">" in target:
@@ -302,6 +331,9 @@ def check_repository(root: Path) -> CheckResult:
             documents[path] = _lines(path)
     if len(documents) != len(FOUNDATION_PATHS):
         return result
+    coverage_path = root / COVERAGE_PATH
+    if coverage_path.is_file():
+        documents[coverage_path] = _lines(coverage_path)
 
     grammar_path = root / FOUNDATION_PATHS["grammar"]
     construction_path = root / FOUNDATION_PATHS["constructions"]
@@ -337,6 +369,12 @@ def check_repository(root: Path) -> CheckResult:
     result.problems.extend(_check_prerequisites(grammar_path, grammar, graph))
     known = set(grammar) | set(constructions) | set(vocabulary)
     result.problems.extend(_check_references(documents, known))
+    if coverage_path in documents:
+        coverage_counts, coverage_problems = _check_coverage_rows(
+            coverage_path, documents[coverage_path], grammar, constructions
+        )
+        result.counts.update(coverage_counts)
+        result.problems.extend(coverage_problems)
     slice_path = root / FOUNDATION_PATHS["slice"]
     slice_references = {
         identifier
