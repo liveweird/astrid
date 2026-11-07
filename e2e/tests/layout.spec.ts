@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { openGenerationControls } from "../support/generation-controls.js";
 
 async function expectNoHorizontalOverflow(page: Page, state: string) {
   const dimensions = await page.evaluate(() => ({
@@ -8,20 +9,69 @@ async function expectNoHorizontalOverflow(page: Page, state: string) {
   expect(dimensions.scrollWidth, `${state}: ${JSON.stringify(dimensions)}`).toBeLessThanOrEqual(dimensions.clientWidth + 1);
 }
 
+async function expectInsideViewport(page: Page, accessibleName: string) {
+  const control = page.getByRole("button", { name: accessibleName });
+  const box = await control.boundingBox();
+  const headerBox = await page.locator("header").boundingBox();
+  expect(box, `${accessibleName} must have a rendered box`).not.toBeNull();
+  expect(headerBox, "header must have a rendered box").not.toBeNull();
+  expect(box!.x, `${accessibleName} left edge`).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width, `${accessibleName} right edge`).toBeLessThanOrEqual(320);
+  expect(box!.y, `${accessibleName} top edge`).toBeGreaterThanOrEqual(headerBox!.y);
+  expect(box!.y + box!.height, `${accessibleName} bottom edge`).toBeLessThanOrEqual(headerBox!.y + headerBox!.height);
+}
+
+async function expectUnclippedLabels(page: Page) {
+  const labels = page.locator(".mantine-Badge-label, .mantine-Accordion-label, .mantine-Button-label");
+  const clipped = await labels.evaluateAll((elements) => elements
+    .filter((element) => element.getClientRects().length > 0 &&
+      (element.scrollWidth > element.clientWidth + 1 || element.scrollHeight > element.clientHeight + 1))
+    .map((element) => element.textContent));
+  expect(clipped).toEqual([]);
+}
+
 async function chooseFormat(page: Page, title: string) {
   const selector = page.getByRole("combobox", { name: "Exercise type" });
-  if (!(await selector.isVisible())) await page.getByRole("button", { name: "Generation controls" }).click();
+  await openGenerationControls(page);
   await selector.click();
   await page.getByRole("option", { name: title }).click();
   await expect(selector).toHaveValue(title);
 }
 
 test("all pilot formats and recovery states reflow at 320px with 200% text", async ({ page }) => {
+  const pageErrors: Error[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error));
   await page.setViewportSize({ width: 320, height: 900 });
-  await page.addInitScript(() => { document.documentElement.style.fontSize = "200%"; });
+  await page.addInitScript(() => {
+    const enlargeText = () => {
+      const style = document.createElement("style");
+      style.textContent = "html { font-size: 200% !important; }";
+      document.documentElement.append(style);
+    };
+    if (document.documentElement) enlargeText();
+    else document.addEventListener("DOMContentLoaded", enlargeText, { once: true });
+  });
   await page.goto("/");
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize)).toBe("32px");
+  expect(pageErrors).toEqual([]);
+  await expectInsideViewport(page, "Toggle navigation");
+  await expectInsideViewport(page, "Use dark theme");
+
+  const skipLink = page.getByRole("link", { name: "Skip to learning exercise" });
+  await expect(skipLink).not.toBeInViewport();
+  const macWebKit = process.platform === "darwin" && page.context().browser()?.browserType().name() === "webkit";
+  const tab = macWebKit ? "Alt+Tab" : "Tab";
+  await page.keyboard.press(tab);
+  await expect(skipLink).toBeFocused();
+  await expect(skipLink).toBeInViewport();
+  await page.keyboard.press(tab);
+
+  await page.getByRole("button", { name: "Toggle navigation" }).click();
+  await expect(page.getByRole("navigation")).toBeVisible();
+  await page.getByRole("button", { name: "Toggle navigation" }).click();
   await expectNoHorizontalOverflow(page, "present-form exercise");
+  await expectUnclippedLabels(page);
 
   await page.getByRole("button", { name: "Learn this first" }).click();
   await expectNoHorizontalOverflow(page, "open lesson");
@@ -31,6 +81,7 @@ test("all pilot formats and recovery states reflow at 320px with 200% text", asy
   await page.getByRole("button", { name: "Check answer" }).click();
   await expect(page.getByRole("status")).toBeVisible();
   await expectNoHorizontalOverflow(page, "feedback");
+  await expectUnclippedLabels(page);
 
   await chooseFormat(page, "Supply the indefinite article");
   await expectNoHorizontalOverflow(page, "article exercise");
@@ -53,4 +104,6 @@ test("all pilot formats and recovery states reflow at 320px with 200% text", asy
   await page.getByRole("option", { name: "Choose the present form" }).click();
   await expect(page.getByRole("button", { name: "Reload engine" })).toBeVisible();
   await expectNoHorizontalOverflow(page, "revision recovery");
+  await expectUnclippedLabels(page);
+  expect(pageErrors).toEqual([]);
 });

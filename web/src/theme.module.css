@@ -22,3 +22,50 @@
 .brandText {
   letter-spacing: -0.02em;
 }
+
+@media (max-width: 30em) {
+  .narrowBrandLabel {
+    display: none;
+  }
+
+  .playground :global(.mantine-Button-root) {
+    height: auto;
+    min-height: var(--button-height);
+    max-width: 100%;
+  }
+
+  .playground :global(.mantine-Button-label) {
+    height: auto;
+    line-height: 1.4;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    overflow: visible;
+  }
+
+  .playground :global(.mantine-Badge-root) {
+    height: auto;
+    min-height: var(--badge-height);
+    max-width: 100%;
+  }
+
+  .playground :global(.mantine-Badge-label),
+  .playground :global(.mantine-Accordion-label) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .exerciseActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .exercisePrimaryActions {
+    width: 100%;
+  }
+
+  .exercisePrimaryActions > :global(.mantine-Button-root) {
+    flex: 1 1 100%;
+  }
+}

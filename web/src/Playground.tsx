@@ -11,6 +11,7 @@ import type { Attempt, AttemptAnswer, AttemptRequest, Catalog, DevelopmentSessio
 import ExercisePrompt from "./components/ExercisePrompt";
 import FeedbackPanel from "./components/FeedbackPanel";
 import InspectorPanel from "./components/InspectorPanel";
+import classes from "./theme.module.css";
 
 const INITIAL_SEED = 20261107;
 const INITIAL_INDEX = 0;
@@ -204,7 +205,7 @@ export default function Playground() {
   const answerReady = exercise?.formatId === "E003" ? order.length === exercise.prompt.blocks.length : text.trim().length > 0;
 
   return (
-    <Stack gap="lg" maw={920}>
+    <Stack gap="lg" maw={920} className={classes.playground}>
       <Box>
         <Group justify="space-between" align="start">
           <Box>
@@ -286,7 +287,7 @@ export default function Playground() {
               />
               {hintVisible && <Alert color="gray" icon={<IconBulb size={18} />}>{exercise.hint}</Alert>}
               {attempt && <FeedbackPanel attempt={attempt} />}
-              <Group justify="space-between">
+              <Group justify="space-between" className={classes.exerciseActions}>
                 <Button
                   variant="subtle"
                   color="gray"
@@ -295,7 +296,7 @@ export default function Playground() {
                 >
                   Show hint
                 </Button>
-                <Group>
+                <Group className={classes.exercisePrimaryActions}>
                   {attempt && (
                     <Button variant="default" disabled={busy || uncertain} onClick={retryKnownAttempt}>Try again</Button>
                   )}

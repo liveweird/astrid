@@ -6,6 +6,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [next]
 
+- **BL-028 — Correct enlarged-text reflow.** A true 200% root font exposed clipped controls/labels and a skip-link overlap that the earlier ineffective initialization missed. The [correction and focused checks](docs/knowledge/text-resize-reflow.md) are reviewed; finish packaged matrix/Linux CI and Git delivery without reducing text size or hiding page overflow.
+
 - **BL-027 — Verify the web interface across rendering engines.** Evaluate the same critical journeys in Chromium and WebKit, preserve native keyboard traversal on each platform, and validate Linux WebKit on a branch CI run before enabling its project on master. This supports the agreed future web-interface reuse without claiming native iOS/Safari-device testing.
 
 - **BL-026 — Recover visibly from a stalled runtime database.** A separately owned QA stack reproduced a submission still waiting after 35 seconds while PostgreSQL was paused. Bound browser waiting while preserving uncertain-attempt identity, preserve readiness cancellation, independently review the changes and verify real paused-database recovery. Do not equate a browser timeout with a known rollback or an assured server cleanup deadline.

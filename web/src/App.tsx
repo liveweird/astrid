@@ -29,13 +29,13 @@ export default function App() {
 
   return (
     <AppShell
-      header={{ height: 48 }}
+      header={{ height: "3rem" }}
       navbar={{ width: { base: 240, sm: rail ? 64 : 240 }, breakpoint: "sm", collapsed: { mobile: !opened } }}
       padding="md"
     >
       <AppShell.Header>
         <a href="#main-content" className="skip-link">Skip to learning exercise</a>
-        <Group h={48} px="md" justify="space-between" wrap="nowrap">
+        <Group h="3rem" px={{ base: "xs", sm: "md" }} justify="space-between" wrap="nowrap">
           <Group gap="sm" wrap="nowrap">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" aria-label="Toggle navigation" />
             <Tooltip label={collapsed ? "Expand navigation" : "Collapse navigation"} position="right">
