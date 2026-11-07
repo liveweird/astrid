@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
-import { readPractice, type PracticeExercise } from "../support/practice.js";
+import { choosePractice, readPractice, type PracticeExercise } from "../support/practice.js";
 
 const FIRST_ATTEMPT_ID = "ffffffff-ffff-4fff-8fff-ffffffffffff";
 const SECOND_ATTEMPT_ID = "00000000-0000-4000-8000-000000000000";
@@ -7,6 +7,7 @@ const meanings: Record<string, string> = { bog: "book", avis: "newspaper", brev:
 
 async function openRun(page: Page) {
   await page.goto("/practice");
+  await choosePractice(page);
   await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeVisible();
   const id = new URL(page.url()).searchParams.get("session");
   expect(id).toBeTruthy();

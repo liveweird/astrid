@@ -1,10 +1,11 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { expectFeedbackBadgesUnclipped } from "../support/feedback-layout.js";
-import { ownerHeaders, PRACTICE_HEADERS, readPractice, saveWrongAttempt, wrongAnswer, type PracticeExercise, type PracticeState } from "../support/practice.js";
+import { choosePractice, ownerHeaders, PRACTICE_HEADERS, readPractice, saveWrongAttempt, wrongAnswer, type PracticeExercise, type PracticeState } from "../support/practice.js";
 
 async function open(page: Page) {
   await page.goto("/practice");
+  await choosePractice(page);
   await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeVisible();
   const id = new URL(page.url()).searchParams.get("session");
   expect(id).toBeTruthy();
@@ -127,6 +128,7 @@ test("practice offers explicit recovery when authentication expires before a sav
   const restart = page.getByRole("button", { name: "Start new practice", exact: true }).first();
   await expect(restart).toBeEnabled();
   await restart.click();
+  await choosePractice(page);
   await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeVisible();
   expect(new URL(page.url()).searchParams.get("session")).not.toBe(state.id);
 });
@@ -193,6 +195,7 @@ test("practice does not send a mutation when browser recovery storage fails", as
     };
   });
   await page.goto("/practice");
+  await choosePractice(page);
   await expect(page.getByText(/operation was not sent/)).toBeVisible();
   expect(creates).toBe(0);
 });
@@ -208,6 +211,7 @@ for (const committed of [false, true]) {
       } else await route.continue();
     });
     await page.goto("/practice");
+    await choosePractice(page);
     await expect(page.getByRole("button", { name: "Start new practice", exact: true })).toBeVisible();
     const id = new URL(page.url()).searchParams.get("session");
     await page.reload();
@@ -230,6 +234,7 @@ test("practice does not replay a pending creation under a renewed cookie", async
   });
   page.on("request", (request) => { if (request.method() === "POST" && new URL(request.url()).pathname === "/api/v1/development-session") renewals += 1; });
   await page.goto("/practice");
+  await choosePractice(page);
   await expect(page.getByRole("button", { name: "Start new practice", exact: true })).toBeVisible();
   expect(creates).toBe(1);
   const id = new URL(page.url()).searchParams.get("session")!;

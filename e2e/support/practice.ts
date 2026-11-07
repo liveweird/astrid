@@ -1,4 +1,4 @@
-import { expect, type APIRequestContext } from "@playwright/test";
+import { expect, type APIRequestContext, type Page } from "@playwright/test";
 
 export const PRACTICE_HEADERS = { "X-Astrid-Client": "playground" };
 export type PracticeExercise = {
@@ -63,6 +63,10 @@ export async function readPractice(request: APIRequestContext, id: string) {
 
 const meanings: Record<string, string> = { bog: "book", avis: "newspaper", brev: "letter (written message)" };
 export function wrongAnswer(exercise: PracticeExercise) {
+  if (exercise.formatId === "E001") {
+    const infinitives = new Set(["sove", "have", "læse", "spise", "være"]);
+    return { kind: "text", text: exercise.prompt.choices.find((choice) => infinitives.has(choice))! };
+  }
   if (exercise.formatId === "E007") {
     return { kind: "text", text: exercise.prompt.choices.find((choice) => choice !== meanings[exercise.prompt.cue!])! };
   }
@@ -79,4 +83,10 @@ export async function saveWrongAttempt(request: APIRequestContext, exercise: Pra
   expect(response.status()).toBe(200);
   expect((await response.json() as { targetSatisfaction: string }).targetSatisfaction).toBe("not-met");
   return body;
+}
+
+export async function choosePractice(page: Page, focus = "Mixed practice") {
+  await expect(page.getByRole("heading", { name: "Choose your practice", exact: true })).toBeVisible();
+  await page.getByRole("radio", { name: focus, exact: true }).check();
+  await page.getByRole("button", { name: "Start practice", exact: true }).click();
 }

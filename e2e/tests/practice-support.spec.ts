@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { readPractice } from "../support/practice.js";
+import { choosePractice, readPractice } from "../support/practice.js";
 
 type Teaching = { title: string; body: string };
 type TeachingState = {
@@ -15,6 +15,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 768, height: 360 }
       test(`practice reveals ${kind} after saving and keeps it readable at ${viewport.width}×${viewport.height} with 200% text${retry ? " after saved-operation retry" : ""}`, async ({ page }) => {
         await page.setViewportSize(viewport);
         await page.goto("/practice");
+        await choosePractice(page);
         await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeVisible();
         const id = new URL(page.url()).searchParams.get("session")!;
         const source = await (await page.request.get(`/api/v1/practice-sessions/${id}`)).json() as TeachingState;

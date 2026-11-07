@@ -21,18 +21,20 @@ Use Tab/Enter throughout and try the narrow layout and both themes. If a result 
 
 ## Try guided practice
 
-Open `http://localhost:8088/practice` for **Words and simple statements**, an eight-part sequence using existing content.
+Open `http://localhost:8088/practice` and choose **Mixed practice** for eight parts, or **Present verb forms** for six. The verb run alternates choosing a form, written recall and repairing one wrong word, using all five introduced verbs. A saved run resumes directly instead of returning to selection.
 
 1. Open the optional introduction, item lesson or hint. The revealed text should receive focus and stay readable, including in a short window with enlarged text.
 2. Give an incorrect answer. Check whether feedback distinguishes the target from response constraints and explains opened support. Retry if useful, or choose **Continue** immediately after the saved result.
 3. Refresh midway. The same URL should restore the run, checked answer and support; an unsent draft is not guaranteed to survive refresh. Connection uncertainty offers **Retry saved operation**, retaining the original operation identity.
-4. Complete the run and compare first versus latest outcomes. Retries and earlier answer exposure remain visible; completion does not establish mastery. Use **Start new practice** to compare another run.
+4. Complete the run and compare first versus latest outcomes. Retries and earlier answer exposure remain visible; completion does not establish mastery. Use **Start new practice** to compare another focus. Opening the chooser and cancelling should preserve the current URL, draft and pending operation; starting another run retains the earlier recovery record.
 
-Assess pacing, exercise transitions, explanation clarity and whether the summary helps decide what to revisit. The [variation audit](practice-variation-audit.md) distinguishes 294 meaningful current plans from additional choice/block shuffles; more reviewed language content remains necessary for lasting variety.
+Assess pacing, exercise transitions, explanation clarity and whether the summary helps decide what to revisit. The [variation audit](practice-variation-audit.md) distinguishes 294 meaningful mixed plans from additional choice/block shuffles; more reviewed language content remains necessary for lasting variety.
 
 ## Try targeted follow-up practice
 
 From a completed summary, choose targets with the **Review …** checkboxes, then **Start selected review**. Nothing is preselected. Try one written-headword target: it produces one item, with recognition kept separate. Then return through **Source practice** and choose sentence order or articles: grammar review uses several distinct sentences, and articles alternate supply and repair.
+
+For a completed verb run, compare the three operation cards and select each separately. One or two selected operations produce four parts; all three produce six. Follow-up sentences differ from the immediate source. Incorrect typed feedback repeats the learner's sentence and must not claim to have revealed a correct form. The [topic contract](topic-practice.md) defines these boundaries.
 
 Check whether selecting targets feels useful and whether source exposure is understandable. Refresh a review midway, complete it, and compare its first/latest outcomes with the unchanged source. Reviews retain possible earlier exposure rather than implying independent mastery. The [follow-up contract](targeted-follow-up.md) records the finite vocabulary pool and saved-lineage boundaries.
 

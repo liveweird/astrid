@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { readPractice, wrongAnswer } from "../support/practice.js";
+import { choosePractice, readPractice, wrongAnswer } from "../support/practice.js";
 
 const VERSION = /^v\d+\.\d+\.\d+$/;
 const BUILD = /^v(\d+\.\d+\.\d+) · ([a-f0-9]{7,40}) · (\d{4}-\d{2}-\d{2} \d{2}:\d{2})$/;
@@ -99,6 +99,7 @@ for (const theme of ["light", "dark"] as const) {
 
 test("visiting release notes preserves an uncertain practice answer and its owner", async ({ page }) => {
   await page.goto("/practice");
+  await choosePractice(page);
   await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeVisible();
   const id = new URL(page.url()).searchParams.get("session")!;
   const state = await readPractice(page.request, id);
