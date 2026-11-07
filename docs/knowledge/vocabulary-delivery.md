@@ -34,3 +34,5 @@ All five [feature CI jobs](https://github.com/liveweird/astrid/actions/runs/4236
 The verified image serves `http://localhost:8088`. All ten final Chromium/WebKit vocabulary and enlarged-feedback checks passed on the main preview. A private pre-upgrade dump is retained outside version control. Every pre-existing exercise presentation/fingerprint and attempt request/raw answer/result/evaluation hash remained unchanged across V2; the PostgreSQL container, process and mounts were preserved. Previously unsubmitted exercises from both older releases were read, graded under evaluation-1/evaluation-2, and replayed exactly after the upgrade.
 
 Ownership checks preceded removal of the QA app, database volume and network; no vocabulary QA containers remain. Both main services are healthy with zero restarts. BL-036 is complete; feedback on the expanded playground remains BL-035.
+
+**Master verification observed:** All five [automatic master CI jobs](https://github.com/liveweird/astrid/actions/runs/42365295203) passed on delivery commit `44b5902`. This closes the post-push verification that was running at handoff. Short practice sessions remain a separate proposal.
