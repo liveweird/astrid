@@ -6,6 +6,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [next]
 
+- **BL-039 — Targeted follow-up practice (authorized, in progress).** Connect completed summaries to learner-selected grammar/vocabulary review runs using existing formats/content. Document selection, prerequisites, bounded size, variation, frozen lineage and cross-run exposure before implementation; verify persistence, ownership, exact replay and unchanged historical results. Deliver independently reviewed focused commits merged/pushed. See the [milestone](docs/knowledge/learning-engine.md#targeted-follow-up-practice). Broader scheduling/proficiency remains BL-011.
+
 - **BL-035 — Review the expanded playground and guided practice.** Proposed next step: try `/practice` for an eight-part session, then all eight standalone entries under “Generation controls.” Assess pacing, instruction/feedback clarity, typed Danish input, repair, response constraints, support, recovery, summaries and repetition before choosing the next bounded engine/content iteration. Record reproducible coordinates for corrections. The [review guide](docs/knowledge/pilot-review-guide.md) covers both flows; specialist validation remains BL-022.
 
 ## [todo]
@@ -20,8 +22,6 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 - **BL-021 — Specify Astrid branding within the shared UI family.** Preserve the sibling style/layout and reuse the theme/shell conventions. Develop the preferred red palette and distinct feedback semantics; explore a unique Denmark-related or Danish Astrid character logo. Complete when the palette, logo concept, asset requirements, and validation criteria are recorded. Exact visual choices remain open in Q18 and Q19. The [visual identity brief](docs/knowledge/visual-identity.md) is recorded; production assets remain in the later media phase unless the user brings them forward.
 
 ## [new]
-
-- **BL-039 — Targeted follow-up practice.** Assistant-proposed next engine milestone after BL-035 feedback: let learners select existing grammar/vocabulary targets from a completed summary and start a separate, varied review run. Reuse eligible current formats/content and preserve the source run, immutable outcomes and reliable recovery. Define suggestions, prerequisites, run size, revision/lineage and cross-run possible-exposure rules before implementation; keep unknown/support/response-constraint evidence explicit. Complete when the agreed summary-to-review flow and its persistence/evaluation boundaries are verified. See the [proposal](docs/knowledge/learning-engine.md#proposed-next-milestone-targeted-follow-up-practice). Not yet authorized; broad scheduling/proficiency policy remains BL-011.
 
 - **BL-032 — Define bounded server-outage work.** Proposed follow-up to the [observed lifecycle limitation](docs/knowledge/server-outage-boundary.md): choose a fault model and evidence-based request/cleanup/shutdown budgets, then prove lease fencing, eventual remote cleanup, bounded retained work and exact replay before adopting a policy. No server deadline or production SLO is selected.
 

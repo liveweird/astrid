@@ -74,10 +74,12 @@ Before implementation, specify session size/focus choices, prerequisite/support 
 
 The [implementation contract](practice-sessions.md) now specifies the eight-item `practice-1` plan, optional support, frozen first-attempt context, per-target first/latest summaries and owner-bound browser recovery. These are implementation defaults within the authorized current-content scope; the [delivery record](practice-delivery.md) records passing source/browser gates and the upgraded private preview.
 
-## Proposed next milestone: targeted follow-up practice
+## Targeted follow-up practice
 
-**7 November 2026 — Assistant recommendation, not yet selected:** After user review of the delivered guided flow (BL-035), connect its summary to a learner-controlled follow-up run. BL-039 records this proposal; broader progression and scheduling remain BL-011.
+**7 November 2026 — User-authorized:** “OK, proceed” selects the recommended learner-controlled follow-up run. BL-039 tracks implementation; BL-035 remains user review, and broader progression and scheduling remain BL-011. Selection, size and persistence details are implementation defaults to document before coding.
 
 Let the learner select existing grammar or vocabulary targets from the summary and start a new, explicitly labeled review session. For example, article practice could reuse eligible article supply/repair formats with varied licensed sentences. Keep recognition and headword production distinct. Suggestions may draw on recorded outcomes, with support, response constraints, unknown diagnoses and possible earlier exposure shown separately; exact suggestion rules remain open.
 
 Reuse current content and graders, preserve the source run and its frozen results, and persist the new run's selected targets, lineage, revisions and plan for reliable resume/replay. Earlier source-run teaching and answers are possible exposure, so review answers must not be presented as independent knowledge or mastery. Define the exposure contract, selection/prerequisite rules, run size and finite-pool repetition policy before implementation. This proposal adds no new curriculum, accounts, automatic schedule or proficiency threshold.
+
+The [follow-up contract](targeted-follow-up.md) records the selected implementation defaults: one item per lexical target, additional distinct grammar sentences, no preselected targets or automatic suggestions, and frozen source-linked exposure.

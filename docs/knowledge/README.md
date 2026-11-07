@@ -71,3 +71,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Practice variation inventory](practice-variation-audit.md): independently checked semantic/presentation counts, finite bounds and reproducible frozen method.
 
 - [Practice continuity follow-up](practice-continuity.md): readable support, real shared-outbox scenarios and actual process-restart evidence.
+
+- [Targeted follow-up practice](targeted-follow-up.md): authorized learner selection, finite review plans, frozen source exposure and recovery acceptance.
