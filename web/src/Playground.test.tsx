@@ -43,6 +43,142 @@ async function renderPlayground() {
   render(<MantineProvider env="test"><Playground /></MantineProvider>);
 }
 
+async function verifyKeyboardFormatSelection(
+  arrowNavigation: boolean,
+  reopenBehavior: "none" | "dismiss-current" | "select-different" = "none",
+) {
+  const orderingExercise = {
+    ...exercise,
+    id: "0bf48de0-bcaa-4d9a-85cf-f237d1acbd13",
+    formatId: "E003",
+    targetSkillId: "G005",
+    instruction: "Arrange the blocks to make a statement beginning with the subject.",
+    context: "Put the sentence parts in subject-first order.",
+    prompt: {
+      before: "", after: "", choices: [], punctuation: ".",
+      blocks: [
+        { id: "b0", text: "I" },
+        { id: "b1", text: "har" },
+        { id: "b2", text: "en hund" },
+      ],
+    },
+    introduction: [],
+  };
+  const catalogWithOrdering = {
+    ...catalog,
+    skills: [
+      ...catalog.skills,
+      { id: "G005", title: "Subject-first statements", explanation: "Arrange a statement.", prerequisiteIds: [] },
+    ],
+    formats: [
+      ...catalog.formats,
+      { id: "E003", title: "Arrange a subject-first statement", targetSkillId: "G005" },
+    ],
+  };
+  const exerciseBodies: Array<Record<string, unknown>> = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json(session);
+    if (path.endsWith("catalog")) return json(catalogWithOrdering);
+    const body = JSON.parse(String(init?.body));
+    exerciseBodies.push(body);
+    if (exerciseBodies.length === 1) return json(exercise);
+    return json(body.formatId === "E003" ? orderingExercise : {
+      ...exercise, id: "d20938a8-65aa-4914-8c2c-675b06520629",
+    });
+  }));
+  const user = userEvent.setup();
+  await renderPlayground();
+  await screen.findByRole("button", { name: "læser" });
+  await user.click(screen.getByRole("button", { name: "Generation controls" }));
+  let selector = screen.getByRole("combobox", { name: "Exercise type" });
+  await user.click(selector);
+  expect(screen.getByRole("option", { name: "Choose the present form" }))
+    .toHaveAttribute("data-combobox-selected", "true");
+  expect(exerciseBodies).toHaveLength(1);
+  await user.clear(selector);
+  await user.type(selector, "Arrange a subject-first statement");
+  const option = screen.getByRole("option", { name: "Arrange a subject-first statement" });
+  expect(option).toBeVisible();
+  expect(option).toHaveAttribute("data-combobox-selected", "true");
+  expect(exerciseBodies).toHaveLength(1);
+
+  if (arrowNavigation) {
+    await user.keyboard("{ArrowDown}");
+    expect(exerciseBodies).toHaveLength(1);
+  }
+  await user.keyboard("{Enter}");
+
+  expect(await screen.findByRole("heading", {
+    name: "Arrange the blocks to make a statement beginning with the subject.",
+  })).toBeVisible();
+  expect(exerciseBodies).toHaveLength(2);
+  expect(exerciseBodies[1]).toMatchObject({ formatId: "E003" });
+  expect(screen.getByRole("combobox", { name: "Exercise type" }))
+    .toHaveValue("Arrange a subject-first statement");
+
+  if (reopenBehavior !== "none") {
+    selector = screen.getByRole("combobox", { name: "Exercise type" });
+    if (reopenBehavior === "dismiss-current") {
+      await user.click(screen.getByRole("button", { name: "I" }));
+      expect(screen.getByRole("button", { name: "Remove I from position 1" })).toBeVisible();
+    }
+    await user.click(selector);
+    const currentOption = screen.getByRole("option", { name: "Arrange a subject-first statement" });
+    expect(currentOption).toHaveAttribute("data-combobox-selected", "true");
+    expect(exerciseBodies).toHaveLength(2);
+    await user.tab();
+    expect(exerciseBodies).toHaveLength(2);
+
+    await user.click(selector);
+    expect(screen.getByRole("option", { name: "Arrange a subject-first statement" }))
+      .toHaveAttribute("data-combobox-selected", "true");
+    expect(exerciseBodies).toHaveLength(2);
+    if (reopenBehavior === "dismiss-current") {
+      await user.keyboard("{Enter}");
+      expect(selector).toHaveAttribute("aria-expanded", "false");
+      expect(selector).toHaveValue("Arrange a subject-first statement");
+      expect(exerciseBodies).toHaveLength(2);
+      expect(screen.getByRole("button", { name: "Remove I from position 1" })).toBeVisible();
+      expect(screen.getByRole("heading", {
+        name: "Arrange the blocks to make a statement beginning with the subject.",
+      })).toBeVisible();
+    } else {
+      await user.clear(selector);
+      await user.type(selector, "Choose the present form");
+      expect(screen.getByRole("option", { name: "Choose the present form" }))
+        .toHaveAttribute("data-combobox-selected", "true");
+      expect(exerciseBodies).toHaveLength(2);
+      await user.keyboard("{Enter}");
+      await waitFor(() => expect(exerciseBodies).toHaveLength(3));
+      expect(exerciseBodies[2]).toMatchObject({ formatId: "E001" });
+      const restoredHeading = await screen.findByRole("heading", { name: "Choose the present-tense verb." });
+      await waitFor(() => expect(restoredHeading).toHaveFocus());
+    }
+  }
+}
+
+async function verifyKnownSubmissionErrorFocus() {
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json(session);
+    if (path.endsWith("catalog")) return json(catalog);
+    if (path.endsWith("exercises")) return json(exercise);
+    return Response.json(
+      { detail: "The engine revision changed." },
+      { status: 409, headers: { "Content-Type": "application/json" } },
+    );
+  }));
+  const user = userEvent.setup();
+  await renderPlayground();
+  await user.click(await screen.findByRole("button", { name: "læser" }));
+  await user.click(screen.getByRole("button", { name: "Check answer" }));
+
+  const alert = await screen.findByRole("alert");
+  const reload = screen.getByRole("button", { name: "Reload engine" });
+  await waitFor(() => expect(alert).toHaveFocus());
+  await user.tab();
+  expect(reload).toHaveFocus();
+}
+
 describe("Playground", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -98,10 +234,16 @@ describe("Playground", () => {
     await userEvent.click(screen.getByRole("button", { name: "Check answer" }));
 
     expect(await screen.findByText("The result is not confirmed")).toBeVisible();
+    const uncertainAlert = screen.getByRole("alert");
+    await waitFor(() => expect(uncertainAlert).toHaveFocus());
     expect(choice).toBeDisabled();
-    await userEvent.click(screen.getByRole("button", { name: "Check the same attempt" }));
+    const replay = screen.getByRole("button", { name: "Check the same attempt" });
+    await userEvent.tab();
+    expect(replay).toHaveFocus();
+    await userEvent.click(replay);
 
-    await waitFor(() => expect(screen.getByRole("status")).toBeVisible());
+    const feedback = await screen.findByRole("status");
+    await waitFor(() => expect(feedback).toHaveFocus());
     expect(attemptBodies).toHaveLength(2);
     expect(attemptBodies[1]).toBe(attemptBodies[0]);
     expect(JSON.parse(attemptBodies[1]!)).toMatchObject({ hintUsed: true });
@@ -177,10 +319,27 @@ describe("Playground", () => {
     await userEvent.click(screen.getByRole("option", { name: "Supply the indefinite article" }));
 
     expect(await screen.findByText("The engine revision changed. Generate a new exercise.")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Reload engine" })).toBeVisible();
+    const alert = screen.getByRole("alert");
+    const reload = screen.getByRole("button", { name: "Reload engine" });
+    expect(reload).toBeVisible();
     expect(screen.getByRole("button", { name: "læser" })).toBeVisible();
-    expect(selector).toHaveValue("Choose the present form");
+    const liveSelector = screen.getByRole("combobox", { name: "Exercise type" });
+    expect(liveSelector).toBe(selector);
+    expect(liveSelector).toHaveValue("Choose the present form");
+    await waitFor(() => expect(alert).toHaveFocus());
+    await userEvent.tab();
+    expect(reload).toHaveFocus();
   });
+
+  it("commits the auto-highlighted exact search with Enter", () => verifyKeyboardFormatSelection(false));
+
+  it("commits the exact searched format with ArrowDown and Enter", () => verifyKeyboardFormatSelection(true));
+
+  it("dismisses the active format on Enter without regenerating", () =>
+    verifyKeyboardFormatSelection(false, "dismiss-current"));
+
+  it("selects a different format after a rapid blur and reopen", () =>
+    verifyKeyboardFormatSelection(false, "select-different"));
 
   it("offers session reconnection when a protected call reports an expired session", async () => {
     let exerciseRequests = 0;
@@ -206,6 +365,8 @@ describe("Playground", () => {
     expect(screen.getByRole("button", { name: "læser" })).toBeVisible();
     await userEvent.click(reconnect);
   });
+
+  it("focuses a known submission error before its recovery action", verifyKnownSubmissionErrorFocus);
 
   it("retries the same next index until generation succeeds", async () => {
     const generatedIndexes: number[] = [];

@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { openGenerationControls } from "../support/generation-controls.js";
+import { expectHighlightedFormatVisible } from "../support/format-select.js";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
@@ -83,4 +84,41 @@ test("pilot formats, feedback and recovery states have no WCAG A/AA violations i
   await page.emulateMedia({ colorScheme: "dark" });
   await scanLearningStates(page);
   await expect(page.locator("html")).toHaveAttribute("data-mantine-color-scheme", "dark");
+});
+
+test("open format lists remain accessible with enlarged text", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await openPlayground(page);
+  await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize)).toBe("32px");
+  const selector = page.getByRole("combobox", { name: "Exercise type" });
+  await openGenerationControls(page);
+
+  for (const title of ["Choose the present form", "Supply the indefinite article", "Arrange a subject-first statement"]) {
+    if ((await selector.inputValue()) !== title) await chooseFormat(page, title);
+    await selector.click();
+    const list = page.getByRole("listbox", { name: "Exercise type" });
+    await expect(list).toBeVisible();
+    await expect(selector).toHaveAttribute("aria-expanded", "true");
+    const current = list.getByRole("option", { name: title });
+    await expect(current).toHaveAttribute("data-combobox-selected", "true");
+    await expect(selector).toHaveAttribute("aria-activedescendant", (await current.getAttribute("id"))!);
+    const optionBounds = await list.getByRole("option").evaluateAll((options) => options.map((option) => {
+      const box = option.getBoundingClientRect();
+      return { title: option.textContent, left: box.left, right: box.right };
+    }));
+    for (const bounds of optionBounds) {
+      expect(bounds.left, `${bounds.title} left edge`).toBeGreaterThanOrEqual(0);
+      expect(bounds.right, `${bounds.title} right edge`).toBeLessThanOrEqual(320);
+    }
+    const documentScroll = await page.evaluate(() => document.scrollingElement?.scrollTop);
+    for (let step = 0; step < 3; step += 1) {
+      await page.keyboard.press("ArrowDown");
+      await expectHighlightedFormatVisible(page);
+    }
+    expect(await page.evaluate(() => document.scrollingElement?.scrollTop)).toBe(documentScroll);
+    await scan(page);
+    await page.keyboard.press("Escape");
+    await expect(list).toBeHidden();
+  }
 });

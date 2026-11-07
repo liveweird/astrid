@@ -1,6 +1,6 @@
 import {
   Accordion, Alert, Badge, Box, Button, Divider, Group, Loader, NumberInput,
-  Paper, Select, SimpleGrid, Stack, Text, Title,
+  Paper, SimpleGrid, Stack, Text, Title,
 } from "@mantine/core";
 import { IconAlertCircle, IconBulb, IconRefresh } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
@@ -10,6 +10,7 @@ import {
 import type { Attempt, AttemptAnswer, AttemptRequest, Catalog, DevelopmentSession, Exercise } from "./api/models";
 import ExercisePrompt from "./components/ExercisePrompt";
 import FeedbackPanel from "./components/FeedbackPanel";
+import FormatSelect from "./components/FormatSelect";
 import InspectorPanel from "./components/InspectorPanel";
 import classes from "./theme.module.css";
 
@@ -67,6 +68,20 @@ function ErrorRecoveryActions({ recoveryRequired, hasExercise }: {
   return null;
 }
 
+function PlaygroundIntroduction({ sentenceCount }: { sentenceCount: number }) {
+  return (
+    <Box>
+      <Group justify="space-between" align="start">
+        <Box>
+          <Title order={2}>Danish engine playground</Title>
+          <Text c="dimmed">Practise one grammar target at a time with generated everyday sentences.</Text>
+        </Box>
+        <Badge variant="light" color="gray">{sentenceCount} sentence combinations</Badge>
+      </Group>
+    </Box>
+  );
+}
+
 function useExerciseFocus(attempt: Attempt | null, exercise: Exercise | null) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const afterRender = useRef(false);
@@ -77,6 +92,15 @@ function useExerciseFocus(attempt: Attempt | null, exercise: Exercise | null) {
   }, [attempt, exercise]);
   const requestFocus = () => { afterRender.current = true; };
   return [headingRef, requestFocus] as const;
+}
+
+function useRequestedFocus<T extends HTMLElement>() {
+  const targetRef = useRef<T>(null);
+  const [request, setRequest] = useState(0);
+  useEffect(() => {
+    if (request > 0) targetRef.current?.focus();
+  }, [request]);
+  return [targetRef, () => setRequest((current) => current + 1)] as const;
 }
 
 export default function Playground() {
@@ -98,7 +122,9 @@ export default function Playground() {
   const [error, setError] = useState("");
   const [recoveryRequired, setRecoveryRequired] = useState<RecoveryRequired>(null);
   const [exerciseHeadingRef, requestExerciseFocus] = useExerciseFocus(attempt, exercise);
-
+  const [errorAlertRef, requestErrorFocus] = useRequestedFocus<HTMLDivElement>();
+  const [uncertainAlertRef, requestUncertainFocus] = useRequestedFocus<HTMLDivElement>();
+  const [feedbackRef, requestFeedbackFocus] = useRequestedFocus<HTMLDivElement>();
   const generate = async (nextFormat: string, nextSeed: number, nextIndex: number, knownCatalog = catalog) => {
     if (!knownCatalog) return;
     const format = knownCatalog.formats.find((candidate) => candidate.id === nextFormat);
@@ -129,13 +155,13 @@ export default function Playground() {
       setPending(null);
       setUncertain(false);
     } catch (caught) {
+      requestErrorFocus();
       setError(messageFor(caught));
       setRecoveryRequired(recoveryFor(caught));
     } finally {
       setBusy(false);
     }
   };
-
   useEffect(() => {
     let active = true;
     void (async () => {
@@ -154,7 +180,6 @@ export default function Playground() {
     })();
     return () => { active = false; };
   }, []);
-
   const deliverAttempt = async (request: AttemptRequest) => {
     setPending(request);
     setBusy(true);
@@ -162,12 +187,17 @@ export default function Playground() {
     setRecoveryRequired(null);
     setUncertain(false);
     try {
-      setAttempt(await submitAttempt(request));
+      const result = await submitAttempt(request);
+      requestFeedbackFocus();
+      setAttempt(result);
       setPending(null);
     } catch (caught) {
-      if (caught instanceof UncertainResultError) setUncertain(true);
-      else {
+      if (caught instanceof UncertainResultError) {
+        requestUncertainFocus();
+        setUncertain(true);
+      } else {
         setPending(null);
+        requestErrorFocus();
         setError(messageFor(caught));
         setRecoveryRequired(recoveryFor(caught));
       }
@@ -175,7 +205,6 @@ export default function Playground() {
       setBusy(false);
     }
   };
-
   const checkAnswer = () => {
     if (!exercise) return;
     void deliverAttempt({
@@ -185,7 +214,6 @@ export default function Playground() {
       hintUsed,
     });
   };
-
   const retryKnownAttempt = () => {
     requestExerciseFocus();
     setAttempt(null);
@@ -195,29 +223,18 @@ export default function Playground() {
     setHintVisible(false);
     setError("");
   };
-
   if (busy && !exercise) {
     return <Group justify="center" mih={300}><Loader aria-label="Starting learning engine" /></Group>;
   }
-
   const { id: activeFormatId, format } = activeSelection(catalog, exercise, formatId);
   const skill = catalog?.skills.find((candidate) => candidate.id === format?.targetSkillId);
   const answerReady = exercise?.formatId === "E003" ? order.length === exercise.prompt.blocks.length : text.trim().length > 0;
 
   return (
     <Stack gap="lg" maw={920} className={classes.playground}>
-      <Box>
-        <Group justify="space-between" align="start">
-          <Box>
-            <Title order={2}>Danish engine playground</Title>
-            <Text c="dimmed">Practise one grammar target at a time with generated everyday sentences.</Text>
-          </Box>
-          <Badge variant="light" color="gray">{catalog?.sentenceCount ?? 0} sentence combinations</Badge>
-        </Group>
-      </Box>
-
+      <PlaygroundIntroduction sentenceCount={catalog?.sentenceCount ?? 0} />
       {error && (
-        <Alert color="red" icon={<IconAlertCircle size={20} />} title="The exercise could not continue">
+        <Alert ref={errorAlertRef} tabIndex={-1} color="red" icon={<IconAlertCircle size={20} />} title="The exercise could not continue">
           <Stack gap="sm">
             <Text>{error}</Text>
             <ErrorRecoveryActions recoveryRequired={recoveryRequired} hasExercise={Boolean(exercise)} />
@@ -225,7 +242,7 @@ export default function Playground() {
         </Alert>
       )}
       {uncertain && pending && (
-        <Alert color="orange" icon={<IconRefresh size={20} />} title="The result is not confirmed">
+        <Alert ref={uncertainAlertRef} tabIndex={-1} color="orange" icon={<IconRefresh size={20} />} title="The result is not confirmed">
           <Stack gap="sm">
             <Text>The server may have saved your answer. Keep this page open and retry the exact same attempt.</Text>
             <Button color="orange" variant="light" onClick={() => void deliverAttempt(pending)}>
@@ -234,8 +251,7 @@ export default function Playground() {
           </Stack>
         </Alert>
       )}
-
-      <Paper withBorder shadow="xs" p={{ base: "md", sm: "xl" }}>
+      <Paper withBorder shadow="xs" className={classes.exerciseCard}>
         <Stack gap="lg">
           <Group justify="space-between" align="start">
             <Box>
@@ -260,7 +276,7 @@ export default function Playground() {
                   <Accordion.Item value="lesson">
                     <Accordion.Control>Learn this first</Accordion.Control>
                     <Accordion.Panel>
-                      <SimpleGrid cols={{ base: 1, sm: exercise.introduction.length > 1 ? 2 : 1 }}>
+                      <SimpleGrid minColWidth={exercise.introduction.length > 1 ? "min(100%, 18rem)" : undefined} autoFlow="auto-fit">
                         {exercise.introduction.map((section) => (
                           <Box key={section.title}>
                             <Title order={3} size="h4">{section.title}</Title>
@@ -286,7 +302,7 @@ export default function Playground() {
                 onOrder={setOrder}
               />
               {hintVisible && <Alert color="gray" icon={<IconBulb size={18} />}>{exercise.hint}</Alert>}
-              {attempt && <FeedbackPanel attempt={attempt} />}
+              {attempt && <FeedbackPanel attempt={attempt} focusRef={feedbackRef} />}
               <Group justify="space-between" className={classes.exerciseActions}>
                 <Button
                   variant="subtle"
@@ -326,14 +342,12 @@ export default function Playground() {
         <Accordion.Item value="controls">
           <Accordion.Control>Generation controls</Accordion.Control>
           <Accordion.Panel>
-            <SimpleGrid cols={{ base: 1, sm: 3 }}>
-              <Select
-                label="Exercise type"
+            <SimpleGrid minColWidth="min(100%, 12rem)" autoFlow="auto-fit">
+              <FormatSelect
                 data={catalog?.formats.map((item) => ({ value: item.id, label: item.title })) ?? []}
                 value={activeFormatId}
-                searchable
                 disabled={busy || uncertain}
-                onChange={(value) => { if (value) void generate(value, seed, index); }}
+                onChange={(value) => void generate(value, seed, index)}
               />
               <NumberInput disabled={busy || uncertain} label="Next generation seed" min={0} max={2147483647} value={seed} onChange={(value) => setSeed(Number(value))} />
               <NumberInput disabled={busy || uncertain} label="Next generation index" min={0} max={1000000} value={index} onChange={(value) => setIndex(Number(value))} />

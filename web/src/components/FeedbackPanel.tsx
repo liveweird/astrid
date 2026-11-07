@@ -1,5 +1,6 @@
 import { Alert, Badge, Group, Stack, Text } from "@mantine/core";
 import { IconAlertTriangle, IconCircleCheck } from "@tabler/icons-react";
+import type { Ref } from "react";
 import type { Attempt } from "../api/models";
 
 function targetLabel(value: string) {
@@ -14,10 +15,12 @@ function languageLabel(value: string) {
   return "Language status unknown";
 }
 
-export default function FeedbackPanel({ attempt }: { attempt: Attempt }) {
+export default function FeedbackPanel({ attempt, focusRef }: { attempt: Attempt; focusRef?: Ref<HTMLDivElement> }) {
   const met = attempt.targetSatisfaction === "met";
   return (
     <Alert
+      ref={focusRef}
+      tabIndex={-1}
       color={met ? "teal" : "orange"}
       variant="light"
       icon={met ? <IconCircleCheck size={20} /> : <IconAlertTriangle size={20} />}

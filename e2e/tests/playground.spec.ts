@@ -31,10 +31,13 @@ async function chooseFormat(page: Page, title: string) {
   await expect(selector).toHaveValue(title);
 }
 
+function nativeTabKey(page: Page) {
+  return process.platform === "darwin" && page.context().browser()?.browserType().name() === "webkit" ? "Alt+Tab" : "Tab";
+}
+
 async function tabTo(page: Page, target: Locator, reverse = false) {
   // Safari's default macOS focus policy uses Option-Tab for all clickable controls.
-  const macWebKit = process.platform === "darwin" && page.context().browser()?.browserType().name() === "webkit";
-  const tab = macWebKit ? "Alt+Tab" : "Tab";
+  const tab = nativeTabKey(page);
   for (let step = 0; step < 40; step += 1) {
     await page.keyboard.press(reverse ? `Shift+${tab}` : tab);
     if (await target.evaluate((element) => element === document.activeElement)) return;
@@ -97,13 +100,23 @@ test("replays the exact attempt after an uncertain connection result", async ({ 
   });
   await openPlayground(page);
   await page.getByLabel("Answer choices").getByRole("button").first().click();
-  await page.getByRole("button", { name: "Check answer" }).click();
+  const check = page.getByRole("button", { name: "Check answer" });
+  await tabTo(page, check);
+  await page.keyboard.press("Enter");
   await expect(page.getByText("The result is not confirmed")).toBeVisible();
   await expect(page.getByLabel("Answer choices").getByRole("button").first()).toBeDisabled();
-  await page.getByRole("button", { name: "Check the same attempt" }).click();
+  const uncertainAlert = page.getByRole("alert");
+  const replay = page.getByRole("button", { name: "Check the same attempt" });
+  await expect(uncertainAlert).toBeFocused();
+  await page.keyboard.press(nativeTabKey(page));
+  await expect(replay).toBeFocused();
+  await page.keyboard.press("Enter");
   await expect(page.getByText("The result is not confirmed")).toBeVisible();
-  await page.getByRole("button", { name: "Check the same attempt" }).click();
-  await expect(page.getByRole("status")).toBeVisible();
+  await expect(uncertainAlert).toBeFocused();
+  await page.keyboard.press(nativeTabKey(page));
+  await expect(replay).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("status")).toBeFocused();
   expect(bodies).toHaveLength(3);
   expect(bodies[1]).toBe(bodies[0]);
   expect(bodies[2]).toBe(bodies[0]);
@@ -136,18 +149,22 @@ test("completes, retries and advances an ordering exercise with the keyboard", a
   const check = page.getByRole("button", { name: "Check answer" });
   await tabTo(page, check);
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("status")).toBeVisible();
+  await expect(page.getByRole("status")).toBeFocused();
 
   const retry = page.getByRole("button", { name: "Try again" });
-  await tabTo(page, retry);
+  await page.keyboard.press(nativeTabKey(page));
+  await expect(retry).toBeFocused();
   await page.keyboard.press("Enter");
   await enterOrderingAnswer(page);
   await tabTo(page, check);
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("status")).toBeVisible();
+  await expect(page.getByRole("status")).toBeFocused();
 
   const next = page.getByRole("button", { name: "Next exercise" });
-  await tabTo(page, next);
+  await page.keyboard.press(nativeTabKey(page));
+  await expect(retry).toBeFocused();
+  await page.keyboard.press(nativeTabKey(page));
+  await expect(next).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page.getByRole("heading", { name: "Arrange the blocks to make a statement beginning with the subject." })).toBeFocused();
 });

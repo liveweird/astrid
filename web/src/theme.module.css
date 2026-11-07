@@ -23,6 +23,22 @@
   letter-spacing: -0.02em;
 }
 
+.playground {
+  container-name: playground;
+  container-type: inline-size;
+  --mantine-spacing-md: min(1rem, 16px);
+}
+
+.exerciseCard {
+  padding: min(1rem, 16px);
+}
+
+@container playground (min-width: 48rem) {
+  .exerciseCard {
+    padding: var(--mantine-spacing-xl);
+  }
+}
+
 @media (max-width: 47.99em) {
   .appNavbar:not([data-mobile-opened]) {
     visibility: hidden;
@@ -30,10 +46,16 @@
 }
 
 @media (max-width: 30em) {
+  .appMain {
+    --app-shell-padding: min(1rem, 16px);
+  }
+
   .narrowBrandLabel {
     display: none;
   }
+}
 
+@container playground (max-width: 30rem) {
   .playground :global(.mantine-Button-root) {
     height: auto;
     min-height: var(--button-height);

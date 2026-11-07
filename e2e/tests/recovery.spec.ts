@@ -1,5 +1,9 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { openGenerationControls } from "../support/generation-controls.js";
+
+function nativeTabKey(page: Page) {
+  return process.platform === "darwin" && page.context().browser()?.browserType().name() === "webkit" ? "Alt+Tab" : "Tab";
+}
 
 test("reconnects after the initial development session fails", async ({ page }) => {
   let failSession = true;
@@ -35,10 +39,16 @@ test("offers a full engine reload after a revision conflict", async ({ page }) =
   await openGenerationControls(page);
   const selector = page.getByRole("combobox", { name: "Exercise type" });
   await selector.click();
-  await page.getByRole("option", { name: "Supply the indefinite article" }).click();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.getByRole("option", { name: "Supply the indefinite article" }))
+    .toHaveAttribute("data-combobox-selected", "true");
+  await page.keyboard.press("Enter");
   const reload = page.getByRole("button", { name: "Reload engine" });
+  await expect(page.getByRole("alert")).toBeFocused();
   await expect(reload).toBeVisible();
-  await reload.click();
+  await page.keyboard.press(nativeTabKey(page));
+  await expect(reload).toBeFocused();
+  await page.keyboard.press("Enter");
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Danish engine playground" })).toBeVisible();
 });

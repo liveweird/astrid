@@ -48,14 +48,14 @@ export default defineConfig({
         "src/main.tsx",
         "src/vite-env.d.ts",
       ],
-      // Full-source baseline after keyboard, accessibility and request-deadline regressions
-      // (2026-11-07): statements 89.26, branches 82.15, functions 89.74, lines 91.23. Floors sit at the
+      // Full-source baseline after controlled format selection and native navigation regressions
+      // (2026-11-07): statements 92.52, branches 87.58, functions 93.10, lines 94.75. Floors sit at the
       // integer below each result and must move upward as coverage grows.
       thresholds: {
-        statements: 89,
-        branches: 82,
-        functions: 89,
-        lines: 91,
+        statements: 92,
+        branches: 87,
+        functions: 93,
+        lines: 94,
       },
     },
   },

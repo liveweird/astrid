@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { openGenerationControls } from "../support/generation-controls.js";
+import { expectHighlightedFormatVisible } from "../support/format-select.js";
 
 async function expectNoHorizontalOverflow(page: Page, state: string) {
   const dimensions = await page.evaluate(() => ({
@@ -107,3 +108,36 @@ test("all pilot formats and recovery states reflow at 320px with 200% text", asy
   await expectUnclippedLabels(page);
   expect(pageErrors).toEqual([]);
 });
+
+for (const viewport of [{ width: 844, height: 390 }, { width: 320, height: 400 }]) {
+  for (const fontSize of [16, 32]) {
+    test(`format navigation stays inside short ${viewport.width}x${viewport.height} windows at ${fontSize}px`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
+      if (fontSize === 32) await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+      expect(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize)).toBe(`${fontSize}px`);
+      await openGenerationControls(page);
+      const selector = page.getByRole("combobox", { name: "Exercise type" });
+
+      for (const title of ["Choose the present form", "Supply the indefinite article", "Arrange a subject-first statement"]) {
+        await test.step(`reopen ${title}`, async () => {
+          if ((await selector.inputValue()) !== title) await chooseFormat(page, title);
+          await selector.click();
+          const current = page.getByRole("option", { name: title });
+          await expect(current).toHaveAttribute("data-combobox-selected", "true");
+          await expectHighlightedFormatVisible(page);
+          const documentScroll = await page.evaluate(() => document.scrollingElement?.scrollTop);
+          for (let step = 0; step < 3; step += 1) {
+            await page.keyboard.press("ArrowDown");
+            await expectHighlightedFormatVisible(page);
+          }
+          expect(await page.evaluate(() => document.scrollingElement?.scrollTop)).toBe(documentScroll);
+          await expectNoHorizontalOverflow(page, `${viewport.width}x${viewport.height} at ${fontSize}px`);
+          await page.keyboard.press("Escape");
+          await expect(selector).toHaveAttribute("aria-expanded", "false");
+        });
+      }
+    });
+  }
+}
