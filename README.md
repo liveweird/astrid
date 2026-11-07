@@ -1,6 +1,6 @@
 # Astrid
 
-A Danish reading and writing engine for English-speaking beginners. This first milestone is a private playground: three exercise formats, a structured 23-entry vocabulary seed, and 99 licensed sentence combinations. Content is a linguistic draft awaiting Danish teaching review.
+A Danish reading and writing engine for English-speaking beginners. This first milestone is a private playground: six exercise formats (selection, supply, ordering and guided repair), a structured 23-entry vocabulary seed, and 99 licensed sentence combinations. Content is a linguistic draft awaiting Danish teaching review.
 
 ## Run the complete app
 
@@ -105,7 +105,7 @@ CI repeats the gates on pull requests and master, validates Kubernetes schemas a
 ./gradlew :engine:exportPilotReview
 ```
 
-The deterministic report is written to `engine/build/review/pilot-1.md`. It includes the 23 lexical records, sources and draft review status, all 99 sentences and reproducible exercise examples. The production engine remains free of file I/O; the export adapter runs only as a local build tool. Published compatibility fixtures guard 335 baseline outputs. Their generated origin establishes compatibility, while the independently specified worked examples and eventual Danish teaching review address linguistic correctness.
+The deterministic report is written to `engine/build/review/pilot-2.md`. It includes the 23 lexical records, sources and draft review status, all 99 sentences and reproducible exercise examples. The production engine remains free of file I/O; the export adapter runs only as a local build tool. Run `./gradlew :engine:exportLegacyPilotReview` for the retained `pilot-1` report. Published compatibility fixtures guard 335 unchanged baseline outputs alongside separate revision-2 fixtures. Their generated origin establishes compatibility, while the independently specified worked examples and eventual Danish teaching review address linguistic correctness.
 
 CI also exports this report in the `server-reports` artifact. Run `python3 scripts/check-knowledge.py` for a fast offline check of foundation IDs, prerequisites, source references, crosswalk rows and local file links; it does not validate linguistic claims, link anchors or external sites. The [coverage crosswalk](docs/knowledge/foundation-coverage.md) distinguishes existing assessed targets from support and later authoring proposals.
 

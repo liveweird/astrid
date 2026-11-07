@@ -41,7 +41,7 @@ Use the preferred red branding direction with provisional styling; the final log
 - Reviewed language examples and automated engine/API/UI checks support the slice.
 - Retrying a recorded answer does not create a duplicate attempt.
 
-The current slice defines six foundational skills, three construction families, 23 vocabulary entries, three exercise formats, and 99 licensed abstract sentence combinations. Sampling/retention requirements and the linguistic review process still need definition. Demonstrating software behavior is separate from establishing that learners retain and transfer the knowledge.
+The initial slice defined six foundational skills, three construction families, 23 vocabulary entries, three exercise formats, and 99 licensed abstract sentence combinations. The user-selected [recall/repair iteration](exercise-extension-proposal.md) adds three target-specific entries while retaining the same language inventory. Sampling/retention requirements and the linguistic review process still need definition. Demonstrating software behavior is separate from establishing that learners retain and transfer the knowledge.
 
 ## Decisions that can follow
 

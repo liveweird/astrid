@@ -55,5 +55,7 @@ The broad language map and the small validation subset serve different purposes.
 - [Pilot variation inventory](pilot-variation-audit.md): measured sentence, format and target distributions without changing published generation.
 - [Frequency and usage resources](frequency-and-usage-resources.md): candidate ranking/corpus evidence, edition differences and published reuse conditions.
 - [Bilingual lexical candidates](bilingual-resources.md): English-sense resources, mapping limits and data/tool licence distinctions.
-- [Exercise extension proposal](exercise-extension-proposal.md): post-feedback options for recall, repair and vocabulary assessment, with support and revision boundaries; no runtime expansion selected.
+- [Exercise extension proposal](exercise-extension-proposal.md): user-selected recall and repair contract, support and compatibility boundaries; vocabulary assessment remains proposed.
 - [Beginner outcome references](beginner-outcome-reference.md): official framework reference points and proposed reading/writing evidence, without selecting a CEFR level or exam pathway.
+
+- [Recall and guided repair delivery](recall-repair-delivery.md): selected operations, compatibility safeguards and observed verification for BL-034.

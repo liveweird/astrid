@@ -6,6 +6,8 @@ This is a reviewable first implementation specification, authorized for drafting
 
 The first application remains an engine playground in the shared sibling UI/layout. Reading and writing are in scope; listening, speaking, production artwork, public onboarding, and a full adaptive course remain later work. Docker Compose and Kubernetes are retained infrastructure requirements. The private playground now implements this slice; this document remains its language/behavior specification. See the [delivery record](playground-delivery.md) for observed software evidence and [implementation decisions](implementation-decisions.md) for the adopted technical boundaries.
 
+This document preserves the original `pilot-1` three-format contract. The selected [recall/repair extension](exercise-extension-proposal.md) adds E004–E006 on `pilot-2` while retaining this language inventory and legacy behavior.
+
 ## Observable learning objective
 
 After the short explanations and supported practice, a learner should be able to interpret and assemble simple affirmative present-tense statements using the introduced vocabulary, choose the finite present form of a known verb, and supply `en` or `et` for an introduced singular count noun. Assess these three capabilities separately on previously unseen combinations; target attainment must not be inferred solely from immediate retries of the same question.
