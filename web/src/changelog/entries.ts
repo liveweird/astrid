@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.4.0",
+    date: "2026-11-07",
+    body: `**Sentence writing and short reading tasks.**
+
+- **Write a Danish sentence** asks you to express an English meaning using introduced vocabulary. Feedback separates word order, meaning, language issues and the requested response shape.
+- **Read a short text** asks you to connect a participant and action to the right object across three Danish sentences.
+- Both exercise types are available in **Engine playground**, with optional teaching support and safe retry after an uncertain result.`,
+  },
+  {
     version: "0.3.0",
     date: "2026-11-07",
     body: `**Choose your practice focus.**
