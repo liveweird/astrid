@@ -24,3 +24,4 @@ export type PracticeSummaryRow = components["schemas"]["PracticeSummaryRow"];
 export type PracticeSummary = components["schemas"]["PracticeSummary"];
 export type PracticeSession = components["schemas"]["PracticeSession"];
 export type PracticeCreationRequest = components["schemas"]["PracticeSessionRequest"];
+export type PracticeFollowUpRequest = components["schemas"]["PracticeFollowUpRequest"];

@@ -148,6 +148,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/practice-sessions/{id}/follow-ups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createPracticeFollowUp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/practice-sessions/{id}/support": {
         parameters: {
             query?: never;
@@ -401,6 +417,14 @@ export interface components {
             kind: "introduction" | "lesson" | "hint";
             position?: number;
         };
+        PracticeFollowUpRequest: {
+            /** Format: uuid */
+            practiceSessionId: string;
+            /** @enum {string} */
+            planRevision: "follow-up-1";
+            seed: number;
+            targetKeys: string[];
+        };
         PracticeAdvanceRequest: {
             position: number;
         };
@@ -421,14 +445,19 @@ export interface components {
             /** @enum {string} */
             state: "active" | "completed";
             cursor: number;
-            /** @enum {integer} */
-            itemCount: 8;
+            itemCount: number;
             prerequisiteSkillIds: string[];
             introduction: components["schemas"]["Introduction"][];
             introductionOpened: boolean;
             items: components["schemas"]["PracticeItem"][];
             currentExercise?: components["schemas"]["Exercise"];
             summary: components["schemas"]["PracticeSummary"];
+            followUp?: components["schemas"]["PracticeFollowUp"];
+        };
+        PracticeFollowUp: {
+            /** Format: uuid */
+            sourcePracticeSessionId: string;
+            selectedTargetKeys: string[];
         };
         PracticeItem: {
             position: number;
@@ -453,11 +482,20 @@ export interface components {
             lessonOpened: boolean;
             hintOpened: boolean;
             priorExposure: components["schemas"]["PracticePriorExposure"][];
+            sourceExposure?: components["schemas"]["PracticeCrossRunExposure"][];
         };
         PracticePriorExposure: {
             position: number;
             /** @enum {string} */
             source: "prompt" | "lesson" | "hint" | "feedback";
+            keys: string[];
+        };
+        PracticeCrossRunExposure: {
+            /** Format: uuid */
+            practiceSessionId: string;
+            position: number;
+            /** @enum {string} */
+            source: "introduction" | "prompt" | "lesson" | "hint" | "feedback";
             keys: string[];
         };
         PracticeSummary: {
@@ -809,6 +847,51 @@ export interface operations {
             401: components["responses"]["Problem"];
             403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
+        };
+    };
+    createPracticeFollowUp: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Astrid-Client": components["parameters"]["Client"];
+                "X-Astrid-Practice-Owner": components["parameters"]["PracticeOwner"];
+            };
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PracticeFollowUpRequest"];
+            };
+        };
+        responses: {
+            /** @description Resumed follow-up practice */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            /** @description Created follow-up practice */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            413: components["responses"]["Problem"];
+            415: components["responses"]["Problem"];
         };
     };
     openPracticeSupport: {

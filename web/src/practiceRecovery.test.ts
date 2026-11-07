@@ -1,6 +1,7 @@
 import {
   abandonRun, latestRunRecovery, listOutbox, loadRunRecovery, PracticePersistenceError,
   PracticeOutboxConflictError, removeOutboxEntry, saveOutboxEntry, saveRunRecovery,
+  saveRunWithCreation,
 } from "./practiceRecovery";
 
 const run = {
@@ -92,4 +93,54 @@ it("preserves the first enqueue timestamp on exact retry and refuses identity mu
   expect(() => saveOutboxEntry({ ...entry, body: '{"attemptId":"changed"}' }))
     .toThrow(PracticeOutboxConflictError);
   expect(listOutbox(run.practiceSessionId)[0]?.body).toBe(entry.body);
+});
+
+it("treats the follow-up source endpoint as part of an immutable creation", () => {
+  const entry = {
+    ...run,
+    kind: "creation" as const,
+    identity: run.practiceSessionId,
+    body: '{"practiceSessionId":"fixed","targetKeys":["grammar:G005"]}',
+    sourcePracticeSessionId: "33333333-3333-4333-8333-333333333333",
+  };
+  saveOutboxEntry(entry);
+  expect(() => saveOutboxEntry({
+    ...entry,
+    sourcePracticeSessionId: "44444444-4444-4444-8444-444444444444",
+  })).toThrow(PracticeOutboxConflictError);
+  expect(listOutbox(run.practiceSessionId)[0]?.sourcePracticeSessionId).toBe(entry.sourcePracticeSessionId);
+});
+
+it("saves a new run and its creation before making it latest", () => {
+  const source = { ...run, practiceSessionId: "33333333-3333-4333-8333-333333333333" };
+  const child = { ...run, sourcePracticeSessionId: source.practiceSessionId };
+  saveRunRecovery(source);
+  const creation = {
+    ...child, kind: "creation" as const, identity: child.practiceSessionId,
+    body: '{"practiceSessionId":"child"}',
+  };
+  saveRunWithCreation(child, creation);
+  expect(latestRunRecovery()).toEqual(child);
+  expect(listOutbox(child.practiceSessionId)).toHaveLength(1);
+  expect(loadRunRecovery(source.practiceSessionId)).toEqual(source);
+});
+
+it("does not replace a newer latest run selected while a creation is saved", () => {
+  const source = { ...run, practiceSessionId: "33333333-3333-4333-8333-333333333333" };
+  const child = { ...run, sourcePracticeSessionId: source.practiceSessionId };
+  const other = { ...run, practiceSessionId: "44444444-4444-4444-8444-444444444444" };
+  saveRunRecovery(source);
+  const originalSetItem = localStorage.setItem.bind(localStorage);
+  const setItem = vi.spyOn(localStorage, "setItem").mockImplementation((key, value) => {
+    originalSetItem(key, value);
+    if (key.includes(`outbox.${child.practiceSessionId}.creation.`)) {
+      originalSetItem("astrid.practice.v1.latest", other.practiceSessionId);
+    }
+  });
+  saveRunWithCreation(child, {
+    ...child, kind: "creation", identity: child.practiceSessionId, body: '{"practiceSessionId":"child"}',
+  });
+  expect(localStorage.getItem("astrid.practice.v1.latest")).toBe(other.practiceSessionId);
+  expect(loadRunRecovery(child.practiceSessionId)).toEqual(child);
+  setItem.mockRestore();
 });

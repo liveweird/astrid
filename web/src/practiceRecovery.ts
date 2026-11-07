@@ -6,6 +6,8 @@ export type PracticeRunRecovery = {
   focusId: string;
   planRevision: string;
   seed: number;
+  sourcePracticeSessionId?: string;
+  selectedTargetKeys?: string[];
 };
 
 export type PracticeOutboxEntry = {
@@ -14,6 +16,7 @@ export type PracticeOutboxEntry = {
   kind: PracticeOperationKind;
   identity: string;
   body: string;
+  sourcePracticeSessionId?: string;
   queuedAt?: number;
 };
 
@@ -43,6 +46,16 @@ function safeSet(key: string, value: string) {
   try { localStorage.setItem(key, value); } catch { throw new PracticePersistenceError(); }
 }
 
+function restoreIfUnchanged(key: string, expected: string, previous: string | null) {
+  if (localStorage.getItem(key) !== expected) return;
+  try {
+    if (previous === null) localStorage.removeItem(key);
+    else localStorage.setItem(key, previous);
+  } catch {
+    // Keep the original persistence error. The guarded restore never replaces newer tab state.
+  }
+}
+
 export function runKey(practiceSessionId: string) {
   return `${RUN_PREFIX}${practiceSessionId}`;
 }
@@ -54,6 +67,32 @@ export function outboxKey(entry: Pick<PracticeOutboxEntry, "practiceSessionId" |
 export function saveRunRecovery(run: PracticeRunRecovery) {
   safeSet(runKey(run.practiceSessionId), JSON.stringify(run));
   safeSet(LATEST_KEY, run.practiceSessionId);
+}
+
+export function saveRunWithCreation(run: PracticeRunRecovery, entry: PracticeOutboxEntry) {
+  if (entry.kind !== "creation" || entry.practiceSessionId !== run.practiceSessionId ||
+    entry.ownerSessionId !== run.ownerSessionId) {
+    throw new PracticeOutboxConflictError();
+  }
+  const savedRunKey = runKey(run.practiceSessionId);
+  const savedOutboxKey = outboxKey(entry);
+  const runValue = JSON.stringify(run);
+  const durableEntry = { ...entry, queuedAt: entry.queuedAt ?? performance.timeOrigin + performance.now() };
+  const outboxValue = JSON.stringify(durableEntry);
+  const previousRun = localStorage.getItem(savedRunKey);
+  const previousOutbox = localStorage.getItem(savedOutboxKey);
+  const previousLatest = localStorage.getItem(LATEST_KEY);
+  try {
+    safeSet(savedRunKey, runValue);
+    saveOutboxEntry(durableEntry);
+    // Another tab may have selected a newer run between these writes. Preserve that choice.
+    if (localStorage.getItem(LATEST_KEY) === previousLatest) safeSet(LATEST_KEY, run.practiceSessionId);
+  } catch (error) {
+    restoreIfUnchanged(savedOutboxKey, outboxValue, previousOutbox);
+    restoreIfUnchanged(savedRunKey, runValue, previousRun);
+    restoreIfUnchanged(LATEST_KEY, run.practiceSessionId, previousLatest);
+    throw error;
+  }
 }
 
 export function loadRunRecovery(practiceSessionId: string): PracticeRunRecovery | null {
@@ -71,7 +110,8 @@ export function saveOutboxEntry(entry: PracticeOutboxEntry) {
   if (existing) {
     const unchanged = existing.ownerSessionId === entry.ownerSessionId &&
       existing.practiceSessionId === entry.practiceSessionId && existing.kind === entry.kind &&
-      existing.identity === entry.identity && existing.body === entry.body;
+      existing.identity === entry.identity && existing.body === entry.body &&
+      existing.sourcePracticeSessionId === entry.sourcePracticeSessionId;
     if (!unchanged) throw new PracticeOutboxConflictError();
     return;
   }

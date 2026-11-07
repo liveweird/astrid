@@ -5,12 +5,12 @@ import {
 import { IconAlertCircle, IconBook2, IconBulb, IconRefresh } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import {
-  advancePracticeSession, ApiError, createPracticeSession, loadPracticeContext,
+  advancePracticeSession, ApiError, createPracticeFollowUp, createPracticeSession, loadPracticeContext,
   loadPracticeSession, startDevelopmentSession, submitSerializedAttempt,
   updatePracticeSupport,
 } from "./api/client";
 import type {
-  Attempt, AttemptAnswer, AttemptRequest, PracticeCreationRequest, PracticeSession,
+  Attempt, AttemptAnswer, AttemptRequest, PracticeCreationRequest, PracticeFollowUpRequest, PracticeSession,
 } from "./api/models";
 import ExercisePrompt from "./components/ExercisePrompt";
 import FeedbackPanel from "./components/FeedbackPanel";
@@ -19,11 +19,12 @@ import {
   abandonRun, latestRunRecovery, listOutbox, loadRunRecovery, PracticeOutboxConflictError,
   PracticePersistenceError,
   type PracticeOutboxEntry, type PracticeRunRecovery, removeOutboxEntry, saveOutboxEntry,
-  saveRunRecovery,
+  saveRunWithCreation,
 } from "./practiceRecovery";
 import classes from "./theme.module.css";
 
 let automaticStart: Promise<{ run: PracticeRunRecovery; session: PracticeSession }> | null = null;
+type PracticeSupportKind = "introduction" | "lesson" | "hint";
 
 function freshPracticeSeed() {
   return crypto.getRandomValues(new Uint32Array(1))[0]! & 0x7fffffff;
@@ -63,6 +64,7 @@ function outboxEntry(run: PracticeRunRecovery, kind: PracticeOutboxEntry["kind"]
     kind,
     identity,
     body: JSON.stringify(body),
+    ...(run.sourcePracticeSessionId ? { sourcePracticeSessionId: run.sourcePracticeSessionId } : {}),
     queuedAt: performance.timeOrigin + performance.now(),
   } satisfies PracticeOutboxEntry;
 }
@@ -75,9 +77,8 @@ async function createAutomaticPractice() {
     planRevision: context.planRevision, seed: freshPracticeSeed(),
   };
   const run: PracticeRunRecovery = { ownerSessionId: context.ownerSessionId, ...request };
-  saveRunRecovery(run);
   const creation = outboxEntry(run, "creation", request.practiceSessionId, request);
-  saveOutboxEntry(creation);
+  saveRunWithCreation(run, creation);
   bindUrl(run.practiceSessionId);
   const session = await createPracticeSession(run.ownerSessionId, creation.body);
   removeOutboxEntry(creation);
@@ -117,6 +118,9 @@ function isOwnerUnavailable(error: unknown) {
 
 async function sendEntry(entry: PracticeOutboxEntry) {
   if (entry.kind === "creation") {
+    if (entry.sourcePracticeSessionId) {
+      return createPracticeFollowUp(entry.sourcePracticeSessionId, entry.ownerSessionId, entry.body);
+    }
     return createPracticeSession(entry.ownerSessionId, entry.body);
   }
   if (entry.kind === "support") {
@@ -283,13 +287,15 @@ function handleOperationFailure(
   handlers.setError(practiceError(caught));
 }
 
-function SupportSections({ session, disabled, introductionContentRef, lessonContentRef, onSupport }: {
+type SupportSectionsProps = {
   session: PracticeSession;
   disabled: boolean;
   introductionContentRef: React.RefObject<HTMLParagraphElement | null>;
   lessonContentRef: React.RefObject<HTMLParagraphElement | null>;
-  onSupport: (kind: "introduction" | "lesson" | "hint", position?: number) => void;
-}) {
+  onSupport: (kind: PracticeSupportKind, position?: number) => void;
+};
+
+function SupportSections({ session, disabled, introductionContentRef, lessonContentRef, onSupport }: SupportSectionsProps) {
   const exercise = session.currentExercise;
   const item = session.items.find((candidate) => candidate.position === session.cursor);
   const [introductionDisclosure, setIntroductionDisclosure] = useState({
@@ -401,11 +407,14 @@ function PracticeError({ message, uncertain, recoveryUnavailable, pending, retry
 function AttemptContextNote({ item }: { item: PracticeSession["items"][number] }) {
   const context = item.lastAttemptContext;
   if (!item.lastAttempt || !context) return null;
+  const sourceExposure = context.sourceExposure ?? [];
   return (
     <Text size="sm" c="dimmed">
       {context.lessonOpened || context.hintOpened ? "Item support was open for this answer. " : ""}
       {context.priorExposure.length > 0
-        ? "This target had possible earlier exposure in released prompts, support, or feedback. " : ""}
+        ? "This target had possible earlier exposure in this run’s prompts, support, or feedback. " : ""}
+      {sourceExposure.length > 0
+        ? "This target had possible exposure in the source practice. " : ""}
       {context.introductionOpened ? "The session introduction had been opened." : ""}
     </Text>
   );
@@ -471,6 +480,156 @@ function usePracticeFocusQueue(error: string) {
   };
 }
 
+type ActivePracticeProps = {
+  session: PracticeSession;
+  blocked: boolean;
+  busy: boolean;
+  text: string;
+  order: string[];
+  attempt: Attempt | null;
+  feedbackRef: React.RefObject<HTMLDivElement | null>;
+  hintRef: React.RefObject<HTMLDivElement | null>;
+  introductionRef: React.RefObject<HTMLParagraphElement | null>;
+  itemRef: React.RefObject<HTMLHeadingElement | null>;
+  lessonRef: React.RefObject<HTMLParagraphElement | null>;
+  onText: (value: string) => void;
+  onOrder: (value: string[]) => void;
+  onSupport: (kind: PracticeSupportKind, position?: number) => void;
+  onSubmit: () => void;
+  onAdvance: () => void;
+  onRetry: () => void;
+};
+
+function ActivePractice({ session, blocked, busy, text, order, attempt, feedbackRef, hintRef, introductionRef, itemRef, lessonRef, onText, onOrder, onSupport, onSubmit, onAdvance, onRetry }: ActivePracticeProps) {
+  const exercise = session.currentExercise;
+  const item = session.items.find((candidate) => candidate.position === session.cursor);
+  if (!exercise || !item) return null;
+  const answerReady = exercise.formatId === "E003"
+    ? order.length === exercise.prompt.blocks.length : text.trim().length > 0;
+  return (
+    <>
+      <SupportSections session={session} disabled={blocked} introductionContentRef={introductionRef} lessonContentRef={lessonRef} onSupport={onSupport} />
+      <Paper withBorder shadow="xs" className={classes.exerciseCard}>
+        <Stack gap="lg">
+          <Group justify="space-between"><Text fw={650}>Practice item {item.position + 1}</Text><Badge variant="light" color="astrid">{exercise.targetSkillId ?? "Vocabulary"}</Badge></Group>
+          <Divider />
+          <Box><Title ref={itemRef} tabIndex={-1} order={2} size="h4">{exercise.instruction}</Title><Text c="dimmed" mt={4}>{exercise.context}</Text></Box>
+          <ExercisePrompt exercise={exercise} text={text} order={order} disabled={blocked || Boolean(attempt)} onText={onText} onOrder={onOrder} />
+          {item.hintOpened && <PracticeHint focusRef={hintRef} hint={exercise.hint} />}
+          {attempt && <FeedbackPanel attempt={attempt} focusRef={feedbackRef} supportDescription={itemSupportDescription(attempt)} />}
+          <AttemptContextNote item={item} />
+          <Group justify="space-between" className={classes.exerciseActions}>
+            <Button variant="subtle" color="gray" disabled={blocked || item.hintOpened || Boolean(attempt)} onClick={() => onSupport("hint", item.position)}>Show hint</Button>
+            <Group className={classes.exercisePrimaryActions}>
+              {attempt && <Button variant="default" disabled={blocked} onClick={onRetry}>Try again</Button>}
+              {attempt
+                ? <Button loading={busy} disabled={blocked} onClick={onAdvance}>Continue</Button>
+                : <Button loading={busy} disabled={!answerReady || blocked} onClick={onSubmit}>Check answer</Button>}
+            </Group>
+          </Group>
+        </Stack>
+      </Paper>
+    </>
+  );
+}
+
+type InitialRecoveryHandlers = {
+  applyState: (session: PracticeSession) => void;
+  setBusy: (value: boolean) => void;
+  setError: (value: string) => void;
+  setOrder: (value: string[]) => void;
+  setPendingEntry: (value: PracticeOutboxEntry | null) => void;
+  setRecoveryUnavailable: (value: boolean) => void;
+  setRun: (value: PracticeRunRecovery) => void;
+  setText: (value: string) => void;
+  setUncertain: (value: AttemptRequest | null) => void;
+};
+
+function useInitialPracticeRecovery(handlers: InitialRecoveryHandlers) {
+  const handlersRef = useRef(handlers);
+  useEffect(() => {
+    const handlers = handlersRef.current;
+    let active = true;
+    const startMissing = async () => {
+      try {
+        const started = await startAutomaticPractice();
+        if (active) {
+          handlers.setRun(started.run);
+          bindUrl(started.run.practiceSessionId);
+          handlers.applyState(started.session);
+        }
+      } catch (caught) {
+        if (active) handlers.setError(practiceError(caught));
+      } finally {
+        if (active) handlers.setBusy(false);
+      }
+    };
+    const recoverSaved = async (recovery: PracticeRunRecovery) => {
+      handlers.setRun(recovery);
+      bindUrl(recovery.practiceSessionId);
+      try {
+        const context = await loadPracticeContext();
+        if (context.ownerSessionId !== recovery.ownerSessionId) {
+          if (active) {
+            handlers.setRecoveryUnavailable(true);
+            handlers.setError("This saved practice belongs to an expired browser session. It was not reassigned or replayed.");
+          }
+          return;
+        }
+        const next = await reconcileOutbox(recovery, {
+          unavailable: (message) => { handlers.setRecoveryUnavailable(true); handlers.setError(message); },
+          error: handlers.setError,
+          uncertain: (request) => {
+            handlers.setUncertain(request);
+            const restored = answerValues(request?.answer);
+            handlers.setText(restored.text);
+            handlers.setOrder(restored.order);
+          },
+          pending: handlers.setPendingEntry,
+          definitive: (_entry, caught) => {
+            if (caught instanceof ApiError && [401, 403, 404].includes(caught.status)) {
+              handlers.setRecoveryUnavailable(true);
+            }
+          },
+        });
+        if (active && next.session) {
+          handlers.applyState(next.session);
+          const pendingAttempt = listOutbox(recovery.practiceSessionId).find((entry) => entry.kind === "attempt");
+          const request = pendingAttempt ? attemptFromEntry(pendingAttempt) : null;
+          if (request) {
+            handlers.setUncertain(request);
+            const restored = answerValues(request.answer);
+            handlers.setText(restored.text);
+            handlers.setOrder(restored.order);
+          }
+        }
+      } catch (caught) {
+        if (active) {
+          handlers.setRecoveryUnavailable(caught instanceof ApiError && [401, 403, 404].includes(caught.status));
+          handlers.setError(practiceError(caught));
+        }
+      } finally {
+        if (active) handlers.setBusy(false);
+      }
+    };
+    const recover = async () => {
+      const boundId = new URLSearchParams(window.location.search).get("session");
+      const recovery = currentRecovery();
+      if (boundId && !recovery) {
+        if (active) {
+          handlers.setRecoveryUnavailable(true);
+          handlers.setError("This tab’s saved practice record is unavailable. Start a new practice when you are ready.");
+          handlers.setBusy(false);
+        }
+        return;
+      }
+      if (recovery) await recoverSaved(recovery); else await startMissing();
+    };
+    void recover();
+    return () => { active = false; };
+  }, []);
+}
+
 export default function Practice() {
   const [run, setRun] = useState<PracticeRunRecovery | null>(null);
   const [session, setSession] = useState<PracticeSession | null>(null);
@@ -482,6 +641,7 @@ export default function Practice() {
   const [pendingEntry, setPendingEntry] = useState<PracticeOutboxEntry | null>(null);
   const [error, setError] = useState("");
   const [recoveryUnavailable, setRecoveryUnavailable] = useState(false);
+  const [selectedTargets, setSelectedTargets] = useState<Set<string>>(() => new Set());
   const focusQueue = usePracticeFocusQueue(error);
   const { errorRef, feedbackRef, hintRef, introductionContentRef, itemHeadingRef, lessonContentRef, requestFocus, summaryHeadingRef } = focusQueue;
   const generationRef = useRef(0);
@@ -493,91 +653,13 @@ export default function Practice() {
     const restored = answerValues(item?.lastAnswer as AttemptAnswer | undefined);
     setText(restored.text);
     setOrder(restored.order);
+    setSelectedTargets(new Set());
   };
 
-  useEffect(() => {
-    let active = true;
-    const startMissing = async () => {
-      try {
-        const started = await startAutomaticPractice();
-        if (active) {
-          setRun(started.run);
-          bindUrl(started.run.practiceSessionId);
-          applyState(started.session);
-        }
-      } catch (caught) {
-        if (active) setError(practiceError(caught));
-      } finally {
-        if (active) setBusy(false);
-      }
-    };
-    const recoverSaved = async (recovery: PracticeRunRecovery) => {
-      setRun(recovery);
-      bindUrl(recovery.practiceSessionId);
-      try {
-        // Owner continuity is checked before any call that can renew the cookie.
-        const context = await loadPracticeContext();
-        if (context.ownerSessionId !== recovery.ownerSessionId) {
-          if (active) {
-            setRecoveryUnavailable(true);
-            setError("This saved practice belongs to an expired browser session. It was not reassigned or replayed.");
-          }
-          return;
-        }
-        const next = await reconcileOutbox(recovery, {
-          unavailable: (message) => { setRecoveryUnavailable(true); setError(message); },
-          error: setError,
-          uncertain: (request) => {
-            setUncertain(request);
-            const restored = answerValues(request?.answer);
-            setText(restored.text);
-            setOrder(restored.order);
-          },
-          pending: setPendingEntry,
-          definitive: (_entry, caught) => {
-            if (caught instanceof ApiError && [401, 403, 404].includes(caught.status)) {
-              setRecoveryUnavailable(true);
-            }
-          },
-        });
-        if (active && next.session) {
-          applyState(next.session);
-          const pendingAttempt = listOutbox(recovery.practiceSessionId)
-            .find((entry) => entry.kind === "attempt");
-          const request = pendingAttempt ? attemptFromEntry(pendingAttempt) : null;
-          if (request) {
-            setUncertain(request);
-            const restored = answerValues(request.answer);
-            setText(restored.text);
-            setOrder(restored.order);
-          }
-        }
-      } catch (caught) {
-        if (active) {
-          setRecoveryUnavailable(caught instanceof ApiError && [401, 403, 404].includes(caught.status));
-          setError(practiceError(caught));
-        }
-      } finally {
-        if (active) setBusy(false);
-      }
-    };
-    const recover = async () => {
-      const boundId = new URLSearchParams(window.location.search).get("session");
-      const recovery = currentRecovery();
-      if (boundId && !recovery) {
-        if (active) {
-          setRecoveryUnavailable(true);
-          setError("This tab’s saved practice record is unavailable. Start a new practice when you are ready.");
-          setBusy(false);
-        }
-        return;
-      }
-      if (recovery) await recoverSaved(recovery);
-      else await startMissing();
-    };
-    void recover();
-    return () => { active = false; };
-  }, []);
+  useInitialPracticeRecovery({
+    applyState, setBusy, setError, setOrder, setPendingEntry, setRecoveryUnavailable,
+    setRun, setText, setUncertain,
+  });
 
   const operationHandlers: OperationHandlers = {
     applyState, setError,
@@ -587,15 +669,19 @@ export default function Practice() {
     setText,
     setUncertain,
   };
-  const perform = async (entry: PracticeOutboxEntry, focus: PracticeFocusTarget) => {
+  const perform = async (
+    entry: PracticeOutboxEntry,
+    focus: PracticeFocusTarget,
+    operationRun: PracticeRunRecovery | null = run,
+  ) => {
     const generation = generationRef.current;
     setBusy(true);
     setPendingEntry(entry);
     setError("");
     try {
       saveOutboxEntry(entry);
-      if (!run) throw new Error("Practice recovery is unavailable.");
-      const result = await reconcileOutbox(run, operationCallbacks(run, operationHandlers));
+      if (!operationRun) throw new Error("Practice recovery is unavailable.");
+      const result = await reconcileOutbox(operationRun, operationCallbacks(operationRun, operationHandlers));
       if (generation !== generationRef.current) return;
       if (result.session) applyState(result.session);
       setPendingEntry(result.pending);
@@ -605,7 +691,7 @@ export default function Practice() {
       }
     } catch (caught) {
       if (generation !== generationRef.current) return;
-      handleOperationFailure(caught, entry, run, operationHandlers);
+      handleOperationFailure(caught, entry, operationRun, operationHandlers);
       requestFocus("error");
     } finally {
       if (generation === generationRef.current) setBusy(false);
@@ -630,9 +716,8 @@ export default function Practice() {
         planRevision: context.planRevision, seed: freshPracticeSeed(),
       };
       const recovery: PracticeRunRecovery = { ownerSessionId: context.ownerSessionId, ...request };
-      saveRunRecovery(recovery);
       const creation = outboxEntry(recovery, "creation", request.practiceSessionId, request);
-      saveOutboxEntry(creation);
+      saveRunWithCreation(recovery, creation);
       bindUrl(recovery.practiceSessionId);
       setRun(recovery);
       const created = await createPracticeSession(recovery.ownerSessionId, creation.body);
@@ -644,20 +729,80 @@ export default function Practice() {
     } finally { setBusy(false); }
   };
 
+  const startFollowUp = async () => {
+    if (!run || !session || session.state !== "completed" || selectedTargets.size === 0) return;
+    const generation = generationRef.current + 1;
+    generationRef.current = generation;
+    setBusy(true);
+    setError("");
+    try {
+      // This read cannot renew the development cookie. A review always keeps its source owner.
+      const context = await loadPracticeContext();
+      if (context.ownerSessionId !== run.ownerSessionId) {
+        setRecoveryUnavailable(true);
+        setError("This source practice belongs to an expired browser session. A review was not created.");
+        return;
+      }
+      const request: PracticeFollowUpRequest = {
+        practiceSessionId: crypto.randomUUID(),
+        planRevision: "follow-up-1" as const,
+        seed: freshPracticeSeed(),
+        targetKeys: [...selectedTargets],
+      };
+      const recovery: PracticeRunRecovery = {
+        ownerSessionId: run.ownerSessionId,
+        practiceSessionId: request.practiceSessionId,
+        focusId: "targeted-review",
+        planRevision: request.planRevision,
+        seed: request.seed,
+        sourcePracticeSessionId: session.id,
+        selectedTargetKeys: request.targetKeys,
+      };
+      const creation = outboxEntry(recovery, "creation", request.practiceSessionId, request);
+      saveRunWithCreation(recovery, creation);
+      if (generation !== generationRef.current) return;
+      bindUrl(recovery.practiceSessionId);
+      setRun(recovery);
+      setSession(null);
+      setAttempt(null);
+      setUncertain(null);
+      setPendingEntry(creation);
+      setSelectedTargets(new Set());
+      await perform(creation, "item", recovery);
+    } catch (caught) {
+      if (generation !== generationRef.current) return;
+      setError(practiceError(caught));
+      requestFocus("error");
+    } finally {
+      if (generation === generationRef.current) setBusy(false);
+    }
+  };
+
   if (busy && !session) return <Group justify="center" mih={300}><Loader aria-label="Starting practice" /></Group>;
   if (!session) {
     return (
       <Stack maw={760} className={`${classes.playground} ${classes.practice}`}>
-        {error && <Alert ref={errorRef} tabIndex={-1} color="red" icon={<IconAlertCircle />} title="Practice recovery unavailable">{error}</Alert>}
-        <Button onClick={() => void startNewPractice()}>Start new practice</Button>
+        <PracticeError
+          message={error}
+          uncertain={false}
+          recoveryUnavailable={recoveryUnavailable}
+          pending={Boolean(pendingEntry)}
+          retryDisabled={busy}
+          focusRef={errorRef}
+          onStartNew={() => void startNewPractice()}
+          onRetry={() => {
+            if (pendingEntry) void perform(pendingEntry, "item");
+          }}
+        />
+        {!recoveryUnavailable && <Button onClick={() => void startNewPractice()}>Start new practice</Button>}
       </Stack>
     );
   }
   const exercise = session.currentExercise;
   const item = session.items.find((candidate) => candidate.position === session.cursor);
-  const answerReady = exercise?.formatId === "E003" ? order.length === exercise.prompt.blocks.length : text.trim().length > 0;
   const progress = session.itemCount > 0 ? (session.cursor / session.itemCount) * 100 : 0;
   const blocked = busy || Boolean(pendingEntry) || Boolean(uncertain);
+  const followUp = session.followUp;
   const submit = () => {
     if (!run || !exercise || !item) return;
     const request: AttemptRequest = {
@@ -680,7 +825,11 @@ export default function Practice() {
   return (
     <Stack gap="lg" maw={920} className={`${classes.playground} ${classes.practice}`}>
       <Group justify="space-between" align="start">
-        <Box><Title order={1} size="h2">{session.title}</Title><Text c="dimmed">A short practice in eight parts. Continue after any saved answer.</Text></Box>
+        <Box>
+          <Title order={1} size="h2">{session.title}</Title>
+          <Text c="dimmed">{followUp ? "A focused review" : "A short practice"} in {session.itemCount} {session.itemCount === 1 ? "part" : "parts"}. Continue after any saved answer.</Text>
+          {followUp && <Button component="a" variant="subtle" px={0} href={`/practice?session=${encodeURIComponent(followUp.sourcePracticeSessionId)}`}>Source practice</Button>}
+        </Box>
         <Button variant="subtle" color="gray" disabled={busy} onClick={() => void startNewPractice()}>Start new practice</Button>
       </Group>
       <Box>
@@ -700,33 +849,36 @@ export default function Practice() {
           void perform(pendingEntry, pendingFocus(pendingEntry, session));
         }}
       />
-      {session.state === "completed" ? <PracticeSummary session={session} headingRef={summaryHeadingRef} /> : exercise && item ? (
-        <>
-          <SupportSections session={session} disabled={blocked} introductionContentRef={introductionContentRef} lessonContentRef={lessonContentRef} onSupport={support} />
-          <Paper withBorder shadow="xs" className={classes.exerciseCard}>
-            <Stack gap="lg">
-              <Group justify="space-between"><Text fw={650}>Practice item {item.position + 1}</Text><Badge variant="light" color="astrid">{exercise.targetSkillId ?? "Vocabulary"}</Badge></Group>
-              <Divider />
-              <Box><Title ref={itemHeadingRef} tabIndex={-1} order={2} size="h4">{exercise.instruction}</Title><Text c="dimmed" mt={4}>{exercise.context}</Text></Box>
-              <ExercisePrompt exercise={exercise} text={text} order={order} disabled={blocked || Boolean(attempt)} onText={setText} onOrder={setOrder} />
-              {item.hintOpened && <PracticeHint focusRef={hintRef} hint={exercise.hint} />}
-              {attempt && <FeedbackPanel
-                attempt={attempt}
-                focusRef={feedbackRef}
-                supportDescription={itemSupportDescription(attempt)}
-              />}
-              <AttemptContextNote item={item} />
-              <Group justify="space-between" className={classes.exerciseActions}>
-                <Button variant="subtle" color="gray" disabled={blocked || item.hintOpened || Boolean(attempt)} onClick={() => support("hint", item.position)}>Show hint</Button>
-                <Group className={classes.exercisePrimaryActions}>
-                  {attempt && <Button variant="default" disabled={blocked} onClick={() => { setAttempt(null); setText(""); setOrder([]); requestFocus("item"); }}>Try again</Button>}
-                  {attempt ? <Button loading={busy} disabled={blocked} onClick={advance}>Continue</Button> : <Button loading={busy} disabled={!answerReady || blocked} onClick={submit}>Check answer</Button>}
-                </Group>
-              </Group>
-            </Stack>
-          </Paper>
-        </>
-      ) : null}
+      {session.state === "completed" ? <PracticeSummary
+        session={session}
+        headingRef={summaryHeadingRef}
+        selectedTargets={selectedTargets}
+        busy={blocked}
+        onToggleTarget={(targetKey, selected) => setSelectedTargets((current) => {
+          const next = new Set(current);
+          if (selected) next.add(targetKey); else next.delete(targetKey);
+          return next;
+        })}
+        onStartReview={() => void startFollowUp()}
+      /> : <ActivePractice
+        session={session}
+        blocked={blocked}
+        busy={busy}
+        text={text}
+        order={order}
+        attempt={attempt}
+        feedbackRef={feedbackRef}
+        hintRef={hintRef}
+        introductionRef={introductionContentRef}
+        itemRef={itemHeadingRef}
+        lessonRef={lessonContentRef}
+        onText={setText}
+        onOrder={setOrder}
+        onSupport={support}
+        onSubmit={submit}
+        onAdvance={advance}
+        onRetry={() => { setAttempt(null); setText(""); setOrder([]); requestFocus("item"); }}
+      />}
     </Stack>
   );
 }

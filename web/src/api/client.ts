@@ -124,6 +124,15 @@ export const createPracticeSession = (
   "X-Astrid-Practice-Owner": ownerSessionId,
 }));
 
+export const createPracticeFollowUp = (
+  sourcePracticeSessionId: string,
+  ownerSessionId: string,
+  serializedBody: string,
+) => readJson<PracticeSession>(
+  `/api/v1/practice-sessions/${encodeURIComponent(sourcePracticeSessionId)}/follow-ups`,
+  serializedJsonInit(serializedBody, { "X-Astrid-Practice-Owner": ownerSessionId }),
+);
+
 export const updatePracticeSupport = (
   practiceSessionId: string,
   ownerSessionId: string,
