@@ -92,6 +92,13 @@ function lexicalTargetLabel(format: Catalog["formats"][number] | undefined) {
   return "Vocabulary target";
 }
 
+function readingTargetLabel(format: Catalog["formats"][number] | undefined) {
+  if (format?.readingTask?.facet === "participant-action-complement") {
+    return "Reading · participant, action and object";
+  }
+  return null;
+}
+
 function ExerciseIdentity({ catalog, exercise, format }: {
   catalog: Catalog | null;
   exercise: Exercise | null;
@@ -99,12 +106,14 @@ function ExerciseIdentity({ catalog, exercise, format }: {
 }) {
   const skill = catalog?.skills.find((candidate) => candidate.id === format?.targetSkillId);
   const lexicalLabel = lexicalTargetLabel(format);
+  const readingLabel = readingTargetLabel(format);
   return (
     <Group justify="space-between" align="start">
       <Box>
         <Text fw={650}>{format?.title ?? "Exercise"}</Text>
         {skill && <Text size="sm" c="dimmed">Target: {skill.title}</Text>}
         {lexicalLabel && <Text size="sm" c="dimmed">Target: {lexicalLabel}</Text>}
+        {readingLabel && <Text size="sm" c="dimmed">Task: {readingLabel}</Text>}
       </Box>
       {exercise?.targetSkillId && <Badge color="astrid" variant="light">{exercise.targetSkillId}</Badge>}
     </Group>
@@ -302,7 +311,7 @@ export default function Playground() {
                         {exercise.introduction.map((section) => (
                           <Box key={section.title}>
                             <Title order={3} size="h4">{section.title}</Title>
-                            <Text size="sm" mt={4}>{section.body}</Text>
+                            <Text lang={section.bodyLanguage ?? undefined} size="sm" mt={4}>{section.body}</Text>
                           </Box>
                         ))}
                       </SimpleGrid>

@@ -43,7 +43,20 @@ export default function InspectorPanel({ exerciseId }: { exerciseId: string }) {
       {error && <Alert color="red">{error}</Alert>}
       {details && (
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xs">
-          {details.lexicalSource ? (
+          {details.readingSource ? (
+            <>
+              <Text size="sm">Question relation<br /><Code>{details.readingSource.questionSubjectId} · {details.readingSource.questionVerbId}</Code></Text>
+              <Text size="sm">Answer evidence<br /><Code>{details.readingSource.answerNounId} · {details.readingSource.answer}</Code></Text>
+              <Text size="sm" style={{ gridColumn: "1 / -1" }}>
+                Passage propositions<br />
+                {details.readingSource.propositions.map((proposition) => (
+                  <Code key={`${proposition.sentenceId}-${proposition.subjectId}-${proposition.verbId}-${proposition.objectId}`} display="block">
+                    {proposition.sentenceId}: {proposition.subjectId} · {proposition.verbId} · {proposition.objectId}
+                  </Code>
+                ))}
+              </Text>
+            </>
+          ) : details.lexicalSource ? (
             <>
               <Text size="sm">Entry and sense<br /><Code>{details.lexicalSource.entryId} · {details.lexicalSource.senseId}</Code></Text>
               <Text size="sm">Headword<br /><Code lang="da">{details.lexicalSource.headword}</Code></Text>

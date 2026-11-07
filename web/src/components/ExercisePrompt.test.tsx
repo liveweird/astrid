@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { Exercise } from "../api/models";
 import ExercisePrompt from "./ExercisePrompt";
 
-function exercise(formatId: string, promptMetadata: Partial<Exercise["prompt"]> = {}): Exercise {
+function exercise(formatId: Exercise["formatId"], promptMetadata: Partial<Exercise["prompt"]> = {}): Exercise {
   return {
     id: "011835c0-bb42-47ef-b21e-ae21411b24a1",
     formatId,
@@ -27,10 +27,10 @@ function exercise(formatId: string, promptMetadata: Partial<Exercise["prompt"]> 
     },
     introduction: [],
     hint: "Start with the subject.",
-  };
+  } as Exercise;
 }
 
-function renderPrompt(formatId: string, onText = vi.fn(), onOrder = vi.fn()) {
+function renderPrompt(formatId: Exercise["formatId"], onText = vi.fn(), onOrder = vi.fn()) {
   render(
     <MantineProvider env="test">
       <ExercisePrompt
@@ -42,6 +42,68 @@ function renderPrompt(formatId: string, onText = vi.fn(), onOrder = vi.fn()) {
 }
 
 describe("ExercisePrompt", () => {
+  it("renders a full-sentence English cue with a Danish writing area and caret-aware character help", async () => {
+    function WritingHarness() {
+      const [text, setText] = useState("Hun lser en avis.");
+      return (
+        <ExercisePrompt
+          exercise={exercise("E009", {
+            before: "", after: "", punctuation: "", cue: "She reads a newspaper.",
+            cueLanguage: "en", answerLanguage: "da", inputLabel: "Danish sentence",
+          })}
+          text={text} order={[]} disabled={false} onText={setText} onOrder={vi.fn()}
+        />
+      );
+    }
+    render(<MantineProvider env="test"><WritingHarness /></MantineProvider>);
+
+    expect(screen.getByText("She reads a newspaper.")).toHaveAttribute("lang", "en");
+    const input = screen.getByLabelText("Danish sentence") as HTMLTextAreaElement;
+    expect(input).toHaveAttribute("lang", "da");
+    expect(input).toHaveAccessibleDescription("Write one complete Danish statement");
+    input.focus();
+    input.setSelectionRange(5, 5);
+    await userEvent.click(screen.getByRole("button", { name: "Insert æ" }));
+    expect(input).toHaveValue("Hun læser en avis.");
+    expect(input).toHaveFocus();
+    expect(input.selectionStart).toBe(6);
+  });
+
+  it("renders a Danish reading passage followed by an English question and English choices", async () => {
+    const onText = vi.fn();
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E010", {
+              before: "", after: "", punctuation: "", cue: "According to the text, what does she read?",
+              cueLanguage: "en", answerLanguage: "en", choices: ["a book", "a newspaper", "a letter"],
+              passage: ["Hun læser en avis.", "Han læser et brev.", "Hun har en bog."],
+            }),
+            targetSkillId: null,
+            readingTarget: { facet: "participant-action-complement" },
+          } as Exercise}
+          text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    const passage = screen.getByRole("group", { name: "Reading passage" });
+    expect(passage).toHaveAttribute("lang", "da");
+    for (const sentence of ["Hun læser en avis.", "Han læser et brev.", "Hun har en bog."]) {
+      expect(screen.getByText(sentence)).toBeVisible();
+    }
+    expect(screen.getByText("According to the text, what does she read?")).toHaveAttribute("lang", "en");
+    expect(screen.getByRole("group", { name: "Answer choices" })).not.toHaveAttribute("lang", "da");
+    for (const choice of ["a book", "a newspaper", "a letter"]) {
+      expect(screen.getByText(choice)).toHaveAttribute("lang", "en");
+    }
+    await userEvent.click(screen.getByRole("button", { name: "a newspaper" }));
+    expect(onText).toHaveBeenCalledWith("a newspaper");
+  });
+});
+
+describe("ExercisePrompt legacy formats", () => {
   it("renders a Danish vocabulary cue with English meaning choices and no sentence shell", async () => {
     const onText = vi.fn();
     render(
@@ -54,7 +116,7 @@ describe("ExercisePrompt", () => {
             }),
             targetSkillId: null,
             lexicalTarget: { entryId: "L015", senseId: "L015-S01", facet: "meaning", direction: "da-en" },
-          }}
+          } as Exercise}
           text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
         />
       </MantineProvider>,
@@ -85,7 +147,7 @@ describe("ExercisePrompt", () => {
             lexicalTarget: {
               entryId: "L014", senseId: "L014-S01", facet: "singular-headword", direction: "en-da",
             },
-          }}
+          } as Exercise}
           text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
         />
       </MantineProvider>,

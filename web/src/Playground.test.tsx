@@ -345,6 +345,135 @@ async function verifyVocabularyCatalog() {
   });
 }
 
+async function verifyWritingAndReadingCatalog() {
+  const fourthCatalog = {
+    ...catalog,
+    contentRevision: "pilot-4", generatorRevision: "generator-4", evaluationRevision: "evaluation-4",
+    formats: [
+      { id: "E009", title: "Write a Danish sentence", targetSkillId: "G005" },
+      { id: "E010", title: "Read a short text", targetSkillId: null,
+        readingTask: { facet: "participant-action-complement" } },
+    ],
+  };
+  const writingExercise = {
+    ...exercise,
+    id: "d6125de7-267d-4ca5-8e68-f7f3558d928b", formatId: "E009", targetSkillId: "G005",
+    contentRevision: "pilot-4", generatorRevision: "generator-4",
+    instruction: "Write one complete Danish statement.", context: "Use the introduced words to express the meaning.",
+    prompt: {
+      before: "", after: "", choices: [], blocks: [], punctuation: "", cue: "She reads a newspaper.",
+      cueLanguage: "en", answerLanguage: "da", inputLabel: "Danish sentence",
+    },
+    introduction: [
+      { title: "Noun phrase", body: "en avis", bodyLanguage: "da" },
+      { title: "Finite verb", body: "læser", bodyLanguage: "da" },
+      { title: "Pronoun", body: "hun", bodyLanguage: "da" },
+    ],
+    hint: "Begin with the subject, then use the finite verb.",
+  };
+  const readingExercise = {
+    ...exercise,
+    id: "9e9637f8-c290-45eb-ad22-8e8f281c885d", formatId: "E010", targetSkillId: null,
+    contentRevision: "pilot-4", generatorRevision: "generator-4",
+    instruction: "Read the short text and answer the question.", context: "Use the information stated in the text.",
+    prompt: {
+      before: "", after: "", blocks: [], punctuation: "", cue: "According to the text, what does she read?",
+      cueLanguage: "en", answerLanguage: "en", choices: ["a book", "a newspaper", "a letter"],
+      passage: ["Hun læser en avis.", "Han læser et brev.", "Hun har en bog."],
+    },
+    readingTarget: { facet: "participant-action-complement" }, introduction: [],
+    hint: "Find the sentence with the requested participant and action.",
+  };
+  const exerciseBodies: Array<Record<string, unknown>> = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json({
+      ...session, contentRevision: "pilot-4", generatorRevision: "generator-4", evaluationRevision: "evaluation-4",
+    });
+    if (path.endsWith("catalog")) return json(fourthCatalog);
+    if (path.endsWith("exercises")) {
+      const body = JSON.parse(String(init?.body));
+      exerciseBodies.push(body);
+      return json(body.formatId === "E010" ? readingExercise : writingExercise);
+    }
+    return json(attempt);
+  }));
+
+  await renderPlayground();
+  expect(await screen.findByText("She reads a newspaper.")).toHaveAttribute("lang", "en");
+  expect(screen.getByLabelText("Danish sentence")).toHaveAttribute("lang", "da");
+  expect(screen.queryByText("Hun læser en avis.")).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Learn this first" }));
+  for (const reference of ["en avis", "læser", "hun"]) {
+    expect(screen.getByText(reference, { exact: true })).toHaveAttribute("lang", "da");
+  }
+  await userEvent.click(screen.getByRole("button", { name: "Generation controls" }));
+  await userEvent.click(screen.getByRole("combobox", { name: "Exercise type" }));
+  await userEvent.click(screen.getByRole("option", { name: "Read a short text" }));
+
+  expect(await screen.findByText("Task: Reading · participant, action and object")).toBeVisible();
+  expect(screen.getByRole("group", { name: "Reading passage" })).toHaveAttribute("lang", "da");
+  expect(screen.getByText("According to the text, what does she read?")).toHaveAttribute("lang", "en");
+  expect(screen.queryByText(/answerNounId|questionSubjectId/)).not.toBeInTheDocument();
+  expect(exerciseBodies[1]).toEqual({
+    formatId: "E010", seed: 20261107, index: 0,
+    contentRevision: "pilot-4", generatorRevision: "generator-4",
+  });
+}
+
+async function verifyWritingUncertainRecovery() {
+  const writingCatalog = {
+    ...catalog,
+    contentRevision: "pilot-4", generatorRevision: "generator-4", evaluationRevision: "evaluation-4",
+    formats: [{ id: "E009", title: "Write a Danish sentence", targetSkillId: "G005" }],
+  };
+  const writingExercise = {
+    ...exercise,
+    id: "35f6c122-3177-441e-bcf9-f0c82607b271", formatId: "E009", targetSkillId: "G005",
+    contentRevision: "pilot-4", generatorRevision: "generator-4",
+    instruction: "Write one complete Danish statement.", context: "Express the English meaning.",
+    prompt: {
+      before: "", after: "", choices: [], blocks: [], punctuation: "", cue: "She reads a newspaper.",
+      cueLanguage: "en", answerLanguage: "da", inputLabel: "Danish sentence",
+    },
+    introduction: [], hint: "Begin with the subject.",
+  };
+  const attemptBodies: string[] = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json({
+      ...session, contentRevision: "pilot-4", generatorRevision: "generator-4", evaluationRevision: "evaluation-4",
+    });
+    if (path.endsWith("catalog")) return json(writingCatalog);
+    if (path.endsWith("exercises")) return json(writingExercise);
+    attemptBodies.push(String(init?.body));
+    if (attemptBodies.length === 1) throw new TypeError("response connection closed");
+    const submitted = JSON.parse(attemptBodies[1]!);
+    return json({
+      ...attempt, attemptId: submitted.attemptId, exerciseId: writingExercise.id,
+      linguisticScope: "danish-sentence", responseConstraintStatus: "met", meaningSatisfaction: "met",
+      completedSentence: "Hun læser en avis.",
+    });
+  }));
+  await renderPlayground();
+  const input = await screen.findByLabelText("Danish sentence");
+  await userEvent.type(input, "Hun læser en avis.");
+  await userEvent.click(screen.getByRole("button", { name: "Check answer" }));
+
+  expect(await screen.findByText("The result is not confirmed")).toBeVisible();
+  expect(input).toBeDisabled();
+  expect(input).toHaveValue("Hun læser en avis.");
+  for (const character of ["æ", "ø", "å"]) {
+    expect(screen.getByRole("button", { name: `Insert ${character}` })).toBeDisabled();
+  }
+  await userEvent.click(screen.getByRole("button", { name: "Check the same attempt" }));
+  expect(await screen.findByText("Meaning matched")).toBeVisible();
+  expect(attemptBodies[1]).toBe(attemptBodies[0]);
+  expect(JSON.parse(attemptBodies[1]!)).toMatchObject({
+    exerciseId: writingExercise.id,
+    answer: { kind: "text", text: "Hun læser en avis." },
+    hintUsed: false,
+  });
+}
+
 describe("Playground", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -386,9 +515,13 @@ describe("Playground", () => {
 
   it("renders the eight-format catalog and omits a grammar selector for vocabulary generation", verifyVocabularyCatalog);
 
+  it("renders standalone writing and reading formats with distinct language semantics", verifyWritingAndReadingCatalog);
+
   it("submits repair text unsupported, then keeps lesson support sticky for a retry", verifyRepairSupportTracking);
 
   it("freezes repair input and its character controls while recovering an uncertain attempt", verifyRepairUncertainRecovery);
+
+  it("freezes full-sentence writing and replays the exact pending attempt", verifyWritingUncertainRecovery);
 
   it("freezes the answer and replays the exact payload after an uncertain submission", async () => {
     const attemptBodies: string[] = [];

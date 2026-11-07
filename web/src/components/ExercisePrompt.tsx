@@ -1,5 +1,5 @@
-import { Button, Group, Paper, Stack, Text, TextInput, VisuallyHidden } from "@mantine/core";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Button, Group, Paper, Stack, Text, Textarea, TextInput, VisuallyHidden } from "@mantine/core";
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import type { Exercise } from "../api/models";
 import classes from "../theme.module.css";
 
@@ -20,15 +20,36 @@ function orderedBlockText(value: string, index: number) {
 
 const DANISH_CHARACTERS = ["æ", "ø", "å"] as const;
 
-function DanishTextInput({
-  label, text, disabled, onText,
-}: {
-  label: string;
-  text: string;
+type DanishInputElement = HTMLInputElement | HTMLTextAreaElement;
+
+function DanishCharacterButtons({ disabled, insertCharacter }: {
   disabled: boolean;
-  onText: (value: string) => void;
+  insertCharacter: (character: string) => void;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <Group gap="xs" aria-label="Insert a Danish character">
+      {DANISH_CHARACTERS.map((character) => (
+        <Button
+          key={character}
+          type="button"
+          size="compact-sm"
+          variant="default"
+          disabled={disabled}
+          aria-label={`Insert ${character}`}
+          onClick={() => insertCharacter(character)}
+        >
+          <span lang="da">{character}</span>
+        </Button>
+      ))}
+    </Group>
+  );
+}
+
+function useDanishCharacterInsertion(
+  inputRef: RefObject<DanishInputElement | null>,
+  text: string,
+  onText: (value: string) => void,
+) {
   const pendingCaret = useRef<number | null>(null);
   const [caretRequest, setCaretRequest] = useState(0);
 
@@ -38,9 +59,9 @@ function DanishTextInput({
     inputRef.current?.focus();
     inputRef.current?.setSelectionRange(caret, caret);
     pendingCaret.current = null;
-  }, [caretRequest, text]);
+  }, [caretRequest, inputRef, text]);
 
-  const insertCharacter = (character: string) => {
+  return (character: string) => {
     const input = inputRef.current;
     const selectionStart = input?.selectionStart ?? text.length;
     const selectionEnd = input?.selectionEnd ?? selectionStart;
@@ -48,6 +69,18 @@ function DanishTextInput({
     onText(`${text.slice(0, selectionStart)}${character}${text.slice(selectionEnd)}`);
     setCaretRequest((current) => current + 1);
   };
+}
+
+function DanishTextInput({
+  label, text, disabled, onText,
+}: {
+  label: string;
+  text: string;
+  disabled: boolean;
+  onText: (value: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const insertCharacter = useDanishCharacterInsertion(inputRef, text, onText);
 
   return (
     <Stack gap="xs">
@@ -62,21 +95,34 @@ function DanishTextInput({
         lang="da"
         maw={220}
       />
-      <Group gap="xs" aria-label="Insert a Danish character">
-        {DANISH_CHARACTERS.map((character) => (
-          <Button
-            key={character}
-            type="button"
-            size="compact-sm"
-            variant="default"
-            disabled={disabled}
-            aria-label={`Insert ${character}`}
-            onClick={() => insertCharacter(character)}
-          >
-            <span lang="da">{character}</span>
-          </Button>
-        ))}
-      </Group>
+      <DanishCharacterButtons disabled={disabled} insertCharacter={insertCharacter} />
+    </Stack>
+  );
+}
+
+function DanishSentenceInput({ text, disabled, onText, label }: {
+  text: string;
+  disabled: boolean;
+  onText: (value: string) => void;
+  label: string;
+}) {
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const insertCharacter = useDanishCharacterInsertion(inputRef, text, onText);
+  return (
+    <Stack gap="xs">
+      <Textarea
+        ref={inputRef}
+        label={label}
+        description="Write one complete Danish statement"
+        value={text}
+        disabled={disabled}
+        onChange={(event) => onText(event.currentTarget.value)}
+        autoComplete="off"
+        autoCapitalize="sentences"
+        lang="da"
+        rows={3}
+      />
+      <DanishCharacterButtons disabled={disabled} insertCharacter={insertCharacter} />
     </Stack>
   );
 }
@@ -95,6 +141,44 @@ export default function ExercisePrompt({ exercise, text, order, disabled, onText
     refs.get(target.id)?.focus();
     focusTarget.current = null;
   }, [order]);
+
+  if (exercise.readingTarget) {
+    return (
+      <Stack gap="md">
+        <Stack gap="xs" role="group" aria-label="Reading passage" lang="da">
+          {prompt.passage?.map((sentence, index) => <Text key={`${index}-${sentence}`}>{sentence}</Text>)}
+        </Stack>
+        {prompt.cue && <Text lang="en" size="lg" fw={650}>{prompt.cue}</Text>}
+        <Group gap="xs" role="group" aria-label="Answer choices">
+          {prompt.choices.map((choice) => (
+            <Button
+              key={choice}
+              variant={text === choice ? "filled" : "default"}
+              disabled={disabled}
+              onClick={() => onText(choice)}
+              aria-pressed={text === choice}
+            >
+              <span lang="en">{choice}</span>
+            </Button>
+          ))}
+        </Group>
+      </Stack>
+    );
+  }
+
+  if (formatId === "E009") {
+    return (
+      <Stack gap="md">
+        {prompt.cue && <Text lang="en" size="xl" fw={650}>{prompt.cue}</Text>}
+        <DanishSentenceInput
+          label={inputLabel ?? "Danish sentence"}
+          text={text}
+          disabled={disabled}
+          onText={onText}
+        />
+      </Stack>
+    );
+  }
 
   if (exercise.lexicalTarget) {
     return (

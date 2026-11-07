@@ -16,6 +16,12 @@ function languageLabel(value: string) {
   return "Language status unknown";
 }
 
+function meaningLabel(value: string) {
+  if (value === "met") return "Meaning matched";
+  if (value === "not-met") return "Meaning to revisit";
+  return "Meaning not evaluated";
+}
+
 function lexicalLanguageLabel(attempt: Attempt) {
   if (attempt.linguisticScope === "english-choice") {
     return attempt.linguisticStatus === "acceptable"
@@ -28,17 +34,37 @@ function lexicalLanguageLabel(attempt: Attempt) {
   return languageLabel(attempt.linguisticStatus);
 }
 
+function feedbackTitle(goodWork: boolean, identifiedHeadword: boolean, identifiedWritingTarget: boolean) {
+  if (goodWork) return "Good work";
+  if (identifiedHeadword) return "Headword identified; adjust your answer.";
+  if (identifiedWritingTarget) return "Target met; adjust the rest of your answer.";
+  return "Look at the target once more";
+}
+
+function failedConstraintLabel(scope: Attempt["linguisticScope"]) {
+  if (scope === "danish-headword") return "One-word response required";
+  if (scope === "danish-sentence") return "One statement required";
+  return "Supplied choice required";
+}
+
 export default function FeedbackPanel({ attempt, focusRef, supportDescription }: {
   attempt: Attempt;
   focusRef?: Ref<HTMLDivElement>;
   supportDescription?: string;
 }) {
   const met = attempt.targetSatisfaction === "met";
-  const constraintMet = attempt.responseConstraintStatus == null || attempt.responseConstraintStatus === "met";
+  const writing = attempt.linguisticScope === "danish-sentence";
+  const constraintMet = writing
+    ? attempt.responseConstraintStatus === "met"
+    : attempt.responseConstraintStatus == null || attempt.responseConstraintStatus === "met";
+  const meaningMet = writing
+    ? attempt.meaningSatisfaction === "met"
+    : attempt.meaningSatisfaction == null || attempt.meaningSatisfaction === "met";
   const goodWork = attempt.linguisticScope
-    ? met && attempt.linguisticStatus === "acceptable" && constraintMet
+    ? met && meaningMet && attempt.linguisticStatus === "acceptable" && constraintMet
     : met;
   const identifiedHeadword = attempt.linguisticScope === "danish-headword" && met && !goodWork;
+  const identifiedWritingTarget = attempt.linguisticScope === "danish-sentence" && met && !goodWork;
   return (
     <Alert
       ref={focusRef}
@@ -48,25 +74,34 @@ export default function FeedbackPanel({ attempt, focusRef, supportDescription }:
       variant="light"
       icon={goodWork ? <IconCircleCheck size={20} /> : <IconAlertTriangle size={20} />}
       title={<Text c="var(--mantine-color-text)" fw={650}>
-        {goodWork ? "Good work" : identifiedHeadword ? "Headword identified; adjust your answer." : "Look at the target once more"}
+        {feedbackTitle(goodWork, identifiedHeadword, identifiedWritingTarget)}
       </Text>}
       role="status"
     >
       <Stack gap="xs">
         <Group className={classes.feedbackBadges} gap="xs">
           <Badge className={classes.feedbackBadge} variant="default">{targetLabel(attempt.targetSatisfaction)}</Badge>
+          {attempt.meaningSatisfaction && (
+            <Badge className={classes.feedbackBadge} variant="default">
+              {meaningLabel(attempt.meaningSatisfaction)}
+            </Badge>
+          )}
           <Badge className={classes.feedbackBadge} variant="default">
             {attempt.linguisticScope ? lexicalLanguageLabel(attempt) : languageLabel(attempt.linguisticStatus)}
           </Badge>
+          {attempt.linguisticScope === "danish-sentence" && attempt.responseConstraintStatus === "met" && (
+            <Badge className={classes.feedbackBadge} variant="default">One statement supplied</Badge>
+          )}
           {attempt.responseConstraintStatus === "not-met" && (
             <Badge className={classes.feedbackBadge} color="orange" variant="light">
-              {attempt.linguisticScope === "danish-headword" ? "One-word response required" : "Supplied choice required"}
+              {failedConstraintLabel(attempt.linguisticScope)}
             </Badge>
           )}
         </Group>
         <Text>{attempt.feedback}</Text>
         {attempt.completedSentence && <Text lang="da" fw={650}>{attempt.completedSentence}</Text>}
-        {attempt.linguisticStatus === "unknown" && !attempt.linguisticScope && (
+        {attempt.linguisticStatus === "unknown"
+          && (attempt.linguisticScope == null || attempt.linguisticScope === "danish-sentence") && (
           <Text size="sm">This answer is outside the pilot’s licensed patterns. It is not a general judgment about Danish.</Text>
         )}
         {attempt.issues.map((issue) => <Text size="sm" key={issue.code}>{issue.message}</Text>)}

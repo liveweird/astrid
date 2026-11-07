@@ -125,4 +125,80 @@ describe("FeedbackPanel", () => {
     expect(screen.getByText("Known language issue")).toBeVisible();
     expect(screen.getByText("One-word response required")).toBeVisible();
   });
+
+  it("requires all four writing facets before showing green feedback", () => {
+    const writing = {
+      ...base,
+      targetSatisfaction: "met" as const,
+      meaningSatisfaction: "not-met" as const,
+      linguisticStatus: "acceptable" as const,
+      linguisticScope: "danish-sentence" as const,
+      responseConstraintStatus: "met" as const,
+      completedSentence: "Han læser en avis.",
+    };
+    const { rerender } = render(
+      <MantineProvider env="test"><FeedbackPanel attempt={writing} /></MantineProvider>,
+    );
+    expect(screen.getByText("Target met")).toBeVisible();
+    expect(screen.getByText("Meaning to revisit")).toBeVisible();
+    expect(screen.getByText("Acceptable Danish")).toBeVisible();
+    expect(screen.getByText("One statement supplied")).toBeVisible();
+    expect(screen.getByText("Target met; adjust the rest of your answer.")).toBeVisible();
+    expect(screen.queryByText("Good work")).not.toBeInTheDocument();
+
+    rerender(
+      <MantineProvider env="test">
+        <FeedbackPanel attempt={{ ...writing, meaningSatisfaction: "met" }} />
+      </MantineProvider>,
+    );
+    expect(screen.getByText("Meaning matched")).toBeVisible();
+    expect(screen.getByText("Good work")).toBeVisible();
+  });
+
+  it("explains bounded unknown writing and labels its response shape without choice wording", () => {
+    render(
+      <MantineProvider env="test">
+        <FeedbackPanel attempt={{
+          ...base,
+          targetSatisfaction: "unevaluable",
+          meaningSatisfaction: "unknown",
+          linguisticScope: "danish-sentence",
+          responseConstraintStatus: "not-met",
+          completedSentence: "Hun læser en avis. Han sover.",
+        }} />
+      </MantineProvider>,
+    );
+    expect(screen.getByText("Target not evaluated")).toBeVisible();
+    expect(screen.getByText("Meaning not evaluated")).toBeVisible();
+    expect(screen.getByText("One statement required")).toBeVisible();
+    expect(screen.queryByText("Supplied choice required")).not.toBeInTheDocument();
+    expect(screen.getByText(/outside the pilot’s licensed patterns/i)).toBeVisible();
+    expect(screen.getByText("Hun læser en avis. Han sover.")).toBeVisible();
+  });
+
+  it("does not infer omitted writing meaning or shape evidence as met", () => {
+    const writing = {
+      ...base,
+      targetSatisfaction: "met" as const,
+      linguisticStatus: "acceptable" as const,
+      linguisticScope: "danish-sentence" as const,
+      responseConstraintStatus: "met" as const,
+      meaningSatisfaction: "met" as const,
+    };
+    const { rerender } = render(
+      <MantineProvider env="test">
+        <FeedbackPanel attempt={{ ...writing, meaningSatisfaction: undefined }} />
+      </MantineProvider>,
+    );
+    expect(screen.queryByText("Good work")).not.toBeInTheDocument();
+    expect(screen.getByText("Target met; adjust the rest of your answer.")).toBeVisible();
+
+    rerender(
+      <MantineProvider env="test">
+        <FeedbackPanel attempt={{ ...writing, responseConstraintStatus: undefined }} />
+      </MantineProvider>,
+    );
+    expect(screen.queryByText("Good work")).not.toBeInTheDocument();
+    expect(screen.getByText("Target met; adjust the rest of your answer.")).toBeVisible();
+  });
 });
