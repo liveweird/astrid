@@ -21,8 +21,10 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import io.swagger.v3.parser.OpenAPIV3Parser
+import java.io.File
 import java.util.UUID
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -40,6 +42,14 @@ class OpenApiContractTest {
                 .withLevel("validation.response", ValidationReport.Level.ERROR)
                 .build(),
         ).build()
+
+    @Test
+    fun `spec info version equals the application version`() {
+        val versionSource = File("../web/src/changelog/version.ts").readText()
+        val version = checkNotNull(Regex("export const APP_VERSION = \"([^\"]+)\"").find(versionSource)).groupValues[1]
+        val spec = checkNotNull(OpenAPIV3Parser().readContents(rawSpec).openAPI)
+        assertEquals(version, spec.info.version)
+    }
 
     @Test
     fun `spec parses and validates critical runtime responses`() = testApplication {

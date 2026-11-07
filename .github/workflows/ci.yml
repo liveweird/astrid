@@ -50,6 +50,8 @@ jobs:
         working-directory: web
       - run: npm run check:api && npm run lint && npm run test:coverage && npm run build
         working-directory: web
+        env:
+          GIT_SHA: ${{ github.sha }}
       - run: npm audit --audit-level=high
         working-directory: web
   dependency-scan:

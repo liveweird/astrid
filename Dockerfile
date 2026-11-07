@@ -1,11 +1,19 @@
 # syntax=docker/dockerfile:1
 FROM node:24.22.1-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53 AS web
+RUN apk add --no-cache git
 WORKDIR /web
 COPY web/package.json web/package-lock.json ./
 # openapi-typescript currently declares TypeScript 5; Flow and Astrid use TS 6.
 RUN npm ci --legacy-peer-deps
 COPY web/ ./
-RUN npm run build
+# Flow's build stamp reads Git only in this builder stage. The partial web worktree
+# cannot supply a meaningful dirty check, so pass its identity explicitly to Vite.
+COPY .git .git
+ARG GIT_SHA
+ARG GIT_COMMIT_TIME
+RUN GIT_SHA="${GIT_SHA:-$(git rev-parse --short HEAD)}" \
+    GIT_COMMIT_TIME="${GIT_COMMIT_TIME:-$(git log -1 --format=%cI)}" \
+    npm run build
 
 FROM eclipse-temurin:21.0.12.1_1-jdk-noble@sha256:9bd188045f522a296ad4fbce642b85524da59ac7c1f2c9a17ea9785b00d5a433 AS server
 WORKDIR /src

@@ -1,5 +1,5 @@
 openapi: 3.0.3
-info: { title: Astrid pilot API, version: 0.1.0 }
+info: { title: Astrid pilot API, version: 0.2.0 }
 servers: [{ url: 'http://localhost:8088' }]
 paths:
   /api/v1/development-session:

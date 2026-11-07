@@ -1,4 +1,4 @@
-.git
+# .git is read only by the web builder for Flow's version stamp; never copied to runtime.
 .gradle
 .kotlin
 **/build
