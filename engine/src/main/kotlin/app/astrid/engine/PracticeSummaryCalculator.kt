@@ -10,15 +10,47 @@ object PracticeSummaryCalculator {
             "Practice summary observations must have unique positions"
         }
         val byPosition = items.associateBy { it.item.position }
-        require(plan.items.all { byPosition[it.position]?.item?.exercise?.id == it.exercise.id }) {
+        require(plan.items.all {
+            val observed = byPosition[it.position]?.item
+            observed != null && observed.exercise.id == it.exercise.id && observed.targetDescriptor == it.targetDescriptor
+        }) {
             "Practice summary observations must match every planned item"
         }
         require(items.size == plan.items.size) { "Practice summary observations must not contain unplanned items" }
         val ordered = plan.items.map { byPosition.getValue(it.position) }
+        return calculate(
+            plannedItemCount = plan.items.size,
+            introductionOpened = introductionOpened,
+            items = ordered.map {
+                PracticeSummarySnapshotItemObservation(
+                    position = it.item.position,
+                    targetDescriptor = it.item.targetDescriptor,
+                    advanced = it.advanced,
+                    lessonOpened = it.lessonOpened,
+                    hintOpened = it.hintOpened,
+                    attempts = it.attempts,
+                )
+            },
+        )
+    }
+
+    fun calculate(
+        plannedItemCount: Int,
+        introductionOpened: Boolean,
+        items: List<PracticeSummarySnapshotItemObservation>,
+    ): PracticeSummary {
+        require(plannedItemCount >= 0) { "plannedItemCount must be non-negative" }
+        require(items.map { it.position }.toSet().size == items.size) {
+            "Practice summary observations must have unique positions"
+        }
+        require(items.size == plannedItemCount && items.map { it.position }.toSet() == (0 until plannedItemCount).toSet()) {
+            "Practice summary observations must match every planned position"
+        }
+        val ordered = items.sortedBy { it.position }
         val rows = ordered.groupBy(::targetIdentity).map { (_, observations) -> summarizeRow(observations) }
         val attemptCount = ordered.sumOf { it.attempts.size }
         return PracticeSummary(
-            plannedItems = plan.items.size,
+            plannedItems = plannedItemCount,
             attemptedItems = ordered.count { it.attempts.isNotEmpty() },
             completedItems = ordered.count { it.advanced },
             attemptCount = attemptCount,
@@ -28,13 +60,13 @@ object PracticeSummaryCalculator {
         )
     }
 
-    private fun summarizeRow(items: List<PracticeSummaryItemObservation>): PracticeTargetSummary {
+    private fun summarizeRow(items: List<PracticeSummarySnapshotItemObservation>): PracticeTargetSummary {
         val firstAttempts = items.mapNotNull { it.attempts.firstOrNull() }
         val latestAttempts = items.mapNotNull { it.attempts.lastOrNull() }
-        val representative = items.first().item.exercise
+        val representative = items.first().targetDescriptor
         val attemptCount = items.sumOf { it.attempts.size }
         return PracticeTargetSummary(
-            label = targetLabel(representative),
+            label = representative.label,
             targetSkillId = representative.targetSkillId,
             lexicalTarget = representative.lexicalTarget,
             plannedItems = items.size,
@@ -51,20 +83,12 @@ object PracticeSummaryCalculator {
         )
     }
 
-    private fun targetIdentity(observation: PracticeSummaryItemObservation): String {
-        val exercise = observation.item.exercise
-        return exercise.targetSkillId ?: requireNotNull(exercise.lexicalTarget).run {
+    private fun targetIdentity(observation: PracticeSummarySnapshotItemObservation): String {
+        val target = observation.targetDescriptor
+        return target.targetSkillId ?: requireNotNull(target.lexicalTarget).run {
             listOf(entryId, senseId, facet, direction).joinToString(IDENTITY_SEPARATOR)
         }
     }
-
-    private fun targetLabel(exercise: GeneratedExercise): String =
-        exercise.targetSkillId?.let { target ->
-            PilotContent.skills.single { it.id == target }.title
-        } ?: requireNotNull(exercise.inspector.lexicalSource).run {
-            val target = requireNotNull(exercise.lexicalTarget)
-            if (target.direction == "da-en") "$headword — $gloss" else "$gloss — $headword"
-        }
 
     private fun outcomeCounts(attempts: List<PracticeSummaryAttemptObservation>): PracticeOutcomeCounts =
         PracticeOutcomeCounts(

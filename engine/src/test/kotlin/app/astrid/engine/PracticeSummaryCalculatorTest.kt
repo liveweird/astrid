@@ -2,6 +2,7 @@ package app.astrid.engine
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -106,6 +107,55 @@ class PracticeSummaryCalculatorTest {
 
         assertEquals(1, row.firstWithSupport)
         assertFalse(observations[0].attempts.single().context.hintOpened)
+    }
+
+    @Test
+    fun `persisted target descriptors retain frozen labels and first latest outcomes`() {
+        val descriptor = PracticeTargetDescriptor("Frozen custom label", "G999", null)
+        val items = listOf(
+            PracticeSummarySnapshotItemObservation(
+                position = 0,
+                targetDescriptor = descriptor,
+                advanced = true,
+                lessonOpened = false,
+                hintOpened = false,
+                attempts = listOf(
+                    attempt(TargetStatus.NOT_MET, LinguisticStatus.ACCEPTABLE),
+                    attempt(TargetStatus.MET, LinguisticStatus.ACCEPTABLE),
+                ),
+            ),
+            PracticeSummarySnapshotItemObservation(
+                position = 1,
+                targetDescriptor = descriptor,
+                advanced = false,
+                lessonOpened = true,
+                hintOpened = false,
+                attempts = emptyList(),
+            ),
+        )
+
+        val summary = PracticeSummaryCalculator.calculate(2, true, items)
+        val row = summary.rows.single()
+
+        assertEquals("Frozen custom label", row.label)
+        assertEquals("G999", row.targetSkillId)
+        assertEquals(2, row.plannedItems)
+        assertEquals(1, row.first.targetNotMet)
+        assertEquals(1, row.latest.targetMet)
+        assertEquals(1, row.latest.fullyMet)
+    }
+
+    @Test
+    fun `plan summaries reject a changed target descriptor even with the same exercise identity`() {
+        val observations = emptyObservations().toMutableList()
+        observations[0] = observations[0].copy(
+            item = observations[0].item.copy(
+                targetDescriptor = PracticeTargetDescriptor("Unplanned label", "G999", null),
+            ),
+        )
+        assertFailsWith<IllegalArgumentException> {
+            PracticeSummaryCalculator.calculate(plan, false, observations)
+        }
     }
 
     private fun emptyObservations(): List<PracticeSummaryItemObservation> =

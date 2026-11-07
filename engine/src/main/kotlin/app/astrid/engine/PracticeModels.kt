@@ -13,15 +13,40 @@ data class PracticePlan(
     val evaluationRevision: String,
 )
 
-data class PracticePlanItem(
-    val position: Int,
-    val exercise: GeneratedExercise,
-    val answerExposureKeys: List<String>,
-    val promptExposureKeys: List<String>,
-    val lessonExposureKeys: List<String>,
-    val hintExposureKeys: List<String>,
-    val feedbackExposureKeys: List<String>,
+interface PracticeExposureMetadata {
+    val position: Int
+    val answerExposureKeys: List<String>
+    val promptExposureKeys: List<String>
+    val lessonExposureKeys: List<String>
+    val hintExposureKeys: List<String>
+    val feedbackExposureKeys: List<String>
+}
+
+data class PracticeExposureSnapshot(
+    override val position: Int,
+    override val answerExposureKeys: List<String>,
+    override val promptExposureKeys: List<String>,
+    override val lessonExposureKeys: List<String>,
+    override val hintExposureKeys: List<String>,
+    override val feedbackExposureKeys: List<String>,
+) : PracticeExposureMetadata
+
+data class PracticeTargetDescriptor(
+    val label: String,
+    val targetSkillId: String?,
+    val lexicalTarget: LexicalTarget?,
 )
+
+data class PracticePlanItem(
+    override val position: Int,
+    val exercise: GeneratedExercise,
+    val targetDescriptor: PracticeTargetDescriptor,
+    override val answerExposureKeys: List<String>,
+    override val promptExposureKeys: List<String>,
+    override val lessonExposureKeys: List<String>,
+    override val hintExposureKeys: List<String>,
+    override val feedbackExposureKeys: List<String>,
+) : PracticeExposureMetadata
 
 enum class PracticeExposureSource(val wireValue: String) {
     PROMPT("prompt"),
@@ -44,7 +69,7 @@ data class PracticeAttemptContext(
 )
 
 data class PracticeItemExposureObservation(
-    val item: PracticePlanItem,
+    val item: PracticeExposureMetadata,
     val promptReleased: Boolean,
     val lessonOpened: Boolean,
     val hintOpened: Boolean,
@@ -61,6 +86,15 @@ data class PracticeSummaryAttemptObservation(
 
 data class PracticeSummaryItemObservation(
     val item: PracticePlanItem,
+    val advanced: Boolean,
+    val lessonOpened: Boolean,
+    val hintOpened: Boolean,
+    val attempts: List<PracticeSummaryAttemptObservation>,
+)
+
+data class PracticeSummarySnapshotItemObservation(
+    val position: Int,
+    val targetDescriptor: PracticeTargetDescriptor,
     val advanced: Boolean,
     val lessonOpened: Boolean,
     val hintOpened: Boolean,

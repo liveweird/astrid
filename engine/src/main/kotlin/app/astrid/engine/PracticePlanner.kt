@@ -82,6 +82,7 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
         return PracticePlanItem(
             position = position,
             exercise = exercise,
+            targetDescriptor = targetDescriptor(exercise),
             answerExposureKeys = answerKeys,
             promptExposureKeys = promptExposureKeys(exercise, contextualKeys),
             lessonExposureKeys = (answerKeys + contextualKeys).distinct(),
@@ -93,6 +94,19 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
             },
         )
     }
+
+    private fun targetDescriptor(exercise: GeneratedExercise): PracticeTargetDescriptor =
+        PracticeTargetDescriptor(
+            label =
+                exercise.targetSkillId?.let { target ->
+                    PilotContent.skills.single { it.id == target }.title
+                } ?: requireNotNull(exercise.inspector.lexicalSource).run {
+                    val target = requireNotNull(exercise.lexicalTarget)
+                    if (target.direction == "da-en") "$headword — $gloss" else "$gloss — $headword"
+                },
+            targetSkillId = exercise.targetSkillId,
+            lexicalTarget = exercise.lexicalTarget,
+        )
 
     private fun answerExposureKeys(exercise: GeneratedExercise): List<String> =
         when (exercise.formatId) {

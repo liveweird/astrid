@@ -2,6 +2,7 @@ package app.astrid.engine
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -61,6 +62,30 @@ class PracticeAttemptContextCalculatorTest {
     }
 
     @Test
+    fun `persisted exposure snapshots work without generated exercises`() {
+        val earlier = exposureSnapshot(position = 0, prompt = listOf("frozen:key"))
+        val current = exposureSnapshot(position = 1, answer = listOf("frozen:key"))
+        val observations = listOf(
+            PracticeItemExposureObservation(earlier, true, false, false, false),
+            PracticeItemExposureObservation(current, true, false, false, false),
+        )
+
+        val context = PracticeAttemptContextCalculator.calculate(current, false, observations)
+
+        assertEquals(
+            listOf(PracticePriorExposure(0, PracticeExposureSource.PROMPT, listOf("frozen:key"))),
+            context.priorExposure,
+        )
+        assertFailsWith<IllegalArgumentException> {
+            PracticeAttemptContextCalculator.calculate(
+                current.copy(answerExposureKeys = listOf("changed:key")),
+                false,
+                observations,
+            )
+        }
+    }
+
+    @Test
     fun `generic lexical hints record support without inventing answer exposure`() {
         listOf(0, 3).forEach { position ->
             val context = PracticeAttemptContextCalculator.calculate(
@@ -115,4 +140,10 @@ class PracticeAttemptContextCalculatorTest {
                 feedbackReleased = it.position < cursor,
             )
         }
+
+    private fun exposureSnapshot(
+        position: Int,
+        answer: List<String> = emptyList(),
+        prompt: List<String> = emptyList(),
+    ) = PracticeExposureSnapshot(position, answer, prompt, emptyList(), emptyList(), emptyList())
 }

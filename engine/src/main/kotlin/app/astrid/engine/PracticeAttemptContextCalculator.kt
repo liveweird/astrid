@@ -2,7 +2,7 @@ package app.astrid.engine
 
 object PracticeAttemptContextCalculator {
     fun calculate(
-        currentItem: PracticePlanItem,
+        currentItem: PracticeExposureMetadata,
         introductionOpened: Boolean,
         observations: List<PracticeItemExposureObservation>,
     ): PracticeAttemptContext {
@@ -11,7 +11,7 @@ object PracticeAttemptContextCalculator {
         }
         val current = observations.singleOrNull { it.item.position == currentItem.position }
             ?: error("Current practice item ${currentItem.position} is missing")
-        require(current.item.exercise.id == currentItem.exercise.id) {
+        require(current.item.hasSameMetadata(currentItem)) {
             "Current practice item does not match its exposure observation"
         }
         val answerKeys = currentItem.answerExposureKeys.toSet()
@@ -57,4 +57,12 @@ object PracticeAttemptContextCalculator {
             add(PracticePriorExposure(observation.item.position, source, relevantKeys))
         }
     }
+
+    private fun PracticeExposureMetadata.hasSameMetadata(other: PracticeExposureMetadata): Boolean =
+        position == other.position &&
+            answerExposureKeys == other.answerExposureKeys &&
+            promptExposureKeys == other.promptExposureKeys &&
+            lessonExposureKeys == other.lessonExposureKeys &&
+            hintExposureKeys == other.hintExposureKeys &&
+            feedbackExposureKeys == other.feedbackExposureKeys
 }
