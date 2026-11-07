@@ -8,6 +8,7 @@ python3 scripts/check-knowledge.py
 python3 scripts/check-startup-budget.py
 git diff --check
 ./gradlew check :engine:koverVerify :server:koverVerify :server:installDist --dependency-verification strict --no-daemon
+npm --prefix web run lint:api
 npm --prefix web run check:api
 npm --prefix web run lint
 npm --prefix web run knip

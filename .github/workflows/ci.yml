@@ -48,7 +48,7 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - run: npm ci --legacy-peer-deps
         working-directory: web
-      - run: npm run check:api && npm run lint && npm run knip && npm run test:coverage && npm run build
+      - run: npm run lint:api && npm run check:api && npm run lint && npm run knip && npm run test:coverage && npm run build
         working-directory: web
         env:
           GIT_SHA: ${{ github.sha }}

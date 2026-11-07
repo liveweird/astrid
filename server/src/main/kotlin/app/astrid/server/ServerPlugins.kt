@@ -26,7 +26,6 @@ import io.ktor.server.plugins.compression.matchContentType
 import io.ktor.server.plugins.compression.minimumSize
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.path
-import io.ktor.server.response.respond
 import kotlinx.serialization.SerializationException
 import kotlinx.coroutines.CancellationException
 
@@ -93,30 +92,29 @@ private fun String.isAssetPath() = this == "/assets" || startsWith("/assets/")
 internal fun Application.installProblemHandling() {
     install(StatusPages) {
         exception<ApiException> { call, cause ->
-            call.respond(HttpStatusCode.fromValue(cause.status), problem(cause.status, cause.code, cause.message, call.request.path()))
+            call.respondProblem(HttpStatusCode.fromValue(cause.status), cause.code, cause.message)
         }
         exception<PayloadTooLargeException> { call, _ ->
-            call.respond(
+            call.respondProblem(
                 HttpStatusCode.PayloadTooLarge,
-                problem(413, "payload_too_large", "Request body exceeds $MAX_BODY_BYTES bytes", call.request.path()),
+                "payload_too_large",
+                "Request body exceeds $MAX_BODY_BYTES bytes",
             )
         }
         exception<KtorBadRequestException> { call, _ -> call.respondMalformed() }
         exception<SerializationException> { call, _ -> call.respondMalformed() }
         exception<CannotTransformContentToTypeException> { call, _ ->
             if (call.request.headers[HttpHeaders.ContentType] == null) call.respondMalformed()
-            else call.respond(
+            else call.respondProblem(
                 HttpStatusCode.UnsupportedMediaType,
-                problem(415, "unsupported_media_type", "Request body must use application/json", call.request.path()),
+                "unsupported_media_type",
+                "Request body must use application/json",
             )
         }
         exception<CancellationException> { _, cause -> throw cause }
         exception<Throwable> { call, cause ->
             call.application.log.error("Unhandled request failure", cause)
-            call.respond(
-                HttpStatusCode.InternalServerError,
-                problem(500, "internal_error", "Internal server error", call.request.path()),
-            )
+            call.respondProblem(HttpStatusCode.InternalServerError, "internal_error", "Internal server error")
         }
     }
 }
@@ -147,13 +145,5 @@ internal fun Application.installSecurityHeadersAndGuards(config: ServerConfig) {
 }
 
 private suspend fun ApplicationCall.respondMalformed() {
-    respond(HttpStatusCode.BadRequest, problem(400, "bad_request", "Malformed JSON request", request.path()))
+    respondProblem(HttpStatusCode.BadRequest, "bad_request", "Malformed JSON request")
 }
-
-private fun problem(status: Int, code: String, detail: String, instance: String) = ProblemResponse(
-    title = HttpStatusCode.fromValue(status).description,
-    status = status,
-    detail = detail,
-    instance = instance,
-    code = code,
-)

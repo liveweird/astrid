@@ -337,16 +337,6 @@ data class PracticeSessionResponse(
 )
 
 @Serializable
-data class ProblemResponse(
-    val type: String = "about:blank",
-    val title: String,
-    val status: Int,
-    val detail: String,
-    val instance: String? = null,
-    val code: String,
-)
-
-@Serializable
 data class HealthResponse(val status: String)
 
 @Serializable

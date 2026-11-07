@@ -69,7 +69,7 @@ private fun Route.healthRoutes(repository: AstridRepository) {
     get("/health") { call.respond(HealthResponse("ok")) }
     get("/ready") {
         if (repository.ready()) call.respond(HealthResponse("ready"))
-        else call.respond(HttpStatusCode.ServiceUnavailable, HealthResponse("unavailable"))
+        else call.respondProblem(HttpStatusCode.ServiceUnavailable, "not_ready", "Service is not ready")
     }
 }
 
@@ -133,6 +133,7 @@ private fun Route.exerciseRoutes(
         val id = UUID.randomUUID()
         val presentation = generated.toResponse(id.toString())
         repository.insertExercise(request.toStored(id, session.id, presentation, generated.reproductionFingerprint()))
+        call.response.headers.append(HttpHeaders.Location, "/api/v1/exercises/$id")
         call.respond(HttpStatusCode.Created, presentation)
     }
     get("/exercises/{id}") {

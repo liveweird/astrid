@@ -1,10 +1,14 @@
 openapi: 3.0.3
 info: { title: Astrid pilot API, version: 0.4.0 }
 servers: [{ url: 'http://localhost:8088' }]
+# Every operation needs the development session cookie except the three that declare `security: []`.
+security:
+  - developmentSession: []
 paths:
   /api/v1/development-session:
     post:
       operationId: createDevelopmentSession
+      security: []
       parameters: [{ $ref: '#/components/parameters/Client' }]
       requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false } } } }
       responses:
@@ -14,6 +18,7 @@ paths:
         '404': { $ref: '#/components/responses/Problem' }
         '413': { $ref: '#/components/responses/Problem' }
         '415': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/catalog:
     get:
       operationId: getCatalog
@@ -22,13 +27,19 @@ paths:
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/exercises:
     post:
       operationId: createExercise
       parameters: [{ $ref: '#/components/parameters/Client' }]
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ExerciseRequest' } } } }
       responses:
-        '201': { description: Exercise, content: { application/json: { schema: { $ref: '#/components/schemas/Exercise' } } } }
+        '201':
+          description: Created exercise; `Location` points at it
+          headers:
+            Location:
+              schema: { type: string }
+          content: { application/json: { schema: { $ref: '#/components/schemas/Exercise' } } }
         '400': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
@@ -36,6 +47,7 @@ paths:
         '409': { $ref: '#/components/responses/Problem' }
         '413': { $ref: '#/components/responses/Problem' }
         '415': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/exercises/{id}:
     get:
       operationId: getExercise
@@ -47,6 +59,7 @@ paths:
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
         '409': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/attempts:
     post:
       operationId: submitAttempt
@@ -62,6 +75,7 @@ paths:
         '413': { $ref: '#/components/responses/Problem' }
         '415': { $ref: '#/components/responses/Problem' }
         '503': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/attempts/{id}:
     get:
       operationId: getAttempt
@@ -72,6 +86,7 @@ paths:
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/practice-context:
     get:
       operationId: getPracticeContext
@@ -80,6 +95,7 @@ paths:
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/practice-profiles:
     get:
       operationId: getPracticeProfiles
@@ -88,6 +104,7 @@ paths:
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/practice-sessions:
     post:
       operationId: createPracticeSession
@@ -95,13 +112,19 @@ paths:
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSessionRequest' } } } }
       responses:
         '200': { description: Resumed practice session, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSession' } } } }
-        '201': { description: Created practice session, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSession' } } } }
+        '201':
+          description: Created practice session; `Location` points at it
+          headers:
+            Location:
+              schema: { type: string }
+          content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSession' } } }
         '400': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '409': { $ref: '#/components/responses/Problem' }
         '413': { $ref: '#/components/responses/Problem' }
         '415': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/practice-sessions/{id}:
     get:
       operationId: getPracticeSession
@@ -112,6 +135,7 @@ paths:
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/practice-sessions/{id}/follow-ups:
     post:
       operationId: createPracticeFollowUp
@@ -119,7 +143,12 @@ paths:
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeFollowUpRequest' } } } }
       responses:
         '200': { description: Resumed follow-up practice, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSession' } } } }
-        '201': { description: Created follow-up practice, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSession' } } } }
+        '201':
+          description: Created follow-up practice; `Location` points at it
+          headers:
+            Location:
+              schema: { type: string }
+          content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSession' } } }
         '400': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
@@ -127,6 +156,7 @@ paths:
         '409': { $ref: '#/components/responses/Problem' }
         '413': { $ref: '#/components/responses/Problem' }
         '415': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/practice-sessions/{id}/support:
     post:
       operationId: openPracticeSupport
@@ -141,6 +171,7 @@ paths:
         '409': { $ref: '#/components/responses/Problem' }
         '413': { $ref: '#/components/responses/Problem' }
         '415': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/practice-sessions/{id}/advance:
     post:
       operationId: advancePracticeSession
@@ -155,6 +186,7 @@ paths:
         '409': { $ref: '#/components/responses/Problem' }
         '413': { $ref: '#/components/responses/Problem' }
         '415': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/dev/exercises/{id}:
     get:
       operationId: inspectExercise
@@ -168,26 +200,37 @@ paths:
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
         '409': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/health:
     get:
       operationId: getHealth
+      security: []
       responses:
         '200': { description: Live, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } }
         '403': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
   /api/v1/ready:
     get:
       operationId: getReadiness
+      security: []
       responses:
         '200': { description: Ready, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } }
         '403': { $ref: '#/components/responses/Problem' }
-        '503': { description: Unavailable, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } }
+        '503': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
 components:
+  securitySchemes:
+    developmentSession:
+      type: apiKey
+      in: cookie
+      name: astrid_session
+      description: Development session cookie issued by `POST /api/v1/development-session`
   parameters:
     Client: { name: X-Astrid-Client, in: header, required: true, schema: { type: string, enum: [playground] } }
     PracticeOwner: { name: X-Astrid-Practice-Owner, in: header, required: true, schema: { type: string, format: uuid } }
     Id: { name: id, in: path, required: true, schema: { type: string, format: uuid } }
   responses:
-    Problem: { description: Safe problem, content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+    Problem: { description: Safe problem, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   schemas:
     DevelopmentSession:
       type: object
@@ -1019,12 +1062,12 @@ components:
     Problem:
       type: object
       additionalProperties: false
-      required: [type, title, status, detail, code]
+      required: [type, title, status, detail, instance, code]
       properties:
-        type: { type: string }
+        type: { type: string, default: 'about:blank' }
         title: { type: string }
         status: { type: integer }
         detail: { type: string }
-        instance: { type: string, nullable: true }
+        instance: { type: string }
         code: { type: string }
     Health: { type: object, additionalProperties: false, required: [status], properties: { status: { type: string } } }

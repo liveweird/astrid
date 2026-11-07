@@ -17,6 +17,7 @@ import app.astrid.engine.PracticeTargetDescriptor
 import app.astrid.engine.ResponseConstraintStatus
 import app.astrid.engine.TargetStatus
 import app.astrid.engine.PilotEngine
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.header
@@ -70,7 +71,10 @@ internal fun Route.practiceRoutes(
             plan.toNewPracticeSession(owner.id)
         }
         when (result) {
-            is PracticeCreateResult.Created -> call.respond(HttpStatusCode.Created, result.session.toResponse())
+            is PracticeCreateResult.Created -> {
+                call.response.headers.append(HttpHeaders.Location, "/api/v1/practice-sessions/${result.session.id}")
+                call.respond(HttpStatusCode.Created, result.session.toResponse())
+            }
             is PracticeCreateResult.Existing -> call.respond(result.session.toResponse())
             PracticeCreateResult.RequestConflict -> throw Conflict("Practice session id was already used with a different request")
             PracticeCreateResult.SourceMissing, PracticeCreateResult.SourceActive -> error("Initial practice has no source")
@@ -166,7 +170,10 @@ private fun Route.followUpRoute(
             source.toFollowUp(request, sourceId, owner.id, engine)
         }
         when (result) {
-            is PracticeCreateResult.Created -> call.respond(HttpStatusCode.Created, result.session.toResponse())
+            is PracticeCreateResult.Created -> {
+                call.response.headers.append(HttpHeaders.Location, "/api/v1/practice-sessions/${result.session.id}")
+                call.respond(HttpStatusCode.Created, result.session.toResponse())
+            }
             is PracticeCreateResult.Existing -> call.respond(result.session.toResponse())
             PracticeCreateResult.RequestConflict -> throw Conflict("Practice session id was already used with a different request")
             PracticeCreateResult.SourceMissing -> throw NotFound("Source practice session not found")

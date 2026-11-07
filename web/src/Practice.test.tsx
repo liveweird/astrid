@@ -58,7 +58,8 @@ function completedState() {
 }
 
 function json(body: unknown, status = 200) {
-  return Response.json(body, { status, headers: { "Content-Type": "application/json" } });
+  const type = status >= 400 ? "application/problem+json" : "application/json";
+  return Response.json(body, { status, headers: { "Content-Type": type } });
 }
 
 function context(ownerSessionId = owner) {

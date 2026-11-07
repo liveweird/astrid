@@ -1204,11 +1204,12 @@ export interface components {
             objectId: string;
         };
         Problem: {
+            /** @default about:blank */
             type: string;
             title: string;
             status: number;
             detail: string;
-            instance?: string | null;
+            instance: string;
             code: string;
         };
         Health: {
@@ -1222,7 +1223,7 @@ export interface components {
                 [name: string]: unknown;
             };
             content: {
-                "application/json": components["schemas"]["Problem"];
+                "application/problem+json": components["schemas"]["Problem"];
             };
         };
     };
@@ -1266,6 +1267,7 @@ export interface operations {
             404: components["responses"]["Problem"];
             413: components["responses"]["Problem"];
             415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     getCatalog: {
@@ -1289,6 +1291,7 @@ export interface operations {
             401: components["responses"]["Problem"];
             403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     createExercise: {
@@ -1306,9 +1309,10 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Exercise */
+            /** @description Created exercise; `Location` points at it */
             201: {
                 headers: {
+                    Location?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1322,6 +1326,7 @@ export interface operations {
             409: components["responses"]["Problem"];
             413: components["responses"]["Problem"];
             415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     getExercise: {
@@ -1349,6 +1354,7 @@ export interface operations {
             403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
             409: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     submitAttempt: {
@@ -1382,6 +1388,7 @@ export interface operations {
             409: components["responses"]["Problem"];
             413: components["responses"]["Problem"];
             415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
             503: components["responses"]["Problem"];
         };
     };
@@ -1409,6 +1416,7 @@ export interface operations {
             401: components["responses"]["Problem"];
             403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     getPracticeContext: {
@@ -1432,6 +1440,7 @@ export interface operations {
             401: components["responses"]["Problem"];
             403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     getPracticeProfiles: {
@@ -1455,6 +1464,7 @@ export interface operations {
             401: components["responses"]["Problem"];
             403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     createPracticeSession: {
@@ -1482,9 +1492,10 @@ export interface operations {
                     "application/json": components["schemas"]["PracticeSession"];
                 };
             };
-            /** @description Created practice session */
+            /** @description Created practice session; `Location` points at it */
             201: {
                 headers: {
+                    Location?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1497,6 +1508,7 @@ export interface operations {
             409: components["responses"]["Problem"];
             413: components["responses"]["Problem"];
             415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     getPracticeSession: {
@@ -1523,6 +1535,7 @@ export interface operations {
             401: components["responses"]["Problem"];
             403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     createPracticeFollowUp: {
@@ -1552,9 +1565,10 @@ export interface operations {
                     "application/json": components["schemas"]["PracticeSession"];
                 };
             };
-            /** @description Created follow-up practice */
+            /** @description Created follow-up practice; `Location` points at it */
             201: {
                 headers: {
+                    Location?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1568,6 +1582,7 @@ export interface operations {
             409: components["responses"]["Problem"];
             413: components["responses"]["Problem"];
             415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     openPracticeSupport: {
@@ -1604,6 +1619,7 @@ export interface operations {
             409: components["responses"]["Problem"];
             413: components["responses"]["Problem"];
             415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     advancePracticeSession: {
@@ -1640,6 +1656,7 @@ export interface operations {
             409: components["responses"]["Problem"];
             413: components["responses"]["Problem"];
             415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     inspectExercise: {
@@ -1669,6 +1686,7 @@ export interface operations {
             403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
             409: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     getHealth: {
@@ -1690,6 +1708,7 @@ export interface operations {
                 };
             };
             403: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     getReadiness: {
@@ -1711,15 +1730,8 @@ export interface operations {
                 };
             };
             403: components["responses"]["Problem"];
-            /** @description Unavailable */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Health"];
-                };
-            };
+            500: components["responses"]["Problem"];
+            503: components["responses"]["Problem"];
         };
     };
 }

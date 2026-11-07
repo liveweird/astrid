@@ -162,7 +162,7 @@ async function verifyKnownSubmissionErrorFocus() {
     if (path.endsWith("exercises")) return json(exercise);
     return Response.json(
       { detail: "The engine revision changed." },
-      { status: 409, headers: { "Content-Type": "application/json" } },
+      { status: 409, headers: { "Content-Type": "application/problem+json" } },
     );
   }));
   const user = userEvent.setup();
@@ -615,7 +615,7 @@ describe("Playground", () => {
       if (exerciseRequests === 1) return json(exercise);
       return Response.json(
         { detail: "The requested exercise could not be generated." },
-        { status: 409, headers: { "Content-Type": "application/json" } },
+        { status: 409, headers: { "Content-Type": "application/problem+json" } },
       );
     }));
     await renderPlayground();
@@ -657,7 +657,7 @@ describe("Playground", () => {
       if (exerciseRequests === 1) return json(exercise);
       return Response.json(
         { detail: "The session is no longer valid." },
-        { status: 401, headers: { "Content-Type": "application/json" } },
+        { status: 401, headers: { "Content-Type": "application/problem+json" } },
       );
     }));
     await renderPlayground();
@@ -687,7 +687,7 @@ describe("Playground", () => {
       if (generatedIndexes.length === 2) {
         return Response.json(
           { detail: "The requested exercise could not be generated." },
-          { status: 409, headers: { "Content-Type": "application/json" } },
+          { status: 409, headers: { "Content-Type": "application/problem+json" } },
         );
       }
       return json({ ...exercise, id: "f640dc3e-b2fb-4d6e-920f-6a3b8427beaf" });
