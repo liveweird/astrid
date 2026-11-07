@@ -29,6 +29,7 @@ fun Application.astridModule(
 ) {
     install(ContentNegotiation) { json(wireJson) }
     install(RequestBodyLimit) { bodyLimit { MAX_BODY_BYTES } }
+    installStaticCompression()
     installProblemHandling()
     installSecurityHeadersAndGuards(config)
     routing { astridRoutes(config, repository, engine, evaluator, clock) }
