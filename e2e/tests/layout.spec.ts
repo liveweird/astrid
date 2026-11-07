@@ -2,6 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { openGenerationControls } from "../support/generation-controls.js";
 import { expectHighlightedFormatVisible } from "../support/format-select.js";
 import { PILOT_FORMAT_TITLES } from "../support/formats.js";
+import { chooseVocabulary, VOCABULARY } from "../support/vocabulary.js";
+import { expectFeedbackBadgesUnclipped } from "../support/feedback-layout.js";
 
 async function expectNoHorizontalOverflow(page: Page, state: string) {
   const dimensions = await page.evaluate(() => ({
@@ -94,6 +96,16 @@ test("all pilot formats and recovery states reflow at 320px with 200% text", asy
     await expectNoHorizontalOverflow(page, title);
     await expectUnclippedLabels(page);
   }
+
+
+  const vocabulary = await chooseVocabulary(page, "Recall the Danish headword");
+  const word = VOCABULARY.find((entry) => entry.meaning === vocabulary.prompt.cue)!.headword;
+  await page.getByRole("textbox", { name: "Danish singular headword", exact: true }).fill(`${word === "brev" ? "et" : "en"} ${word}`);
+  await page.getByRole("button", { name: "Check answer" }).click();
+  await expect(page.getByRole("status").getByText("One-word response required", { exact: true })).toBeVisible();
+  await expectNoHorizontalOverflow(page, "vocabulary constrained feedback");
+  await expectUnclippedLabels(page);
+  await expectFeedbackBadgesUnclipped(page);
 
   let reject = true;
   await page.route("**/api/v1/exercises", async (route) => {

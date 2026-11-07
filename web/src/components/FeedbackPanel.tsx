@@ -2,6 +2,7 @@ import { Alert, Badge, Group, Stack, Text } from "@mantine/core";
 import { IconAlertTriangle, IconCircleCheck } from "@tabler/icons-react";
 import type { Ref } from "react";
 import type { Attempt } from "../api/models";
+import classes from "../theme.module.css";
 
 function targetLabel(value: string) {
   if (value === "met") return "Target met";
@@ -37,6 +38,7 @@ export default function FeedbackPanel({ attempt, focusRef }: { attempt: Attempt;
   return (
     <Alert
       ref={focusRef}
+      className={classes.feedbackAlert}
       tabIndex={-1}
       color={goodWork ? "teal" : "orange"}
       variant="light"
@@ -47,13 +49,13 @@ export default function FeedbackPanel({ attempt, focusRef }: { attempt: Attempt;
       role="status"
     >
       <Stack gap="xs">
-        <Group gap="xs">
-          <Badge variant="default">{targetLabel(attempt.targetSatisfaction)}</Badge>
-          <Badge variant="default">
+        <Group className={classes.feedbackBadges} gap="xs">
+          <Badge className={classes.feedbackBadge} variant="default">{targetLabel(attempt.targetSatisfaction)}</Badge>
+          <Badge className={classes.feedbackBadge} variant="default">
             {attempt.linguisticScope ? lexicalLanguageLabel(attempt) : languageLabel(attempt.linguisticStatus)}
           </Badge>
           {attempt.responseConstraintStatus === "not-met" && (
-            <Badge color="orange" variant="light">
+            <Badge className={classes.feedbackBadge} color="orange" variant="light">
               {attempt.linguisticScope === "danish-headword" ? "One-word response required" : "Supplied choice required"}
             </Badge>
           )}

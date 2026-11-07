@@ -48,6 +48,15 @@
   text-decoration-skip-ink: none;
 }
 
+.feedbackAlert,
+.feedbackAlert :global(.mantine-Alert-wrapper),
+.feedbackAlert :global(.mantine-Alert-body),
+.feedbackAlert :global(.mantine-Alert-message),
+.feedbackBadges {
+  min-width: 0;
+}
+
+
 @container playground (min-width: 48rem) {
   .exerciseCard {
     padding: var(--mantine-spacing-xl);
@@ -71,6 +80,10 @@
 }
 
 @container playground (max-width: 30rem) {
+  .feedbackBadge {
+    border-radius: var(--mantine-radius-sm);
+  }
+
   .playground :global(.mantine-Button-root) {
     height: auto;
     min-height: var(--button-height);
@@ -110,5 +123,24 @@
 
   .exercisePrimaryActions > :global(.mantine-Button-root) {
     flex: 1 1 100%;
+  }
+}
+
+@container playground (max-width: 20rem) {
+  .feedbackAlert :global(.mantine-Alert-wrapper) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .feedbackAlert :global(.mantine-Alert-icon) {
+    align-self: flex-start;
+    margin-block-end: var(--mantine-spacing-xs);
+    margin-inline-end: 0;
+  }
+
+  .feedbackAlert :global(.mantine-Alert-body),
+  .feedbackAlert :global(.mantine-Alert-message),
+  .feedbackBadges {
+    width: 100%;
   }
 }
