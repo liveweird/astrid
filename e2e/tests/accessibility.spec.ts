@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { openGenerationControls } from "../support/generation-controls.js";
 import { expectHighlightedFormatVisible } from "../support/format-select.js";
+import { PILOT_FORMAT_TITLES } from "../support/formats.js";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
@@ -50,6 +51,16 @@ async function scanLearningStates(page: Page) {
   await scan(page);
   await chooseFormat(page, "Arrange a subject-first statement");
   await scan(page);
+  for (const title of PILOT_FORMAT_TITLES.slice(3)) {
+    await chooseFormat(page, title);
+    await scan(page);
+    const label = title === "Supply the present form" ? "Present form" :
+      title === "Repair the verb form" ? "Replacement verb" : "Replacement article";
+    await page.getByRole("textbox", { name: label, exact: true }).fill("unknown");
+    await page.getByRole("button", { name: "Check answer" }).click();
+    await expect(page.getByRole("status")).toBeVisible();
+    await scan(page);
+  }
 
   let reject = true;
   await page.route("**/api/v1/exercises", async (route) => {
@@ -94,7 +105,7 @@ test("open format lists remain accessible with enlarged text", async ({ page }) 
   const selector = page.getByRole("combobox", { name: "Exercise type" });
   await openGenerationControls(page);
 
-  for (const title of ["Choose the present form", "Supply the indefinite article", "Arrange a subject-first statement"]) {
+  for (const title of PILOT_FORMAT_TITLES) {
     if ((await selector.inputValue()) !== title) await chooseFormat(page, title);
     await selector.click();
     const list = page.getByRole("listbox", { name: "Exercise type" });
@@ -112,7 +123,7 @@ test("open format lists remain accessible with enlarged text", async ({ page }) 
       expect(bounds.right, `${bounds.title} right edge`).toBeLessThanOrEqual(320);
     }
     const documentScroll = await page.evaluate(() => document.scrollingElement?.scrollTop);
-    for (let step = 0; step < 3; step += 1) {
+    for (let step = 0; step < PILOT_FORMAT_TITLES.length; step += 1) {
       await page.keyboard.press("ArrowDown");
       await expectHighlightedFormatVisible(page);
     }

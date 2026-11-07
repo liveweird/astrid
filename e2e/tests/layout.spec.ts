@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { openGenerationControls } from "../support/generation-controls.js";
 import { expectHighlightedFormatVisible } from "../support/format-select.js";
+import { PILOT_FORMAT_TITLES } from "../support/formats.js";
 
 async function expectNoHorizontalOverflow(page: Page, state: string) {
   const dimensions = await page.evaluate(() => ({
@@ -88,6 +89,11 @@ test("all pilot formats and recovery states reflow at 320px with 200% text", asy
   await expectNoHorizontalOverflow(page, "article exercise");
   await chooseFormat(page, "Arrange a subject-first statement");
   await expectNoHorizontalOverflow(page, "ordering exercise");
+  for (const title of PILOT_FORMAT_TITLES.slice(3)) {
+    await chooseFormat(page, title);
+    await expectNoHorizontalOverflow(page, title);
+    await expectUnclippedLabels(page);
+  }
 
   let reject = true;
   await page.route("**/api/v1/exercises", async (route) => {
@@ -120,7 +126,7 @@ for (const viewport of [{ width: 844, height: 390 }, { width: 320, height: 400 }
       await openGenerationControls(page);
       const selector = page.getByRole("combobox", { name: "Exercise type" });
 
-      for (const title of ["Choose the present form", "Supply the indefinite article", "Arrange a subject-first statement"]) {
+      for (const title of PILOT_FORMAT_TITLES) {
         await test.step(`reopen ${title}`, async () => {
           if ((await selector.inputValue()) !== title) await chooseFormat(page, title);
           await selector.click();
@@ -128,7 +134,7 @@ for (const viewport of [{ width: 844, height: 390 }, { width: 320, height: 400 }
           await expect(current).toHaveAttribute("data-combobox-selected", "true");
           await expectHighlightedFormatVisible(page);
           const documentScroll = await page.evaluate(() => document.scrollingElement?.scrollTop);
-          for (let step = 0; step < 3; step += 1) {
+          for (let step = 0; step < PILOT_FORMAT_TITLES.length; step += 1) {
             await page.keyboard.press("ArrowDown");
             await expectHighlightedFormatVisible(page);
           }
