@@ -1,0 +1,12 @@
+baselineCommit=3b462a9
+contentRevision=pilot-1
+generatorRevision=generator-1
+encoding=plain-utf8
+serialization=length-prefixed UTF-8 TSV
+baselineJarSha256=dd91b64dc54144f65112770395e484a7727cbc7e28965bb363346ba3087a232c
+fixtureSha256=6f51db2d983a81f4d0b0478d12c8bac5fba15a5649e45b46df537738504bad46
+fixedSeed=47
+cycles=E001:99,E002:92,E003:99
+boundarySeeds=0,1,2147483647
+boundaryIndices=0,last,size,1000000
+gradingCases=W001,W002,W003,W004,W007,W008,W009,W010,W011

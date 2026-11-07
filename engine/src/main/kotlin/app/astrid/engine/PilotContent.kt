@@ -40,6 +40,7 @@ internal object PilotContent {
     val read = Verb("L011", "læse", "læser", "read")
     val eat = Verb("L012", "spise", "spiser", "eat")
     val sleep = Verb("L013", "sove", "sover", "sleep")
+    val verbs = listOf(have, be, read, eat, sleep)
 
     val nouns =
         listOf(
@@ -102,8 +103,22 @@ internal object PilotContent {
             ExerciseFormat("E003", "Arrange a subject-first statement", "G005"),
         )
 
+    val snapshot =
+        PilotContentSnapshot(
+            contentRevision = CONTENT_REVISION,
+            generatorRevision = GENERATOR_REVISION,
+            skills = skills,
+            formats = formats,
+            humanPronouns = humanPronouns,
+            identifyingPronoun = identifyingPronoun,
+            verbs = verbs,
+            nouns = nouns,
+            sentences = sentences,
+            lexicalReview = PilotReviewMetadata.records(humanPronouns, identifyingPronoun, verbs, nouns),
+        )
+
     init {
-        validateContent()
+        PilotContentValidator.requireValid(snapshot)
     }
 
     private fun buildSentences(): List<Sentence> {
@@ -147,71 +162,4 @@ internal object PilotContent {
         )
     }
 
-    private fun validateContent() {
-        requireUniqueNonEmpty(skills.map { it.id }, "skill")
-        requireUniqueNonEmpty(formats.map { it.id }, "format")
-        requireUniqueNonEmpty(sentences.map { it.id }, "sentence")
-        val skillIds = skills.map { it.id }.toSet()
-        val lexicalDefinitions =
-            humanPronouns.map { it.id } + identifyingPronoun.id +
-                listOf(have, be, read, eat, sleep).map { it.lexicalId } +
-                nouns.map { it.id } + NounGender.entries.map { it.articleId }
-        requireUniqueNonEmpty(lexicalDefinitions, "lexical")
-        require(skills.flatMap { it.prerequisiteIds }.all(skillIds::contains)) { "Unknown skill prerequisite" }
-        require(formats.all { it.targetSkillId in skillIds }) { "Unknown format target" }
-        require(formats.associate { it.id to it.targetSkillId } ==
-            mapOf("E001" to "G004", "E002" to "G006", "E003" to "G005")) {
-            "Pilot format target mapping changed"
-        }
-        requireAcyclicPrerequisites()
-
-        val lexicalIds =
-            sentences.flatMap { sentence ->
-                sentence.subject.lexicalIds + sentence.verb.lexicalId + sentence.complement?.lexicalIds.orEmpty()
-            }.toSet()
-        require(lexicalIds == (1..23).map { "L%03d".format(it) }.toSet()) { "Pilot lexical references are incomplete" }
-        require(sentences.all(::isLicensedSentence)) { "Unlicensed sentence in pilot catalogue" }
-    }
-
-    private fun isLicensedSentence(sentence: Sentence): Boolean {
-        val subjectId = sentence.subject.lexicalIds.singleOrNull()
-        val complementId = sentence.complement?.lexicalIds?.lastOrNull()
-        val humanSubjectIds = humanPronouns.map { it.id }.toSet()
-        return when (sentence.constructionId) {
-            "C001" -> subjectId in humanSubjectIds && sentence.verb == sleep && complementId == null
-            "C002" ->
-                subjectId in humanSubjectIds &&
-                    when (sentence.verb) {
-                        have -> complementId in nouns.map { it.id }.toSet()
-                        read -> complementId in setOf("L014", "L015", "L018")
-                        eat -> complementId == "L021"
-                        else -> false
-                    }
-            "C003" -> subjectId == identifyingPronoun.id && sentence.verb == be && complementId in nouns.map { it.id }.toSet()
-            else -> false
-        }
-    }
-
-    private fun requireAcyclicPrerequisites() {
-        val prerequisites = skills.associate { it.id to it.prerequisiteIds }
-        val visiting = mutableSetOf<String>()
-        val visited = mutableSetOf<String>()
-
-        fun visit(skillId: String) {
-            require(skillId !in visiting) { "Cyclic skill prerequisite at $skillId" }
-            if (!visited.add(skillId)) return
-            visiting += skillId
-            prerequisites.getValue(skillId).forEach(::visit)
-            visiting -= skillId
-        }
-        prerequisites.keys.forEach(::visit)
-    }
-
-    private fun requireUniqueNonEmpty(
-        ids: List<String>,
-        kind: String,
-    ) {
-        require(ids.all(String::isNotBlank)) { "Blank $kind ID" }
-        require(ids.size == ids.toSet().size) { "Duplicate $kind ID" }
-    }
 }

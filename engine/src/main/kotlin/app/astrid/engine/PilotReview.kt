@@ -1,0 +1,102 @@
+package app.astrid.engine
+
+object PilotReview {
+    fun renderMarkdown(): String {
+        val snapshot = PilotContent.snapshot
+        return buildString {
+            appendLine("# Astrid pilot content review")
+            appendLine()
+            appendLine("- Content revision: `${snapshot.contentRevision}`")
+            appendLine("- Generator revision: `${snapshot.generatorRevision}`")
+            appendLine("- Review state: `${PilotReviewMetadata.REVIEW_STATE}`")
+            appendLine("- Provenance: ${PilotReviewMetadata.PROVENANCE}")
+            appendLine("- Inventory: ${snapshot.lexicalReview.size} lexical records; ${snapshot.sentences.size} sentences")
+            appendLine()
+            appendLexicalInventory(snapshot.lexicalReview)
+            appendSentenceInventory(snapshot.sentences)
+            appendExamples()
+        }
+    }
+
+    private fun StringBuilder.appendLexicalInventory(records: List<LexicalReviewRecord>) {
+        appendLine("## Lexical inventory")
+        appendLine()
+        appendLine("| ID | Headword | Selected sense | Active forms | Constraints | Sources | Review state |")
+        appendLine("| --- | --- | --- | --- | --- | --- | --- |")
+        records.forEach { record ->
+            appendLine(
+                listOf(
+                    record.id,
+                    record.headword,
+                    record.selectedSense,
+                    record.activeForms.entries.joinToString("; ") { "${it.key}=${it.value}" },
+                    record.constraints,
+                    record.sourceUrls.joinToString("; "),
+                    record.reviewState,
+                ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+            )
+        }
+        appendLine()
+    }
+
+    private fun StringBuilder.appendSentenceInventory(sentences: List<Sentence>) {
+        appendLine("## Licensed sentence inventory")
+        appendLine()
+        appendLine("The order below is the published candidate enumeration order.")
+        appendLine()
+        appendLine("| # | Canonical ID | Construction | Lexical IDs | Sentence |")
+        appendLine("| ---: | --- | --- | --- | --- |")
+        sentences.forEachIndexed { index, sentence ->
+            val lexicalIds =
+                sentence.subject.lexicalIds + sentence.verb.lexicalId + sentence.complement?.lexicalIds.orEmpty()
+            appendLine(
+                "| ${index + 1} | ${sentence.id} | ${sentence.constructionId} | " +
+                    "${lexicalIds.joinToString(", ")} | ${realize(sentence)} |",
+            )
+        }
+        appendLine()
+    }
+
+    private fun StringBuilder.appendExamples() {
+        val engine = PilotEngine()
+        appendLine("## Reproducible exercise examples")
+        appendLine()
+        appendLine("All examples use content `pilot-1`, generator `generator-1`, and seed 47.")
+        appendLine()
+        appendLine("| Format | Index | Exercise ID | Canonical sentence | Prompt |")
+        appendLine("| --- | ---: | --- | --- | --- |")
+        listOf("E001" to "G004", "E002" to "G006", "E003" to "G005").forEach { (format, target) ->
+            listOf(0, 1).forEach { index ->
+                val exercise = engine.generate(GenerationRequest(format, target, seed = REVIEW_SEED, index = index))
+                appendLine(
+                    listOf(
+                        format,
+                        index.toString(),
+                        exercise.id,
+                        exercise.inspector.canonicalSentence,
+                        promptSummary(exercise),
+                    ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+                )
+            }
+        }
+    }
+
+    private fun promptSummary(exercise: GeneratedExercise): String =
+        when {
+            exercise.prompt.choices.isNotEmpty() ->
+                "${exercise.prompt.before}___${exercise.prompt.after} [${exercise.prompt.choices.joinToString(", ")}]"
+            exercise.prompt.blocks.isNotEmpty() ->
+                exercise.prompt.blocks.joinToString(" / ") { "${it.id}:${it.text}" } + exercise.prompt.punctuation
+            else -> "${exercise.prompt.before}___${exercise.prompt.after}"
+        }
+
+    private fun realize(sentence: Sentence): String {
+        val parts = listOfNotNull(sentence.subject.text, sentence.verb.present, sentence.complement?.text)
+        return parts.joinToString(" ").replaceFirstChar { it.titlecase() } + "."
+    }
+
+    private fun escapeCell(value: String): String =
+        value.replace("|", "\\|").replace("\r", " ").replace("\n", " ")
+
+    private const val REVIEW_SEED = 47
+}
