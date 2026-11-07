@@ -56,13 +56,21 @@ async function scanLearningStates(page: Page) {
   await page.getByRole("option", { name: "Choose the present form" }).click();
   await expect(page.getByRole("button", { name: "Reload engine" })).toBeVisible();
   await scan(page);
+
+  await page.getByRole("button", { name: "Reload engine" }).click();
+  await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
+  await page.route("**/api/v1/attempts", (route) => route.abort("connectionfailed"));
+  await page.getByLabel("Answer choices").getByRole("button").first().click();
+  await page.getByRole("button", { name: "Check answer" }).click();
+  await expect(page.getByText("The result is not confirmed")).toBeVisible();
+  await scan(page);
 }
 
-test("pilot formats, feedback and recovery have no WCAG A/AA violations", async ({ page }) => {
+test("pilot formats, feedback and recovery states have no WCAG A/AA violations", async ({ page }) => {
   await scanLearningStates(page);
 });
 
-test("pilot formats, feedback and recovery have no WCAG A/AA violations in dark mode", async ({ page }) => {
+test("pilot formats, feedback and recovery states have no WCAG A/AA violations in dark mode", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "dark" });
   await scanLearningStates(page);
   await expect(page.locator("html")).toHaveAttribute("data-mantine-color-scheme", "dark");

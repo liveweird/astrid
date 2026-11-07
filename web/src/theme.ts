@@ -35,6 +35,9 @@ export const theme = createTheme({
 
 export const cssVariablesResolver: CSSVariablesResolver = () => ({
   variables: {},
-  light: { "--mantine-color-dimmed": "#5f6b76" },
+  light: {
+    "--mantine-color-dimmed": "#5f6b76",
+    "--mantine-color-orange-light-color": "#b9380a",
+  },
   dark: { "--mantine-color-dimmed": "#a3a3a3" },
 });
