@@ -171,6 +171,29 @@ class PracticeSummaryCalculatorTest {
     }
 
     @Test
+    fun `present verb operations produce separate summary rows`() {
+        val presentPlan = PracticePlanner().plan("present-verbs", "present-verbs-1", 0)
+        val observations = presentPlan.items.map { item ->
+            PracticeSummaryItemObservation(
+                item = item,
+                advanced = true,
+                lessonOpened = false,
+                hintOpened = false,
+                attempts = listOf(attempt(TargetStatus.MET, LinguisticStatus.ACCEPTABLE)),
+            )
+        }
+
+        val rows = PracticeSummaryCalculator.calculate(presentPlan, false, observations).rows
+
+        assertEquals(listOf("selection", "recall", "repair"), rows.map { it.assessmentMode })
+        assertEquals(listOf(2, 2, 2), rows.map { it.plannedItems })
+        assertEquals(
+            setOf("grammar:G004:selection", "grammar:G004:recall", "grammar:G004:repair"),
+            presentPlan.items.map { it.targetDescriptor.targetKey() }.toSet(),
+        )
+    }
+
+    @Test
     fun `plan summaries reject a changed target descriptor even with the same exercise identity`() {
         val observations = emptyObservations().toMutableList()
         observations[0] = observations[0].copy(

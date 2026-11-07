@@ -1,6 +1,58 @@
 package app.astrid.engine
 
 class PracticeFollowUpPlanner(private val engine: PilotEngine = PilotEngine()) {
+    fun planPresentVerbs(
+        planRevision: String,
+        seed: Int,
+        selectedTargetKeys: List<String>,
+        sourceItems: List<PracticeFollowUpSourceItem>,
+    ): PracticePlan {
+        require(planRevision == PRESENT_VERBS_PLAN_REVISION) {
+            "Unsupported present-verb follow-up plan revision: $planRevision"
+        }
+        require(seed >= 0) { "seed must be non-negative" }
+        require(selectedTargetKeys.isNotEmpty()) { "At least one follow-up target is required" }
+        require(selectedTargetKeys.distinct().size == selectedTargetKeys.size) { "Follow-up targets must be unique" }
+        require(selectedTargetKeys.all { it in PRESENT_VERB_TARGET_KEYS }) { "Unsupported present-verb follow-up target" }
+        require(sourceItems.isNotEmpty()) { "A follow-up requires source items" }
+        validatePresentVerbSources(sourceItems)
+
+        val sourceByTarget = sourceItems.groupBy { it.targetDescriptor.targetKey() }
+        require(selectedTargetKeys.all { it in sourceByTarget }) {
+            "Every follow-up target must have been assessed in the source practice"
+        }
+        val modes = presentVerbModeSequence(selectedTargetKeys, seed)
+        val excludedSentenceIds = sourceItems.mapNotNullTo(mutableSetOf()) {
+            it.exercise.inspector.canonicalSentenceId
+        }
+        val verbs = PilotContent.verbs.rotate(seed.mod(PilotContent.verbs.size))
+        val exercises = modes.mapIndexed { position, mode ->
+            presentVerbExercise(
+                formatId = PRESENT_VERB_FORMAT_BY_MODE.getValue(mode),
+                seed = seed,
+                position = position,
+                verbId = verbs[position.mod(verbs.size)].lexicalId,
+                excludedSentenceIds = excludedSentenceIds,
+            ).also { exercise -> excludedSentenceIds += requireNotNull(exercise.inspector.canonicalSentenceId) }
+        }
+        val descriptors = selectedTargetKeys.associateWith { sourceByTarget.getValue(it).first().targetDescriptor }
+        val items = exercises.mapIndexed { position, exercise ->
+            presentVerbPracticeItem(position, exercise, descriptors.getValue(targetKeyForMode(modes[position])))
+        }
+        return PracticePlan(
+            focusId = FOCUS_ID,
+            planRevision = planRevision,
+            seed = seed,
+            title = "Review selected targets",
+            prerequisiteSkillIds = listOf("G001", "G002", "G003"),
+            introduction = exercises.flatMap { it.introduction }.distinct(),
+            items = items,
+            contentRevision = CONTENT_REVISION,
+            generatorRevision = GENERATOR_REVISION,
+            evaluationRevision = EVALUATION_REVISION,
+        )
+    }
+
     fun plan(
         planRevision: String,
         seed: Int,
@@ -52,6 +104,80 @@ class PracticeFollowUpPlanner(private val engine: PilotEngine = PilotEngine()) {
             evaluationRevision = EVALUATION_REVISION,
         )
     }
+
+    private fun validatePresentVerbSources(sourceItems: List<PracticeFollowUpSourceItem>) {
+        require(sourceItems.all {
+            it.exercise.contentRevision == CONTENT_REVISION && it.exercise.generatorRevision == GENERATOR_REVISION
+        }) { "Follow-up source exercises must use $CONTENT_REVISION/$GENERATOR_REVISION" }
+        sourceItems.forEach { source ->
+            val mode = requireNotNull(source.targetDescriptor.assessmentMode) {
+                "Present-verb source targets must freeze their assessment mode"
+            }
+            require(source.targetDescriptor.targetSkillId == "G004" && source.targetDescriptor.lexicalTarget == null) {
+                "Present-verb source targets must identify grammar skill G004"
+            }
+            require(source.exercise.targetSkillId == "G004") { "Present-verb source exercises must assess G004" }
+            require(PRESENT_VERB_FORMAT_BY_MODE[mode] == source.exercise.formatId) {
+                "Present-verb source assessment mode must match its exercise format"
+            }
+        }
+    }
+
+    private fun presentVerbModeSequence(selectedTargetKeys: List<String>, seed: Int): List<String> {
+        val selectedModes = selectedTargetKeys.map { it.removePrefix(PRESENT_VERB_TARGET_PREFIX) }
+        val modes = selectedModes.rotate(seed.mod(selectedModes.size))
+        val desiredSize = maxOf(MIN_GRAMMAR_RUN_SIZE, selectedModes.size * PRESENT_VERB_ITEMS_PER_MODE)
+        return List(desiredSize) { modes[it.mod(modes.size)] }
+    }
+
+    private fun presentVerbExercise(
+        formatId: String,
+        seed: Int,
+        position: Int,
+        verbId: String,
+        excludedSentenceIds: Set<String>,
+    ): GeneratedExercise =
+        (0 until GRAMMAR_SCAN_SIZE).asSequence()
+            .map { engine.generate(currentRequest(formatId, "G004", seed, it + position)) }
+            .firstOrNull { exercise ->
+                verbId in exercise.inspector.lexicalIds && exercise.inspector.canonicalSentenceId !in excludedSentenceIds
+            }
+            ?: error("No unused licensed sentence for $verbId and $formatId")
+
+    private fun presentVerbPracticeItem(
+        position: Int,
+        exercise: GeneratedExercise,
+        descriptor: PracticeTargetDescriptor,
+    ): PracticePlanItem {
+        val presentKey = presentVerbKey(exercise)
+        val conceptKey = grammarKey("G004")
+        val infinitiveKey = infinitiveVerbKey(exercise)
+        return PracticePlanItem(
+            position = position,
+            exercise = exercise,
+            targetDescriptor = descriptor,
+            answerExposureKeys = listOf(presentKey),
+            promptExposureKeys = when (exercise.formatId) {
+                "E001" -> listOf(infinitiveKey, presentKey)
+                "E004", "E005" -> listOf(infinitiveKey)
+                else -> error("Unsupported present-verb format ${exercise.formatId}")
+            },
+            lessonExposureKeys = listOf(infinitiveKey, presentKey, conceptKey),
+            hintExposureKeys = listOf(conceptKey),
+            feedbackExposureKeys = listOf(presentKey, conceptKey),
+        )
+    }
+
+    private fun presentVerb(exercise: GeneratedExercise): Verb =
+        PilotContent.verbs.single { it.lexicalId in exercise.inspector.lexicalIds }
+
+    private fun presentVerbKey(exercise: GeneratedExercise): String = "verb-present:${presentVerb(exercise).lexicalId}"
+
+    private fun infinitiveVerbKey(exercise: GeneratedExercise): String = "verb-infinitive:${presentVerb(exercise).lexicalId}"
+
+    private fun targetKeyForMode(mode: String): String = "$PRESENT_VERB_TARGET_PREFIX$mode"
+
+    private fun <T> List<T>.rotate(offset: Int): List<T> = drop(offset) + take(offset)
 
     private fun targetSequence(selectedTargetKeys: List<String>, seed: Int): List<String> {
         val grammar = selectedTargetKeys.filter { it.startsWith(GRAMMAR_PREFIX) }
@@ -210,6 +336,7 @@ class PracticeFollowUpPlanner(private val engine: PilotEngine = PilotEngine()) {
     private companion object {
         const val FOCUS_ID = "targeted-review"
         const val PLAN_REVISION = "follow-up-1"
+        const val PRESENT_VERBS_PLAN_REVISION = "follow-up-2"
         const val CONTENT_REVISION = "pilot-3"
         const val GENERATOR_REVISION = "generator-3"
         const val EVALUATION_REVISION = "evaluation-3"
@@ -223,11 +350,21 @@ class PracticeFollowUpPlanner(private val engine: PilotEngine = PilotEngine()) {
         const val LEXICAL_SCAN_SIZE = 3
         const val GRAMMAR_SCAN_SIZE = 99
         const val MIN_GRAMMAR_RUN_SIZE = 4
+        const val PRESENT_VERB_ITEMS_PER_MODE = 2
         const val MAX_ITEMS = 8
         const val READ_ENTRY_ID = "L011"
         val REVIEW_NOUN_IDS = PilotContent.vocabularySenses.mapTo(mutableSetOf()) { it.entryId }
         const val FNV_OFFSET = 0xcbf29ce484222325UL
         const val FNV_PRIME = 0x100000001b3UL
+        const val PRESENT_VERB_TARGET_PREFIX = "grammar:G004:"
+        val PRESENT_VERB_FORMAT_BY_MODE = mapOf(
+            "selection" to "E001",
+            "recall" to "E004",
+            "repair" to "E005",
+        )
+        val PRESENT_VERB_TARGET_KEYS = PRESENT_VERB_FORMAT_BY_MODE.keys.mapTo(mutableSetOf()) {
+            "$PRESENT_VERB_TARGET_PREFIX$it"
+        }
         val supportedTargetKeys = buildSet {
             add("grammar:G005")
             add("grammar:G006")

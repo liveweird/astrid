@@ -1,15 +1,44 @@
 package app.astrid.engine
 
 class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
+    fun profiles(): List<PracticeProfile> =
+        listOf(
+            PracticeProfile(
+                focusId = READING_FOCUS_ID,
+                planRevision = READING_PLAN_REVISION,
+                title = "Mixed practice",
+                description = "Review words, simple statements, and indefinite articles.",
+                itemCount = READING_ITEM_COUNT,
+                prerequisiteSkillIds = listOf("G001", "G002", "G003", "G004"),
+            ),
+            PracticeProfile(
+                focusId = PRESENT_VERBS_FOCUS_ID,
+                planRevision = PRESENT_VERBS_PLAN_REVISION,
+                title = "Present verb forms",
+                description = "Choose, supply, and repair Danish finite present verbs.",
+                itemCount = PRESENT_VERBS_ITEM_COUNT,
+                prerequisiteSkillIds = listOf("G001", "G002", "G003"),
+            ),
+        )
+
     fun plan(
         focusId: String,
         planRevision: String,
         seed: Int,
     ): PracticePlan {
-        require(focusId == FOCUS_ID) { "Unsupported practice focus: $focusId" }
-        require(planRevision == PLAN_REVISION) { "Unsupported practice plan revision: $planRevision" }
         require(seed >= 0) { "seed must be non-negative" }
+        return when (focusId to planRevision) {
+            READING_FOCUS_ID to READING_PLAN_REVISION -> readingPlan(focusId, planRevision, seed)
+            PRESENT_VERBS_FOCUS_ID to PRESENT_VERBS_PLAN_REVISION -> presentVerbsPlan(focusId, planRevision, seed)
+            else -> throw IllegalArgumentException("Unsupported practice profile: $focusId/$planRevision")
+        }
+    }
 
+    private fun readingPlan(
+        focusId: String,
+        planRevision: String,
+        seed: Int,
+    ): PracticePlan {
         val recognitions = (0..2).map { lexicalExercise("E007", seed, it) }
         val recalls = (0..2).map { lexicalExercise("E008", seed, it) }
         val senses = recognitions.map { requireNotNull(it.lexicalTarget) }
@@ -39,6 +68,102 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
             evaluationRevision = EVALUATION_REVISION,
         )
     }
+
+    private fun presentVerbsPlan(
+        focusId: String,
+        planRevision: String,
+        seed: Int,
+    ): PracticePlan {
+        val formats = listOf("E001", "E004", "E005", "E001", "E004", "E005")
+        val firstVerbIndex = seed.mod(PilotContent.verbs.size)
+        val verbs = PilotContent.verbs.rotate(firstVerbIndex) + PilotContent.verbs[firstVerbIndex]
+        val usedSentenceIds = mutableSetOf<String>()
+        val exercises = formats.zip(verbs).mapIndexed { position, (formatId, verb) ->
+            presentVerbExercise(formatId, seed, position, verb.lexicalId, usedSentenceIds).also { exercise ->
+                usedSentenceIds += requireNotNull(exercise.inspector.canonicalSentenceId)
+            }
+        }
+        return PracticePlan(
+            focusId = focusId,
+            planRevision = planRevision,
+            seed = seed,
+            title = "Present verb forms",
+            prerequisiteSkillIds = listOf("G001", "G002", "G003"),
+            introduction = exercises.flatMap { it.introduction }.distinct(),
+            items = exercises.mapIndexed(::presentVerbPracticeItem),
+            contentRevision = CONTENT_REVISION,
+            generatorRevision = GENERATOR_REVISION,
+            evaluationRevision = EVALUATION_REVISION,
+        )
+    }
+
+    private fun presentVerbExercise(
+        formatId: String,
+        seed: Int,
+        position: Int,
+        verbId: String,
+        excludedSentenceIds: Set<String>,
+    ): GeneratedExercise =
+        (0 until GRAMMAR_SCAN_SIZE).asSequence()
+            .map { engine.generate(currentRequest(formatId, "G004", seed, it + position)) }
+            .firstOrNull { exercise ->
+                verbId in exercise.inspector.lexicalIds && exercise.inspector.canonicalSentenceId !in excludedSentenceIds
+            }
+            ?: error("No unused licensed sentence for $verbId and $formatId")
+
+    private fun <T> List<T>.rotate(offset: Int): List<T> = drop(offset) + take(offset)
+
+    private fun presentVerbPracticeItem(position: Int, exercise: GeneratedExercise): PracticePlanItem {
+        val mode = assessmentMode(exercise.formatId)
+        val answerKeys = listOf(presentVerbKey(exercise))
+        val infinitiveKey = infinitiveVerbKey(exercise)
+        val conceptKey = grammarKey("G004")
+        return PracticePlanItem(
+            position = position,
+            exercise = exercise,
+            targetDescriptor = PracticeTargetDescriptor(
+                label = assessmentLabel(mode),
+                targetSkillId = "G004",
+                lexicalTarget = null,
+                assessmentMode = mode,
+            ),
+            answerExposureKeys = answerKeys,
+            promptExposureKeys = presentVerbPromptKeys(exercise, infinitiveKey),
+            lessonExposureKeys = listOf(infinitiveKey, presentVerbKey(exercise), conceptKey),
+            hintExposureKeys = listOf(conceptKey),
+            feedbackExposureKeys = listOf(presentVerbKey(exercise), conceptKey),
+        )
+    }
+
+    private fun assessmentMode(formatId: String): String =
+        when (formatId) {
+            "E001" -> "selection"
+            "E004" -> "recall"
+            "E005" -> "repair"
+            else -> error("Unsupported present-verb format $formatId")
+        }
+
+    private fun assessmentLabel(mode: String): String =
+        when (mode) {
+            "selection" -> "Present verbs — choosing the form"
+            "recall" -> "Present verbs — written recall"
+            "repair" -> "Present verbs — repairing the form"
+            else -> error("Unsupported present-verb assessment mode $mode")
+        }
+
+    private fun presentVerbPromptKeys(exercise: GeneratedExercise, infinitiveKey: String): List<String> =
+        when (exercise.formatId) {
+            "E001" -> listOf(infinitiveKey, presentVerbKey(exercise))
+            "E004", "E005" -> listOf(infinitiveKey)
+            else -> error("Unsupported present-verb format ${exercise.formatId}")
+        }
+
+    private fun presentVerb(exercise: GeneratedExercise): Verb =
+        PilotContent.verbs.single { it.lexicalId in exercise.inspector.lexicalIds }
+
+    private fun presentVerbKey(exercise: GeneratedExercise): String = "verb-present:${presentVerb(exercise).lexicalId}"
+
+    private fun infinitiveVerbKey(exercise: GeneratedExercise): String = "verb-infinitive:${presentVerb(exercise).lexicalId}"
 
     private fun lexicalExercise(
         formatId: String,
@@ -158,8 +283,12 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
     private fun grammarKey(skillId: String) = "grammar:$skillId"
 
     private companion object {
-        const val FOCUS_ID = "reading-basics"
-        const val PLAN_REVISION = "practice-1"
+        const val READING_FOCUS_ID = "reading-basics"
+        const val READING_PLAN_REVISION = "practice-1"
+        const val PRESENT_VERBS_FOCUS_ID = "present-verbs"
+        const val PRESENT_VERBS_PLAN_REVISION = "present-verbs-1"
+        const val READING_ITEM_COUNT = 8
+        const val PRESENT_VERBS_ITEM_COUNT = 6
         const val CONTENT_REVISION = "pilot-3"
         const val GENERATOR_REVISION = "generator-3"
         const val EVALUATION_REVISION = "evaluation-3"

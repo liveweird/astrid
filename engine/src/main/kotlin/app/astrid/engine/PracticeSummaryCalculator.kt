@@ -82,15 +82,12 @@ object PracticeSummaryCalculator {
             },
             lessonOpenedItems = items.count { it.lessonOpened },
             hintOpenedItems = items.count { it.hintOpened },
+            assessmentMode = representative.assessmentMode,
         )
     }
 
-    private fun targetIdentity(observation: PracticeSummarySnapshotItemObservation): String {
-        val target = observation.targetDescriptor
-        return target.targetSkillId ?: requireNotNull(target.lexicalTarget).run {
-            listOf(entryId, senseId, facet, direction).joinToString(IDENTITY_SEPARATOR)
-        }
-    }
+    private fun targetIdentity(observation: PracticeSummarySnapshotItemObservation): String =
+        observation.targetDescriptor.targetKey()
 
     private fun outcomeCounts(attempts: List<PracticeSummaryAttemptObservation>): PracticeOutcomeCounts =
         PracticeOutcomeCounts(
@@ -110,6 +107,4 @@ object PracticeSummaryCalculator {
             responseConstraintStatus != ResponseConstraintStatus.NOT_MET
 
     private fun PracticeAttemptContext.hasSupport(): Boolean = introductionOpened || lessonOpened || hintOpened
-
-    private const val IDENTITY_SEPARATOR = "\u0000"
 }

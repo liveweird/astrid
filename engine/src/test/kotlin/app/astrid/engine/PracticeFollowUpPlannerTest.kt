@@ -10,6 +10,10 @@ class PracticeFollowUpPlannerTest {
     private val source = PracticePlanner().plan("reading-basics", "practice-1", 47)
     private val sourceExercises = source.items.map { it.exercise }
     private val planner = PracticeFollowUpPlanner()
+    private val presentSource = PracticePlanner().plan("present-verbs", "present-verbs-1", 47)
+    private val presentSourceItems = presentSource.items.map {
+        PracticeFollowUpSourceItem(it.exercise, it.targetDescriptor)
+    }
 
     @Test
     fun `all selected source targets stay distinct and retain their assessment direction`() {
@@ -169,10 +173,94 @@ class PracticeFollowUpPlannerTest {
         }
     }
 
+    @Test
+    fun `present verb follow up balances selected operations and excludes every source sentence`() {
+        val sourceSentenceIds = presentSourceItems.mapNotNullTo(mutableSetOf()) {
+            it.exercise.inspector.canonicalSentenceId
+        }
+        val selections = listOf(
+            listOf("grammar:G004:selection") to 4,
+            listOf("grammar:G004:selection", "grammar:G004:repair") to 4,
+            listOf("grammar:G004:selection", "grammar:G004:recall", "grammar:G004:repair") to 6,
+        )
+
+        selections.forEach { (selected, expectedSize) ->
+            listOf(0, 1, 73).forEach { seed ->
+                val plan = planner.planPresentVerbs("follow-up-2", seed, selected, presentSourceItems)
+                val childSentenceIds = plan.items.map { requireNotNull(it.exercise.inspector.canonicalSentenceId) }
+                val modes = plan.items.map { requireNotNull(it.targetDescriptor.assessmentMode) }
+                val verbs = plan.items.map(::verbId)
+
+                assertEquals(expectedSize, plan.items.size)
+                assertEquals(selected.toSet(), plan.items.map { it.targetDescriptor.targetKey() }.toSet())
+                assertTrue(modes.zipWithNext().none { (left, right) -> left == right } || selected.size == 1)
+                assertTrue(modes.groupingBy { it }.eachCount().values.max() - modes.groupingBy { it }.eachCount().values.min() <= 1)
+                assertEquals(childSentenceIds.size, childSentenceIds.distinct().size)
+                assertTrue(childSentenceIds.none { it in sourceSentenceIds })
+                assertTrue(verbs.zipWithNext().none { (left, right) -> left == right })
+            }
+        }
+    }
+
+    @Test
+    fun `present verb follow up is deterministic and keeps operation format mappings`() {
+        val selected = listOf("grammar:G004:selection", "grammar:G004:recall", "grammar:G004:repair")
+        val first = planner.planPresentVerbs("follow-up-2", 29, selected, presentSourceItems)
+        val repeated = planner.planPresentVerbs("follow-up-2", 29, selected, presentSourceItems)
+
+        assertEquals(first.items.map { it.exercise.id }, repeated.items.map { it.exercise.id })
+        assertEquals(
+            mapOf("selection" to "E001", "recall" to "E004", "repair" to "E005"),
+            first.items.associate { requireNotNull(it.targetDescriptor.assessmentMode) to it.exercise.formatId },
+        )
+        assertEquals(PilotContent.verbs.map { it.lexicalId }.toSet(), first.items.map(::verbId).toSet())
+    }
+
+    @Test
+    fun `present verb follow up rejects unsupported and unfrozen source evidence`() {
+        val selected = listOf("grammar:G004:selection")
+        val selectionSource = presentSourceItems.filter { it.targetDescriptor.assessmentMode == "selection" }
+        val wrongMode = selectionSource.first().let {
+            it.copy(targetDescriptor = it.targetDescriptor.copy(assessmentMode = "recall"))
+        }
+        val unpinned = selectionSource.first().let {
+            it.copy(
+                exercise = PilotEngine().generate(
+                    GenerationRequest("E001", "G004", 0, 0, "pilot-2", "generator-2"),
+                ),
+            )
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            planner.planPresentVerbs("follow-up-1", 0, selected, selectionSource)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            planner.planPresentVerbs("follow-up-2", -1, selected, selectionSource)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            planner.planPresentVerbs("follow-up-2", 0, emptyList(), selectionSource)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            planner.planPresentVerbs("follow-up-2", 0, listOf("grammar:G004"), selectionSource)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            planner.planPresentVerbs("follow-up-2", 0, listOf("grammar:G004:repair"), selectionSource)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            planner.planPresentVerbs("follow-up-2", 0, selected, listOf(wrongMode))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            planner.planPresentVerbs("follow-up-2", 0, selected, listOf(unpinned))
+        }
+    }
+
     private fun adjacentRepeats(keys: List<String>): Int = keys.zipWithNext().count { (left, right) -> left == right }
 
     private fun minimumAdjacentRepeats(keys: List<String>): Int {
         val largestGroup = keys.groupingBy { it }.eachCount().values.max()
         return maxOf(0, 2 * largestGroup - keys.size - 1)
     }
+
+    private fun verbId(item: PracticePlanItem): String =
+        PilotContent.verbs.single { it.lexicalId in item.exercise.inspector.lexicalIds }.lexicalId
 }

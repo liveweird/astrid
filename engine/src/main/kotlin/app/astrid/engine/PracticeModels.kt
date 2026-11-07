@@ -13,6 +13,15 @@ data class PracticePlan(
     val evaluationRevision: String,
 )
 
+data class PracticeProfile(
+    val focusId: String,
+    val planRevision: String,
+    val title: String,
+    val description: String,
+    val itemCount: Int,
+    val prerequisiteSkillIds: List<String>,
+)
+
 interface PracticeExposureMetadata {
     val position: Int
     val answerExposureKeys: List<String>
@@ -35,23 +44,36 @@ data class PracticeTargetDescriptor(
     val label: String,
     val targetSkillId: String?,
     val lexicalTarget: LexicalTarget?,
+    val assessmentMode: String? = null,
 )
 
 object PracticeTargetKeys {
     fun key(
         targetSkillId: String?,
         lexicalTarget: LexicalTarget?,
+        assessmentMode: String? = null,
     ): String {
         require((targetSkillId == null) != (lexicalTarget == null)) {
             "A practice target must identify exactly one grammar or lexical target"
         }
-        return targetSkillId?.let { "grammar:$it" } ?: requireNotNull(lexicalTarget).run {
+        require(assessmentMode == null || targetSkillId == "G004") {
+            "Assessment modes are supported only for grammar skill G004"
+        }
+        require(assessmentMode == null || assessmentMode in G004_ASSESSMENT_MODES) {
+            "Unsupported G004 assessment mode: $assessmentMode"
+        }
+        return targetSkillId?.let { skillId ->
+            if (assessmentMode == null) "grammar:$skillId" else "grammar:$skillId:$assessmentMode"
+        } ?: requireNotNull(lexicalTarget).run {
+            require(assessmentMode == null) { "Lexical practice targets do not support assessment modes" }
             listOf("lexical", entryId, senseId, facet, direction).joinToString(":")
         }
     }
+
+    private val G004_ASSESSMENT_MODES = setOf("selection", "recall", "repair")
 }
 
-fun PracticeTargetDescriptor.targetKey(): String = PracticeTargetKeys.key(targetSkillId, lexicalTarget)
+fun PracticeTargetDescriptor.targetKey(): String = PracticeTargetKeys.key(targetSkillId, lexicalTarget, assessmentMode)
 
 data class PracticePlanItem(
     override val position: Int,
@@ -151,6 +173,12 @@ data class PracticeTargetSummary(
     val firstWithPriorExposure: Int,
     val lessonOpenedItems: Int,
     val hintOpenedItems: Int,
+    val assessmentMode: String? = null,
+)
+
+data class PracticeFollowUpSourceItem(
+    val exercise: GeneratedExercise,
+    val targetDescriptor: PracticeTargetDescriptor,
 )
 
 data class PracticeOutcomeCounts(
