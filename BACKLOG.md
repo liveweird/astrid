@@ -6,8 +6,6 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 
 ## [next]
 
-- **BL-038 — Stabilize portalled format navigation in short windows.** A retry-only WebKit failure led to reproducible focus/scroll geometry evidence: generation-focus ordering plus absolute dropdown scrolling can detach the picker. Verify the viewport-fixed candidate and synchronized test setup with independent review, complete packaged/browser gates, a backed-up preview promotion and focused Git delivery. Preserve all native navigation/geometry assertions, content and persistence boundaries. Candidate verification is in progress; see the [follow-up evidence](docs/knowledge/practice-continuity.md#standalone-format-navigation-follow-up--bl-038).
-
 - **BL-035 — Review the expanded playground and guided practice.** Proposed next step: try `/practice` for an eight-part session, then all eight standalone entries under “Generation controls.” Assess pacing, instruction/feedback clarity, typed Danish input, repair, response constraints, support, recovery, summaries and repetition before choosing the next bounded engine/content iteration. Record reproducible coordinates for corrections. The [review guide](docs/knowledge/pilot-review-guide.md) covers both flows; specialist validation remains BL-022.
 
 ## [todo]
@@ -40,6 +38,8 @@ Statuses follow the [working agreement](docs/knowledge/working-agreement.md). Th
 No active work is currently blocked. Git writes and remote access succeeded through approved escalated commands; the foundation delivery is complete. Use the applicable approval mechanism for future Git operations that exceed the workspace sandbox.
 
 ## Completed work
+
+- **7 November 2026 — BL-038, portalled format navigation:** Fixed the confirmed short-window picker detachment using supported viewport-fixed positioning and synchronized test setup with intended generation focus. Independent review, 24 repeated candidate cases, 114 packaged native journeys and all five [source CI jobs](https://github.com/liveweird/astrid/actions/runs/42383404784) passed; Linux browser journeys had no retries/flaky results. The backed-up preview passed 14 smoke checks, preserved all five immutable histories, the database process/mounts and all three evaluators. Owned QA resources were removed. See the [follow-up evidence](docs/knowledge/practice-continuity.md#standalone-format-navigation-follow-up--bl-038). This completion record accompanies the focused Git delivery.
 
 - **7 November 2026 — BL-037, practice continuity and variation:** Fixed support-text focus/readability and loading-to-enabled action contrast; verified two real tabs and actual owned app/database restart recovery. The [reproducible audit](docs/knowledge/practice-variation-audit.md) covers all 294 meaningful current plans, separately from presentation shuffles. All five [source CI jobs](https://github.com/liveweird/astrid/actions/runs/42380037939) passed at `7eb7768`, including 114 Linux browser journeys without retries; 114 native journeys and ten repeated Linux contrast checks also passed. The backed-up main preview passed 30 smoke checks, preserved all five immutable histories and the PostgreSQL process/mounts, and retained all three evaluators. Owned QA resources were removed. See the [delivery evidence](docs/knowledge/practice-continuity.md). This completion/review record accompanies the focused Git delivery; BL-035 remains user review.
 
