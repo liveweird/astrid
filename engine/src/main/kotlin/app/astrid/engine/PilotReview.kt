@@ -5,6 +5,8 @@ object PilotReview {
 
     fun renderLegacyMarkdown(): String = renderSnapshot(PilotContent.snapshot)
 
+    fun renderPilotTwoMarkdown(): String = renderSnapshot(PilotContent.pilotTwoSnapshot)
+
     private fun renderSnapshot(snapshot: PilotContentSnapshot): String {
         return buildString {
             appendLine("# Astrid pilot content review")
@@ -89,7 +91,7 @@ object PilotReview {
                         format,
                         index.toString(),
                         exercise.id,
-                        exercise.inspector.canonicalSentence,
+                        exercise.inspector.canonicalSentence ?: exercise.prompt.cue.orEmpty(),
                         promptSummary(exercise),
                     ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
                 )

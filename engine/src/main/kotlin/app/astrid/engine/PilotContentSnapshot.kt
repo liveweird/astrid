@@ -13,6 +13,7 @@ internal data class PilotContentSnapshot(
     val nouns: List<NounEntry>,
     val sentences: List<Sentence>,
     val lexicalReview: List<LexicalReviewRecord>,
+    val vocabularySenses: List<LexicalSense>,
 )
 
 internal data class ContentValidationIssue(
@@ -37,6 +38,7 @@ internal object PilotContentValidator {
             validateForms(snapshot)
             validateSentences(snapshot)
             validateReviewMetadata(snapshot)
+            validateVocabularySenses(snapshot)
         }
 
     private fun MutableList<ContentValidationIssue>.validateIdentities(snapshot: PilotContentSnapshot) {
@@ -53,12 +55,11 @@ internal object PilotContentValidator {
         identityIssues("sentence", snapshot.sentences.map { it.id })
         identityIssues("review", snapshot.lexicalReview.map { it.id })
         requireIds("skill", snapshot.skills.map { it.id }, EXPECTED_SKILL_IDS)
-        val expectedFormats =
-            if (snapshot.contentRevision == PilotContent.CONTENT_REVISION) {
-                setOf("E001", "E002", "E003")
-            } else {
-                setOf("E001", "E002", "E003", "E004", "E005", "E006")
-            }
+        val expectedFormats = when (snapshot.contentRevision) {
+            PilotContent.CONTENT_REVISION -> setOf("E001", "E002", "E003")
+            PilotContent.RETAINED_CONTENT_REVISION -> setOf("E001", "E002", "E003", "E004", "E005", "E006")
+            else -> EXPECTED_CURRENT_FORMAT_IDS
+        }
         requireIds("format", snapshot.formats.map { it.id }, expectedFormats)
         val lexicalIds =
             snapshot.humanPronouns.map { it.id } + snapshot.identifyingPronoun.id +
@@ -78,8 +79,32 @@ internal object PilotContentValidator {
                 add(issue(skill.id, "unknown prerequisite $it"))
             }
         }
+        validateFormatReferences(snapshot, skillIds)
+        prerequisiteCycles(snapshot.skills).forEach { cycle -> add(issue(cycle, "cyclic prerequisite")) }
+
+        val lexicalIds =
+            (snapshot.humanPronouns.map { it.id } + snapshot.identifyingPronoun.id +
+                snapshot.verbs.map { it.lexicalId } + snapshot.nouns.map { it.id } +
+                NounGender.entries.map { it.articleId }).toSet()
+        snapshot.sentences.forEach { sentence ->
+            val references = sentence.subject.lexicalIds + sentence.verb.lexicalId + sentence.complement?.lexicalIds.orEmpty()
+            references.filterNot(lexicalIds::contains).forEach {
+                add(issue(sentence.id, "unknown lexical reference $it"))
+            }
+        }
+    }
+
+    private fun MutableList<ContentValidationIssue>.validateFormatReferences(
+        snapshot: PilotContentSnapshot,
+        skillIds: Set<String>,
+    ) {
         snapshot.formats.forEach { format ->
-            if (format.targetSkillId !in skillIds) add(issue(format.id, "unknown target ${format.targetSkillId}"))
+            val hasGrammarTarget = format.targetSkillId != null
+            val hasLexicalTask = format.lexicalTask != null
+            if (hasGrammarTarget == hasLexicalTask) add(issue(format.id, "requires exactly one grammar or lexical target"))
+            if (format.targetSkillId != null && format.targetSkillId !in skillIds) {
+                add(issue(format.id, "unknown target ${format.targetSkillId}"))
+            }
         }
         val expectedTargets =
             mapOf(
@@ -95,16 +120,16 @@ internal object PilotContentValidator {
                 if (format.targetSkillId != expected) add(issue(format.id, "expected target $expected"))
             }
         }
-        prerequisiteCycles(snapshot.skills).forEach { cycle -> add(issue(cycle, "cyclic prerequisite")) }
-
-        val lexicalIds =
-            (snapshot.humanPronouns.map { it.id } + snapshot.identifyingPronoun.id +
-                snapshot.verbs.map { it.lexicalId } + snapshot.nouns.map { it.id } +
-                NounGender.entries.map { it.articleId }).toSet()
-        snapshot.sentences.forEach { sentence ->
-            val references = sentence.subject.lexicalIds + sentence.verb.lexicalId + sentence.complement?.lexicalIds.orEmpty()
-            references.filterNot(lexicalIds::contains).forEach {
-                add(issue(sentence.id, "unknown lexical reference $it"))
+        val expectedLexicalTasks =
+            mapOf(
+                "E007" to LexicalTask("meaning", "da-en"),
+                "E008" to LexicalTask("singular-headword", "en-da"),
+            )
+        snapshot.formats.forEach { format ->
+            expectedLexicalTasks[format.id]?.let { expected ->
+                if (format.lexicalTask != expected || format.targetSkillId != null) {
+                    add(issue(format.id, "expected lexical task ${expected.facet}/${expected.direction}"))
+                }
             }
         }
     }
@@ -171,6 +196,26 @@ internal object PilotContentValidator {
             record.sourceUrls.forEach { sourceUrl -> validateSourceUrl(record.id, sourceUrl) }
             if (record.reviewState != PilotReviewMetadata.REVIEW_STATE) {
                 add(issue(record.id, "unsupported review state '${record.reviewState}'"))
+            }
+        }
+    }
+
+    private fun MutableList<ContentValidationIssue>.validateVocabularySenses(snapshot: PilotContentSnapshot) {
+        val expected = if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            setOf("L014-S01", "L015-S01", "L018-S01")
+        } else {
+            emptySet()
+        }
+        identityIssues("vocabulary sense", snapshot.vocabularySenses.map { it.senseId })
+        requireIds("vocabulary sense", snapshot.vocabularySenses.map { it.senseId }, expected)
+        val nouns = snapshot.nouns.associateBy { it.id }
+        snapshot.vocabularySenses.forEach { sense ->
+            val noun = nouns[sense.entryId]
+            if (noun == null) add(issue(sense.senseId, "unknown entry ${sense.entryId}"))
+            if (sense.headword.isBlank()) add(issue(sense.senseId, "empty headword"))
+            if (sense.gloss.isBlank()) add(issue(sense.senseId, "empty gloss"))
+            if (noun != null && (sense.headword != noun.text || sense.article != noun.gender.article)) {
+                add(issue(sense.senseId, "headword or article differs from ${sense.entryId}"))
             }
         }
     }
@@ -286,6 +331,8 @@ internal object PilotContentValidator {
         (1..LAST_SKILL_NUMBER).map { "G${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_LEXICAL_IDS =
         (1..LAST_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
+    private val EXPECTED_CURRENT_FORMAT_IDS =
+        (1..LAST_CURRENT_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val KNOWN_SOURCE_URLS =
         setOf(
             "https://sproget.dk/typiske-problemer/pronomener-stedord/",
@@ -310,4 +357,5 @@ internal object PilotContentValidator {
     private const val ROLE_SUBJECT = "SUBJECT"
     private const val ROLE_OBJECT = "OBJECT"
     private const val ROLE_PREDICATIVE = "PREDICATIVE"
+    private const val LAST_CURRENT_FORMAT_NUMBER = 8
 }

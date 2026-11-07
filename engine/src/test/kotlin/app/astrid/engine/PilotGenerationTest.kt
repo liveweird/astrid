@@ -33,7 +33,7 @@ class PilotGenerationTest {
         assertTrue("en avis means ‘a newspaper’" in introduction)
         val apple = (0 until 92).asSequence()
             .map { engine.generate(request("E002", "G006", index = it)) }
-            .first { "et æble" in it.inspector.canonicalSentence }
+            .first { "et æble" in it.inspector.canonicalSentence.orEmpty() }
         assertTrue(apple.introduction.any { "et æble means ‘an apple’" in it.body })
     }
 
@@ -42,10 +42,10 @@ class PilotGenerationTest {
         val catalog = engine.catalog()
 
         assertEquals((1..6).map { "G${it.toString().padStart(3, '0')}" }, catalog.skills.map { it.id })
-        assertEquals(listOf("E001", "E002", "E003", "E004", "E005", "E006"), catalog.formats.map { it.id })
+        assertEquals((1..8).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
         assertEquals(99, catalog.sentenceCount)
-        assertEquals("pilot-2", catalog.contentRevision)
-        assertEquals("generator-2", catalog.generatorRevision)
+        assertEquals("pilot-3", catalog.contentRevision)
+        assertEquals("generator-3", catalog.generatorRevision)
     }
 
     @Test

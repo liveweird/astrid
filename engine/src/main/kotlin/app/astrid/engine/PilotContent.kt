@@ -21,10 +21,13 @@ internal data class NounEntry(
 internal object PilotContent {
     const val CONTENT_REVISION = "pilot-1"
     const val GENERATOR_REVISION = "generator-1"
-    const val CURRENT_CONTENT_REVISION = "pilot-2"
-    const val CURRENT_GENERATOR_REVISION = "generator-2"
+    const val RETAINED_CONTENT_REVISION = "pilot-2"
+    const val RETAINED_GENERATOR_REVISION = "generator-2"
+    const val CURRENT_CONTENT_REVISION = "pilot-3"
+    const val CURRENT_GENERATOR_REVISION = "generator-3"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-2"
+    const val RETAINED_EVALUATION_REVISION = "evaluation-2"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-3"
 
     val humanPronouns =
         listOf(
@@ -56,6 +59,13 @@ internal object PilotContent {
             NounEntry("L019", "hus", "house", NounGender.NEUTER),
             NounEntry("L020", "bord", "table", NounGender.NEUTER),
             NounEntry("L021", "æble", "apple", NounGender.NEUTER),
+        )
+
+    val vocabularySenses =
+        listOf(
+            LexicalSense("L014", "L014-S01", "bog", "book", "en"),
+            LexicalSense("L015", "L015-S01", "avis", "newspaper", "en"),
+            LexicalSense("L018", "L018-S01", "brev", "letter (written message)", "et"),
         )
 
     val sentences: List<Sentence> = buildSentences()
@@ -115,6 +125,13 @@ internal object PilotContent {
                 ExerciseFormat("E006", "Repair the indefinite article", "G006"),
             )
 
+    val vocabularyFormats =
+        currentFormats +
+            listOf(
+                ExerciseFormat("E007", "Recognize the meaning", null, LexicalTask("meaning", "da-en")),
+                ExerciseFormat("E008", "Recall the Danish headword", null, LexicalTask("singular-headword", "en-da")),
+            )
+
     val snapshot =
         PilotContentSnapshot(
             contentRevision = CONTENT_REVISION,
@@ -127,12 +144,13 @@ internal object PilotContent {
             nouns = nouns,
             sentences = sentences,
             lexicalReview = PilotReviewMetadata.records(humanPronouns, identifyingPronoun, verbs, nouns),
+            vocabularySenses = emptyList(),
         )
 
-    val currentSnapshot =
+    val pilotTwoSnapshot =
         PilotContentSnapshot(
-            contentRevision = CURRENT_CONTENT_REVISION,
-            generatorRevision = CURRENT_GENERATOR_REVISION,
+            contentRevision = RETAINED_CONTENT_REVISION,
+            generatorRevision = RETAINED_GENERATOR_REVISION,
             skills = skills,
             formats = currentFormats,
             humanPronouns = humanPronouns,
@@ -141,10 +159,27 @@ internal object PilotContent {
             nouns = nouns,
             sentences = sentences,
             lexicalReview = PilotReviewMetadata.records(humanPronouns, identifyingPronoun, verbs, nouns),
+            vocabularySenses = emptyList(),
+        )
+
+    val currentSnapshot =
+        PilotContentSnapshot(
+            contentRevision = CURRENT_CONTENT_REVISION,
+            generatorRevision = CURRENT_GENERATOR_REVISION,
+            skills = skills,
+            formats = vocabularyFormats,
+            humanPronouns = humanPronouns,
+            identifyingPronoun = identifyingPronoun,
+            verbs = verbs,
+            nouns = nouns,
+            sentences = sentences,
+            lexicalReview = PilotReviewMetadata.records(humanPronouns, identifyingPronoun, verbs, nouns),
+            vocabularySenses = vocabularySenses,
         )
 
     init {
         PilotContentValidator.requireValid(snapshot)
+        PilotContentValidator.requireValid(pilotTwoSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

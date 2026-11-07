@@ -18,12 +18,14 @@ class PilotEngine {
     ): String? =
         when (RevisionPair(contentRevision, generatorRevision)) {
             LEGACY_REVISION_PAIR -> PilotContent.LEGACY_EVALUATION_REVISION
+            PILOT_TWO_REVISION_PAIR -> PilotContent.RETAINED_EVALUATION_REVISION
             CURRENT_REVISION_PAIR -> PilotContent.CURRENT_EVALUATION_REVISION
             else -> null
         }
 
     fun generate(request: GenerationRequest): GeneratedExercise {
         validate(request)
+        if (request.formatId in LEXICAL_FORMAT_IDS) return createLexicalExercise(request)
         val candidates =
             when (request.formatId) {
                 "E001", "E003", "E004", "E005" -> PilotContent.sentences
@@ -56,12 +58,24 @@ class PilotEngine {
                 "E005" to "G004",
                 "E006" to "G006",
             )[request.formatId]
-        requireNotNull(expectedTarget) { "Unsupported format: ${request.formatId}" }
-        require(pair == CURRENT_REVISION_PAIR || request.formatId in LEGACY_FORMAT_IDS) {
+        require(expectedTarget != null || request.formatId in LEXICAL_FORMAT_IDS) {
+            "Unsupported format: ${request.formatId}"
+        }
+        val supportedFormats = when (pair) {
+            LEGACY_REVISION_PAIR -> LEGACY_FORMAT_IDS
+            PILOT_TWO_REVISION_PAIR -> PILOT_TWO_FORMAT_IDS
+            CURRENT_REVISION_PAIR -> CURRENT_FORMAT_IDS
+            else -> emptySet()
+        }
+        require(request.formatId in supportedFormats) {
             "Format ${request.formatId} is unsupported by ${request.contentRevision}/${request.generatorRevision}"
         }
-        require(request.targetSkillId == expectedTarget) {
-            "Format ${request.formatId} requires target $expectedTarget"
+        if (request.formatId in LEXICAL_FORMAT_IDS) {
+            require(request.targetSkillId == null) { "Format ${request.formatId} does not accept a grammar target" }
+        } else {
+            require(request.targetSkillId == expectedTarget) {
+                "Format ${request.formatId} requires target $expectedTarget"
+            }
         }
     }
 
@@ -83,13 +97,15 @@ class PilotEngine {
             }
         val lexicalIds =
             sentence.subject.lexicalIds + sentence.verb.lexicalId + sentence.complement.orEmptyLexicalIds()
+        val targetSkillId = requireNotNull(request.targetSkillId)
         return GeneratedExercise(
             id = exerciseId(request, sentence),
             formatId = request.formatId,
             targetSkillId = request.targetSkillId,
+            lexicalTarget = null,
             supportSkillIds =
                 (listOf("G001", "G002", "G003", "G004", "G005") +
-                    if (sentence.complement != null) listOf("G006") else emptyList()) - request.targetSkillId,
+                    if (sentence.complement != null) listOf("G006") else emptyList()) - targetSkillId,
             presentation =
                 ExercisePresentation(
                     instruction = sourceAndPrompt.instruction,
@@ -110,13 +126,104 @@ class PilotEngine {
                     canonicalSentence = realize(publicParts),
                 ),
             source =
-                ExerciseSource(
+                SentenceSource(
                     sentence = sentence,
                     answerKey = sourceAndPrompt.answerKey,
                     blockRoles = sourceAndPrompt.blockRoles,
                 ),
         )
     }
+
+    private fun createLexicalExercise(request: GenerationRequest): GeneratedExercise {
+        val targetIndex = permutedIndex(request.seed, request.index, PilotContent.vocabularySenses.size)
+        val sense = PilotContent.vocabularySenses[targetIndex]
+        val task = requireNotNull(PilotContent.vocabularyFormats.single { it.id == request.formatId }.lexicalTask)
+        val recognition = request.formatId == "E007"
+        val choices = if (recognition) {
+            shuffled(
+                PilotContent.vocabularySenses.map { it.gloss },
+                mixed(request.seed xor LEXICAL_CHOICE_SHUFFLE_XOR, request.index),
+            )
+        } else {
+            emptyList()
+        }
+        val answerKey: AnswerKey = if (recognition) {
+            AnswerKey.MeaningChoice(sense.gloss, choices.toSet())
+        } else {
+            AnswerKey.Headword(sense)
+        }
+        val lexicalTarget = LexicalTarget(sense.entryId, sense.senseId, task.facet, task.direction)
+        return GeneratedExercise(
+            id =
+                "${request.formatId}-${request.contentRevision}-${request.generatorRevision}-" +
+                    "${sense.senseId}-${request.seed}-${request.index}",
+            formatId = request.formatId,
+            targetSkillId = null,
+            lexicalTarget = lexicalTarget,
+            supportSkillIds = emptyList(),
+            presentation = lexicalPresentation(sense, recognition, choices),
+            contentRevision = request.contentRevision,
+            generatorRevision = request.generatorRevision,
+            reproduction = Reproduction(request.seed, request.index),
+            inspector = ExerciseInspector(
+                lexicalIds = listOf(sense.entryId),
+                clauseRoles = emptyList(),
+                lexicalSource = LexicalSourceDetails(
+                    sense.entryId,
+                    sense.senseId,
+                    sense.headword,
+                    sense.gloss,
+                    sense.article,
+                ),
+            ),
+            source = LexicalSource(sense, answerKey),
+        )
+    }
+
+    private fun lexicalPresentation(
+        sense: LexicalSense,
+        recognition: Boolean,
+        choices: List<String>,
+    ) = ExercisePresentation(
+        instruction = if (recognition) {
+            "Choose the English meaning of the Danish headword."
+        } else {
+            "Type the introduced Danish singular headword for this meaning, without its article."
+        },
+        context = "Use the introduced meaning of this word.",
+        prompt = ExercisePrompt(
+            before = "",
+            after = "",
+            choices = choices,
+            punctuation = "",
+            inputLabel = if (recognition) null else "Danish singular headword",
+            cue = if (recognition) sense.headword else sense.gloss,
+            cueLanguage = if (recognition) "da" else "en",
+            answerLanguage = if (recognition) "en" else "da",
+        ),
+        introduction = lexicalIntroduction(sense),
+        hint = if (recognition) {
+            "Choose one of the supplied English meanings."
+        } else {
+            "Enter the introduced singular headword as one word, without en or et."
+        },
+    )
+
+    private fun lexicalIntroduction(sense: LexicalSense): List<IntroductionSection> =
+        listOf(
+            IntroductionSection(
+                "Learn the word",
+                "${sense.article} ${sense.headword} means ‘${sense.gloss}’. Learn the noun with its article.",
+            ),
+            IntroductionSection(
+                "Practice the introduced meaning",
+                if (sense.entryId == "L018") {
+                    "Here, letter means a written message rather than an alphabet character."
+                } else {
+                    "Use this introduced noun and meaning in the exercise."
+                },
+            ),
+        )
 
     private fun exerciseId(
         request: GenerationRequest,
@@ -436,13 +543,19 @@ class PilotEngine {
 
     private companion object {
         val LEGACY_REVISION_PAIR = RevisionPair(PilotContent.CONTENT_REVISION, PilotContent.GENERATOR_REVISION)
+        val PILOT_TWO_REVISION_PAIR =
+            RevisionPair(PilotContent.RETAINED_CONTENT_REVISION, PilotContent.RETAINED_GENERATOR_REVISION)
         val CURRENT_REVISION_PAIR =
             RevisionPair(PilotContent.CURRENT_CONTENT_REVISION, PilotContent.CURRENT_GENERATOR_REVISION)
-        val SUPPORTED_REVISION_PAIRS = listOf(LEGACY_REVISION_PAIR, CURRENT_REVISION_PAIR)
+        val SUPPORTED_REVISION_PAIRS = listOf(LEGACY_REVISION_PAIR, PILOT_TWO_REVISION_PAIR, CURRENT_REVISION_PAIR)
         val LEGACY_FORMAT_IDS = setOf("E001", "E002", "E003")
+        val PILOT_TWO_FORMAT_IDS = LEGACY_FORMAT_IDS + setOf("E004", "E005", "E006")
+        val LEXICAL_FORMAT_IDS = setOf("E007", "E008")
+        val CURRENT_FORMAT_IDS = PILOT_TWO_FORMAT_IDS + LEXICAL_FORMAT_IDS
         val NEW_FORMAT_IDS = setOf("E004", "E005", "E006")
         const val MAX_INDEX = 1_000_000
         const val ORDER_SHUFFLE_XOR = 0x5a5a5a5a
+        const val LEXICAL_CHOICE_SHUFFLE_XOR = 0x13579bdf
         const val GOLDEN_GAMMA = -7046029254386353131L
         const val MIX_MULTIPLIER_ONE = -4658895280553007687L
         const val MIX_MULTIPLIER_TWO = -7723592293110705685L

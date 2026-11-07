@@ -2,7 +2,7 @@ package app.astrid.engine
 
 data class GenerationRequest(
     val formatId: String,
-    val targetSkillId: String,
+    val targetSkillId: String? = null,
     val seed: Int,
     val index: Int,
     val contentRevision: String = "pilot-1",
@@ -32,13 +32,27 @@ data class Skill(
 data class ExerciseFormat(
     val id: String,
     val title: String,
-    val targetSkillId: String,
+    val targetSkillId: String?,
+    val lexicalTask: LexicalTask? = null,
+)
+
+data class LexicalTask(
+    val facet: String,
+    val direction: String,
+)
+
+data class LexicalTarget(
+    val entryId: String,
+    val senseId: String,
+    val facet: String,
+    val direction: String,
 )
 
 class GeneratedExercise internal constructor(
     val id: String,
     val formatId: String,
-    val targetSkillId: String,
+    val targetSkillId: String?,
+    val lexicalTarget: LexicalTarget?,
     val supportSkillIds: List<String>,
     val presentation: ExercisePresentation,
     val contentRevision: String,
@@ -70,6 +84,9 @@ data class ExercisePrompt(
     val punctuation: String = ".",
     val inputLabel: String? = null,
     val replacementWord: String? = null,
+    val cue: String? = null,
+    val cueLanguage: String? = null,
+    val answerLanguage: String? = null,
 )
 
 data class OrderBlock(
@@ -88,11 +105,20 @@ data class Reproduction(
 )
 
 data class ExerciseInspector(
-    val canonicalSentenceId: String,
-    val constructionId: String,
+    val canonicalSentenceId: String? = null,
+    val constructionId: String? = null,
     val lexicalIds: List<String>,
     val clauseRoles: List<String>,
-    val canonicalSentence: String,
+    val canonicalSentence: String? = null,
+    val lexicalSource: LexicalSourceDetails? = null,
+)
+
+data class LexicalSourceDetails(
+    val entryId: String,
+    val senseId: String,
+    val headword: String,
+    val gloss: String,
+    val article: String,
 )
 
 sealed interface Answer {
@@ -109,6 +135,8 @@ data class Evaluation(
     val completedSentence: String?,
     val rawAnswer: Answer,
     val normalizedAnswer: NormalizedAnswer,
+    val linguisticScope: LinguisticScope? = null,
+    val responseConstraintStatus: ResponseConstraintStatus? = null,
 )
 
 data class EvaluationIssue(
@@ -134,10 +162,39 @@ enum class LinguisticStatus(val wireValue: String) {
     UNKNOWN("unknown"),
 }
 
-internal data class ExerciseSource(
+enum class LinguisticScope(val wireValue: String) {
+    ENGLISH_CHOICE("english-choice"),
+    DANISH_HEADWORD("danish-headword"),
+}
+
+enum class ResponseConstraintStatus(val wireValue: String) {
+    MET("met"),
+    NOT_MET("not-met"),
+}
+
+internal sealed interface ExerciseSource {
+    val answerKey: AnswerKey
+    val blockRoles: Map<String, String>
+}
+
+internal data class SentenceSource(
     val sentence: Sentence,
-    val answerKey: AnswerKey,
-    val blockRoles: Map<String, String> = emptyMap(),
+    override val answerKey: AnswerKey,
+    override val blockRoles: Map<String, String> = emptyMap(),
+) : ExerciseSource
+
+internal data class LexicalSource(
+    val sense: LexicalSense,
+    override val answerKey: AnswerKey,
+    override val blockRoles: Map<String, String> = emptyMap(),
+) : ExerciseSource
+
+internal data class LexicalSense(
+    val entryId: String,
+    val senseId: String,
+    val headword: String,
+    val gloss: String,
+    val article: String,
 )
 
 internal data class Sentence(
@@ -167,4 +224,8 @@ internal sealed interface AnswerKey {
     data class Article(val expected: String, val noun: String) : AnswerKey
 
     data class SubjectFirstOrder(val canonicalRoles: List<String>) : AnswerKey
+
+    data class MeaningChoice(val expected: String, val suppliedChoices: Set<String>) : AnswerKey
+
+    data class Headword(val expected: LexicalSense) : AnswerKey
 }

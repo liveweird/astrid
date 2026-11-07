@@ -1,5 +1,7 @@
 package app.astrid.engine
 
+import java.util.Locale
+
 internal object PilotEvaluator {
     fun evaluate(
         exercise: GeneratedExercise,
@@ -9,6 +11,152 @@ internal object PilotEvaluator {
             is AnswerKey.PresentForm -> evaluatePresent(exercise, answer, key)
             is AnswerKey.Article -> evaluateArticle(exercise, answer, key)
             is AnswerKey.SubjectFirstOrder -> evaluateOrder(exercise, answer, key)
+            is AnswerKey.MeaningChoice -> evaluateMeaning(answer, key)
+            is AnswerKey.Headword -> evaluateHeadword(answer, key)
+        }
+
+    private fun evaluateMeaning(
+        answer: Answer,
+        key: AnswerKey.MeaningChoice,
+    ): Evaluation {
+        val text = answer.normalizedTextOrNull()
+            ?: return lexicalTypeMismatch(answer, LinguisticScope.ENGLISH_CHOICE)
+        val folded = text.lowercase(Locale.ROOT)
+        val expected = key.expected.lowercase(Locale.ROOT)
+        val supplied = key.suppliedChoices.associateBy { it.lowercase(Locale.ROOT) }
+        return when {
+            folded == expected -> lexicalResult(
+                TargetStatus.MET,
+                LinguisticStatus.ACCEPTABLE,
+                emptyList(),
+                "Correct. You recognized the introduced English meaning.",
+                answer,
+                text,
+                LinguisticScope.ENGLISH_CHOICE,
+                ResponseConstraintStatus.MET,
+            )
+            folded in supplied -> lexicalResult(
+                TargetStatus.NOT_MET,
+                LinguisticStatus.ACCEPTABLE,
+                listOf(issue("INTRODUCED_MEANING_REQUIRED", "The selected choice is not the introduced meaning of this headword.")),
+                "That is a recognized English choice, but it is not the introduced meaning.",
+                answer,
+                text,
+                LinguisticScope.ENGLISH_CHOICE,
+                ResponseConstraintStatus.MET,
+            )
+            else -> lexicalResult(
+                TargetStatus.NOT_MET,
+                LinguisticStatus.UNKNOWN,
+                listOf(issue("UNRECOGNIZED_MEANING_CHOICE", "The response is not one of the supplied English choices.")),
+                "Choose one of the supplied English meanings.",
+                answer,
+                text,
+                LinguisticScope.ENGLISH_CHOICE,
+                ResponseConstraintStatus.NOT_MET,
+            )
+        }
+    }
+
+    private fun evaluateHeadword(
+        answer: Answer,
+        key: AnswerKey.Headword,
+    ): Evaluation =
+        answer.normalizedTextOrNull()?.let { text ->
+            parseKnownHeadword(text.lowercase(Locale.ROOT))?.let { recognized ->
+                evaluateKnownHeadword(answer, text, key, recognized)
+            } ?: evaluateUnknownHeadword(answer, text)
+        } ?: lexicalTypeMismatch(answer, LinguisticScope.DANISH_HEADWORD)
+
+    private fun parseKnownHeadword(folded: String): RecognizedHeadword? {
+        val knownNouns = PilotContent.nouns.associateBy { it.text.lowercase(Locale.ROOT) }
+        val direct = knownNouns[folded]
+        val parts = folded.split(' ')
+        val article = parts.firstOrNull().takeIf { parts.size == ARTICLE_PHRASE_SIZE && it in setOf("en", "et") }
+        val phrase = article?.let { supplied -> knownNouns[parts[1]]?.let { RecognizedHeadword(it, supplied) } }
+        return direct?.let { RecognizedHeadword(it, null) } ?: phrase
+    }
+
+    private fun evaluateUnknownHeadword(
+        answer: Answer,
+        text: String,
+    ): Evaluation {
+        val constraint =
+            if (text.isNotEmpty() && text.none(Char::isWhitespace)) {
+                ResponseConstraintStatus.MET
+            } else {
+                ResponseConstraintStatus.NOT_MET
+            }
+        val issues = buildList {
+            add(issue("UNRECOGNIZED_HEADWORD", "This is not one of the introduced Danish seed nouns."))
+            if (constraint == ResponseConstraintStatus.NOT_MET) {
+                add(issue("HEADWORD_ONLY_REQUIRED", "The response must be one word without an article."))
+            }
+        }
+        return lexicalResult(
+            TargetStatus.NOT_MET,
+            LinguisticStatus.UNKNOWN,
+            issues,
+            "That does not match the introduced headword. Astrid does not determine whether it could be " +
+                "valid Danish or an alternative translation.",
+            answer,
+            text,
+            LinguisticScope.DANISH_HEADWORD,
+            constraint,
+        )
+    }
+
+    private fun evaluateKnownHeadword(
+        answer: Answer,
+        text: String,
+        key: AnswerKey.Headword,
+        recognized: RecognizedHeadword,
+    ): Evaluation {
+        val noun = recognized.noun
+        val targetMet = noun.id == key.expected.entryId
+        val hasArticle = recognized.article != null
+        val articleMismatch = recognized.article != null && recognized.article != noun.gender.article
+        val issues = knownHeadwordIssues(noun, targetMet, hasArticle, articleMismatch)
+        val feedback = knownHeadwordFeedback(noun, targetMet, hasArticle, articleMismatch)
+        return lexicalResult(
+            if (targetMet) TargetStatus.MET else TargetStatus.NOT_MET,
+            if (articleMismatch) LinguisticStatus.KNOWN_ISSUE else LinguisticStatus.ACCEPTABLE,
+            issues,
+            feedback,
+            answer,
+            text,
+            LinguisticScope.DANISH_HEADWORD,
+            if (hasArticle) ResponseConstraintStatus.NOT_MET else ResponseConstraintStatus.MET,
+        )
+    }
+
+    private fun knownHeadwordIssues(
+        noun: NounEntry,
+        targetMet: Boolean,
+        hasArticle: Boolean,
+        articleMismatch: Boolean,
+    ): List<EvaluationIssue> =
+        buildList {
+            if (!targetMet) add(issue("INTRODUCED_HEADWORD_REQUIRED", "The response uses a different introduced Danish noun."))
+            if (hasArticle) add(issue("HEADWORD_ONLY_REQUIRED", "The response must contain only the headword, without an article."))
+            if (articleMismatch) {
+                add(issue("ARTICLE_GENDER_MISMATCH", "The article does not match the stored gender of ${noun.text}."))
+            }
+        }
+
+    private fun knownHeadwordFeedback(
+        noun: NounEntry,
+        targetMet: Boolean,
+        hasArticle: Boolean,
+        articleMismatch: Boolean,
+    ): String =
+        when {
+            targetMet && hasArticle && articleMismatch ->
+                "You identified the introduced headword. Enter it without the article, and use its stored " +
+                    "article ${noun.gender.article} when learning the noun phrase."
+            targetMet && hasArticle -> "You identified the introduced headword. Enter it without the article."
+            targetMet -> "Correct. You recalled the introduced Danish headword."
+            else -> "That is a recognized Danish headword, but the task asks for a different introduced headword."
         }
 
     private fun evaluatePresent(
@@ -74,7 +222,7 @@ internal object PilotEvaluator {
         exercise: GeneratedExercise,
         replacement: String,
     ): Boolean {
-        val original = exercise.source.sentence
+        val original = (exercise.source as SentenceSource).sentence
         return PilotContent.sentences.any { candidate ->
             candidate.id != original.id &&
                 candidate.constructionId == original.constructionId &&
@@ -208,6 +356,48 @@ internal object PilotEvaluator {
             },
         )
 
+    private fun lexicalTypeMismatch(
+        answer: Answer,
+        scope: LinguisticScope,
+    ): Evaluation {
+        val normalized = when (answer) {
+            is Answer.Text -> NormalizedAnswer.Text(normalizeText(answer.text))
+            is Answer.Order -> NormalizedAnswer.Order(answer.blockIds)
+        }
+        return Evaluation(
+            TargetStatus.UNEVALUABLE,
+            LinguisticStatus.UNKNOWN,
+            listOf(issue("ANSWER_TYPE_MISMATCH", "The answer type does not match the exercise format.")),
+            "The answer could not be evaluated for this exercise.",
+            null,
+            answer,
+            normalized,
+            scope,
+            ResponseConstraintStatus.NOT_MET,
+        )
+    }
+
+    private fun lexicalResult(
+        target: TargetStatus,
+        linguistic: LinguisticStatus,
+        issues: List<EvaluationIssue>,
+        feedback: String,
+        raw: Answer,
+        normalizedText: String,
+        scope: LinguisticScope,
+        constraint: ResponseConstraintStatus,
+    ) = Evaluation(
+        target,
+        linguistic,
+        issues,
+        feedback,
+        null,
+        raw,
+        NormalizedAnswer.Text(normalizedText),
+        scope,
+        constraint,
+    )
+
     private fun result(
         target: TargetStatus,
         linguistic: LinguisticStatus,
@@ -251,4 +441,10 @@ internal object PilotEvaluator {
     private fun issue(code: String, message: String) = EvaluationIssue(code, message)
 
     private const val THREE_PART_ORDER_SIZE = 3
+    private const val ARTICLE_PHRASE_SIZE = 2
+
+    private data class RecognizedHeadword(
+        val noun: NounEntry,
+        val article: String?,
+    )
 }

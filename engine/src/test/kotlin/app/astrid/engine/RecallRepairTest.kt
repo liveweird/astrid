@@ -13,16 +13,21 @@ class RecallRepairTest {
     @Test
     fun `current catalog and revision APIs expose exact supported pairs`() {
         val catalog = engine.catalog()
-        assertEquals(listOf("E001", "E002", "E003", "E004", "E005", "E006"), catalog.formats.map { it.id })
-        assertEquals("pilot-2", catalog.contentRevision)
-        assertEquals("generator-2", catalog.generatorRevision)
+        assertEquals((1..8).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
+        assertEquals("pilot-3", catalog.contentRevision)
+        assertEquals("generator-3", catalog.generatorRevision)
         assertEquals(99, catalog.sentenceCount)
         assertEquals(
-            listOf(RevisionPair("pilot-1", "generator-1"), RevisionPair("pilot-2", "generator-2")),
+            listOf(
+                RevisionPair("pilot-1", "generator-1"),
+                RevisionPair("pilot-2", "generator-2"),
+                RevisionPair("pilot-3", "generator-3"),
+            ),
             engine.supportedRevisionPairs(),
         )
         assertEquals("evaluation-1", engine.evaluationRevision("pilot-1", "generator-1"))
         assertEquals("evaluation-2", engine.evaluationRevision("pilot-2", "generator-2"))
+        assertEquals("evaluation-3", engine.evaluationRevision("pilot-3", "generator-3"))
         assertNull(engine.evaluationRevision("pilot-1", "generator-2"))
         assertNull(engine.evaluationRevision("pilot-2", "generator-1"))
     }
@@ -69,7 +74,7 @@ class RecallRepairTest {
         assertEquals("Replacement verb", repair.prompt.inputLabel)
         assertEquals("læse", repair.prompt.replacementWord)
         assertTrue("læser" !in ordinarySupport(repair))
-        assertOneWordDifference(repair.inspector.canonicalSentence, displayed(repair))
+        assertOneWordDifference(requireNotNull(repair.inspector.canonicalSentence), displayed(repair))
     }
 
     @Test
@@ -80,7 +85,7 @@ class RecallRepairTest {
             assertEquals(if (key.expected == "en") "et" else "en", exercise.prompt.replacementWord)
             assertEquals("Replacement article", exercise.prompt.inputLabel)
             assertTrue("unstressed article" in exercise.instruction)
-            assertOneWordDifference(exercise.inspector.canonicalSentence, displayed(exercise))
+            assertOneWordDifference(requireNotNull(exercise.inspector.canonicalSentence), displayed(exercise))
         }
     }
 
@@ -89,7 +94,7 @@ class RecallRepairTest {
         (0 until 99).forEach { index ->
             val exercise = engine.generate(current("E005", "G004", 29, index))
             val key = assertIs<AnswerKey.PresentForm>(exercise.source.answerKey)
-            assertOneWordDifference(exercise.inspector.canonicalSentence, displayed(exercise))
+            assertOneWordDifference(requireNotNull(exercise.inspector.canonicalSentence), displayed(exercise))
             assertEquals(
                 exercise.inspector.canonicalSentence,
                 engine.evaluate(exercise, Answer.Text(key.present)).completedSentence,

@@ -6,12 +6,16 @@ import java.nio.file.Path
 object PilotReviewExportMain {
     @JvmStatic
     fun main(args: Array<String>) {
-        require(args.size == 1 || (args.size == 2 && args.first() == "--legacy")) {
-            "Expected an output path, optionally preceded by --legacy"
+        require(args.size == 1 || (args.size == 2 && args.first() in setOf("--legacy", "--pilot-two"))) {
+            "Expected an output path, optionally preceded by --legacy or --pilot-two"
         }
-        val legacy = args.first() == "--legacy"
         val output = Path.of(args.last())
         Files.createDirectories(output.parent)
-        Files.writeString(output, if (legacy) PilotReview.renderLegacyMarkdown() else PilotReview.renderMarkdown())
+        val markdown = when (args.first()) {
+            "--legacy" -> PilotReview.renderLegacyMarkdown()
+            "--pilot-two" -> PilotReview.renderPilotTwoMarkdown()
+            else -> PilotReview.renderMarkdown()
+        }
+        Files.writeString(output, markdown)
     }
 }

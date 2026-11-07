@@ -11,6 +11,41 @@ class PilotContentValidatorTest {
     @Test
     fun `published snapshot is valid`() {
         assertEquals(emptyList(), PilotContentValidator.validate(valid))
+        assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotTwoSnapshot))
+        assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.currentSnapshot))
+    }
+
+    @Test
+    fun `vocabulary senses require unique exact identities and existing noun entries`() {
+        val current = PilotContent.currentSnapshot
+        val book = current.vocabularySenses.single { it.entryId == "L014" }
+        assertIssue(current.copy(vocabularySenses = current.vocabularySenses + book), book.senseId, "duplicate vocabulary sense ID")
+        assertIssue(
+            current.copy(vocabularySenses = current.vocabularySenses.filterNot { it == book }),
+            book.senseId,
+            "missing vocabulary sense ID",
+        )
+        assertIssue(
+            current.copy(vocabularySenses = current.vocabularySenses.replace(book, book.copy(entryId = "L999"))),
+            book.senseId,
+            "unknown entry L999",
+        )
+    }
+
+    @Test
+    fun `formats require exactly one matching grammar or lexical target`() {
+        val current = PilotContent.currentSnapshot
+        val recognition = current.formats.single { it.id == "E007" }
+        assertIssue(
+            current.copy(formats = current.formats.replace(recognition, recognition.copy(targetSkillId = "G004"))),
+            recognition.id,
+            "requires exactly one grammar or lexical target",
+        )
+        assertIssue(
+            current.copy(formats = current.formats.replace(recognition, recognition.copy(lexicalTask = LexicalTask("meaning", "en-da")))),
+            recognition.id,
+            "expected lexical task meaning/da-en",
+        )
     }
 
     @Test
