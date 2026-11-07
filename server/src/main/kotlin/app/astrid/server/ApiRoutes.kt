@@ -177,6 +177,7 @@ private fun Route.staticRoutes(config: ServerConfig) {
 private suspend fun ApplicationCall.serveStaticOrSpa(root: File) {
     val path = request.path()
     if (path == "/api" || path.startsWith("/api/")) throw NotFound()
+    response.headers.append(HttpHeaders.CacheControl, "no-cache")
     val canonicalRoot = root.canonicalFile
     val requested = File(canonicalRoot, path.removePrefix("/")).canonicalFile
     val insideRoot = requested.toPath().startsWith(canonicalRoot.toPath())

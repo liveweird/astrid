@@ -53,6 +53,10 @@ internal fun Application.installProblemHandling() {
 internal fun Application.installSecurityHeadersAndGuards(config: ServerConfig) {
     val allowedHosts = config.allowedHosts.map(String::lowercase).toSet()
     intercept(ApplicationCallPipeline.Plugins) {
+        val path = call.request.path()
+        if (path == "/api" || path.startsWith("/api/")) {
+            call.response.headers.append(HttpHeaders.CacheControl, "no-store")
+        }
         call.response.headers.append("X-Content-Type-Options", "nosniff")
         call.response.headers.append("X-Frame-Options", "DENY")
         call.response.headers.append("Referrer-Policy", "no-referrer")

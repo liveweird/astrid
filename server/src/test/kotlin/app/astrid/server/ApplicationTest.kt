@@ -33,6 +33,7 @@ class ApplicationTest {
             setBody("{}")
         }
         assertEquals(HttpStatusCode.NotFound, response.status)
+        assertEquals("no-store", response.headers[HttpHeaders.CacheControl])
     }
 
     @Test
@@ -82,6 +83,19 @@ class ApplicationTest {
     }
 
     @Test
+    fun `catalog responses are never stored`() = testApplication {
+        application { astridModule(testConfig(), InMemoryAstridRepository()) }
+        val cookie = createSession()
+        val response = client.get("/api/v1/catalog") {
+            trustedHost()
+            cookie(SESSION_COOKIE_FOR_TEST, cookie)
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals("no-store", response.headers[HttpHeaders.CacheControl])
+    }
+
+    @Test
     fun `untrusted origin and forwarded headers are rejected`() = testApplication {
         application { astridModule(testConfig(), InMemoryAstridRepository()) }
         val origin = client.get("/api/v1/health") {
@@ -89,6 +103,7 @@ class ApplicationTest {
             header(HttpHeaders.Origin, "https://attacker.example")
         }
         assertEquals(HttpStatusCode.Forbidden, origin.status)
+        assertEquals("no-store", origin.headers[HttpHeaders.CacheControl])
         val forwarded = client.get("/api/v1/health") {
             trustedHost()
             header("X-Forwarded-Host", "attacker.example")
@@ -126,6 +141,7 @@ class ApplicationTest {
             header("X-Astrid-Inspector-Key", "x".repeat(32))
         }
         assertEquals(HttpStatusCode.Forbidden, wrongKey.status)
+        assertEquals("no-store", wrongKey.headers[HttpHeaders.CacheControl])
         val crossSession = client.get("/api/v1/dev/exercises/$exerciseId") {
             trustedHost()
             cookie(SESSION_COOKIE_FOR_TEST, outsider)
@@ -138,6 +154,7 @@ class ApplicationTest {
             header("X-Astrid-Inspector-Key", "k".repeat(32))
         }
         assertEquals(HttpStatusCode.OK, ownerResponse.status)
+        assertEquals("no-store", ownerResponse.headers[HttpHeaders.CacheControl])
         assertTrue("canonicalSentenceId" in ownerResponse.bodyAsText())
     }
 
@@ -195,6 +212,7 @@ class ApplicationTest {
             root.resolve("index.html").writeText(
                 """<!doctype html><link rel="stylesheet" href="/assets/app.css"><main>Astrid shell</main>""",
             )
+            root.resolve("logo.svg").writeText("<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>")
             assets.resolve("app.js").writeText("window.astridLoaded = true;")
             assets.resolve("app.css").writeText("body { color: #8f173b; }")
             testApplication {
@@ -203,15 +221,28 @@ class ApplicationTest {
                 assertEquals(HttpStatusCode.OK, script.status)
                 assertEquals("window.astridLoaded = true;", script.bodyAsText())
                 assertFalse(script.contentType()?.match(ContentType.Text.Html) == true)
+                assertEquals("no-cache", script.headers[HttpHeaders.CacheControl])
                 val style = client.get("/assets/app.css") { trustedHost() }
                 assertEquals(ContentType.Text.CSS, style.contentType()?.withoutParameters())
                 assertEquals("body { color: #8f173b; }", style.bodyAsText())
+                val index = client.get("/") { trustedHost() }
+                assertEquals(ContentType.Text.Html, index.contentType()?.withoutParameters())
+                assertEquals("no-cache", index.headers[HttpHeaders.CacheControl])
                 val navigation = client.get("/lesson/first") { trustedHost() }
                 assertEquals(ContentType.Text.Html, navigation.contentType()?.withoutParameters())
+                assertEquals("no-cache", navigation.headers[HttpHeaders.CacheControl])
                 assertEquals(1, Regex("rel=\"stylesheet\"").findAll(navigation.bodyAsText()).count())
+                assertEquals(
+                    "no-cache",
+                    client.get("/logo.svg") { trustedHost() }.headers[HttpHeaders.CacheControl],
+                )
                 assertEquals(HttpStatusCode.NotFound, client.get("/assets/missing.js") { trustedHost() }.status)
-                assertEquals(HttpStatusCode.NotFound, client.get("/api") { trustedHost() }.status)
-                assertEquals(HttpStatusCode.NotFound, client.get("/api/v1/unknown") { trustedHost() }.status)
+                val apiRoot = client.get("/api") { trustedHost() }
+                assertEquals(HttpStatusCode.NotFound, apiRoot.status)
+                assertEquals("no-store", apiRoot.headers[HttpHeaders.CacheControl])
+                val unknownApi = client.get("/api/v1/unknown") { trustedHost() }
+                assertEquals(HttpStatusCode.NotFound, unknownApi.status)
+                assertEquals("no-store", unknownApi.headers[HttpHeaders.CacheControl])
             }
         } finally {
             root.deleteRecursively()
