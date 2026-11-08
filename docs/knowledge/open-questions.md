@@ -28,6 +28,7 @@ This register tracks open and resolved questions through the delivered private p
 | Q22 | **Working decision for BL-034:** retain exact legacy generation and evaluation alongside the new revision pair; saved attempts retain exact replay. The general retirement policy for later revisions remains open. See the [revision contract](exercise-extension-proposal.md#revision-decision-before-release). | BL-034, BL-007, BL-010 |
 | Q23 | Which [server-outage policy](server-outage-boundary.md), fault model and measured budgets should bound HTTP completion, abandoned leases and shutdown while retaining uncertain-attempt replay? Browser waiting is bounded; server cleanup remains a separate open decision. | BL-032 |
 | Q24 | **Resolved for activation scope:** the user authorized vocabulary meaning recognition and introduced-headword recall for `bog/avis/brev`. The [implemented contract](vocabulary-assessment.md) resolves lexical target identity, response constraints and scoped feedback for these senses; subsequent mixed sessions remain Q04. | BL-036, BL-006, BL-007, BL-009 |
+| Q25 | The user's [exercise inventory](exercise-family-expansion.md#user-exercise-inventory--8-november-2026) lists English-to-Danish sentence tiles with spare tiles twice (items 6 and 8). Was item 8 intended as Danish-to-English with spare tiles? The inventory and proposed priorities do not select a new implementation batch. | BL-006 |
 
 ## Resolved clarifications
 

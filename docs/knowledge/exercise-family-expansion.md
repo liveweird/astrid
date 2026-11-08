@@ -38,3 +38,36 @@ The selected first batch is governed by the [writing/reading implementation cont
 
 
 **Observed first-batch delivery:** Both selected families are available in the ten-entry standalone playground at `0.4.0`; see the [verified delivery](writing-reading-contract.md#observed-delivery--7-november-2026). User review should inform subsequent integration or family choices. This does not select diagnosis, transformations or new content.
+
+## User exercise inventory — 8 November 2026
+
+**User-proposed candidates, not an implementation selection:** the user supplied the following list and requested an implementation comparison and recommendations. Numbers preserve the user's ordering. “Pills” means selectable word or phrase tiles. Item 8 repeats item 6; whether it instead means Danish-to-English translation with spare tiles is open (Q25).
+
+| No. | Proposed exercise | Current coverage |
+| --- | --- | --- |
+| 1 | English word → Danish, four choices | Not implemented. E007 runs in the other direction. |
+| 2 | English word → typed Danish word | E008, introduced singular headword recall for `bog`, `avis`, `brev`. |
+| 3 | Danish word → English, four choices | E007 implements the operation with **three**, not four, English choices. |
+| 4 | English sentence → typed Danish sentence | E009, bounded introduced meanings and subject-first statements; not unrestricted translation. |
+| 5 | English sentence → Danish, all tiles used | Not implemented as translation. E003 supplies Danish constituent blocks without a full English sentence cue. |
+| 6 | English sentence → Danish, spare tiles | Not implemented. |
+| 7 | Danish sentence → English, all tiles used | Not implemented. |
+| 8 | English sentence → Danish, spare tiles | Duplicates item 6 as written; clarification pending. |
+| 9 | One Danish sentence gap, choose the word | E001, finite present versus infinitive of the same verb; two choices. Other word classes are not implemented as choice gaps. |
+| 10 | Several Danish sentence gaps, choose words | Not implemented. |
+| 11 | English–Danish word matching grid, either orientation | Not implemented. |
+| 12 | Produce a question for an answer, typed or tiles | Not implemented; requires question grammar and a constrained intended question. |
+| 13 | Reorder a scrambled Danish sentence | E003, all supplied blocks used; article+noun stay together, and the task requests subject-first order. |
+| 14 | Match sentence beginnings and continuations | Not implemented. |
+| 15 | Supply a verb in the correct tense | E001/E004/E005 cover present-form selection, supply and guided repair; other tenses and tense choice are not activated. |
+| 16 | Assign the correct article | E002/E006, supply or repair unstressed singular `en`/`et`; broader article/definiteness work is not activated. |
+
+E005/E006 guided repair and E010 short-text comprehension are additional delivered operations. E009/E010 remain standalone; existing guided practice and reviews remain pinned to revision three.
+
+### Revised recommendation — assistant proposal
+
+For discussion, refine the earlier proposed post-delivery sequence: first add **English-to-Danish word choice (1)** and **English-to-Danish sentence tiles, all required then with distractors (5/6)**; next add **word matching (11)** and **multiple gaps (10)**. Reverse sentence translation (7, and possibly 8) is a subsequent extension. Error diagnosis before repair remains an additional candidate. These priorities are proposals; no new family is authorized by this comparison, and BL-006 retains its existing status.
+
+Keep direction, response interaction, grammar/vocabulary target and difficulty separate when specifying a family. Four choices need four reviewed, distinct senses with plausible alternatives: the current lexical assessment pool has only three, so do not invent an unrelated fourth distractor. A matching grid may initially use those three pairs; four pairs require another reviewed sense.
+
+For tile tasks, distinguish individual words from existing constituent blocks, preserve repeated-word identity, accept licensed equivalent orders and avoid capitalization/punctuation revealing the order. Spare tiles should probe the selected target rather than add arbitrary noise. Multiple gaps need explicit target and feedback per slot. Matching halves (14) needs enough context for fair logical matches; accept all licensed combinations or construct an unambiguous set. Questions (12) need an intended question type or highlighted answer information because one answer can satisfy many questions. New tenses (15), questions (12), and richer continuation structures require reviewed content/grammar activation, beyond adding a widget.
