@@ -35,13 +35,15 @@ violations.
 2. They check the document.
    - *Expected*: `<html data-mantine-color-scheme="dark">` — the emulated preference was honoured.
 
-## Scenario: open format lists remain accessible with enlarged text
+## Scenario: open ${title} format list remains accessible with enlarged text
+
+The test is instantiated once for each of the thirteen playground format titles. Every instance uses a fresh
+browser context and performs the complete list, keyboard, scroll and accessibility checks for its `title`.
 
 1. At a 320px-wide viewport with root text enlarged to 200% (computed font size 32px), the learner
    opens the playground and the generation controls.
    - *Expected*: the page renders; the root font size is exactly 32px.
-2. For each of the thirteen playground formats they select it (if it is not already current), then open the
-   Exercise type listbox.
+2. They select the instance's format (if it is not already current), then open the Exercise type listbox.
    - *Expected*: the list is visible, the combobox is `aria-expanded`, the current format is the
      selected option and the active descendant; every option's left and right edge stays inside
      0–320px.

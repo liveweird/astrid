@@ -126,3 +126,5 @@ observed results will be recorded below after execution. Private logs and artifa
 under `.local/word-choice-tiles/`.
 
 The first complete native browser run exposed sixteen strict-locator failures in existing accessibility/layout sweeps: the E001 title is a prefix of E013. Exact accessible-title matching corrects the tests without changing app behavior. The shared format inventory now includes all thirteen entries, extending short-window and enlarged-list navigation coverage to the additions. This test-only correction keeps app 0.5.0 and learning pair five unchanged; a fresh clean-commit candidate and full matrix are required before publication.
+
+Corrected-title CI at `197374b` passed 225 journeys and hit the 30-second cumulative test budget in WebKit’s single enlarged-list sweep. Split that sweep into thirteen independently bounded format cases, preserving every viewport, selected/active identity, option bounds, full keyboard cycle, scroll, Axe and Escape assertion. The default timeout remains unchanged; the complete matrix becomes 250 journeys. No app or learning behavior changes. Publication remains gated on the corrected exact-master matrix.

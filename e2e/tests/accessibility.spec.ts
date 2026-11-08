@@ -98,15 +98,15 @@ test("pilot formats, feedback and recovery states have no WCAG A/AA violations i
   await expect(page.locator("html")).toHaveAttribute("data-mantine-color-scheme", "dark");
 });
 
-test("open format lists remain accessible with enlarged text", async ({ page }) => {
-  await page.setViewportSize({ width: 320, height: 900 });
-  await openPlayground(page);
-  await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-  expect(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize)).toBe("32px");
-  const selector = page.getByRole("combobox", { name: "Exercise type" });
-  await openGenerationControls(page);
+for (const title of PILOT_FORMAT_TITLES) {
+  test(`open ${title} format list remains accessible with enlarged text`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 900 });
+    await openPlayground(page);
+    await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize)).toBe("32px");
+    const selector = page.getByRole("combobox", { name: "Exercise type" });
+    await openGenerationControls(page);
 
-  for (const title of PILOT_FORMAT_TITLES) {
     if ((await selector.inputValue()) !== title) await chooseFormat(page, title);
     await selector.click();
     const list = page.getByRole("listbox", { name: "Exercise type" });
@@ -132,8 +132,8 @@ test("open format lists remain accessible with enlarged text", async ({ page }) 
     await scan(page);
     await page.keyboard.press("Escape");
     await expect(list).toBeHidden();
-  }
-});
+  });
+}
 
 for (const theme of ["light", "dark"] as const) {
   test(`vocabulary prompts and constrained feedback have no WCAG A/AA violations in ${theme} mode`, async ({ page }) => {
