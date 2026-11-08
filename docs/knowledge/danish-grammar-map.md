@@ -8,6 +8,8 @@ The grammatical claims below were checked against the sources listed at the end 
 
 A [source-backed follow-up review](foundation-source-review.md) on 7 November corrected later draft scope, case, notation and support-skill gaps. Source-backed linguistic statements and proposed curriculum dependencies remain distinct; the active beginner slice is unchanged.
 
+**8 November 2026 — Proposed course organization:** the user's [seven-module blueprint](grammar-course-blueprint.md) groups the material into 28 topic units with multiple short sessions each. Its crosswalk preserves the G identifiers here; reconciling its earlier V2/questions/negation with this draft's prerequisites remains explicit work. The eight phases below remain the earlier inventory organization, not a competing implemented course or a verified CEFR sequence.
+
 ## How to read a skill record
 
 Each stable `G` identifier names one assessable target. Identifiers must not be reused if a target is later retired. A complete content record derived from this map should contain:

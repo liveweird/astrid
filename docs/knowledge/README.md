@@ -15,6 +15,8 @@ This is the repository record of the Danish learning app's requirements, design 
 - [Visual identity](visual-identity.md): shared sibling UI style/layout, preferred red accent, and Denmark/Astrid logo brief.
 - [First engine milestone](first-engine-milestone.md): readiness recommendation, proposed design pass, engine playground, and completion criteria.
 - [Danish grammar map](danish-grammar-map.md): 58 draft skills in eight proposed phases with prerequisite links.
+- [Seven-module grammar course blueprint](grammar-course-blueprint.md): the user's 28 topic units, each with multiple short sessions, mapped to existing skills with source checks and reconciliation proposals.
+- [Seven-module vocabulary course blueprint](vocabulary-course-blueprint.md): the user's 35 synchronized thematic units, four design principles, proposed lesson mix and evidence/authoring qualifications.
 - [Danish sentence catalogue](danish-sentence-catalogue.md): 30 phrase/clause constructions and generation constraints.
 - [Danish vocabulary seed](danish-vocabulary-seed.md): 23 selected pilot entries, grammatical forms, senses, and combination allowlists.
 - [Beginner slice specification](beginner-slice-spec.md): connected targets, three exercise formats, grading examples, variation rules, and content/API responsibilities.

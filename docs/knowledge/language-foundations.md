@@ -10,6 +10,8 @@ The first design pass has produced a [58-skill grammar map](danish-grammar-map.m
 
 ## Proposed grammar curriculum
 
+**8 November 2026 — User-supplied direction:** the [seven-module course blueprint](grammar-course-blueprint.md) records 28 grammar topic units, each with multiple short practice sessions as explicitly confirmed by the user. It brings V2/fronting, questions and negation into Module 1, groups the nominal system before adjective paradigms, separates possessive reference, and introduces a simplified sentence-field model early. Its A1–B2 labels remain provisional; existing G/C/L identifiers and the active pilot are unchanged. The seven modules are a proposed course view over the detailed inventory; dependencies, coverage gaps and teaching validation remain BL-045/BL-022 work.
+
 Create a broad topic inventory and divide it into small, assessable skills. Connect prerequisites explicitly, then derive a provisional learning sequence. Revisit earlier skills as they become part of more complex constructions.
 
 For each skill, record:
@@ -33,6 +35,8 @@ For each construction, record its components and their roles, ordering and form 
 Maintain coverage status for each construction: identified, described, reviewed, and eventually supported by the engine. Map advanced variants early while implementing a smaller range first. The exact boundary of “all variants,” including register and exceptional constructions, remains open.
 
 ## Proposed teaching vocabulary
+
+**8 November 2026 — User-supplied direction:** the [vocabulary course blueprint](vocabulary-course-blueprint.md) records 35 situational/functional units aligned with the seven grammar modules, article-bearing noun teaching, verb/multiword bundles, compounds/collocations and a proposed 40% noun / 25% verb / 20% modifier / 15% chunk mix (15–20 teaching items). These are course-authoring preferences and candidate content; the interference evidence, non-count nouns, item-budget granularity and assessment response policy require the qualifications recorded there. No new dataset or runtime content is activated.
 
 Choose vocabulary using frequency, everyday usefulness, grammatical coverage, and compatibility with the selected constructions. Include function words and multiword expressions as needed, alongside nouns, verbs, adjectives, and other content words.
 

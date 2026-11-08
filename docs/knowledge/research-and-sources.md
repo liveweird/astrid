@@ -27,6 +27,8 @@ For the first [23-entry vocabulary seed](danish-vocabulary-seed.md), Den Danske 
 - [Council of Europe CEFR Companion Volume](https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-companion-volume-and-its-language-versions): reading and written-production descriptors can help define outcomes. CEFR alignment and a target level have not been decided.
 - [Carpenter, Pan, and Butler, 2022](https://www.nature.com/articles/s44159-022-00089-1): research review of spacing and retrieval practice. It supports considering these strategies, not a particular scheduling algorithm or proof that this app's design will work.
 
+**8 November 2026 — Vocabulary organization:** the [vocabulary blueprint](vocabulary-course-blueprint.md#evidence-and-authoring-recommendations) distinguishes the user's situational-theme preference from empirical claims. [Tinkham, 1997](https://journals.sagepub.com/doi/10.1191/026765897672376469) reports different effects for semantic and thematic grouping. [Nakata & Suzuki, 2019](https://yuichisuzuki.net/wp-content/uploads/2023/04/Nakata-Suzuki-2019-SSLA.pdf) found more related-item interference errors without a significant posttest score difference, and did not confirm a special spacing benefit for related items. These findings support cautious task design, not a universal optimal grouping or the proposed percentage mix.
+
 ## Research still needed
 
 - Extend and validate the first broad grammar/construction inventory, including its documented coverage gaps.

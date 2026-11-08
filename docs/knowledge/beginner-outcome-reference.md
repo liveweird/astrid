@@ -4,6 +4,8 @@
 
 **7 November 2026 — Research note and assistant proposal.** The user selected complete beginners and general everyday Danish. No CEFR level, examination pathway or Danish public-education track has been selected. This note informs Q02 and BL-008; it changes no curriculum IDs, runtime content or pass thresholds.
 
+**Update, 8 November 2026:** the user supplied a [grammar course blueprint](grammar-course-blueprint.md) with proposed A1–B2 progression labels and confirmed its 28 lessons are topic units with multiple short sessions. This establishes an intended course direction; specific reading/writing outcomes, CEFR mapping and proficiency claims still need validation. It supersedes the implication above that no level direction has been proposed, without selecting an examination pathway or all-skills proficiency promise.
+
 The grammar map describes linguistic coverage. It does not, by itself, specify what a learner can accomplish through reading and writing. Keep those views connected when planning beyond the engine pilot.
 
 ## Primary reference points
@@ -42,4 +44,4 @@ Start with one agreed outcome and reviewed cases after playground feedback. Dani
 
 ## Open decisions
 
-Q02 remains open: choose whether CEFR activity descriptors should inform course outcomes, then define which reading/writing activities and evidence Astrid will cover. Listening/speaking stay postponed. Do not infer an all-skills proficiency claim from a future written-only profile, or public-examination readiness without separately appropriate evidence.
+Q02 remains open: map the user's proposed A1–B2 course direction to explicit reading/writing activities and validation evidence. Listening/speaking stay postponed. Do not infer an all-skills proficiency claim from a future written-only profile, or public-examination readiness without separately appropriate evidence.
