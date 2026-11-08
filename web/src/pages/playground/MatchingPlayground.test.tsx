@@ -99,7 +99,7 @@ describe("matching playground", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Try again" }));
     await waitFor(() => expect(screen.getByRole("group", { name: "Match English and Danish words" })).toHaveFocus());
-    expect(screen.getByRole("group", { name: "Chosen matches" })).toHaveTextContent("book→en avis");
+    expect(screen.getByRole("group", { name: "Chosen match for book" })).toHaveTextContent("en avis");
     expect(screen.getByRole("button", { name: "Remove match for book" })).toBeEnabled();
   });
 });

@@ -144,3 +144,16 @@ repository gate and 14 focused Chromium/WebKit journeys pass, including a red/gr
 the selection reset. Backend coverage measures engine 98.07% lines / 84.30% branches (branch floor
 raised to 84) and server 97.95% / 79.97%; frontend floors remain unchanged. Final packaged, exact-master CI and promotion
 evidence will be recorded below after completion.
+
+
+**Pre-release visual correction:** exact-image review found per-pair text clipped inside feedback
+cards at 320px/200% in both themes despite passing Axe, document overflow and badge checks.
+Give feedback bodies a shrinkable width and wrapping; stack icons and chosen pairs at narrow
+container widths. The browser checks each rendered text range against its own card, covering
+local overflow as well as whole-page reflow. This corrects the unreleased 0.6.0 candidate before
+tagging/promotion; the release source and final evidence must include the fix.
+
+The complete browser matrix also exposed a narrow changelog overflow from `independently` in
+the new release notes (338px document width at a 320px viewport/200% text). Keep the authored
+notes intact and allow the shared Markdown renderer to wrap long words. Existing changelog
+reflow cases cover both engines/themes; the final full matrix must pass this correction too.

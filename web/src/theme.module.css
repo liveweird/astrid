@@ -23,6 +23,11 @@
   letter-spacing: -0.02em;
 }
 
+.markdown {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .versionStamp {
   display: inline-block;
   max-width: 100%;
@@ -72,6 +77,24 @@
 .matchingPair > * {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.matchingArrowNarrow {
+  display: none;
+}
+
+.matchingFeedbackRow,
+.matchingFeedbackBody {
+  min-width: 0;
+}
+
+.matchingFeedbackBody {
+  overflow-wrap: anywhere;
+}
+
+.matchingFeedbackBody > * {
+  max-width: 100%;
+  min-width: 0;
 }
 
 
@@ -152,6 +175,33 @@
 }
 
 @container playground (max-width: 20rem) {
+  .matchingPair {
+    align-items: start;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .matchingPair > :global(.mantine-Button-root) {
+    grid-column: auto;
+    justify-self: start;
+  }
+
+  .matchingArrowWide {
+    display: none;
+  }
+
+  .matchingArrowNarrow {
+    display: inline;
+  }
+
+  .matchingFeedbackRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .matchingFeedbackBody {
+    width: 100%;
+  }
+
   .feedbackAlert :global(.mantine-Alert-wrapper) {
     align-items: stretch;
     flex-direction: column;

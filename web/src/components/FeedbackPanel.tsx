@@ -77,11 +77,11 @@ function MatchingFeedback({ results, columns }: { results: MatchingPairResult[];
         const correct = result.targetSatisfaction === "met" && result.meaningSatisfaction === "met";
         return (
           <Paper key={result.leftId} withBorder p="sm" role="group" aria-label={`Match for ${left}`}>
-            <Group align="flex-start" wrap="nowrap">
+            <Group className={classes.matchingFeedbackRow} align="flex-start" wrap="nowrap">
               <ThemeIcon color={correct ? "teal" : "orange"} variant="light" aria-hidden="true">
                 {correct ? <IconCircleCheck size={18} /> : <IconAlertTriangle size={18} />}
               </ThemeIcon>
-              <Stack gap={2}>
+              <Stack className={classes.matchingFeedbackBody} gap={2}>
                 <Text fw={650}><span lang="en">{left}</span>{right ? <> → <span lang="da">{right}</span></> : " — no match selected"}</Text>
                 <Text size="sm">{result.feedback}</Text>
               </Stack>

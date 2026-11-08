@@ -67,9 +67,12 @@ export default function MatchingPrompt({ columns, pairs, disabled, focusRef, onP
           {pairs.map((pair) => {
             const left = itemText(columns.left, pair.leftId);
             return (
-              <Paper key={pair.leftId} withBorder p="xs" className={classes.matchingPair}>
+              <Paper key={pair.leftId} withBorder p="xs" className={classes.matchingPair} role="group" aria-label={`Chosen match for ${left}`}>
                 <Text lang="en">{left}</Text>
-                <Text aria-hidden="true">→</Text>
+                <Text aria-hidden="true">
+                  <span className={classes.matchingArrowWide}>→</span>
+                  <span className={classes.matchingArrowNarrow}>↓</span>
+                </Text>
                 <Text lang="da">{itemText(columns.right, pair.rightId)}</Text>
                 <Button
                   type="button"

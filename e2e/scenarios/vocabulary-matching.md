@@ -48,5 +48,7 @@ Runs in light and dark at 320×844 with 200% text.
 
 1. Scan the empty board, one-correct-pair feedback, partial mixed feedback and complete success.
    - *Expected*: no horizontal overflow or Axe WCAG A/AA violations; badges remain unclipped.
+     Text-range bounds for each chosen pair and feedback card stay within that card, catching
+     local clipping that document overflow cannot detect.
 2. Use retry to edit earlier pairs before completing the board.
    - *Expected*: all controls remain usable with enlarged text.

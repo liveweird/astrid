@@ -74,10 +74,34 @@ async function check(page: Page) {
   return result;
 }
 
+async function expectMatchingTextUnclipped(page: Page) {
+  const clipped = await page.getByRole("group", { name: /^(Match|Chosen match) for / }).evaluateAll((groups) => groups.flatMap((group) => {
+    const bounds = group.getBoundingClientRect();
+    const walker = document.createTreeWalker(group, NodeFilter.SHOW_TEXT);
+    const failures: { group: string | null; text: string; left: number; right: number }[] = [];
+    let node = walker.nextNode();
+    while (node) {
+      if (node.textContent?.trim()) {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        for (const rect of range.getClientRects()) {
+          if (rect.width > 0 && (rect.left < bounds.left - 1 || rect.right > bounds.right + 1)) {
+            failures.push({ group: group.getAttribute("aria-label"), text: node.textContent, left: rect.left - bounds.left, right: rect.right - bounds.right });
+          }
+        }
+      }
+      node = walker.nextNode();
+    }
+    return failures;
+  }));
+  expect(clipped, "Every matching label and feedback line stays inside its own card").toEqual([]);
+}
+
 async function scan(page: Page) {
   const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
   expect(result.violations.map(({ id, nodes }) => ({ id, targets: nodes.map((node) => node.target) }))).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  await expectMatchingTextUnclipped(page);
 }
 
 test("matching supplies four bilingual article bundles and supports keyboard pairing removal and grading", async ({ page }) => {

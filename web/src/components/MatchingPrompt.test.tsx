@@ -1,5 +1,5 @@
 import { MantineProvider } from "@mantine/core";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import type { Exercise, MatchingColumns, MatchingPair } from "../api/models";
@@ -30,7 +30,7 @@ describe("MatchingPrompt", () => {
     await userEvent.keyboard("{Enter}");
 
     const chosen = screen.getByRole("group", { name: "Chosen matches" });
-    expect(chosen).toHaveTextContent("book→en bog");
+    expect(within(chosen).getByRole("group", { name: "Chosen match for book" })).toHaveTextContent("en bog");
     expect(screen.getByText("book", { selector: "p" })).toHaveAttribute("lang", "en");
     expect(screen.getByText("en bog", { selector: "p" })).toHaveAttribute("lang", "da");
     expect(book).toBeDisabled();
