@@ -90,6 +90,10 @@ internal object PilotReviewMetadata {
                 "L019" to ("house" to "Building and ownable count noun."),
                 "L020" to ("table" to "Furniture count noun; ship-plank sense excluded."),
                 "L021" to ("apple fruit" to "Food count noun; tree and metaphorical senses excluded."),
+                "L024" to (
+                    "printed magazine" to
+                        "Printed periodical count noun for E011 only; store, depot, broadcast and weapon-container senses excluded."
+                ),
             )
         return nouns.map { noun ->
             val detail = details.getValue(noun.id)
@@ -160,5 +164,6 @@ internal object PilotReviewMetadata {
             "L019" to "https://ordnet.dk/ddo/ordbog/hus",
             "L020" to "https://ordnet.dk/ddo/ordbog/bord",
             "L021" to "https://ordnet.dk/ddo/ordbog/%C3%A6ble",
+            "L024" to "https://ordnet.dk/ddo/ordbog/magasin",
         )
 }

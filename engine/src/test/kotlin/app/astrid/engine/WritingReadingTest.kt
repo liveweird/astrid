@@ -14,9 +14,9 @@ class WritingReadingTest {
     fun `revision four catalog appends writing and reading without changing request defaults`() {
         val catalog = engine.catalog()
 
-        assertEquals("pilot-4", catalog.contentRevision)
-        assertEquals("generator-4", catalog.generatorRevision)
-        assertEquals((1..10).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
+        assertEquals("pilot-5", catalog.contentRevision)
+        assertEquals("generator-5", catalog.generatorRevision)
+        assertEquals((1..13).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
         assertEquals("Write a Danish sentence", catalog.formats.single { it.id == "E009" }.title)
         assertEquals("Read a short text", catalog.formats.single { it.id == "E010" }.title)
         assertEquals(
@@ -26,7 +26,7 @@ class WritingReadingTest {
         assertEquals("pilot-1", GenerationRequest("E001", "G004", 0, 0).contentRevision)
         assertEquals("generator-1", GenerationRequest("E001", "G004", 0, 0).generatorRevision)
         assertEquals("evaluation-4", engine.evaluationRevision("pilot-4", "generator-4"))
-        assertEquals(4, engine.supportedRevisionPairs().size)
+        assertEquals(5, engine.supportedRevisionPairs().size)
     }
 
     @Test
@@ -210,15 +210,17 @@ class WritingReadingTest {
     @Test
     fun `pilot four review includes every reading passage while retained review stays pilot three`() {
         val retained = PilotReview.renderPilotThreeMarkdown()
+        val retainedFour = PilotReview.renderPilotFourMarkdown()
         val current = PilotReview.renderMarkdown()
 
         assertTrue("Content revision: `pilot-3`" in retained)
         assertFalse("Short-reading teaching units" in retained)
-        assertTrue("Content revision: `pilot-4`" in current)
-        assertTrue("Generator revision: `generator-4`" in current)
-        val writingReview = current.substringAfter("## Sentence-writing teaching units")
+        assertTrue("Content revision: `pilot-4`" in retainedFour)
+        assertTrue("Generator revision: `generator-4`" in retainedFour)
+        assertTrue("Content revision: `pilot-5`" in current)
+        val writingReview = retainedFour.substringAfter("## Sentence-writing teaching units")
             .substringBefore("## Short-reading teaching units")
-        val readingReview = current.substringAfter("## Short-reading teaching units")
+        val readingReview = retainedFour.substringAfter("## Short-reading teaching units")
         assertEquals(99, numberedRows(writingReview))
         assertEquals(24, numberedRows(readingReview))
         assertTrue("English cue | Optional language reference | Hint" in writingReview)

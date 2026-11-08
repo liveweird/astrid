@@ -12,6 +12,8 @@ class PilotContentValidatorTest {
     fun `published snapshot is valid`() {
         assertEquals(emptyList(), PilotContentValidator.validate(valid))
         assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotTwoSnapshot))
+        assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotThreeSnapshot))
+        assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotFourSnapshot))
         assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.currentSnapshot))
     }
 

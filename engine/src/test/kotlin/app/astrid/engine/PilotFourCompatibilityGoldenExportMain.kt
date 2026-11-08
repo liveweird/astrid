@@ -247,6 +247,7 @@ internal object PilotFourCompatibilityGolden {
             is AnswerKey.SubjectFirstOrder -> Answer.Order(orderForRoles(exercise, key.canonicalRoles))
             is AnswerKey.MeaningChoice -> Answer.Text(key.expected)
             is AnswerKey.Headword -> Answer.Text(key.expected.headword)
+            else -> error("Pair-five key is unreachable in the frozen pilot-four exporter")
         }
     }
 
@@ -297,6 +298,7 @@ internal object PilotFourCompatibilityGolden {
                     Answer.Text("a\u030Avis"), Answer.Order(emptyList()),
                 )
             }
+            else -> error("Pair-five key is unreachable in the frozen pilot-four exporter")
         }
 
     private fun writingEvaluationCases(): List<WritingCase> {

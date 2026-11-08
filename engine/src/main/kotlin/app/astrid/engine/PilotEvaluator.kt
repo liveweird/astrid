@@ -7,6 +7,15 @@ internal object PilotEvaluator {
         exercise: GeneratedExercise,
         answer: Answer,
     ): Evaluation = when (exercise.formatId) {
+        "E011" -> TileExerciseEvaluator.evaluateChoice(
+            answer,
+            exercise.source.answerKey as AnswerKey.SuppliedChoice,
+        )
+        "E012", "E013" -> TileExerciseEvaluator.evaluateTiles(
+            exercise,
+            answer,
+            exercise.source.answerKey as AnswerKey.TileOrder,
+        )
         "E009" -> WritingReadingEvaluator.evaluateWriting(
             answer,
             (exercise.source as SentenceSource).sentence,
@@ -25,6 +34,7 @@ internal object PilotEvaluator {
             is AnswerKey.SubjectFirstOrder -> evaluateOrder(exercise, answer, key)
             is AnswerKey.MeaningChoice -> evaluateMeaning(answer, key)
             is AnswerKey.Headword -> evaluateHeadword(answer, key)
+            is AnswerKey.SuppliedChoice, is AnswerKey.TileOrder -> error("New answer key reached retained evaluator")
         }
 
     private fun evaluateMeaning(

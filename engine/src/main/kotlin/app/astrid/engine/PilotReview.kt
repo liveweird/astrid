@@ -3,7 +3,7 @@ package app.astrid.engine
 object PilotReview {
     fun renderMarkdown(): String = renderSnapshot(PilotContent.currentSnapshot)
 
-    fun renderPilotFourMarkdown(): String = renderMarkdown()
+    fun renderPilotFourMarkdown(): String = renderSnapshot(PilotContent.pilotFourSnapshot)
 
     fun renderPilotThreeMarkdown(): String = renderSnapshot(PilotContent.pilotThreeSnapshot)
 
@@ -18,19 +18,44 @@ object PilotReview {
             appendLine("- Content revision: `${snapshot.contentRevision}`")
             appendLine("- Generator revision: `${snapshot.generatorRevision}`")
             appendLine("- Review state: `${PilotReviewMetadata.REVIEW_STATE}`")
-            appendLine("- Provenance: ${PilotReviewMetadata.PROVENANCE}")
-            appendLine("- Source review: ${PilotReviewMetadata.SOURCE_REVIEW_DATE}")
+            appendLine("- Provenance: ${reviewProvenance(snapshot)}")
+            appendLine("- Source review: ${sourceReview(snapshot)}")
             appendLine("- Inventory: ${snapshot.lexicalReview.size} lexical records; ${snapshot.sentences.size} sentences")
             appendLine()
             appendLexicalInventory(snapshot.lexicalReview)
             appendSentenceInventory(snapshot.sentences)
             appendExamples(snapshot)
+            if (snapshot.contentRevision in setOf(
+                    PilotContent.RETAINED_FOUR_CONTENT_REVISION,
+                    PilotContent.CURRENT_CONTENT_REVISION,
+                )
+            ) {
+                appendWritingInventory(snapshot)
+                appendReadingInventory(snapshot)
+            }
             if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
-                appendWritingInventory()
-                appendReadingInventory()
+                appendWordChoiceInventory(snapshot)
+                appendTileInventory(snapshot, "E012", "All-word sentence tiles")
+                appendTileInventory(snapshot, "E013", "Finite-form sentence tiles")
             }
         }
     }
+
+    private fun reviewProvenance(snapshot: PilotContentSnapshot): String =
+        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
+                "docs/knowledge/module-one-language-pack.md (L024 authoring packet, 2026-11-08)"
+        } else {
+            PilotReviewMetadata.PROVENANCE
+        }
+
+    private fun sourceReview(snapshot: PilotContentSnapshot): String =
+        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            "2026-11-07 retained seed; 2026-11-08 pair-five extension; see " +
+                "docs/knowledge/pilot-source-review.md and docs/knowledge/module-one-language-pack.md"
+        } else {
+            PilotReviewMetadata.SOURCE_REVIEW_DATE
+        }
 
     private fun StringBuilder.appendLexicalInventory(records: List<LexicalReviewRecord>) {
         appendLine("## Lexical inventory")
@@ -129,7 +154,7 @@ object PilotReview {
         }
     }
 
-    private fun StringBuilder.appendReadingInventory() {
+    private fun StringBuilder.appendReadingInventory(snapshot: PilotContentSnapshot) {
         val engine = PilotEngine()
         appendLine()
         appendLine("## Short-reading teaching units")
@@ -145,8 +170,8 @@ object PilotReview {
                     null,
                     0,
                     index,
-                    PilotContent.CURRENT_CONTENT_REVISION,
-                    PilotContent.CURRENT_GENERATOR_REVISION,
+                    snapshot.contentRevision,
+                    snapshot.generatorRevision,
                 ),
             )
             appendLine(
@@ -161,7 +186,7 @@ object PilotReview {
         }
     }
 
-    private fun StringBuilder.appendWritingInventory() {
+    private fun StringBuilder.appendWritingInventory(snapshot: PilotContentSnapshot) {
         val engine = PilotEngine()
         appendLine()
         appendLine("## Sentence-writing teaching units")
@@ -177,8 +202,8 @@ object PilotReview {
                     "G005",
                     0,
                     index,
-                    PilotContent.CURRENT_CONTENT_REVISION,
-                    PilotContent.CURRENT_GENERATOR_REVISION,
+                    snapshot.contentRevision,
+                    snapshot.generatorRevision,
                 ),
             )
             val reference = exercise.introduction.joinToString("; ") { section ->
@@ -196,6 +221,61 @@ object PilotReview {
         }
     }
 
+    private fun StringBuilder.appendWordChoiceInventory(snapshot: PilotContentSnapshot) {
+        val engine = PilotEngine()
+        appendLine()
+        appendLine("## Danish word-choice teaching units")
+        appendLine()
+        appendLine("| Unit | English cue | Choices in display order | Answer |")
+        appendLine("| ---: | --- | --- | --- |")
+        for (index in 0 until WORD_CHOICE_UNIT_COUNT) {
+            val exercise = engine.generate(
+                GenerationRequest("E011", null, REVIEW_SEED, index, snapshot.contentRevision, snapshot.generatorRevision),
+            )
+            val key = exercise.source.answerKey as AnswerKey.SuppliedChoice
+            appendLine(
+                listOf(
+                    (index + 1).toString(),
+                    requireNotNull(exercise.prompt.cue),
+                    exercise.prompt.choices.joinToString("; "),
+                    key.expected,
+                ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+            )
+        }
+    }
+
+    private fun StringBuilder.appendTileInventory(
+        snapshot: PilotContentSnapshot,
+        formatId: String,
+        heading: String,
+    ) {
+        val engine = PilotEngine()
+        val target = snapshot.formats.single { it.id == formatId }.targetSkillId
+        appendLine()
+        appendLine("## $heading")
+        appendLine()
+        appendLine("| Unit | English cue | Tiles in display order | Licensed orders | Distractors |")
+        appendLine("| ---: | --- | --- | --- | --- |")
+        for (index in 0 until TILE_UNIT_COUNT) {
+            val exercise = engine.generate(
+                GenerationRequest(formatId, target, REVIEW_SEED, index, snapshot.contentRevision, snapshot.generatorRevision),
+            )
+            val source = requireNotNull(exercise.inspector.tileSource)
+            val textById = exercise.prompt.blocks.associate { it.id to it.text }
+            appendLine(
+                listOf(
+                    (index + 1).toString(),
+                    requireNotNull(exercise.prompt.cue),
+                    exercise.prompt.blocks.joinToString("; ") { "${it.id}:${it.text}" },
+                    source.licensedOrders.joinToString("; ") { order ->
+                        "${order.kind}=" + order.blockIds.joinToString(" ") { textById.getValue(it) }
+                    },
+                    source.distractors.joinToString("; ") { "${it.blockId}:${it.rationale}" },
+                ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+            )
+        }
+    }
+
     private fun realize(sentence: Sentence): String {
         val parts = listOfNotNull(sentence.subject.text, sentence.verb.present, sentence.complement?.text)
         return parts.joinToString(" ").replaceFirstChar { it.titlecase() } + "."
@@ -207,4 +287,6 @@ object PilotReview {
     private const val REVIEW_SEED = 47
     private const val READING_UNIT_COUNT = 24
     private const val WRITING_UNIT_COUNT = 99
+    private const val WORD_CHOICE_UNIT_COUNT = 4
+    private const val TILE_UNIT_COUNT = 99
 }

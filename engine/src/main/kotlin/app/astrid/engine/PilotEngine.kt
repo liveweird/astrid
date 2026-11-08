@@ -20,6 +20,7 @@ class PilotEngine {
             LEGACY_REVISION_PAIR -> PilotContent.LEGACY_EVALUATION_REVISION
             PILOT_TWO_REVISION_PAIR -> PilotContent.RETAINED_EVALUATION_REVISION
             PILOT_THREE_REVISION_PAIR -> PilotContent.RETAINED_THREE_EVALUATION_REVISION
+            PILOT_FOUR_REVISION_PAIR -> PilotContent.RETAINED_FOUR_EVALUATION_REVISION
             CURRENT_REVISION_PAIR -> PilotContent.CURRENT_EVALUATION_REVISION
             else -> null
         }
@@ -27,6 +28,8 @@ class PilotEngine {
     fun generate(request: GenerationRequest): GeneratedExercise {
         validate(request)
         return when {
+            request.formatId == WORD_CHOICE_FORMAT_ID -> TileExerciseGenerator.createWordChoiceExercise(request)
+            request.formatId in TILE_FORMAT_IDS -> TileExerciseGenerator.createTileExercise(request)
             request.formatId == WRITING_FORMAT_ID -> WritingReadingGenerator.createWritingExercise(request)
             request.formatId == READING_FORMAT_ID -> WritingReadingGenerator.createReadingExercise(request)
             request.formatId in LEXICAL_FORMAT_IDS -> createLexicalExercise(request)
@@ -51,6 +54,11 @@ class PilotEngine {
         answer: Answer,
     ): Evaluation = PilotEvaluator.evaluate(exercise, answer)
 
+    fun isSuppliedChoice(exercise: GeneratedExercise, rawText: String): Boolean {
+        val key = exercise.source.answerKey as? AnswerKey.SuppliedChoice ?: return false
+        return normalizeText(rawText) in key.suppliedChoices
+    }
+
     private fun validate(request: GenerationRequest) {
         require(request.seed >= 0) { "seed must be non-negative" }
         require(request.index in 0..MAX_INDEX) { "index must be between 0 and $MAX_INDEX" }
@@ -67,6 +75,8 @@ class PilotEngine {
                 "E005" to "G004",
                 "E006" to "G006",
                 WRITING_FORMAT_ID to "G005",
+                "E012" to "G005",
+                "E013" to "G004",
             )[request.formatId]
         require(expectedTarget != null || request.formatId in LEXICAL_FORMAT_IDS || request.formatId == READING_FORMAT_ID) {
             "Unsupported format: ${request.formatId}"
@@ -75,6 +85,7 @@ class PilotEngine {
             LEGACY_REVISION_PAIR -> LEGACY_FORMAT_IDS
             PILOT_TWO_REVISION_PAIR -> PILOT_TWO_FORMAT_IDS
             PILOT_THREE_REVISION_PAIR -> PILOT_THREE_FORMAT_IDS
+            PILOT_FOUR_REVISION_PAIR -> PILOT_FOUR_FORMAT_IDS
             CURRENT_REVISION_PAIR -> CURRENT_FORMAT_IDS
             else -> emptySet()
         }
@@ -558,21 +569,33 @@ class PilotEngine {
             RevisionPair(PilotContent.RETAINED_CONTENT_REVISION, PilotContent.RETAINED_GENERATOR_REVISION)
         val PILOT_THREE_REVISION_PAIR =
             RevisionPair(PilotContent.RETAINED_THREE_CONTENT_REVISION, PilotContent.RETAINED_THREE_GENERATOR_REVISION)
+        val PILOT_FOUR_REVISION_PAIR =
+            RevisionPair(PilotContent.RETAINED_FOUR_CONTENT_REVISION, PilotContent.RETAINED_FOUR_GENERATOR_REVISION)
         val CURRENT_REVISION_PAIR =
             RevisionPair(PilotContent.CURRENT_CONTENT_REVISION, PilotContent.CURRENT_GENERATOR_REVISION)
         val SUPPORTED_REVISION_PAIRS =
-            listOf(LEGACY_REVISION_PAIR, PILOT_TWO_REVISION_PAIR, PILOT_THREE_REVISION_PAIR, CURRENT_REVISION_PAIR)
+            listOf(
+                LEGACY_REVISION_PAIR,
+                PILOT_TWO_REVISION_PAIR,
+                PILOT_THREE_REVISION_PAIR,
+                PILOT_FOUR_REVISION_PAIR,
+                CURRENT_REVISION_PAIR,
+            )
         val LEGACY_FORMAT_IDS = setOf("E001", "E002", "E003")
         val PILOT_TWO_FORMAT_IDS = LEGACY_FORMAT_IDS + setOf("E004", "E005", "E006")
-        val LEXICAL_FORMAT_IDS = setOf("E007", "E008")
-        val PILOT_THREE_FORMAT_IDS = PILOT_TWO_FORMAT_IDS + LEXICAL_FORMAT_IDS
-        val CURRENT_FORMAT_IDS = PILOT_THREE_FORMAT_IDS + setOf("E009", "E010")
+        val RETAINED_LEXICAL_FORMAT_IDS = setOf("E007", "E008")
+        val LEXICAL_FORMAT_IDS = RETAINED_LEXICAL_FORMAT_IDS + WORD_CHOICE_FORMAT_ID
+        val PILOT_THREE_FORMAT_IDS = PILOT_TWO_FORMAT_IDS + RETAINED_LEXICAL_FORMAT_IDS
+        val PILOT_FOUR_FORMAT_IDS = PILOT_TWO_FORMAT_IDS + setOf("E007", "E008", "E009", "E010")
+        val CURRENT_FORMAT_IDS = PILOT_FOUR_FORMAT_IDS + setOf("E011", "E012", "E013")
+        val TILE_FORMAT_IDS = setOf("E012", "E013")
         val NEW_FORMAT_IDS = setOf("E004", "E005", "E006")
         const val MAX_INDEX = 1_000_000
         const val ORDER_SHUFFLE_XOR = 0x5a5a5a5a
         const val LEXICAL_CHOICE_SHUFFLE_XOR = 0x13579bdf
         const val WRITING_FORMAT_ID = "E009"
         const val READING_FORMAT_ID = "E010"
+        const val WORD_CHOICE_FORMAT_ID = "E011"
         const val GOLDEN_GAMMA = -7046029254386353131L
         const val MIX_MULTIPLIER_ONE = -4658895280553007687L
         const val MIX_MULTIPLIER_TWO = -7723592293110705685L

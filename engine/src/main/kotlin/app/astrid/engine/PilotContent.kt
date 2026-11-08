@@ -25,12 +25,15 @@ internal object PilotContent {
     const val RETAINED_GENERATOR_REVISION = "generator-2"
     const val RETAINED_THREE_CONTENT_REVISION = "pilot-3"
     const val RETAINED_THREE_GENERATOR_REVISION = "generator-3"
-    const val CURRENT_CONTENT_REVISION = "pilot-4"
-    const val CURRENT_GENERATOR_REVISION = "generator-4"
+    const val RETAINED_FOUR_CONTENT_REVISION = "pilot-4"
+    const val RETAINED_FOUR_GENERATOR_REVISION = "generator-4"
+    const val CURRENT_CONTENT_REVISION = "pilot-5"
+    const val CURRENT_GENERATOR_REVISION = "generator-5"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
     const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-4"
+    const val RETAINED_FOUR_EVALUATION_REVISION = "evaluation-4"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-5"
 
     val humanPronouns =
         listOf(
@@ -64,12 +67,18 @@ internal object PilotContent {
             NounEntry("L021", "æble", "apple", NounGender.NEUTER),
         )
 
+    val magazine = NounEntry("L024", "magasin", "magazine (printed publication)", NounGender.NEUTER)
+    val currentNouns = nouns + magazine
+
     val vocabularySenses =
         listOf(
             LexicalSense("L014", "L014-S01", "bog", "book", "en"),
             LexicalSense("L015", "L015-S01", "avis", "newspaper", "en"),
             LexicalSense("L018", "L018-S01", "brev", "letter (written message)", "et"),
         )
+
+    val wordChoiceSenses =
+        vocabularySenses + LexicalSense("L024", "L024-S01", "magasin", "magazine (printed publication)", "et")
 
     val sentences: List<Sentence> = buildSentences()
 
@@ -147,6 +156,14 @@ internal object PilotContent {
                 ),
             )
 
+    val tileFormats =
+        writingReadingFormats +
+            listOf(
+                ExerciseFormat("E011", "Choose the Danish word", null, LexicalTask("meaning", "en-da")),
+                ExerciseFormat("E012", "Build a Danish sentence", "G005"),
+                ExerciseFormat("E013", "Choose the present form with word tiles", "G004"),
+            )
+
     val snapshot =
         PilotContentSnapshot(
             contentRevision = CONTENT_REVISION,
@@ -192,10 +209,10 @@ internal object PilotContent {
             vocabularySenses = vocabularySenses,
         )
 
-    val currentSnapshot =
+    val pilotFourSnapshot =
         PilotContentSnapshot(
-            contentRevision = CURRENT_CONTENT_REVISION,
-            generatorRevision = CURRENT_GENERATOR_REVISION,
+            contentRevision = RETAINED_FOUR_CONTENT_REVISION,
+            generatorRevision = RETAINED_FOUR_GENERATOR_REVISION,
             skills = skills,
             formats = writingReadingFormats,
             humanPronouns = humanPronouns,
@@ -207,10 +224,26 @@ internal object PilotContent {
             vocabularySenses = vocabularySenses,
         )
 
+    val currentSnapshot =
+        PilotContentSnapshot(
+            contentRevision = CURRENT_CONTENT_REVISION,
+            generatorRevision = CURRENT_GENERATOR_REVISION,
+            skills = skills,
+            formats = tileFormats,
+            humanPronouns = humanPronouns,
+            identifyingPronoun = identifyingPronoun,
+            verbs = verbs,
+            nouns = currentNouns,
+            sentences = sentences,
+            lexicalReview = PilotReviewMetadata.records(humanPronouns, identifyingPronoun, verbs, currentNouns),
+            vocabularySenses = wordChoiceSenses,
+        )
+
     init {
         PilotContentValidator.requireValid(snapshot)
         PilotContentValidator.requireValid(pilotTwoSnapshot)
         PilotContentValidator.requireValid(pilotThreeSnapshot)
+        PilotContentValidator.requireValid(pilotFourSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

@@ -246,6 +246,7 @@ internal object PilotThreeCompatibilityGolden {
             is AnswerKey.SubjectFirstOrder -> Answer.Order(orderForRoles(exercise, key.canonicalRoles))
             is AnswerKey.MeaningChoice -> Answer.Text(key.expected)
             is AnswerKey.Headword -> Answer.Text(key.expected.headword)
+            else -> error("Newer answer key is unreachable in the frozen pilot-three exporter")
         }
 
     private fun specialAnswers(exercise: GeneratedExercise): List<Answer> =
@@ -309,6 +310,7 @@ internal object PilotThreeCompatibilityGolden {
                     Answer.Order(emptyList()),
                 )
             }
+            else -> error("Newer answer key is unreachable in the frozen pilot-three exporter")
         }
 
     private fun orderForRoles(

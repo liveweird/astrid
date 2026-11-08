@@ -94,6 +94,8 @@ data class ExercisePrompt(
     val cueLanguage: String? = null,
     val answerLanguage: String? = null,
     val passage: List<String>? = null,
+    val tileMode: String? = null,
+    val requiredTileCount: Int? = null,
 )
 
 data class OrderBlock(
@@ -120,6 +122,29 @@ data class ExerciseInspector(
     val canonicalSentence: String? = null,
     val lexicalSource: LexicalSourceDetails? = null,
     val readingSource: ReadingSourceDetails? = null,
+    val tileSource: TileSourceDetails? = null,
+)
+
+data class TileSourceDetails(
+    val tokens: List<TileTokenDetails>,
+    val licensedOrders: List<TileLicensedOrderDetails>,
+    val distractors: List<TileDistractorDetails>,
+)
+
+data class TileTokenDetails(
+    val blockId: String,
+    val lexicalId: String,
+    val form: String,
+)
+
+data class TileLicensedOrderDetails(
+    val kind: String,
+    val blockIds: List<String>,
+)
+
+data class TileDistractorDetails(
+    val blockId: String,
+    val rationale: String,
 )
 
 data class ReadingSourceDetails(
@@ -189,6 +214,7 @@ enum class LinguisticStatus(val wireValue: String) {
 
 enum class LinguisticScope(val wireValue: String) {
     ENGLISH_CHOICE("english-choice"),
+    DANISH_CHOICE("danish-choice"),
     DANISH_HEADWORD("danish-headword"),
     DANISH_SENTENCE("danish-sentence"),
 }
@@ -226,6 +252,12 @@ internal data class ReadingSource(
     val questionSubjectId: String,
     val questionVerbId: String,
     val answerNounId: String,
+    override val answerKey: AnswerKey,
+    override val blockRoles: Map<String, String> = emptyMap(),
+) : ExerciseSource
+
+internal data class TileExerciseSource(
+    val sentence: Sentence?,
     override val answerKey: AnswerKey,
     override val blockRoles: Map<String, String> = emptyMap(),
 ) : ExerciseSource
@@ -277,4 +309,17 @@ internal sealed interface AnswerKey {
 
     data class Headword(val expected: LexicalSense) : AnswerKey
 
+    data class SuppliedChoice(val expected: String, val suppliedChoices: Set<String>) : AnswerKey
+
+    data class TileOrder(
+        val canonical: List<TileIdentity>,
+        val fronted: List<TileIdentity>?,
+        val infinitive: List<TileIdentity>?,
+    ) : AnswerKey
+
 }
+
+internal data class TileIdentity(
+    val lexicalId: String,
+    val form: String,
+)
