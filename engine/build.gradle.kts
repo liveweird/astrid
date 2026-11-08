@@ -49,6 +49,28 @@ listOf(
     }
 }
 
+val pilotFourCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-4-generator-4-evaluation-4.tsv")
+val pilotFourCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-4-generator-4-evaluation-4.provenance")
+
+tasks.register<JavaExec>("exportPilotFourCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-4 engine generation and evaluation compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PilotFourCompatibilityGoldenExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                pilotFourCompatibilityFixture.asFile.absolutePath,
+                pilotFourCompatibilityProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(pilotFourCompatibilityFixture, pilotFourCompatibilityProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

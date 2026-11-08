@@ -1,0 +1,9 @@
+baselineCommit=e37749c
+captureDate=2026-11-08
+reviewState=compatibility-only-not-linguistic-approval
+contentRevision=pilot-4
+generatorRevision=generator-4
+evaluationRevision=evaluation-4
+rowCount=1614
+fixtureSha256=5fbe98aadf7489d96678e936bdb7829940795abb1d1bda5ff4a0e62277678053
+description=Ten complete format cycles, boundaries, raw and Unicode grading, writing facets, reading binding and framed hashes.

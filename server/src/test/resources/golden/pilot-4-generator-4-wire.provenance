@@ -1,0 +1,7 @@
+baselineCommit=e37749c
+contentRevision=pilot-4
+generatorRevision=generator-4
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=2187
+fixtureSha256=e421043ca55977c38d0d9e65cb4d1dedff367f0b7d19b9dcd43127344480e5dd
+description=All ten pilot-4 formats; complete cycles for seeds 0, 47, and Int.MAX_VALUE plus cycle and maximum-index boundaries; SHA-256 over public ExerciseResponse, inspector, and reproduction fingerprint.
