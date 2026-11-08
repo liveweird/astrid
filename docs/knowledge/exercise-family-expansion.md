@@ -41,7 +41,7 @@ The selected first batch is governed by the [writing/reading implementation cont
 
 ## User exercise inventory — 8 November 2026
 
-**User-proposed candidates, not an implementation selection:** the user supplied the following list and requested an implementation comparison and recommendations. Numbers preserve the user's ordering. “Pills” means selectable word or phrase tiles. Item 8 repeats item 6; whether it instead means Danish-to-English translation with spare tiles is open (Q25).
+**User-proposed candidates, not an implementation selection:** the user supplied the following list and requested an implementation comparison and recommendations. Numbers preserve the user's ordering. “Pills” means selectable word or phrase tiles. The user clarified that item 8 means Danish-to-English translation with spare tiles (Q25), correcting its initial duplication of item 6.
 
 | No. | Proposed exercise | Current coverage |
 | --- | --- | --- |
@@ -52,7 +52,7 @@ The selected first batch is governed by the [writing/reading implementation cont
 | 5 | English sentence → Danish, all tiles used | Not implemented as translation. E003 supplies Danish constituent blocks without a full English sentence cue. |
 | 6 | English sentence → Danish, spare tiles | Not implemented. |
 | 7 | Danish sentence → English, all tiles used | Not implemented. |
-| 8 | English sentence → Danish, spare tiles | Duplicates item 6 as written; clarification pending. |
+| 8 | Danish sentence → English, spare tiles | Not implemented; direction confirmed by the user. |
 | 9 | One Danish sentence gap, choose the word | E001, finite present versus infinitive of the same verb; two choices. Other word classes are not implemented as choice gaps. |
 | 10 | Several Danish sentence gaps, choose words | Not implemented. |
 | 11 | English–Danish word matching grid, either orientation | Not implemented. |
@@ -66,7 +66,7 @@ E005/E006 guided repair and E010 short-text comprehension are additional deliver
 
 ### Revised recommendation — assistant proposal
 
-For discussion, refine the earlier proposed post-delivery sequence: first add **English-to-Danish word choice (1)** and **English-to-Danish sentence tiles, all required then with distractors (5/6)**; next add **word matching (11)** and **multiple gaps (10)**. Reverse sentence translation (7, and possibly 8) is a subsequent extension. Error diagnosis before repair remains an additional candidate. These priorities are proposals; no new family is authorized by this comparison, and BL-006 retains its existing status.
+For discussion, refine the earlier proposed post-delivery sequence: first add **English-to-Danish word choice (1)** and **English-to-Danish sentence tiles, all required then with distractors (5/6)**; next add **word matching (11)** and **multiple gaps (10)**. Reverse sentence translation (7/8) is a subsequent extension. Error diagnosis before repair remains an additional candidate. These priorities are proposals; no new family is authorized by this comparison, and BL-006 retains its existing status.
 
 Keep direction, response interaction, grammar/vocabulary target and difficulty separate when specifying a family. Four choices need four reviewed, distinct senses with plausible alternatives: the current lexical assessment pool has only three, so do not invent an unrelated fourth distractor. A matching grid may initially use those three pairs; four pairs require another reviewed sense.
 
