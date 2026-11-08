@@ -1,0 +1,76 @@
+# CI, the local gate and the stacks
+
+Read before changing `scripts/check.sh`, a workflow, Dependabot, a pin, the Dockerfile, compose or `k8s/`. Command recipes for a session:
+`.claude/skills/{verify,run-stack,api-review}`.
+
+## The local gate: `scripts/check.sh`
+
+Runs from any directory, needs Docker (Testcontainers) and `kubectl`. Steps, in order, all must pass:
+
+1. `python3 scripts/check-toolchain.py` — runtime/action/image pins agree (below).
+2. `python3 -m unittest discover -s scripts/tests -p 'test_*.py'` — tests of the knowledge checker.
+3. `python3 scripts/check-knowledge.py` — offline integrity of `docs/knowledge` (foundation IDs, prerequisites, source refs, crosswalk rows) and local
+   Markdown links in `README.md`, `BACKLOG.md` and `docs/`. It does not read `.claude/`, so check links there by hand.
+4. `python3 scripts/check-startup-budget.py` — bootstrap envelope vs Docker/Kubernetes grace (`persistence.md`).
+5. `git diff --check`.
+6. `./gradlew check :engine:koverVerify :server:koverVerify :server:installDist --dependency-verification strict --no-daemon` — engine and
+   server tests (incl. Arabic-locale engine run), detekt, Kover floors, packaging, strict checksum verification.
+7. `npm --prefix web run lint:api` (Spectral), `check:api` (generated types in sync), `lint`, `knip`, `test:coverage`, `build`.
+8. `npm --prefix e2e run lint`, `knip`, `typecheck`.
+9. `docker compose --env-file .env.example config --quiet` and `kubectl kustomize k8s > /dev/null` — manifests render.
+
+It does **not** run the Playwright suite (needs a stack), `npm audit`, Trivy or kubeconform (live databases / downloaded tools: CI only).
+Whenever you touch UI or API behaviour also run the e2e suite (`testing.md`). Never skip Docker tests and call the suite green.
+
+## CI (`.github/workflows/ci.yml`)
+
+Triggers: push to `master`, pull requests, manual dispatch; `permissions: contents: read`; a superseded run is cancelled only for pull requests
+(a `master` push runs in its own group, so every master commit is fully verified). Every action is pinned to a 40-hex SHA with a version comment.
+
+| Job | What |
+| --- | --- |
+| `server` | JDK from `java-version` pin; steps 1–4 above, then `./gradlew check :engine:exportPilotReview :engine:koverVerify :server:koverVerify :server:installDist --dependency-verification strict`; **`git diff --exit-code -- gradle/verification-metadata.xml '*gradle.lockfile'`** (drift = someone forgot to commit regenerated locks); uploads `server-reports` (reports + `engine/build/review/`). |
+| `web` | `npm ci --legacy-peer-deps`; `lint:api && check:api && lint && knip && test:coverage && build` with `GIT_SHA`; `npm audit --audit-level=high`. |
+| `dependency-scan` | Trivy filesystem scan (HIGH/CRITICAL, dev deps included) over all Gradle lockfiles. |
+| `kubernetes` | kubeconform (checksum-verified binary, k8s 1.33.0 schemas pinned by commit) over the manifests and over `kubectl kustomize k8s`. |
+| `image` | `docker compose config`; `docker build -t astrid:local .`; e2e `npm ci && lint && knip && typecheck && audit`; `playwright install --with-deps chromium webkit`; `docker compose --env-file .env.example up -d --wait` then `npm --prefix e2e test`; logs on failure; uploads `browser-reports`; Trivy scan of the packaged image (HIGH/CRITICAL, `--ignore-unfixed`); `compose down` (never `-v`). |
+
+Unlike Flow there is no path filter (`changes` job), no nightly e2e or failure-alert issue: browser journeys run on every PR inside `image`.
+A new gate lands in `scripts/check.sh` **and** the matching job in the same commit; the two lists above must stay equal.
+
+## Dependabot and pins
+
+`.github/dependabot.yml` checks weekly: `gradle /`, `npm /web`, `npm /e2e`, `docker /`, `docker-compose /`, `github-actions /` (no grouping).
+Bumps are reviewed by their gates; a Gradle/npm bump regenerates locks and metadata (`dependency-reproducibility.md`).
+
+Pins are exact and intentional; update related pins together. `scripts/check-toolchain.py` enforces: `.nvmrc` = `mise.toml` node; the Dockerfile `node`,
+JDK and JRE images match the `mise.toml`/CI versions and every `FROM` carries `@sha256:`; CI reads Node from `.nvmrc` and the JDK from `java-version`;
+every `uses:` is SHA-pinned; **one** PostgreSQL image (tag + digest) is identical in `docker-compose.yaml`, `k8s/postgres.yaml` and `PostgresTestDatabase.kt`.
+npm dependencies are exact versions (no `^`/`~`); Gradle versions live in `gradle/libs.versions.toml`.
+
+## The full stack (Docker Compose)
+
+```sh
+cp .env.example .env          # POSTGRES_PASSWORD is required; never commit .env
+docker compose up --build -d  # app on http://localhost:8088, PostgreSQL on 127.0.0.1:5438
+```
+
+Ports deliberately avoid the siblings so every stack can run side by side: Astrid **8088** (app) / **5180** (Vite) / **5438** (PostgreSQL) vs Lettuce
+8080/5173/5432, Toadie 8081/5174/5433, Covenant 8082/5175/5434, Flow 8084/5176/5435. Host ports bind to `127.0.0.1` only. Local development: `docker compose up -d postgres`,
+`POSTGRES_PASSWORD=… ASTRID_DEVELOPMENT_MODE=true ./gradlew :server:run` (binds `127.0.0.1:8088`; `ASTRID_BIND_HOST`/`ASTRID_PORT` override), and
+`cd web && npm run dev` (Vite proxies `/api` to 8088 and rewrites Origin). The compose file is `docker-compose.yaml` (project name `astrid`).
+
+Dockerfile (3 stages, every image pinned by digest): (1) Node builds `web/dist` with `npm ci --legacy-peer-deps` and reads `.git` for the version stamp
+(`GIT_SHA`/`GIT_COMMIT_TIME` build args override; build from a regular checkout); (2) Temurin JDK runs `:server:installDist --dependency-verification strict`
+(**never `:server:buildFatJar`** — Flyway's ServiceLoader descriptors collapse in a fat jar); (3) Temurin JRE with the install and the SPA only (no Git, no
+Gradle), uid 10001, `ASTRID_DEVELOPMENT_MODE=false`, `ASTRID_BIND_HOST=0.0.0.0`, `HEALTHCHECK` on `/api/v1/ready` with a 240 s start period. `.dockerignore` keeps
+`.env`, `docs/`, build output and `node_modules` out of the context. Compose runs the image read-only with `cap_drop: [ALL]`; no JVM tuning flags are baked in
+(measure first: BL-044).
+
+## Kubernetes (`k8s/`, kustomize)
+
+`kubectl apply -k k8s` installs namespace `astrid`, ConfigMap, a PostgreSQL Deployment (one replica, `Recreate`, 1 Gi PVC) and the app Deployment+Service
+(**one replica**, port 8088, startup/readiness probes on `/api/v1/ready`, liveness on `/health`, `768Mi` limit). It is a **private** deployment: no Ingress, reached
+with `kubectl -n astrid port-forward service/astrid 8088:8088`. The Secret is created by hand from `.env` and is not part of the kustomization (`security.md`). The image
+`astrid:local` must exist in the cluster's image store; for a remote cluster publish a uniquely tagged image and change `k8s/app.yaml` — never rely on a mutable shared tag.
+Check the kube context before applying; all commands touch only the `astrid` namespace. Changing probes or timeouts means re-running `check-startup-budget.py`.
