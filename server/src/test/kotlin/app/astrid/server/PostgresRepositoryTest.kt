@@ -13,6 +13,8 @@ import app.astrid.server.exercises.AttemptWriteResult
 import app.astrid.server.exercises.CreatedAttempt
 import app.astrid.server.exercises.EVALUATION_REVISION
 import app.astrid.server.exercises.ExerciseResponse
+import app.astrid.server.exercises.GapResultDto
+import app.astrid.server.exercises.GapSelectionDto
 import app.astrid.server.exercises.IntroductionDto
 import app.astrid.server.exercises.LexicalTargetDto
 import app.astrid.server.exercises.MatchingPairDto
@@ -759,6 +761,88 @@ class PostgresRepositoryTest {
             assertNull(second.exercises.findAttempt(outsider.id, UUID.fromString(request.attemptId)))
 
             val reordered = request.copy(answer = AttemptAnswerDto.Matching(rawPairs.reversed()))
+            assertIs<AttemptWriteResult.PayloadConflict>(
+                first.exercises.writeAttempt(owner.id, reordered, wireJson.encodeToString(reordered)) { _, _, _ ->
+                    error("conflicting raw order must not grade")
+                },
+            )
+        }
+
+    @Test
+    fun `pair seven gap raw order and per-slot result persist and replay across pools`() =
+        withRepositories { first, second ->
+            val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+            val outsider = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+            val generated = PilotEngine().generate(GenerationRequest("E015", "G004", 47, 0, "pilot-7", "generator-7"))
+            val exerciseId = UUID.randomUUID()
+            val stored = StoredExercise(
+                exerciseId,
+                owner.id,
+                generated.formatId,
+                generated.targetSkillId,
+                generated.reproduction.seed,
+                generated.reproduction.index,
+                generated.contentRevision,
+                generated.generatorRevision,
+                generated.toResponse(exerciseId.toString()),
+                generated.reproductionFingerprint(),
+            )
+            first.exercises.insertExercise(stored)
+            assertEquals(stored, second.exercises.findExercise(owner.id, exerciseId))
+            assertNull(second.exercises.findExercise(outsider.id, exerciseId))
+
+            val source = requireNotNull(generated.inspector.gapSource)
+            val rawSelections = source.slots.reversed().map { GapSelectionDto(it.slotId, it.expectedChoiceId) }
+            val request = AttemptRequest(
+                UUID.randomUUID().toString(),
+                exerciseId.toString(),
+                AttemptAnswerDto.Gaps(rawSelections),
+                false,
+            )
+            val payload = wireJson.encodeToString(request)
+            val callbackCount = AtomicInteger()
+            val created = second.exercises.writeAttempt(owner.id, request, payload) { exercise, retry, createdAt ->
+                callbackCount.incrementAndGet()
+                AttemptResponse(
+                    attemptId = request.attemptId,
+                    exerciseId = exercise.id.toString(),
+                    targetSatisfaction = "met",
+                    linguisticStatus = "acceptable",
+                    issues = emptyList(),
+                    feedback = "Both gaps are correct.",
+                    completedSentence = requireNotNull(generated.inspector.canonicalSentence),
+                    evaluationRevision = "evaluation-7",
+                    hintUsed = false,
+                    retryNumber = retry,
+                    createdAt = createdAt,
+                    linguisticScope = "danish-gaps",
+                    responseConstraintStatus = "met",
+                    gapResults = source.slots.map { slot ->
+                        GapResultDto(
+                            slotId = slot.slotId,
+                            choiceId = slot.expectedChoiceId,
+                            targetSkillId = if (slot.slotId == "g0") "G004" else "G006",
+                            assessmentRole = if (slot.slotId == "g0") "primary" else "support",
+                            targetSatisfaction = "met",
+                            responseConstraintStatus = "met",
+                            linguisticStatus = "acceptable",
+                            feedback = "Correct.",
+                        )
+                    },
+                )
+            }
+            val response = assertIs<AttemptWriteResult.Created>(created).response
+            val replay = first.exercises.writeAttempt(owner.id, request, payload) { _, _, _ ->
+                callbackCount.incrementAndGet()
+                error("saved gap attempt must replay before regeneration")
+            }
+            assertEquals(1, callbackCount.get())
+            assertEquals(response, assertIs<AttemptWriteResult.Existing>(replay).response)
+            assertStoredRawAnswer(owner.id, request, payload)
+            assertEquals(response, second.exercises.findAttempt(owner.id, UUID.fromString(request.attemptId)))
+            assertNull(second.exercises.findAttempt(outsider.id, UUID.fromString(request.attemptId)))
+
+            val reordered = request.copy(answer = AttemptAnswerDto.Gaps(rawSelections.reversed()))
             assertIs<AttemptWriteResult.PayloadConflict>(
                 first.exercises.writeAttempt(owner.id, reordered, wireJson.encodeToString(reordered)) { _, _, _ ->
                     error("conflicting raw order must not grade")

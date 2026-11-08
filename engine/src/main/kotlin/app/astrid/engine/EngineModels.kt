@@ -98,7 +98,27 @@ data class ExercisePrompt(
     val tileMode: String? = null,
     val requiredTileCount: Int? = null,
     val matchingColumns: MatchingColumns? = null,
+    val gapPrompt: GapPrompt? = null,
 )
+
+data class GapPrompt(val segments: List<String>, val slots: List<GapSlot>)
+
+data class GapSlot(
+    val id: String,
+    val label: String,
+    val targetSkillId: String,
+    val assessmentRole: GapAssessmentRole,
+    val choices: List<GapChoice>,
+)
+
+data class GapChoice(val id: String, val text: String)
+
+enum class GapAssessmentRole(val wireValue: String) {
+    PRIMARY("primary"),
+    SUPPORT("support"),
+}
+
+data class GapSelection(val slotId: String, val choiceId: String)
 
 data class MatchingColumns(
     val left: List<MatchingItem>,
@@ -135,6 +155,17 @@ data class ExerciseInspector(
     val readingSource: ReadingSourceDetails? = null,
     val tileSource: TileSourceDetails? = null,
     val matchingSource: MatchingSourceDetails? = null,
+    val gapSource: GapSourceDetails? = null,
+)
+
+data class GapSourceDetails(val slots: List<GapSlotSourceDetails>)
+
+data class GapSlotSourceDetails(
+    val slotId: String,
+    val expectedChoiceId: String,
+    val lexicalId: String,
+    val expectedForm: String,
+    val alternativeForm: String,
 )
 
 data class MatchingSourceDetails(val pairs: List<MatchingPairSourceDetails>)
@@ -196,6 +227,8 @@ sealed interface Answer {
     data class Order(val blockIds: List<String>) : Answer
 
     data class Matching(val pairs: List<MatchingPair>) : Answer
+
+    data class Gaps(val selections: List<GapSelection>) : Answer
 }
 
 data class Evaluation(
@@ -210,6 +243,18 @@ data class Evaluation(
     val responseConstraintStatus: ResponseConstraintStatus? = null,
     val meaningSatisfaction: MeaningSatisfaction? = null,
     val matchingResults: List<MatchingPairResult>? = null,
+    val gapResults: List<GapResult>? = null,
+)
+
+data class GapResult(
+    val slotId: String,
+    val choiceId: String?,
+    val targetSkillId: String,
+    val assessmentRole: GapAssessmentRole,
+    val targetStatus: TargetStatus,
+    val responseConstraintStatus: ResponseConstraintStatus,
+    val linguisticStatus: LinguisticStatus,
+    val feedback: String,
 )
 
 data class MatchingPairResult(
@@ -234,6 +279,8 @@ sealed interface NormalizedAnswer {
     data class Order(val blockIds: List<String>) : NormalizedAnswer
 
     data class Matching(val pairs: List<MatchingPair>) : NormalizedAnswer
+
+    data class Gaps(val selections: List<GapSelection>) : NormalizedAnswer
 }
 
 enum class TargetStatus(val wireValue: String) {
@@ -254,6 +301,7 @@ enum class LinguisticScope(val wireValue: String) {
     DANISH_HEADWORD("danish-headword"),
     DANISH_SENTENCE("danish-sentence"),
     DANISH_MATCHING("danish-matching"),
+    DANISH_GAPS("danish-gaps"),
 }
 
 enum class MeaningSatisfaction(val wireValue: String) {
@@ -300,6 +348,12 @@ internal data class TileExerciseSource(
 ) : ExerciseSource
 
 internal data class MatchingExerciseSource(
+    override val answerKey: AnswerKey,
+    override val blockRoles: Map<String, String> = emptyMap(),
+) : ExerciseSource
+
+internal data class MultipleGapExerciseSource(
+    val sentence: Sentence,
     override val answerKey: AnswerKey,
     override val blockRoles: Map<String, String> = emptyMap(),
 ) : ExerciseSource
@@ -360,6 +414,8 @@ internal sealed interface AnswerKey {
     ) : AnswerKey
 
     data class Matching(val expectedByLeftId: Map<String, String>) : AnswerKey
+
+    data class Gaps(val expectedBySlotId: Map<String, String>) : AnswerKey
 
 }
 

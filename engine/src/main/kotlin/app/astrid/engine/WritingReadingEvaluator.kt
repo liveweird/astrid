@@ -232,6 +232,7 @@ internal object WritingReadingEvaluator {
             is Answer.Text -> NormalizedAnswer.Text(normalizeText(answer.text))
             is Answer.Order -> NormalizedAnswer.Order(answer.blockIds)
             is Answer.Matching -> NormalizedAnswer.Matching(answer.pairs)
+            is Answer.Gaps -> NormalizedAnswer.Gaps(answer.selections)
         }
         return Evaluation(
             TargetStatus.UNEVALUABLE,
@@ -275,6 +276,7 @@ internal object WritingReadingEvaluator {
             is Answer.Text -> NormalizedAnswer.Text(normalizeText(answer.text))
             is Answer.Order -> NormalizedAnswer.Order(answer.blockIds)
             is Answer.Matching -> NormalizedAnswer.Matching(answer.pairs)
+            is Answer.Gaps -> NormalizedAnswer.Gaps(answer.selections)
         }
         return Evaluation(
             TargetStatus.UNEVALUABLE,

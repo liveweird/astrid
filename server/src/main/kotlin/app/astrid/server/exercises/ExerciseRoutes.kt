@@ -193,6 +193,18 @@ private suspend fun evaluateAttempt(
                 feedback = result.feedback,
             )
         },
+        evaluation.gapResults?.map { result ->
+            GapResultDto(
+                slotId = result.slotId,
+                choiceId = result.choiceId,
+                targetSkillId = result.targetSkillId,
+                assessmentRole = result.assessmentRole.wireValue,
+                targetSatisfaction = result.targetStatus.wireValue,
+                responseConstraintStatus = result.responseConstraintStatus.wireValue,
+                linguisticStatus = result.linguisticStatus.wireValue,
+                feedback = result.feedback,
+            )
+        },
     )
 }
 
@@ -223,6 +235,7 @@ private fun AttemptRequest.validated(): AttemptRequest {
         is AttemptAnswerDto.Order -> if (value.blockIds.size > MAX_BLOCK_COUNT ||
             value.blockIds.any { it.length !in 1..MAX_REVISION_LENGTH }) throw BadRequest("Invalid block answer")
         is AttemptAnswerDto.Matching -> Unit
+        is AttemptAnswerDto.Gaps -> Unit
     }
     return this
 }
@@ -234,6 +247,7 @@ private fun AttemptAnswerDto.validateFor(engine: PilotEngine, exercise: Generate
         "E012", "E013" -> validateTileOrderAnswer(this, suppliedBlocks)
         "E011" -> validateSuppliedChoiceAnswer(this, engine, exercise)
         "E014" -> validateMatchingAnswer(this, exercise)
+        "E015" -> validateGapAnswer(this, exercise)
         else -> validateTextAnswer(this)
     }
 }
@@ -283,6 +297,24 @@ private fun validateMatchingAnswer(answer: AttemptAnswerDto, exercise: Generated
 }
 
 private fun isValidMatchingId(value: String) = value.length in 1..MAX_REVISION_LENGTH
+
+private fun validateGapAnswer(answer: AttemptAnswerDto, exercise: GeneratedExercise) {
+    val gaps = answer as? AttemptAnswerDto.Gaps
+        ?: throw BadRequest("This exercise requires a gap answer")
+    val slots = checkNotNull(exercise.prompt.gapPrompt) { "Gap exercise has no gap prompt" }.slots
+    val slotsById = slots.associateBy { it.id }
+    val suppliedSlotIds = gaps.selections.map { it.slotId }
+    val valid = listOf(
+        gaps.selections.size <= slots.size,
+        suppliedSlotIds.size == suppliedSlotIds.toSet().size,
+        gaps.selections.all { selection ->
+            isValidMatchingId(selection.slotId) &&
+                isValidMatchingId(selection.choiceId) &&
+                slotsById[selection.slotId]?.choices?.any { it.id == selection.choiceId } == true
+        },
+    ).all { it }
+    if (!valid) throw BadRequest("The answer must select at most one supplied choice for each gap")
+}
 
 private fun generate(engine: PilotEngine, request: ExerciseRequest) =
     if (engine.evaluationRevision(request.contentRevision, request.generatorRevision) == null) {

@@ -1,5 +1,5 @@
 openapi: 3.0.3
-info: { title: Astrid pilot API, version: 0.6.0 }
+info: { title: Astrid pilot API, version: 0.7.0 }
 servers: [{ url: 'http://localhost:8088' }]
 # Every operation needs the development session cookie except the three that declare `security: []`.
 security:
@@ -239,9 +239,9 @@ components:
       properties:
         mode: { type: string, enum: [development] }
         inspectorEnabled: { type: boolean }
-        contentRevision: { type: string, enum: [pilot-6] }
-        generatorRevision: { type: string, enum: [generator-6] }
-        evaluationRevision: { type: string, enum: [evaluation-6] }
+        contentRevision: { type: string, enum: [pilot-7] }
+        generatorRevision: { type: string, enum: [generator-7] }
+        evaluationRevision: { type: string, enum: [evaluation-7] }
     Catalog:
       type: object
       additionalProperties: false
@@ -267,7 +267,7 @@ components:
       additionalProperties: false
       required: [id, title]
       properties:
-        id: { type: string, enum: [E001, E002, E003, E004, E005, E006, E007, E008, E009, E010, E011, E012, E013, E014] }
+        id: { type: string, enum: [E001, E002, E003, E004, E005, E006, E007, E008, E009, E010, E011, E012, E013, E014, E015] }
         title: { type: string }
         targetSkillId: { type: string, nullable: true }
         lexicalTask: { $ref: '#/components/schemas/LexicalTask' }
@@ -319,6 +319,16 @@ components:
         - { $ref: '#/components/schemas/PairSixUseAllTilesRequest' }
         - { $ref: '#/components/schemas/PairSixSpareTilesRequest' }
         - { $ref: '#/components/schemas/PairSixMatchingRequest' }
+        - { $ref: '#/components/schemas/PairSevenPresentRequest' }
+        - { $ref: '#/components/schemas/PairSevenArticleRequest' }
+        - { $ref: '#/components/schemas/PairSevenOrderRequest' }
+        - { $ref: '#/components/schemas/PairSevenLexicalRequest' }
+        - { $ref: '#/components/schemas/PairSevenWritingRequest' }
+        - { $ref: '#/components/schemas/PairSevenReadingRequest' }
+        - { $ref: '#/components/schemas/PairSevenUseAllTilesRequest' }
+        - { $ref: '#/components/schemas/PairSevenSpareTilesRequest' }
+        - { $ref: '#/components/schemas/PairSevenMatchingRequest' }
+        - { $ref: '#/components/schemas/PairSevenGapRequest' }
     PairOnePresentRequest:
       type: object
       additionalProperties: false
@@ -640,6 +650,75 @@ components:
       properties:
         <<: *PairSixUntargetedRequestProperties
         formatId: { type: string, enum: [E014] }
+    PairSevenPresentRequest: &PairSevenTargetedRequest
+      type: object
+      additionalProperties: false
+      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      properties: &PairSevenTargetedRequestProperties
+        formatId: { type: string, enum: [E001, E004, E005] }
+        targetSkillId: { type: string, enum: [G004] }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-7] }
+        generatorRevision: { type: string, enum: [generator-7] }
+    PairSevenArticleRequest:
+      <<: *PairSevenTargetedRequest
+      properties:
+        <<: *PairSevenTargetedRequestProperties
+        formatId: { type: string, enum: [E002, E006] }
+        targetSkillId: { type: string, enum: [G006] }
+    PairSevenOrderRequest:
+      <<: *PairSevenTargetedRequest
+      properties:
+        <<: *PairSevenTargetedRequestProperties
+        formatId: { type: string, enum: [E003] }
+        targetSkillId: { type: string, enum: [G005] }
+    PairSevenWritingRequest:
+      <<: *PairSevenTargetedRequest
+      properties:
+        <<: *PairSevenTargetedRequestProperties
+        formatId: { type: string, enum: [E009] }
+        targetSkillId: { type: string, enum: [G005] }
+    PairSevenUseAllTilesRequest:
+      <<: *PairSevenTargetedRequest
+      properties:
+        <<: *PairSevenTargetedRequestProperties
+        formatId: { type: string, enum: [E012] }
+        targetSkillId: { type: string, enum: [G005] }
+    PairSevenSpareTilesRequest:
+      <<: *PairSevenTargetedRequest
+      properties:
+        <<: *PairSevenTargetedRequestProperties
+        formatId: { type: string, enum: [E013] }
+        targetSkillId: { type: string, enum: [G004] }
+    PairSevenGapRequest:
+      <<: *PairSevenTargetedRequest
+      properties:
+        <<: *PairSevenTargetedRequestProperties
+        formatId: { type: string, enum: [E015] }
+        targetSkillId: { type: string, enum: [G004] }
+    PairSevenLexicalRequest: &PairSevenUntargetedRequest
+      type: object
+      additionalProperties: false
+      required: [formatId, seed, index, contentRevision, generatorRevision]
+      not: { required: [targetSkillId] }
+      properties: &PairSevenUntargetedRequestProperties
+        formatId: { type: string, enum: [E007, E008, E011] }
+        targetSkillId: { type: string, nullable: true, maxLength: 32 }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-7] }
+        generatorRevision: { type: string, enum: [generator-7] }
+    PairSevenReadingRequest:
+      <<: *PairSevenUntargetedRequest
+      properties:
+        <<: *PairSevenUntargetedRequestProperties
+        formatId: { type: string, enum: [E010] }
+    PairSevenMatchingRequest:
+      <<: *PairSevenUntargetedRequest
+      properties:
+        <<: *PairSevenUntargetedRequestProperties
+        formatId: { type: string, enum: [E014] }
     Exercise:
       oneOf:
         - { $ref: '#/components/schemas/GrammarExercise' }
@@ -648,6 +727,7 @@ components:
         - { $ref: '#/components/schemas/ReadingExercise' }
         - { $ref: '#/components/schemas/TileExercise' }
         - { $ref: '#/components/schemas/MatchingExercise' }
+        - { $ref: '#/components/schemas/GapExercise' }
     GrammarExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairOnePresentExerciseObject' }
@@ -668,6 +748,9 @@ components:
         - { $ref: '#/components/schemas/PairSixPresentExerciseObject' }
         - { $ref: '#/components/schemas/PairSixArticleExerciseObject' }
         - { $ref: '#/components/schemas/PairSixOrderExerciseObject' }
+        - { $ref: '#/components/schemas/PairSevenPresentExerciseObject' }
+        - { $ref: '#/components/schemas/PairSevenArticleExerciseObject' }
+        - { $ref: '#/components/schemas/PairSevenOrderExerciseObject' }
     PairOnePresentExerciseObject: &GrammarPresentPairOne
       type: object
       additionalProperties: false
@@ -790,6 +873,24 @@ components:
         <<: *GrammarPresentPairSixProperties
         formatId: { type: string, enum: [E003] }
         targetSkillId: { type: string, enum: [G005] }
+    PairSevenPresentExerciseObject: &GrammarPresentPairSeven
+      <<: *GrammarPresentPairSix
+      properties: &GrammarPresentPairSevenProperties
+        <<: *GrammarPresentPairSixProperties
+        contentRevision: { type: string, enum: [pilot-7] }
+        generatorRevision: { type: string, enum: [generator-7] }
+    PairSevenArticleExerciseObject:
+      <<: *GrammarPresentPairSeven
+      properties:
+        <<: *GrammarPresentPairSevenProperties
+        formatId: { type: string, enum: [E002, E006] }
+        targetSkillId: { type: string, enum: [G006] }
+    PairSevenOrderExerciseObject:
+      <<: *GrammarPresentPairSeven
+      properties:
+        <<: *GrammarPresentPairSevenProperties
+        formatId: { type: string, enum: [E003] }
+        targetSkillId: { type: string, enum: [G005] }
     LexicalExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairThreeRecognitionExercise' }
@@ -802,6 +903,9 @@ components:
         - { $ref: '#/components/schemas/PairSixRecognitionExercise' }
         - { $ref: '#/components/schemas/PairSixRecallExercise' }
         - { $ref: '#/components/schemas/PairSixDanishChoiceExercise' }
+        - { $ref: '#/components/schemas/PairSevenRecognitionExercise' }
+        - { $ref: '#/components/schemas/PairSevenRecallExercise' }
+        - { $ref: '#/components/schemas/PairSevenDanishChoiceExercise' }
     PairThreeRecognitionExercise: &PairThreeRecognitionExercise
       type: object
       additionalProperties: false
@@ -889,11 +993,31 @@ components:
         formatId: { type: string, enum: [E011] }
         lexicalTarget: { $ref: '#/components/schemas/DanishChoiceLexicalTarget' }
         prompt: { $ref: '#/components/schemas/DanishChoicePrompt' }
+    PairSevenRecognitionExercise: &PairSevenRecognitionExercise
+      <<: *PairSixRecognitionExercise
+      properties: &PairSevenRecognitionProperties
+        <<: *PairSixRecognitionProperties
+        contentRevision: { type: string, enum: [pilot-7] }
+        generatorRevision: { type: string, enum: [generator-7] }
+    PairSevenRecallExercise:
+      <<: *PairSevenRecognitionExercise
+      properties:
+        <<: *PairSevenRecognitionProperties
+        formatId: { type: string, enum: [E008] }
+        lexicalTarget: { $ref: '#/components/schemas/RecallLexicalTarget' }
+    PairSevenDanishChoiceExercise:
+      <<: *PairSevenRecognitionExercise
+      properties:
+        <<: *PairSevenRecognitionProperties
+        formatId: { type: string, enum: [E011] }
+        lexicalTarget: { $ref: '#/components/schemas/DanishChoiceLexicalTarget' }
+        prompt: { $ref: '#/components/schemas/DanishChoicePrompt' }
     WritingExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairFourWritingExercise' }
         - { $ref: '#/components/schemas/PairFiveWritingExercise' }
         - { $ref: '#/components/schemas/PairSixWritingExercise' }
+        - { $ref: '#/components/schemas/PairSevenWritingExercise' }
     PairFourWritingExercise: &PairFourWritingExercise
       type: object
       additionalProperties: false
@@ -948,11 +1072,28 @@ components:
         prompt: { $ref: '#/components/schemas/NonReadingPrompt' }
         introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
         hint: { type: string }
+    PairSevenWritingExercise:
+      <<: *PairFourWritingExercise
+      properties:
+        id: { type: string, format: uuid }
+        formatId: { type: string, enum: [E009] }
+        targetSkillId: { type: string, enum: [G005] }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        readingTarget: { $ref: '#/components/schemas/ReadingTask' }
+        supportSkillIds: { type: array, items: { type: string } }
+        contentRevision: { type: string, enum: [pilot-7] }
+        generatorRevision: { type: string, enum: [generator-7] }
+        instruction: { type: string }
+        context: { type: string }
+        prompt: { $ref: '#/components/schemas/NonReadingPrompt' }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        hint: { type: string }
     ReadingExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairFourReadingExercise' }
         - { $ref: '#/components/schemas/PairFiveReadingExercise' }
         - { $ref: '#/components/schemas/PairSixReadingExercise' }
+        - { $ref: '#/components/schemas/PairSevenReadingExercise' }
     PairFourReadingExercise: &PairFourReadingExercise
       type: object
       additionalProperties: false
@@ -1007,12 +1148,30 @@ components:
         prompt: { $ref: '#/components/schemas/ReadingPrompt' }
         introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
         hint: { type: string }
+    PairSevenReadingExercise:
+      <<: *PairFourReadingExercise
+      properties:
+        id: { type: string, format: uuid }
+        formatId: { type: string, enum: [E010] }
+        targetSkillId: { type: string, nullable: true }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        readingTarget: { $ref: '#/components/schemas/ReadingTask' }
+        supportSkillIds: { type: array, items: { type: string } }
+        contentRevision: { type: string, enum: [pilot-7] }
+        generatorRevision: { type: string, enum: [generator-7] }
+        instruction: { type: string }
+        context: { type: string }
+        prompt: { $ref: '#/components/schemas/ReadingPrompt' }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        hint: { type: string }
     TileExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairFiveUseAllTilesExercise' }
         - { $ref: '#/components/schemas/PairFiveSpareTilesExercise' }
         - { $ref: '#/components/schemas/PairSixUseAllTilesExercise' }
         - { $ref: '#/components/schemas/PairSixSpareTilesExercise' }
+        - { $ref: '#/components/schemas/PairSevenUseAllTilesExercise' }
+        - { $ref: '#/components/schemas/PairSevenSpareTilesExercise' }
     PairFiveUseAllTilesExercise: &PairFiveUseAllTilesExercise
       type: object
       additionalProperties: false
@@ -1052,7 +1211,24 @@ components:
         formatId: { type: string, enum: [E013] }
         targetSkillId: { type: string, enum: [G004] }
         prompt: { $ref: '#/components/schemas/SpareTilePrompt' }
+    PairSevenUseAllTilesExercise: &PairSevenUseAllTilesExercise
+      <<: *PairSixUseAllTilesExercise
+      properties: &PairSevenUseAllTilesProperties
+        <<: *PairSixUseAllTilesProperties
+        contentRevision: { type: string, enum: [pilot-7] }
+        generatorRevision: { type: string, enum: [generator-7] }
+    PairSevenSpareTilesExercise:
+      <<: *PairSevenUseAllTilesExercise
+      properties:
+        <<: *PairSevenUseAllTilesProperties
+        formatId: { type: string, enum: [E013] }
+        targetSkillId: { type: string, enum: [G004] }
+        prompt: { $ref: '#/components/schemas/SpareTilePrompt' }
     MatchingExercise:
+      oneOf:
+        - { $ref: '#/components/schemas/PairSixMatchingExercise' }
+        - { $ref: '#/components/schemas/PairSevenMatchingExercise' }
+    PairSixMatchingExercise: &PairSixMatchingExercise
       type: object
       additionalProperties: false
       required: [id, formatId, lexicalTargets, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
@@ -1061,7 +1237,7 @@ components:
           - { required: [targetSkillId] }
           - { required: [lexicalTarget] }
           - { required: [readingTarget] }
-      properties:
+      properties: &PairSixMatchingExerciseProperties
         id: { type: string, format: uuid }
         formatId: { type: string, enum: [E014] }
         targetSkillId: { type: string, nullable: true }
@@ -1079,6 +1255,41 @@ components:
         instruction: { type: string }
         context: { type: string }
         prompt: { $ref: '#/components/schemas/MatchingPrompt' }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        hint: { type: string }
+    PairSevenMatchingExercise:
+      <<: *PairSixMatchingExercise
+      properties:
+        <<: *PairSixMatchingExerciseProperties
+        contentRevision: { type: string, enum: [pilot-7] }
+        generatorRevision: { type: string, enum: [generator-7] }
+    GapExercise:
+      type: object
+      additionalProperties: false
+      required: [id, formatId, targetSkillId, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not:
+        anyOf:
+          - { required: [lexicalTarget] }
+          - { required: [lexicalTargets] }
+          - { required: [readingTarget] }
+      properties:
+        id: { type: string, format: uuid }
+        formatId: { type: string, enum: [E015] }
+        targetSkillId: { type: string, enum: [G004] }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        lexicalTargets: { type: array, items: { $ref: '#/components/schemas/LexicalTarget' } }
+        readingTarget: { $ref: '#/components/schemas/ReadingTask' }
+        supportSkillIds:
+          type: array
+          minItems: 5
+          maxItems: 5
+          uniqueItems: true
+          items: { type: string, enum: [G001, G002, G003, G005, G006] }
+        contentRevision: { type: string, enum: [pilot-7] }
+        generatorRevision: { type: string, enum: [generator-7] }
+        instruction: { type: string }
+        context: { type: string }
+        prompt: { $ref: '#/components/schemas/GapExercisePrompt' }
         introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
         hint: { type: string }
     LexicalTarget:
@@ -1244,6 +1455,67 @@ components:
         id: { type: string, enum: [r0, r1, r2, r3] }
         text: { $ref: '#/components/schemas/MatchingItemText' }
     MatchingItemText: { type: string, minLength: 1 }
+    GapExercisePrompt:
+      type: object
+      additionalProperties: false
+      required: [before, after, choices, blocks, punctuation, cueLanguage, answerLanguage, gapPrompt]
+      properties:
+        before: { type: string, maxLength: 0 }
+        after: { type: string, maxLength: 0 }
+        choices: { type: array, maxItems: 0, items: { type: string } }
+        blocks: { type: array, maxItems: 0, items: { $ref: '#/components/schemas/Block' } }
+        punctuation: { type: string, maxLength: 0 }
+        cueLanguage: { type: string, enum: [da] }
+        answerLanguage: { type: string, enum: [da] }
+        gapPrompt: { $ref: '#/components/schemas/GapPrompt' }
+    GapPrompt:
+      type: object
+      additionalProperties: false
+      required: [segments, slots]
+      properties:
+        segments: { type: array, minItems: 3, maxItems: 3, items: { type: string } }
+        slots:
+          type: array
+          minItems: 2
+          maxItems: 2
+          uniqueItems: true
+          description: Displayed exactly once each and in positional order g0, g1; generation and response tests enforce identity and order across variable text.
+          items: { $ref: '#/components/schemas/GapSlot' }
+    GapSlot:
+      oneOf:
+        - { $ref: '#/components/schemas/PrimaryGapSlot' }
+        - { $ref: '#/components/schemas/SupportGapSlot' }
+    PrimaryGapSlot: &GapSlotObject
+      type: object
+      additionalProperties: false
+      required: [id, label, targetSkillId, assessmentRole, choices]
+      properties: &GapSlotProperties
+        id: { type: string, enum: [g0] }
+        label: { type: string, enum: ['Present verb — Primary target'] }
+        targetSkillId: { type: string, enum: [G004] }
+        assessmentRole: { type: string, enum: [primary] }
+        choices:
+          type: array
+          minItems: 2
+          maxItems: 2
+          uniqueItems: true
+          description: Exactly one locally scoped c0 and c1 choice; generation tests enforce id uniqueness across variable text.
+          items: { $ref: '#/components/schemas/GapChoice' }
+    SupportGapSlot:
+      <<: *GapSlotObject
+      properties:
+        <<: *GapSlotProperties
+        id: { type: string, enum: [g1] }
+        label: { type: string, enum: ['Indefinite article — Supporting grammar'] }
+        targetSkillId: { type: string, enum: [G006] }
+        assessmentRole: { type: string, enum: [support] }
+    GapChoice:
+      type: object
+      additionalProperties: false
+      required: [id, text]
+      properties:
+        id: { type: string, enum: [c0, c1] }
+        text: { type: string, minLength: 1 }
     UseAllTilePrompt:
       type: object
       additionalProperties: false
@@ -1307,7 +1579,7 @@ components:
         attemptId: { type: string, format: uuid }
         exerciseId: { type: string, format: uuid }
         answer:
-          oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }, { $ref: '#/components/schemas/MatchingAnswer' }]
+          oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }, { $ref: '#/components/schemas/MatchingAnswer' }, { $ref: '#/components/schemas/GapsAnswer' }]
         hintUsed: { type: boolean }
     TextAnswer:
       type: object
@@ -1366,6 +1638,43 @@ components:
                 - { $ref: '#/components/schemas/MatchingPermutation3120' }
                 - { $ref: '#/components/schemas/MatchingPermutation3201' }
                 - { $ref: '#/components/schemas/MatchingPermutation3210' }
+    GapsAnswer:
+      type: object
+      additionalProperties: false
+      required: [kind, selections]
+      properties:
+        kind: { type: string, enum: [gaps] }
+        selections:
+          description: Zero, one or both slot-scoped selections in supplied order; a slot may occur at most once.
+          allOf:
+            - type: array
+              maxItems: 2
+              uniqueItems: true
+              items: { $ref: '#/components/schemas/GapSelection' }
+            - anyOf:
+                - { $ref: '#/components/schemas/GapAssignmentC0C0' }
+                - { $ref: '#/components/schemas/GapAssignmentC0C1' }
+                - { $ref: '#/components/schemas/GapAssignmentC1C0' }
+                - { $ref: '#/components/schemas/GapAssignmentC1C1' }
+    GapSelection:
+      type: object
+      additionalProperties: false
+      required: [slotId, choiceId]
+      properties:
+        slotId: { type: string, enum: [g0, g1] }
+        choiceId: { type: string, enum: [c0, c1] }
+    GapSelectionG0C0: &GapSelectionG0C0
+      allOf: [{ $ref: '#/components/schemas/GapSelection' }, { type: object, properties: { slotId: { type: string, enum: [g0] }, choiceId: { type: string, enum: [c0] } } }]
+    GapSelectionG0C1: &GapSelectionG0C1
+      allOf: [{ $ref: '#/components/schemas/GapSelection' }, { type: object, properties: { slotId: { type: string, enum: [g0] }, choiceId: { type: string, enum: [c1] } } }]
+    GapSelectionG1C0: &GapSelectionG1C0
+      allOf: [{ $ref: '#/components/schemas/GapSelection' }, { type: object, properties: { slotId: { type: string, enum: [g1] }, choiceId: { type: string, enum: [c0] } } }]
+    GapSelectionG1C1: &GapSelectionG1C1
+      allOf: [{ $ref: '#/components/schemas/GapSelection' }, { type: object, properties: { slotId: { type: string, enum: [g1] }, choiceId: { type: string, enum: [c1] } } }]
+    GapAssignmentC0C0: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/GapSelectionG0C0' }, { $ref: '#/components/schemas/GapSelectionG1C0' }] } }
+    GapAssignmentC0C1: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/GapSelectionG0C0' }, { $ref: '#/components/schemas/GapSelectionG1C1' }] } }
+    GapAssignmentC1C0: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/GapSelectionG0C1' }, { $ref: '#/components/schemas/GapSelectionG1C0' }] } }
+    GapAssignmentC1C1: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/GapSelectionG0C1' }, { $ref: '#/components/schemas/GapSelectionG1C1' }] } }
     MatchingPair:
       type: object
       additionalProperties: false
@@ -1465,11 +1774,12 @@ components:
       oneOf:
         - { $ref: '#/components/schemas/NonMatchingAttempt' }
         - { $ref: '#/components/schemas/MatchingAttempt' }
+        - { $ref: '#/components/schemas/GapAttempt' }
     NonMatchingAttempt:
       type: object
       additionalProperties: false
       required: [attemptId, exerciseId, targetSatisfaction, linguisticStatus, issues, feedback, completedSentence, evaluationRevision, hintUsed, retryNumber, createdAt]
-      not: { required: [matchingResults] }
+      not: { anyOf: [{ required: [matchingResults] }, { required: [gapResults] }] }
       properties:
         attemptId: { type: string, format: uuid }
         exerciseId: { type: string, format: uuid }
@@ -1501,7 +1811,7 @@ components:
         issues: { type: array, items: { $ref: '#/components/schemas/Issue' } }
         feedback: { type: string }
         completedSentence: { type: string, maxLength: 0 }
-        evaluationRevision: { type: string, enum: [evaluation-6] }
+        evaluationRevision: { type: string, enum: [evaluation-6, evaluation-7] }
         hintUsed: { type: boolean }
         retryNumber: { type: integer, minimum: 1 }
         createdAt: { type: integer, format: int64 }
@@ -1543,6 +1853,141 @@ components:
         responseConstraintStatus: { type: string, enum: [not-met] }
         linguisticStatus: { type: string, enum: [unknown] }
         feedback: { type: string }
+    GapAttempt:
+      oneOf:
+        - { $ref: '#/components/schemas/GapAttemptUnevaluableUnknown' }
+        - { $ref: '#/components/schemas/GapAttemptUnevaluableKnownIssue' }
+        - { $ref: '#/components/schemas/GapAttemptMetIncomplete' }
+        - { $ref: '#/components/schemas/GapAttemptMetComplete' }
+        - { $ref: '#/components/schemas/GapAttemptMetKnownIssue' }
+        - { $ref: '#/components/schemas/GapAttemptNotMetIncomplete' }
+        - { $ref: '#/components/schemas/GapAttemptNotMetComplete' }
+    GapAttemptUnevaluableUnknown: &GapAttemptObject
+      type: object
+      additionalProperties: false
+      required: [attemptId, exerciseId, targetSatisfaction, linguisticStatus, linguisticScope, responseConstraintStatus, gapResults, issues, feedback, completedSentence, evaluationRevision, hintUsed, retryNumber, createdAt]
+      properties: &GapAttemptProperties
+        attemptId: { type: string, format: uuid }
+        exerciseId: { type: string, format: uuid }
+        targetSatisfaction: { type: string, enum: [unevaluable] }
+        linguisticStatus: { type: string, enum: [unknown] }
+        linguisticScope: { type: string, enum: [danish-gaps] }
+        responseConstraintStatus: { type: string, enum: [not-met] }
+        gapResults:
+          type: array
+          minItems: 2
+          maxItems: 2
+          uniqueItems: true
+          description: Rows appear exactly once each in displayed slot order g0, g1; generation and HTTP tests enforce identity and order.
+          items: { $ref: '#/components/schemas/GapResult' }
+        issues: { type: array, items: { $ref: '#/components/schemas/Issue' } }
+        feedback: { type: string }
+        completedSentence: { type: string }
+        evaluationRevision: { type: string, enum: [evaluation-7] }
+        hintUsed: { type: boolean }
+        retryNumber: { type: integer, minimum: 1 }
+        createdAt: { type: integer, format: int64 }
+    GapAttemptUnevaluableKnownIssue:
+      <<: *GapAttemptObject
+      properties:
+        <<: *GapAttemptProperties
+        linguisticStatus: { type: string, enum: [known-issue] }
+    GapAttemptMetIncomplete:
+      <<: *GapAttemptObject
+      properties:
+        <<: *GapAttemptProperties
+        targetSatisfaction: { type: string, enum: [met] }
+    GapAttemptMetComplete:
+      <<: *GapAttemptObject
+      properties:
+        <<: *GapAttemptProperties
+        targetSatisfaction: { type: string, enum: [met] }
+        responseConstraintStatus: { type: string, enum: [met] }
+        linguisticStatus: { type: string, enum: [acceptable] }
+    GapAttemptMetKnownIssue:
+      <<: *GapAttemptObject
+      properties:
+        <<: *GapAttemptProperties
+        targetSatisfaction: { type: string, enum: [met] }
+        responseConstraintStatus: { type: string, enum: [met] }
+        linguisticStatus: { type: string, enum: [known-issue] }
+    GapAttemptNotMetIncomplete:
+      <<: *GapAttemptObject
+      properties:
+        <<: *GapAttemptProperties
+        targetSatisfaction: { type: string, enum: [not-met] }
+        linguisticStatus: { type: string, enum: [known-issue] }
+    GapAttemptNotMetComplete:
+      <<: *GapAttemptObject
+      properties:
+        <<: *GapAttemptProperties
+        targetSatisfaction: { type: string, enum: [not-met] }
+        responseConstraintStatus: { type: string, enum: [met] }
+        linguisticStatus: { type: string, enum: [known-issue] }
+    GapResult:
+      oneOf:
+        - { $ref: '#/components/schemas/CorrectPrimaryGapResult' }
+        - { $ref: '#/components/schemas/WrongPrimaryGapResult' }
+        - { $ref: '#/components/schemas/MissingPrimaryGapResult' }
+        - { $ref: '#/components/schemas/CorrectSupportGapResult' }
+        - { $ref: '#/components/schemas/WrongSupportGapResult' }
+        - { $ref: '#/components/schemas/MissingSupportGapResult' }
+    CorrectPrimaryGapResult: &CorrectPrimaryGapResult
+      type: object
+      additionalProperties: false
+      required: [slotId, choiceId, targetSkillId, assessmentRole, targetSatisfaction, responseConstraintStatus, linguisticStatus, feedback]
+      properties: &CorrectPrimaryGapResultProperties
+        slotId: { type: string, enum: [g0] }
+        choiceId: { type: string, enum: [c0, c1] }
+        targetSkillId: { type: string, enum: [G004] }
+        assessmentRole: { type: string, enum: [primary] }
+        targetSatisfaction: { type: string, enum: [met] }
+        responseConstraintStatus: { type: string, enum: [met] }
+        linguisticStatus: { type: string, enum: [acceptable] }
+        feedback: { type: string }
+    WrongPrimaryGapResult:
+      <<: *CorrectPrimaryGapResult
+      properties:
+        <<: *CorrectPrimaryGapResultProperties
+        targetSatisfaction: { type: string, enum: [not-met] }
+        linguisticStatus: { type: string, enum: [known-issue] }
+    MissingPrimaryGapResult:
+      type: object
+      additionalProperties: false
+      required: [slotId, targetSkillId, assessmentRole, targetSatisfaction, responseConstraintStatus, linguisticStatus, feedback]
+      not: { required: [choiceId] }
+      properties: &MissingPrimaryGapResultProperties
+        slotId: { type: string, enum: [g0] }
+        choiceId: { type: string, enum: [c0, c1] }
+        targetSkillId: { type: string, enum: [G004] }
+        assessmentRole: { type: string, enum: [primary] }
+        targetSatisfaction: { type: string, enum: [unevaluable] }
+        responseConstraintStatus: { type: string, enum: [not-met] }
+        linguisticStatus: { type: string, enum: [unknown] }
+        feedback: { type: string }
+    CorrectSupportGapResult:
+      <<: *CorrectPrimaryGapResult
+      properties: &CorrectSupportGapResultProperties
+        <<: *CorrectPrimaryGapResultProperties
+        slotId: { type: string, enum: [g1] }
+        targetSkillId: { type: string, enum: [G006] }
+        assessmentRole: { type: string, enum: [support] }
+    WrongSupportGapResult:
+      <<: *CorrectPrimaryGapResult
+      properties:
+        <<: *CorrectSupportGapResultProperties
+        targetSatisfaction: { type: string, enum: [not-met] }
+        linguisticStatus: { type: string, enum: [known-issue] }
+    MissingSupportGapResult:
+      type: object
+      additionalProperties: false
+      required: [slotId, targetSkillId, assessmentRole, targetSatisfaction, responseConstraintStatus, linguisticStatus, feedback]
+      not: { required: [choiceId] }
+      properties:
+        <<: *MissingPrimaryGapResultProperties
+        slotId: { type: string, enum: [g1] }
+        targetSkillId: { type: string, enum: [G006] }
+        assessmentRole: { type: string, enum: [support] }
     Issue: { type: object, additionalProperties: false, required: [code, message], properties: { code: { type: string }, message: { type: string } } }
     PracticeContext:
       type: object
@@ -1776,6 +2221,7 @@ components:
         readingSource: { $ref: '#/components/schemas/ReadingSource' }
         tileSource: { $ref: '#/components/schemas/TileSource' }
         matchingSource: { $ref: '#/components/schemas/MatchingSource' }
+        gapSource: { $ref: '#/components/schemas/GapSource' }
     LexicalSource:
       type: object
       additionalProperties: false
@@ -1849,6 +2295,37 @@ components:
         leftId: { type: string, enum: [l0, l1, l2, l3] }
         rightId: { type: string, enum: [r0, r1, r2, r3] }
         lexicalSource: { $ref: '#/components/schemas/LexicalSource' }
+    GapSource:
+      type: object
+      additionalProperties: false
+      required: [slots]
+      properties:
+        slots:
+          type: array
+          minItems: 2
+          maxItems: 2
+          uniqueItems: true
+          description: Private source rows appear exactly once each in g0, g1 order; inspector tests enforce identity and order.
+          items: { $ref: '#/components/schemas/GapSlotSource' }
+    GapSlotSource:
+      oneOf:
+        - { $ref: '#/components/schemas/PrimaryGapSlotSource' }
+        - { $ref: '#/components/schemas/SupportGapSlotSource' }
+    PrimaryGapSlotSource: &GapSlotSourceObject
+      type: object
+      additionalProperties: false
+      required: [slotId, expectedChoiceId, lexicalId, expectedForm, alternativeForm]
+      properties: &GapSlotSourceProperties
+        slotId: { type: string, enum: [g0] }
+        expectedChoiceId: { type: string, enum: [c0, c1] }
+        lexicalId: { type: string }
+        expectedForm: { type: string }
+        alternativeForm: { type: string }
+    SupportGapSlotSource:
+      <<: *GapSlotSourceObject
+      properties:
+        <<: *GapSlotSourceProperties
+        slotId: { type: string, enum: [g1] }
     Problem:
       type: object
       additionalProperties: false

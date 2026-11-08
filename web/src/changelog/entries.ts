@@ -10,6 +10,16 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.7.0",
+    date: "2026-11-09",
+    body: `**Two gaps with clear grammar feedback.**
+
+- **Choose a present verb and article** completes two gaps in a Danish sentence using related choices for each gap.
+- The present verb is the primary target; the noun's article is supporting grammar. Feedback shows each result separately.
+- Check one or both answers, then edit either selection on retry. An uncertain result safely reuses the exact saved attempt.
+- Earlier exercises, saved results and guided practice keep their original revisions.`,
+  },
+  {
     version: "0.6.0",
     date: "2026-11-08",
     body: `**Match English and Danish words.**

@@ -61,6 +61,7 @@ internal object PilotContentValidator {
             PilotContent.RETAINED_THREE_CONTENT_REVISION -> EXPECTED_PILOT_THREE_FORMAT_IDS
             PilotContent.RETAINED_FOUR_CONTENT_REVISION -> EXPECTED_PILOT_FOUR_FORMAT_IDS
             PilotContent.RETAINED_FIVE_CONTENT_REVISION -> EXPECTED_PILOT_FIVE_FORMAT_IDS
+            PilotContent.RETAINED_SIX_CONTENT_REVISION -> EXPECTED_PILOT_SIX_FORMAT_IDS
             PilotContent.CURRENT_CONTENT_REVISION -> EXPECTED_CURRENT_FORMAT_IDS
             else -> emptySet()
         }
@@ -72,6 +73,7 @@ internal object PilotContentValidator {
         val expectedLexicalIds =
             if (snapshot.contentRevision in setOf(
                     PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+                    PilotContent.RETAINED_SIX_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
@@ -131,6 +133,7 @@ internal object PilotContentValidator {
                 "E009" to "G005",
                 "E012" to "G005",
                 "E013" to "G004",
+                "E015" to "G004",
             )
         snapshot.formats.forEach { format ->
             expectedTargets[format.id]?.let { expected ->
@@ -239,6 +242,7 @@ internal object PilotContentValidator {
                 PilotContent.RETAINED_FOUR_CONTENT_REVISION,
                 -> setOf("L014-S01", "L015-S01", "L018-S01")
                 PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+                PilotContent.RETAINED_SIX_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
                 ->
                     setOf("L014-S01", "L015-S01", "L018-S01", "L024-S01")
@@ -374,6 +378,8 @@ internal object PilotContentValidator {
         (1..LAST_CURRENT_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_CURRENT_FORMAT_IDS =
         (1..LAST_CURRENT_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
+    private val EXPECTED_PILOT_SIX_FORMAT_IDS =
+        (1..LAST_PILOT_SIX_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_PILOT_THREE_FORMAT_IDS =
         (1..LAST_PILOT_THREE_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_PILOT_FOUR_FORMAT_IDS =
@@ -408,5 +414,6 @@ internal object PilotContentValidator {
     private const val LAST_PILOT_THREE_FORMAT_NUMBER = 8
     private const val LAST_PILOT_FOUR_FORMAT_NUMBER = 10
     private const val LAST_PILOT_FIVE_FORMAT_NUMBER = 13
-    private const val LAST_CURRENT_FORMAT_NUMBER = 14
+    private const val LAST_PILOT_SIX_FORMAT_NUMBER = 14
+    private const val LAST_CURRENT_FORMAT_NUMBER = 15
 }

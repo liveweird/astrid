@@ -89,6 +89,7 @@ class PilotTwoCompatibilityGoldenTest {
             is NormalizedAnswer.Text -> "T:${answer.text}"
             is NormalizedAnswer.Order -> "O:${answer.blockIds.joinToString(",")}"
             is NormalizedAnswer.Matching -> error("Matching answer is unreachable in pilot two")
+            is NormalizedAnswer.Gaps -> error("Gap answer is unreachable in pilot two")
         }
         return hash(
             listOf(

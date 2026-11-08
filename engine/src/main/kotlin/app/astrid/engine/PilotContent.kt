@@ -29,14 +29,17 @@ internal object PilotContent {
     const val RETAINED_FOUR_GENERATOR_REVISION = "generator-4"
     const val RETAINED_FIVE_CONTENT_REVISION = "pilot-5"
     const val RETAINED_FIVE_GENERATOR_REVISION = "generator-5"
-    const val CURRENT_CONTENT_REVISION = "pilot-6"
-    const val CURRENT_GENERATOR_REVISION = "generator-6"
+    const val RETAINED_SIX_CONTENT_REVISION = "pilot-6"
+    const val RETAINED_SIX_GENERATOR_REVISION = "generator-6"
+    const val CURRENT_CONTENT_REVISION = "pilot-7"
+    const val CURRENT_GENERATOR_REVISION = "generator-7"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
     const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
     const val RETAINED_FOUR_EVALUATION_REVISION = "evaluation-4"
     const val RETAINED_FIVE_EVALUATION_REVISION = "evaluation-5"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-6"
+    const val RETAINED_SIX_EVALUATION_REVISION = "evaluation-6"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-7"
 
     val humanPronouns =
         listOf(
@@ -170,6 +173,8 @@ internal object PilotContent {
     val matchingFormats =
         tileFormats + ExerciseFormat("E014", "Match English and Danish words", null, LexicalTask("meaning", "en-da"))
 
+    val gapFormats = matchingFormats + ExerciseFormat("E015", "Choose a present verb and article", "G004")
+
     val snapshot =
         PilotContentSnapshot(
             contentRevision = CONTENT_REVISION,
@@ -245,10 +250,10 @@ internal object PilotContent {
             vocabularySenses = wordChoiceSenses,
         )
 
-    val currentSnapshot =
+    val pilotSixSnapshot =
         PilotContentSnapshot(
-            contentRevision = CURRENT_CONTENT_REVISION,
-            generatorRevision = CURRENT_GENERATOR_REVISION,
+            contentRevision = RETAINED_SIX_CONTENT_REVISION,
+            generatorRevision = RETAINED_SIX_GENERATOR_REVISION,
             skills = skills,
             formats = matchingFormats,
             humanPronouns = humanPronouns,
@@ -266,12 +271,20 @@ internal object PilotContent {
             vocabularySenses = wordChoiceSenses,
         )
 
+    val currentSnapshot =
+        pilotSixSnapshot.copy(
+            contentRevision = CURRENT_CONTENT_REVISION,
+            generatorRevision = CURRENT_GENERATOR_REVISION,
+            formats = gapFormats,
+        )
+
     init {
         PilotContentValidator.requireValid(snapshot)
         PilotContentValidator.requireValid(pilotTwoSnapshot)
         PilotContentValidator.requireValid(pilotThreeSnapshot)
         PilotContentValidator.requireValid(pilotFourSnapshot)
         PilotContentValidator.requireValid(pilotFiveSnapshot)
+        PilotContentValidator.requireValid(pilotSixSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

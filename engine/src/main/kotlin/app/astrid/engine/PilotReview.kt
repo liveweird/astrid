@@ -3,6 +3,8 @@ package app.astrid.engine
 object PilotReview {
     fun renderMarkdown(): String = renderSnapshot(PilotContent.currentSnapshot)
 
+    fun renderPilotSixMarkdown(): String = renderSnapshot(PilotContent.pilotSixSnapshot)
+
     fun renderPilotFiveMarkdown(): String = renderSnapshot(PilotContent.pilotFiveSnapshot)
 
     fun renderPilotFourMarkdown(): String = renderSnapshot(PilotContent.pilotFourSnapshot)
@@ -30,6 +32,7 @@ object PilotReview {
             if (snapshot.contentRevision in setOf(
                     PilotContent.RETAINED_FOUR_CONTENT_REVISION,
                     PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+                    PilotContent.RETAINED_SIX_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
@@ -38,6 +41,7 @@ object PilotReview {
             }
             if (snapshot.contentRevision in setOf(
                     PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+                    PilotContent.RETAINED_SIX_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
@@ -45,13 +49,21 @@ object PilotReview {
                 appendTileInventory(snapshot, "E012", "All-word sentence tiles")
                 appendTileInventory(snapshot, "E013", "Finite-form sentence tiles")
             }
-            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) appendMatchingInventory(snapshot)
+            if (snapshot.contentRevision in setOf(
+                    PilotContent.RETAINED_SIX_CONTENT_REVISION,
+                    PilotContent.CURRENT_CONTENT_REVISION,
+                )
+            ) {
+                appendMatchingInventory(snapshot)
+            }
+            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) appendGapInventory(snapshot)
         }
     }
 
     private fun reviewProvenance(snapshot: PilotContentSnapshot): String =
         if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+                PilotContent.RETAINED_SIX_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -64,6 +76,7 @@ object PilotReview {
     private fun sourceReview(snapshot: PilotContentSnapshot): String =
         if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+                PilotContent.RETAINED_SIX_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -151,7 +164,11 @@ object PilotReview {
     private fun promptSummary(exercise: GeneratedExercise): String {
         val passage = exercise.prompt.passage
         val matchingColumns = exercise.prompt.matchingColumns
+        val gapPrompt = exercise.prompt.gapPrompt
         return when {
+            gapPrompt != null -> gapPrompt.segments.zip(gapPrompt.slots).joinToString("") { (segment, slot) ->
+                segment + "[${slot.label}: ${slot.choices.joinToString("/") { it.text }}]"
+            } + gapPrompt.segments.last()
             matchingColumns != null ->
                 "English: " + matchingColumns.left.joinToString("; ") { "${it.id}:${it.text}" } +
                     " | Danish: " + matchingColumns.right.joinToString("; ") { "${it.id}:${it.text}" }
@@ -320,6 +337,32 @@ object PilotReview {
         }
     }
 
+    private fun StringBuilder.appendGapInventory(snapshot: PilotContentSnapshot) {
+        val engine = PilotEngine()
+        appendLine()
+        appendLine("## Present-verb and article gap units")
+        appendLine()
+        appendLine("| Unit | Segments | Displayed slots | Private expected choices |")
+        appendLine("| ---: | --- | --- | --- |")
+        for (index in 0 until GAP_UNIT_COUNT) {
+            val exercise = engine.generate(
+                GenerationRequest("E015", "G004", REVIEW_SEED, index, snapshot.contentRevision, snapshot.generatorRevision),
+            )
+            val prompt = requireNotNull(exercise.prompt.gapPrompt)
+            val source = requireNotNull(exercise.inspector.gapSource)
+            appendLine(
+                listOf(
+                    (index + 1).toString(),
+                    prompt.segments.joinToString(" | "),
+                    prompt.slots.joinToString("; ") { slot ->
+                        "${slot.id}:${slot.label}=" + slot.choices.joinToString("/") { "${it.id}:${it.text}" }
+                    },
+                    source.slots.joinToString("; ") { "${it.slotId}->${it.expectedChoiceId}:${it.expectedForm}" },
+                ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+            )
+        }
+    }
+
     private fun realize(sentence: Sentence): String {
         val parts = listOfNotNull(sentence.subject.text, sentence.verb.present, sentence.complement?.text)
         return parts.joinToString(" ").replaceFirstChar { it.titlecase() } + "."
@@ -334,4 +377,5 @@ object PilotReview {
     private const val WORD_CHOICE_UNIT_COUNT = 4
     private const val TILE_UNIT_COUNT = 99
     private const val MATCHING_UNIT_COUNT = 4
+    private const val GAP_UNIT_COUNT = 92
 }

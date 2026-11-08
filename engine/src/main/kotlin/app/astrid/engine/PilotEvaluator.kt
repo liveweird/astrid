@@ -7,6 +7,11 @@ internal object PilotEvaluator {
         exercise: GeneratedExercise,
         answer: Answer,
     ): Evaluation = when (exercise.formatId) {
+        "E015" -> MultipleGapExerciseEvaluator.evaluate(
+            exercise,
+            answer,
+            exercise.source.answerKey as AnswerKey.Gaps,
+        )
         "E014" -> MatchingExerciseEvaluator.evaluate(
             exercise,
             answer,
@@ -39,7 +44,7 @@ internal object PilotEvaluator {
             is AnswerKey.SubjectFirstOrder -> evaluateOrder(exercise, answer, key)
             is AnswerKey.MeaningChoice -> evaluateMeaning(answer, key)
             is AnswerKey.Headword -> evaluateHeadword(answer, key)
-            is AnswerKey.SuppliedChoice, is AnswerKey.TileOrder, is AnswerKey.Matching ->
+            is AnswerKey.SuppliedChoice, is AnswerKey.TileOrder, is AnswerKey.Matching, is AnswerKey.Gaps ->
                 error("New answer key reached retained evaluator")
         }
 
@@ -382,6 +387,7 @@ internal object PilotEvaluator {
                 is Answer.Text -> NormalizedAnswer.Text(normalizeText(answer.text))
                 is Answer.Order -> NormalizedAnswer.Order(answer.blockIds)
                 is Answer.Matching -> NormalizedAnswer.Matching(answer.pairs)
+                is Answer.Gaps -> NormalizedAnswer.Gaps(answer.selections)
             },
         )
 
@@ -393,6 +399,7 @@ internal object PilotEvaluator {
             is Answer.Text -> NormalizedAnswer.Text(normalizeText(answer.text))
             is Answer.Order -> NormalizedAnswer.Order(answer.blockIds)
             is Answer.Matching -> NormalizedAnswer.Matching(answer.pairs)
+            is Answer.Gaps -> NormalizedAnswer.Gaps(answer.selections)
         }
         return Evaluation(
             TargetStatus.UNEVALUABLE,

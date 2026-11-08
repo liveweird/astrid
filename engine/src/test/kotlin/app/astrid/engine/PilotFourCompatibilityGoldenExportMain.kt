@@ -183,6 +183,7 @@ internal object PilotFourCompatibilityGolden {
                     strings("normalizedAnswer.blockIds", answer.blockIds)
                 }
                 is NormalizedAnswer.Matching -> error("Matching answer is unreachable in pilot four")
+                is NormalizedAnswer.Gaps -> error("Gap answer is unreachable in pilot four")
             }
             nullable("linguisticScope", evaluation.linguisticScope?.wireValue)
             nullable("responseConstraintStatus", evaluation.responseConstraintStatus?.wireValue)
@@ -200,6 +201,7 @@ internal object PilotFourCompatibilityGolden {
                 strings("$name.blockIds", answer.blockIds)
             }
             is Answer.Matching -> error("Matching answer is unreachable in pilot four")
+            is Answer.Gaps -> error("Gap answer is unreachable in pilot four")
         }
     }
 
@@ -228,6 +230,7 @@ internal object PilotFourCompatibilityGolden {
                 raw = answer.blockIds.joinToString(ORDER_SEPARATOR)
             }
             is Answer.Matching -> error("Matching answer is unreachable in pilot four")
+            is Answer.Gaps -> error("Gap answer is unreachable in pilot four")
         }
         return listOf(
             kind,

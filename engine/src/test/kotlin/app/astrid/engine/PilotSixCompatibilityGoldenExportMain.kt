@@ -95,7 +95,7 @@ internal object PilotSixCompatibilityGolden {
         Files.createDirectories(provenancePath.toAbsolutePath().parent)
         Files.write(fixturePath, bytes, StandardOpenOption.CREATE_NEW)
         val rowCount = bytes.count { it == '\n'.code.toByte() }
-        val reviewBytes = PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
+        val reviewBytes = PilotReview.renderPilotSixMarkdown().toByteArray(Charsets.UTF_8)
         val description = "All thirteen inherited complete cycles and boundaries plus bounded E014 generation, " +
             "all 209 valid partial bijections, reordered raw pairs, malformed selections, wrong answer kinds, " +
             "matching facets, and framed hashes."
@@ -293,6 +293,7 @@ internal object PilotSixCompatibilityGolden {
                 field("$name.type", "matching")
                 matchingPairs("$name.pairs", answer.pairs)
             }
+            is Answer.Gaps -> error("Gap answer is unreachable in pilot six")
         }
     }
 
@@ -310,6 +311,7 @@ internal object PilotSixCompatibilityGolden {
                 field("normalizedAnswer.type", "matching")
                 matchingPairs("normalizedAnswer.pairs", answer.pairs)
             }
+            is NormalizedAnswer.Gaps -> error("Gap answer is unreachable in pilot six")
         }
     }
 
@@ -350,6 +352,7 @@ internal object PilotSixCompatibilityGolden {
                 kind = "M"
                 raw = answer.pairs.joinToString(PAIR_SEPARATOR) { "${it.leftId}$ID_SEPARATOR${it.rightId}" }
             }
+            is Answer.Gaps -> error("Gap answer is unreachable in pilot six")
         }
         return listOf(
             kind, format, target ?: NULL_COLUMN, seed, index,
@@ -371,6 +374,7 @@ internal object PilotSixCompatibilityGolden {
             is AnswerKey.Matching -> Answer.Matching(
                 requireNotNull(exercise.inspector.matchingSource).pairs.map { MatchingPair(it.leftId, it.rightId) },
             )
+            is AnswerKey.Gaps -> error("Gap key is unreachable in pilot six")
         }
     }
 
@@ -413,7 +417,7 @@ internal object PilotSixCompatibilityGolden {
             Answer.Text(key.expected.uppercase(Locale.ROOT)), Answer.Text("e\u0301t magasin"), Answer.Order(emptyList()),
         )
         is AnswerKey.TileOrder -> tileAnswers(exercise, key)
-        is AnswerKey.Matching -> error("Matching is covered separately")
+        is AnswerKey.Matching, is AnswerKey.Gaps -> error("Newer key is covered separately or unreachable in pilot six")
     }
 
     private fun specialExercise(format: FormatSpec): GeneratedExercise {

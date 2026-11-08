@@ -80,6 +80,7 @@ class PilotCompatibilityGoldenTest {
                 is Answer.Text -> "T:${answer.text}"
                 is Answer.Order -> "O:${answer.blockIds.joinToString(",")}"
                 is Answer.Matching -> error("Matching answer is unreachable in pilot one")
+                is Answer.Gaps -> error("Gap answer is unreachable in pilot one")
             }
         val issues = result.issues.joinToString("|") { "${it.code}:${it.message}" }
         add(

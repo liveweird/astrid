@@ -208,6 +208,7 @@ internal object PilotFiveCompatibilityGolden {
                     strings("normalizedAnswer.blockIds", answer.blockIds)
                 }
                 is NormalizedAnswer.Matching -> error("Matching answer is unreachable in pilot five")
+                is NormalizedAnswer.Gaps -> error("Gap answer is unreachable in pilot five")
             }
             nullable("linguisticScope", evaluation.linguisticScope?.wireValue)
             nullable("responseConstraintStatus", evaluation.responseConstraintStatus?.wireValue)
@@ -225,6 +226,7 @@ internal object PilotFiveCompatibilityGolden {
                 strings("$name.blockIds", answer.blockIds)
             }
             is Answer.Matching -> error("Matching answer is unreachable in pilot five")
+            is Answer.Gaps -> error("Gap answer is unreachable in pilot five")
         }
     }
 
@@ -253,6 +255,7 @@ internal object PilotFiveCompatibilityGolden {
                 raw = answer.blockIds.joinToString(ORDER_SEPARATOR)
             }
             is Answer.Matching -> error("Matching answer is unreachable in pilot five")
+            is Answer.Gaps -> error("Gap answer is unreachable in pilot five")
         }
         return listOf(
             kind,
@@ -277,7 +280,7 @@ internal object PilotFiveCompatibilityGolden {
             is AnswerKey.Headword -> Answer.Text(key.expected.headword)
             is AnswerKey.SuppliedChoice -> Answer.Text(key.expected)
             is AnswerKey.TileOrder -> Answer.Order(idsFor(key.canonical, exercise))
-            is AnswerKey.Matching -> error("Matching key is unreachable in pilot five")
+            is AnswerKey.Matching, is AnswerKey.Gaps -> error("Newer key is unreachable in pilot five")
         }
     }
 
@@ -337,7 +340,7 @@ internal object PilotFiveCompatibilityGolden {
                     Answer.Order(emptyList()),
                 )
             is AnswerKey.TileOrder -> tileAnswers(exercise, key)
-            is AnswerKey.Matching -> error("Matching key is unreachable in pilot five")
+            is AnswerKey.Matching, is AnswerKey.Gaps -> error("Newer key is unreachable in pilot five")
         }
 
     private fun specialExercise(format: FormatSpec): GeneratedExercise {

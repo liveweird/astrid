@@ -10,10 +10,14 @@ export type Exercise = components["schemas"]["Exercise"];
 export type MatchingPair = components["schemas"]["MatchingPair"];
 export type MatchingColumns = components["schemas"]["MatchingColumns"];
 export type MatchingPairResult = components["schemas"]["MatchingPairResult"];
+export type GapPromptData = components["schemas"]["GapPrompt"];
+export type GapSelection = components["schemas"]["GapSelection"];
+export type GapResult = components["schemas"]["GapResult"];
 export type AttemptAnswer =
   | { kind: "text"; text: string }
   | { kind: "order"; blockIds: string[] }
-  | { kind: "matching"; pairs: MatchingPair[] };
+  | { kind: "matching"; pairs: MatchingPair[] }
+  | { kind: "gaps"; selections: GapSelection[] };
 export type AttemptRequest = Omit<components["schemas"]["AttemptRequest"], "answer"> & { answer: AttemptAnswer };
 export type Attempt = components["schemas"]["Attempt"];
 

@@ -39,6 +39,20 @@ internal fun GeneratedExercise.toResponse(id: String) = ExerciseResponse(
                 right = columns.right.map { MatchingItemDto(it.id, it.text) },
             )
         },
+        gapPrompt = prompt.gapPrompt?.let { gapPrompt ->
+            GapPromptDto(
+                segments = gapPrompt.segments,
+                slots = gapPrompt.slots.map { slot ->
+                    GapSlotDto(
+                        id = slot.id,
+                        label = slot.label,
+                        targetSkillId = slot.targetSkillId,
+                        assessmentRole = slot.assessmentRole.wireValue,
+                        choices = slot.choices.map { GapChoiceDto(it.id, it.text) },
+                    )
+                },
+            )
+        },
     ),
     introduction = introduction.map { IntroductionDto(it.title, it.body, it.bodyLanguage) },
     hint = hint,
@@ -50,6 +64,7 @@ internal fun AttemptAnswerDto.toEngineAnswer(): Answer = when (this) {
     is AttemptAnswerDto.Text -> Answer.Text(text)
     is AttemptAnswerDto.Order -> Answer.Order(blockIds)
     is AttemptAnswerDto.Matching -> Answer.Matching(pairs.map { app.astrid.engine.MatchingPair(it.leftId, it.rightId) })
+    is AttemptAnswerDto.Gaps -> Answer.Gaps(selections.map { app.astrid.engine.GapSelection(it.slotId, it.choiceId) })
 }
 
 internal fun GeneratedExercise.toInspector(id: String) = ExerciseInspectorDto(
@@ -95,6 +110,19 @@ internal fun GeneratedExercise.toInspector(id: String) = ExerciseInspectorDto(
             },
         )
     },
+    gapSource = inspector.gapSource?.let { source ->
+        GapSourceDto(
+            slots = source.slots.map { slot ->
+                GapSlotSourceDto(
+                    slotId = slot.slotId,
+                    expectedChoiceId = slot.expectedChoiceId,
+                    lexicalId = slot.lexicalId,
+                    expectedForm = slot.expectedForm,
+                    alternativeForm = slot.alternativeForm,
+                )
+            },
+        )
+    },
 )
 
 internal fun GeneratedExercise.reproductionFingerprint(
@@ -106,28 +134,7 @@ internal fun GeneratedExercise.reproductionFingerprint(
     introductionForFingerprint: List<IntroductionSection> = introduction,
     lexicalTargetsForFingerprint: List<LexicalTarget>? = lexicalTargets,
 ): String {
-    val legacyCanonical = listOf(
-        formatId,
-        targetSkillId.orEmpty(),
-        contentRevision,
-        generatorRevision,
-        reproduction.seed.toString(),
-        reproduction.index.toString(),
-        inspectorForFingerprint.canonicalSentenceId.orEmpty(),
-        inspectorForFingerprint.constructionId.orEmpty(),
-        inspectorForFingerprint.lexicalIds.joinToString(","),
-        inspectorForFingerprint.clauseRoles.joinToString(","),
-        inspectorForFingerprint.canonicalSentence.orEmpty(),
-        instruction,
-        context,
-        promptForFingerprint.before,
-        promptForFingerprint.after,
-        promptForFingerprint.choices.joinToString(","),
-        promptForFingerprint.blocks.joinToString(",") { "${it.id}:${it.text}" },
-        promptForFingerprint.punctuation,
-        introduction.joinToString("\u001e") { "${it.title}:${it.body}" },
-        hint,
-    )
+    val legacyCanonical = legacyFingerprintCanonical(promptForFingerprint, inspectorForFingerprint)
     val pairTwoCanonical = legacyCanonical +
         listOf(promptForFingerprint.inputLabel.orEmpty(), promptForFingerprint.replacementWord.orEmpty())
     val pairThreeCanonical = run {
@@ -178,11 +185,46 @@ internal fun GeneratedExercise.reproductionFingerprint(
             introductionForFingerprint,
             lexicalTargetsForFingerprint,
         )
+        "pilot-7" to "generator-7" -> pairSevenFingerprintCanonical(
+            promptForFingerprint,
+            lexicalTargetForFingerprint,
+            inspectorForFingerprint,
+            supportSkillIdsForFingerprint,
+            readingTargetForFingerprint,
+            introductionForFingerprint,
+            lexicalTargetsForFingerprint,
+        )
         else -> error("Unsupported fingerprint revision pair: $contentRevision/$generatorRevision")
     }
     return MessageDigest.getInstance("SHA-256").digest(canonical.toByteArray(Charsets.UTF_8))
         .joinToString("") { "%02x".format(it) }
 }
+
+private fun GeneratedExercise.legacyFingerprintCanonical(
+    prompt: ExercisePrompt,
+    inspector: ExerciseInspector,
+): List<String> = listOf(
+    formatId,
+    targetSkillId.orEmpty(),
+    contentRevision,
+    generatorRevision,
+    reproduction.seed.toString(),
+    reproduction.index.toString(),
+    inspector.canonicalSentenceId.orEmpty(),
+    inspector.constructionId.orEmpty(),
+    inspector.lexicalIds.joinToString(","),
+    inspector.clauseRoles.joinToString(","),
+    inspector.canonicalSentence.orEmpty(),
+    instruction,
+    context,
+    prompt.before,
+    prompt.after,
+    prompt.choices.joinToString(","),
+    prompt.blocks.joinToString(",") { "${it.id}:${it.text}" },
+    prompt.punctuation,
+    introduction.joinToString("\u001e") { "${it.title}:${it.body}" },
+    hint,
+)
 
 private fun GeneratedExercise.pairFourFingerprintCanonical(
     prompt: ExercisePrompt,
@@ -315,6 +357,61 @@ private fun GeneratedExercise.pairSixFingerprintCanonical(
                         pair.lexicalSource.headword,
                         pair.lexicalSource.gloss,
                         pair.lexicalSource.article,
+                    ),
+                )
+            })
+        }),
+    ),
+)
+
+private fun GeneratedExercise.pairSevenFingerprintCanonical(
+    prompt: ExercisePrompt,
+    lexicalTarget: LexicalTarget?,
+    inspector: ExerciseInspector,
+    supportSkillIds: List<String>,
+    readingTarget: ReadingTask?,
+    introduction: List<IntroductionSection>,
+    lexicalTargets: List<LexicalTarget>?,
+): String = framedList(
+    listOf(
+        pairSixFingerprintCanonical(
+            prompt,
+            lexicalTarget,
+            inspector,
+            supportSkillIds,
+            readingTarget,
+            introduction,
+            lexicalTargets,
+        ),
+        framedNullable(prompt.gapPrompt?.let { gapPrompt ->
+            framedList(
+                listOf(
+                    framedList(gapPrompt.segments),
+                    framedList(gapPrompt.slots.map { slot ->
+                        framedList(
+                            listOf(
+                                slot.id,
+                                slot.label,
+                                slot.targetSkillId,
+                                slot.assessmentRole.wireValue,
+                                framedList(slot.choices.map { choice ->
+                                    framedList(listOf(choice.id, choice.text))
+                                }),
+                            ),
+                        )
+                    }),
+                ),
+            )
+        }),
+        framedNullable(inspector.gapSource?.let { source ->
+            framedList(source.slots.map { slot ->
+                framedList(
+                    listOf(
+                        slot.slotId,
+                        slot.expectedChoiceId,
+                        slot.lexicalId,
+                        slot.expectedForm,
+                        slot.alternativeForm,
                     ),
                 )
             })

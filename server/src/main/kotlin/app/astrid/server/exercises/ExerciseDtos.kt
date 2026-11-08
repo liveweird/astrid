@@ -78,6 +78,8 @@ data class ExercisePromptDto(
     val requiredTileCount: Int? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val matchingColumns: MatchingColumnsDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val gapPrompt: GapPromptDto? = null,
 )
 
 @Serializable
@@ -88,6 +90,24 @@ data class MatchingColumnsDto(
 
 @Serializable
 data class MatchingItemDto(val id: String, val text: String)
+
+@Serializable
+data class GapPromptDto(
+    val segments: List<String>,
+    val slots: List<GapSlotDto>,
+)
+
+@Serializable
+data class GapSlotDto(
+    val id: String,
+    val label: String,
+    val targetSkillId: String,
+    val assessmentRole: String,
+    val choices: List<GapChoiceDto>,
+)
+
+@Serializable
+data class GapChoiceDto(val id: String, val text: String)
 
 @Serializable
 data class IntroductionDto(
@@ -140,10 +160,17 @@ sealed interface AttemptAnswerDto {
     @Serializable
     @SerialName("matching")
     data class Matching(val pairs: List<MatchingPairDto>) : AttemptAnswerDto
+
+    @Serializable
+    @SerialName("gaps")
+    data class Gaps(val selections: List<GapSelectionDto>) : AttemptAnswerDto
 }
 
 @Serializable
 data class MatchingPairDto(val leftId: String, val rightId: String)
+
+@Serializable
+data class GapSelectionDto(val slotId: String, val choiceId: String)
 
 @Serializable
 data class AttemptRequest(
@@ -175,6 +202,8 @@ data class AttemptResponse(
     val meaningSatisfaction: String? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val matchingResults: List<MatchingPairResultDto>? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val gapResults: List<GapResultDto>? = null,
 )
 
 @Serializable
@@ -185,6 +214,19 @@ data class MatchingPairResultDto(
     val lexicalTarget: LexicalTargetDto,
     val targetSatisfaction: String,
     val meaningSatisfaction: String,
+    val responseConstraintStatus: String,
+    val linguisticStatus: String,
+    val feedback: String,
+)
+
+@Serializable
+data class GapResultDto(
+    val slotId: String,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val choiceId: String? = null,
+    val targetSkillId: String,
+    val assessmentRole: String,
+    val targetSatisfaction: String,
     val responseConstraintStatus: String,
     val linguisticStatus: String,
     val feedback: String,
@@ -253,6 +295,18 @@ data class MatchingPairSourceDetailsDto(
 data class MatchingSourceDetailsDto(val pairs: List<MatchingPairSourceDetailsDto>)
 
 @Serializable
+data class GapSlotSourceDto(
+    val slotId: String,
+    val expectedChoiceId: String,
+    val lexicalId: String,
+    val expectedForm: String,
+    val alternativeForm: String,
+)
+
+@Serializable
+data class GapSourceDto(val slots: List<GapSlotSourceDto>)
+
+@Serializable
 data class ExerciseInspectorDto(
     val exercise: ExerciseResponse,
     val seed: Int,
@@ -269,4 +323,6 @@ data class ExerciseInspectorDto(
     val tileSource: TileSourceDetailsDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val matchingSource: MatchingSourceDetailsDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val gapSource: GapSourceDto? = null,
 )

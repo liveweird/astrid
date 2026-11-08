@@ -174,6 +174,7 @@ internal object PilotThreeCompatibilityGolden {
                     strings("normalizedAnswer.blockIds", answer.blockIds)
                 }
                 is NormalizedAnswer.Matching -> error("Matching answer is unreachable in pilot three")
+                is NormalizedAnswer.Gaps -> error("Gap answer is unreachable in pilot three")
             }
             nullable("linguisticScope", evaluation.linguisticScope?.wireValue)
             nullable("responseConstraintStatus", evaluation.responseConstraintStatus?.wireValue)
@@ -193,6 +194,7 @@ internal object PilotThreeCompatibilityGolden {
                 strings("$name.blockIds", answer.blockIds)
             }
             is Answer.Matching -> error("Matching answer is unreachable in pilot three")
+            is Answer.Gaps -> error("Gap answer is unreachable in pilot three")
         }
     }
 
@@ -230,6 +232,7 @@ internal object PilotThreeCompatibilityGolden {
                 raw = answer.blockIds.joinToString(ORDER_SEPARATOR)
             }
             is Answer.Matching -> error("Matching answer is unreachable in pilot three")
+            is Answer.Gaps -> error("Gap answer is unreachable in pilot three")
         }
         return listOf(
             kind,
