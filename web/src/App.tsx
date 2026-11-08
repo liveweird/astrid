@@ -7,7 +7,7 @@ import {
   IconBook2, IconFlask, IconHistory, IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand, IconMoon, IconSun,
 } from "@tabler/icons-react";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Link as RouterLink, Route, Routes, useLocation, useNavigationType } from "react-router-dom";
+import { Link as RouterLink, Route, Routes, useLocation, useMatch, useNavigationType } from "react-router-dom";
 import BrandMark from "./components/BrandMark";
 import ChangelogErrorBoundary from "./components/ChangelogErrorBoundary";
 import VersionStamp from "./components/VersionStamp";
@@ -105,16 +105,32 @@ function PrimaryNavigation({ changelog, changelogUnseen, close, practice, rail }
  * Practice recovers its run once, on mount, from the URL and browser storage. Its own URL binding
  * (`?session=<id>`) replaces the entry and must keep the mounted run; a pushed navigation to
  * /practice (the nav link) starts recovery afresh, as the former full page load did. Fragment
- * links (skip link) arrive as POP and keep the run too.
+ * links (skip link) arrive as POP with the same session and keep the run too, but Back/Forward
+ * onto an entry for a different session remounts so the run always matches its URL.
  */
 function PracticeRoute() {
-  const { key } = useLocation();
+  const { key, search } = useLocation();
   const navigationType = useNavigationType();
-  const [mount, setMount] = useState({ location: key, instance: key });
+  const session = new URLSearchParams(search).get("session");
+  const [mount, setMount] = useState({ location: key, instance: key, session });
   if (mount.location !== key) {
-    setMount({ location: key, instance: navigationType === "PUSH" ? key : mount.instance });
+    const restart = navigationType === "PUSH" || (navigationType === "POP" && session !== mount.session);
+    setMount({ location: key, instance: restart ? key : mount.instance, session });
   }
   return <Practice key={mount.instance} />;
+}
+
+/**
+ * A pushed navigation moves focus to the main landmark, as a full page load restarts the reading
+ * position there (the skip link and the playground fragment link do the same natively). Replaces
+ * (Practice binding its run) and history traversals leave focus where the user has it.
+ */
+function useRouteChangeFocus() {
+  const { key } = useLocation();
+  const navigationType = useNavigationType();
+  useEffect(() => {
+    if (navigationType === "PUSH") document.getElementById("main-content")?.focus();
+  }, [key, navigationType]);
 }
 
 function RouteContent() {
@@ -145,9 +161,9 @@ export default function App() {
   const { setColorScheme } = useMantineColorScheme();
   const colorScheme = useComputedColorScheme("light", { getInitialValueInEffect: false });
   const rail = collapsed && (desktop || !opened);
-  const path = useLocation().pathname;
-  const practice = path === "/practice";
-  const changelog = path === "/changelog";
+  useRouteChangeFocus();
+  const practice = useMatch("/practice") !== null;
+  const changelog = useMatch("/changelog") !== null;
   const changelogUnseen = useChangelogUnseen();
   useEffect(() => {
     if (desktop) close();

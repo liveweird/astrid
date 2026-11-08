@@ -1,6 +1,6 @@
 import { Box, Group, Loader, Progress, Stack, Text } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { loadPracticeContext, loadPracticeProfiles } from "../../api/client";
 import type { Attempt, AttemptAnswer, AttemptRequest, PracticeSession } from "../../api/models";
 import PracticeSummary from "../../components/PracticeSummary";
@@ -22,9 +22,16 @@ import { useInitialPracticeRecovery } from "./useInitialPracticeRecovery";
 import { type PracticeFocusTarget, pendingFocus, reconciledFocus, usePracticeFocusQueue } from "./usePracticeFocusQueue";
 
 export default function Practice() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [boundId] = useState(() => searchParams.get("session"));
-  const bindUrl = (practiceSessionId: string) => setSearchParams({ session: practiceSessionId }, { replace: true });
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [boundId] = useState(() => new URLSearchParams(location.search).get("session"));
+  // bindUrl is captured once by the mount-time recovery, so it reads the fragment through a ref.
+  const hashRef = useRef(location.hash);
+  useEffect(() => { hashRef.current = location.hash; }, [location.hash]);
+  const bindUrl = (practiceSessionId: string) => navigate(
+    { search: new URLSearchParams({ session: practiceSessionId }).toString(), hash: hashRef.current },
+    { replace: true },
+  );
   const [run, setRun] = useState<PracticeRunRecovery | null>(null);
   const [session, setSession] = useState<PracticeSession | null>(null);
   const [text, setText] = useState("");

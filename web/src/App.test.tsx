@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { APP_VERSION } from "./changelog/version";
@@ -163,6 +163,56 @@ describe("App routes", () => {
     expect(window.location.pathname).toBe("/practice");
     expect(window.location.search).toBe("");
     expect(screen.getByText("Practice instance 2")).toBeVisible();
+  });
+
+  it("remounts the practice when Back lands on a different session than the mounted run", async () => {
+    window.history.replaceState(null, "", "/practice?session=run-x");
+    renderWithProviders(<App />);
+    expect(screen.getByText("Practice instance 1")).toBeVisible();
+
+    await userEvent.click(screen.getByRole("link", { name: "Practice" }));
+    expect(screen.getByText("Practice instance 2")).toBeVisible();
+    await userEvent.click(screen.getByRole("button", { name: "Bind run" }));
+    expect(window.location.search).toBe("?session=bound-run");
+    expect(screen.getByText("Practice instance 2")).toBeVisible();
+
+    act(() => window.history.back());
+    await waitFor(() => expect(window.location.search).toBe("?session=run-x"));
+    expect(await screen.findByText("Practice instance 3")).toBeVisible();
+  });
+
+  it("keeps the mounted practice when a history traversal returns to its own session", async () => {
+    window.history.replaceState(null, "", "/practice?session=bound-run");
+    renderWithProviders(<App />);
+    window.history.pushState(null, "", "/practice?session=bound-run#main-content");
+    act(() => { window.dispatchEvent(new PopStateEvent("popstate")); });
+
+    await waitFor(() => expect(window.location.hash).toBe("#main-content"));
+    expect(screen.getByText("Practice instance 1")).toBeVisible();
+  });
+
+  it("moves focus to the main landmark on pushed navigation only", async () => {
+    window.history.replaceState(null, "", "/practice");
+    renderWithProviders(<App />);
+    const main = document.getElementById("main-content");
+    expect(main).not.toHaveFocus();
+
+    const bind = screen.getByRole("button", { name: "Bind run" });
+    await userEvent.click(bind);
+    expect(bind).toHaveFocus();
+
+    await userEvent.click(screen.getByRole("link", { name: "Changelog" }));
+    await waitFor(() => expect(main).toHaveFocus());
+    await userEvent.click(screen.getByRole("link", { name: "Practice" }));
+    await waitFor(() => expect(main).toHaveFocus());
+  });
+
+  it("highlights the practice link for a trailing-slash path", () => {
+    window.history.replaceState(null, "", "/practice/");
+    renderWithProviders(<App />);
+
+    expect(screen.getByRole("link", { name: "Practice" })).toHaveAttribute("data-active", "true");
+    expect(screen.getByText("Practice instance 1")).toBeVisible();
   });
 
   it("navigates between pages in the app and falls back to the playground for unknown paths", async () => {

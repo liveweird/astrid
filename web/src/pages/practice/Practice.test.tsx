@@ -256,3 +256,22 @@ it("reports source-practice exposure separately from exposure inside the current
   expect(await screen.findByText("This target had possible exposure in the source practice.")).toBeVisible();
   expect(screen.queryByText(/this run’s prompts/)).not.toBeInTheDocument();
 });
+
+it("keeps the URL fragment when it binds a created practice to the address", async () => {
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-profiles")) return json(profiles());
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("practice-sessions") && init?.method === "POST") return json(state(), 201);
+    return json(state());
+  }));
+  window.history.replaceState(null, "", "/practice#main-content");
+  const user = userEvent.setup();
+  renderWithProviders(<Practice />);
+
+  await choosePractice(user);
+
+  await waitFor(() => expect(new URLSearchParams(window.location.search).get("session")).not.toBeNull());
+  expect(window.location.pathname).toBe("/practice");
+  expect(window.location.hash).toBe("#main-content");
+});

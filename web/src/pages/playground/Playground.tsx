@@ -29,6 +29,11 @@ let bootstrapPromise: Promise<[DevelopmentSession, Catalog, Exercise]> | null = 
 function bootstrap(queryClient: QueryClient) {
   bootstrapPromise ??= bootstrapPlayground(INITIAL_SEED, INITIAL_INDEX, () => queryClient.ensureQueryData(catalogQuery))
     .then(({ session, catalog, exercise }) => [session, catalog, exercise] as [DevelopmentSession, Catalog, Exercise])
+    .catch((error: unknown) => {
+      // A 409 means the cached catalog's revisions are stale: drop it so the next start refetches.
+      if (error instanceof ApiError && error.status === 409) queryClient.removeQueries({ queryKey: catalogQuery.queryKey });
+      throw error;
+    })
     .finally(() => {
       bootstrapPromise = null;
     });
