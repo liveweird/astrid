@@ -14,7 +14,7 @@ violations.
    - *Expected*: the "Danish engine playground" heading shows; the first exercise scans clean.
 2. They pick the first answer choice and press **Check answer**.
    - *Expected*: a feedback status appears and scans clean.
-3. They switch (via the Exercise type combobox, typing the title and pressing Arrow Down, Enter)
+3. They switch (via the Exercise type combobox, typing the title, checking its exact highlighted match and pressing Enter)
    to **Supply the indefinite article**, then **Arrange a subject-first statement**.
    - *Expected*: each format scans clean.
 4. For **Supply the present form**, **Repair the verb form** and **Repair the indefinite article**
@@ -40,7 +40,7 @@ violations.
 1. At a 320px-wide viewport with root text enlarged to 200% (computed font size 32px), the learner
    opens the playground and the generation controls.
    - *Expected*: the page renders; the root font size is exactly 32px.
-2. For each of the ten pilot formats they select it (if it is not already current), then open the
+2. For each of the thirteen playground formats they select it (if it is not already current), then open the
    Exercise type listbox.
    - *Expected*: the list is visible, the combobox is `aria-expanded`, the current format is the
      selected option and the active descendant; every option's left and right edge stays inside
@@ -64,3 +64,5 @@ The test runs once with `theme` = light and once with dark (emulated colour sche
    - *Expected*: the feedback shows "One-word response required" and scans clean.
 4. They press **Try again**, type "unfamiliar" and check.
    - *Expected*: the unfamiliar-writing feedback scans clean.
+
+Format options are matched by their exact accessible titles: the original present-form task and the new present-form tile task share a prefix. The list sweeps include all thirteen entries.

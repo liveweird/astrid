@@ -124,3 +124,5 @@ Final clean-commit image, complete 226-journey matrix, exact-master CI, tag/rele
 backed-up private-preview promotion and ownership-scoped cleanup remain release steps; their
 observed results will be recorded below after execution. Private logs and artifacts are ignored
 under `.local/word-choice-tiles/`.
+
+The first complete native browser run exposed sixteen strict-locator failures in existing accessibility/layout sweeps: the E001 title is a prefix of E013. Exact accessible-title matching corrects the tests without changing app behavior. The shared format inventory now includes all thirteen entries, extending short-window and enlarged-list navigation coverage to the additions. This test-only correction keeps app 0.5.0 and learning pair five unchanged; a fresh clean-commit candidate and full matrix are required before publication.

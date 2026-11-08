@@ -9,4 +9,7 @@ export const PILOT_FORMAT_TITLES = [
   "Recall the Danish headword",
   "Write a Danish sentence",
   "Read a short text",
+  "Choose the Danish word",
+  "Build a Danish sentence",
+  "Choose the present form with word tiles",
 ] as const;

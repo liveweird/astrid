@@ -40,7 +40,7 @@ Runs for each of two windows (844×390 and 320×400) at each of two text sizes (
 1. The learner opens the playground at that window size, enlarges text if the size is 32px and opens
    the generation controls.
    - *Expected*: the root font size equals the size under test.
-2. For each of the ten pilot formats they select it if needed, then open the Exercise type list.
+2. For each of the thirteen playground formats they select it if needed, then open the Exercise type list.
    - *Expected*: the current format is the selected option and the highlighted option is fully
      visible inside the list and window.
 3. They press Arrow Down once per format.
@@ -48,3 +48,5 @@ Runs for each of two windows (844×390 and 320×400) at each of two text sizes (
      unchanged.
 4. They check overflow and press Escape.
    - *Expected*: no horizontal overflow; the list closes (`aria-expanded` false).
+
+Format options are matched by their exact accessible titles: the original present-form task and the new present-form tile task share a prefix. The list sweeps include all thirteen entries.

@@ -123,7 +123,7 @@ test("all pilot formats and recovery states reflow at 320px with 200% text", asy
   });
   const selector = page.getByRole("combobox", { name: "Exercise type" });
   await selector.click();
-  await page.getByRole("option", { name: "Choose the present form" }).click();
+  await page.getByRole("option", { name: "Choose the present form", exact: true }).click();
   await expect(page.getByRole("button", { name: "Reload engine" })).toBeVisible();
   await expectNoHorizontalOverflow(page, "revision recovery");
   await expectUnclippedLabels(page);
@@ -145,7 +145,7 @@ for (const viewport of [{ width: 844, height: 390 }, { width: 320, height: 400 }
         await test.step(`reopen ${title}`, async () => {
           if ((await selector.inputValue()) !== title) await chooseFormat(page, title);
           await selector.click();
-          const current = page.getByRole("option", { name: title });
+          const current = page.getByRole("option", { name: title, exact: true });
           await expect(current).toHaveAttribute("data-combobox-selected", "true");
           await expectHighlightedFormatVisible(page);
           const documentScroll = await page.evaluate(() => document.scrollingElement?.scrollTop);

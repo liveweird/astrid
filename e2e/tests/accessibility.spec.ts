@@ -25,9 +25,9 @@ async function openPlayground(page: Page) {
 async function selectFormatOption(page: Page, selector: Locator, title: string) {
   await selector.click();
   await selector.fill(title);
-  const option = page.getByRole("option", { name: title });
+  const option = page.getByRole("option", { name: title, exact: true });
   await expect(option).toBeVisible();
-  await selector.press("ArrowDown");
+  // Typing already highlights the first match; ArrowDown would move to a prefix-sharing title.
   await expect(option).toHaveAttribute("data-combobox-selected", "true");
   await selector.press("Enter");
 }
@@ -112,7 +112,7 @@ test("open format lists remain accessible with enlarged text", async ({ page }) 
     const list = page.getByRole("listbox", { name: "Exercise type" });
     await expect(list).toBeVisible();
     await expect(selector).toHaveAttribute("aria-expanded", "true");
-    const current = list.getByRole("option", { name: title });
+    const current = list.getByRole("option", { name: title, exact: true });
     await expect(current).toHaveAttribute("data-combobox-selected", "true");
     await expect(selector).toHaveAttribute("aria-activedescendant", (await current.getAttribute("id"))!);
     const optionBounds = await list.getByRole("option").evaluateAll((options) => options.map((option) => {
