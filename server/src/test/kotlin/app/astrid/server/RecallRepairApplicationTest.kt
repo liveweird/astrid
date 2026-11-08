@@ -47,9 +47,9 @@ class RecallRepairApplicationTest {
         application { astridModule(config(), InMemoryStores()) }
         val (cookieValue, sessionBody) = createSession()
         val session = wireJson.parseToJsonElement(sessionBody).jsonObject
-        assertEquals("pilot-5", session.getValue("contentRevision").jsonPrimitive.content)
-        assertEquals("generator-5", session.getValue("generatorRevision").jsonPrimitive.content)
-        assertEquals("evaluation-5", session.getValue("evaluationRevision").jsonPrimitive.content)
+        assertEquals("pilot-6", session.getValue("contentRevision").jsonPrimitive.content)
+        assertEquals("generator-6", session.getValue("generatorRevision").jsonPrimitive.content)
+        assertEquals("evaluation-6", session.getValue("evaluationRevision").jsonPrimitive.content)
 
         val catalogResponse = client.get("/api/v1/catalog") {
             trustedHost()
@@ -57,12 +57,12 @@ class RecallRepairApplicationTest {
         }
         assertEquals(HttpStatusCode.OK, catalogResponse.status)
         val catalog = wireJson.parseToJsonElement(catalogResponse.bodyAsText()).jsonObject
-        assertEquals("pilot-5", catalog.getValue("contentRevision").jsonPrimitive.content)
-        assertEquals("generator-5", catalog.getValue("generatorRevision").jsonPrimitive.content)
-        assertEquals("evaluation-5", catalog.getValue("evaluationRevision").jsonPrimitive.content)
+        assertEquals("pilot-6", catalog.getValue("contentRevision").jsonPrimitive.content)
+        assertEquals("generator-6", catalog.getValue("generatorRevision").jsonPrimitive.content)
+        assertEquals("evaluation-6", catalog.getValue("evaluationRevision").jsonPrimitive.content)
         assertEquals(
             listOf(
-                "E001", "E002", "E003", "E004", "E005", "E006", "E007", "E008", "E009", "E010", "E011", "E012", "E013",
+                "E001", "E002", "E003", "E004", "E005", "E006", "E007", "E008", "E009", "E010", "E011", "E012", "E013", "E014",
             ),
             (catalog.getValue("formats") as JsonArray).map { it.jsonObject.getValue("id").jsonPrimitive.content },
         )

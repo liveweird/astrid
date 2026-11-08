@@ -14,6 +14,7 @@ class PilotContentValidatorTest {
         assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotTwoSnapshot))
         assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotThreeSnapshot))
         assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotFourSnapshot))
+        assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotFiveSnapshot))
         assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.currentSnapshot))
     }
 

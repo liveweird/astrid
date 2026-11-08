@@ -269,11 +269,11 @@ export interface components {
             mode: "development";
             inspectorEnabled: boolean;
             /** @enum {string} */
-            contentRevision: "pilot-5";
+            contentRevision: "pilot-6";
             /** @enum {string} */
-            generatorRevision: "generator-5";
+            generatorRevision: "generator-6";
             /** @enum {string} */
-            evaluationRevision: "evaluation-5";
+            evaluationRevision: "evaluation-6";
         };
         Catalog: {
             contentRevision: string;
@@ -292,7 +292,7 @@ export interface components {
         };
         Format: {
             /** @enum {string} */
-            id: "E001" | "E002" | "E003" | "E004" | "E005" | "E006" | "E007" | "E008" | "E009" | "E010" | "E011" | "E012" | "E013";
+            id: "E001" | "E002" | "E003" | "E004" | "E005" | "E006" | "E007" | "E008" | "E009" | "E010" | "E011" | "E012" | "E013" | "E014";
             title: string;
             targetSkillId?: string | null;
             lexicalTask?: components["schemas"]["LexicalTask"];
@@ -308,7 +308,7 @@ export interface components {
             /** @enum {string} */
             facet: "participant-action-complement";
         };
-        ExerciseRequest: components["schemas"]["PairOnePresentRequest"] | components["schemas"]["PairOneArticleRequest"] | components["schemas"]["PairOneOrderRequest"] | components["schemas"]["PairTwoPresentRequest"] | components["schemas"]["PairTwoArticleRequest"] | components["schemas"]["PairTwoOrderRequest"] | components["schemas"]["PairThreePresentRequest"] | components["schemas"]["PairThreeArticleRequest"] | components["schemas"]["PairThreeOrderRequest"] | components["schemas"]["PairThreeLexicalRequest"] | components["schemas"]["PairFourPresentRequest"] | components["schemas"]["PairFourArticleRequest"] | components["schemas"]["PairFourOrderRequest"] | components["schemas"]["PairFourLexicalRequest"] | components["schemas"]["PairFourReadingRequest"] | components["schemas"]["PairFivePresentRequest"] | components["schemas"]["PairFiveArticleRequest"] | components["schemas"]["PairFiveOrderRequest"] | components["schemas"]["PairFiveLexicalRequest"] | components["schemas"]["PairFiveWritingRequest"] | components["schemas"]["PairFiveReadingRequest"] | components["schemas"]["PairFiveUseAllTilesRequest"] | components["schemas"]["PairFiveSpareTilesRequest"];
+        ExerciseRequest: components["schemas"]["PairOnePresentRequest"] | components["schemas"]["PairOneArticleRequest"] | components["schemas"]["PairOneOrderRequest"] | components["schemas"]["PairTwoPresentRequest"] | components["schemas"]["PairTwoArticleRequest"] | components["schemas"]["PairTwoOrderRequest"] | components["schemas"]["PairThreePresentRequest"] | components["schemas"]["PairThreeArticleRequest"] | components["schemas"]["PairThreeOrderRequest"] | components["schemas"]["PairThreeLexicalRequest"] | components["schemas"]["PairFourPresentRequest"] | components["schemas"]["PairFourArticleRequest"] | components["schemas"]["PairFourOrderRequest"] | components["schemas"]["PairFourLexicalRequest"] | components["schemas"]["PairFourReadingRequest"] | components["schemas"]["PairFivePresentRequest"] | components["schemas"]["PairFiveArticleRequest"] | components["schemas"]["PairFiveOrderRequest"] | components["schemas"]["PairFiveLexicalRequest"] | components["schemas"]["PairFiveWritingRequest"] | components["schemas"]["PairFiveReadingRequest"] | components["schemas"]["PairFiveUseAllTilesRequest"] | components["schemas"]["PairFiveSpareTilesRequest"] | components["schemas"]["PairSixPresentRequest"] | components["schemas"]["PairSixArticleRequest"] | components["schemas"]["PairSixOrderRequest"] | components["schemas"]["PairSixLexicalRequest"] | components["schemas"]["PairSixWritingRequest"] | components["schemas"]["PairSixReadingRequest"] | components["schemas"]["PairSixUseAllTilesRequest"] | components["schemas"]["PairSixSpareTilesRequest"] | components["schemas"]["PairSixMatchingRequest"];
         PairOnePresentRequest: {
             /** @enum {string} */
             formatId: "E001";
@@ -580,8 +580,113 @@ export interface components {
             /** @enum {string} */
             generatorRevision: "generator-5";
         };
-        Exercise: components["schemas"]["GrammarExercise"] | components["schemas"]["LexicalExercise"] | components["schemas"]["WritingExercise"] | components["schemas"]["ReadingExercise"] | components["schemas"]["TileExercise"];
-        GrammarExercise: components["schemas"]["PairOnePresentExerciseObject"] | components["schemas"]["PairOneArticleExerciseObject"] | components["schemas"]["PairOneOrderExerciseObject"] | components["schemas"]["PairTwoPresentExerciseObject"] | components["schemas"]["PairTwoArticleExerciseObject"] | components["schemas"]["PairTwoOrderExerciseObject"] | components["schemas"]["PairThreePresentExerciseObject"] | components["schemas"]["PairThreeArticleExerciseObject"] | components["schemas"]["PairThreeOrderExerciseObject"] | components["schemas"]["PairFourPresentExerciseObject"] | components["schemas"]["PairFourArticleExerciseObject"] | components["schemas"]["PairFourOrderExerciseObject"] | components["schemas"]["PairFivePresentExerciseObject"] | components["schemas"]["PairFiveArticleExerciseObject"] | components["schemas"]["PairFiveOrderExerciseObject"];
+        PairSixPresentRequest: {
+            /** @enum {string} */
+            formatId: "E001" | "E004" | "E005";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+        };
+        PairSixArticleRequest: {
+            /** @enum {string} */
+            formatId: "E002" | "E006";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+        };
+        PairSixOrderRequest: {
+            /** @enum {string} */
+            formatId: "E003";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+        };
+        PairSixWritingRequest: {
+            /** @enum {string} */
+            formatId: "E009";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+        };
+        PairSixUseAllTilesRequest: {
+            /** @enum {string} */
+            formatId: "E012";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+        };
+        PairSixSpareTilesRequest: {
+            /** @enum {string} */
+            formatId: "E013";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+        };
+        PairSixLexicalRequest: {
+            /** @enum {string} */
+            formatId: "E007" | "E008" | "E011";
+            targetSkillId?: string | null;
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+        };
+        PairSixReadingRequest: {
+            /** @enum {string} */
+            formatId: "E010";
+            targetSkillId?: string | null;
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+        };
+        PairSixMatchingRequest: {
+            /** @enum {string} */
+            formatId: "E014";
+            targetSkillId?: string | null;
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+        };
+        Exercise: components["schemas"]["GrammarExercise"] | components["schemas"]["LexicalExercise"] | components["schemas"]["WritingExercise"] | components["schemas"]["ReadingExercise"] | components["schemas"]["TileExercise"] | components["schemas"]["MatchingExercise"];
+        GrammarExercise: components["schemas"]["PairOnePresentExerciseObject"] | components["schemas"]["PairOneArticleExerciseObject"] | components["schemas"]["PairOneOrderExerciseObject"] | components["schemas"]["PairTwoPresentExerciseObject"] | components["schemas"]["PairTwoArticleExerciseObject"] | components["schemas"]["PairTwoOrderExerciseObject"] | components["schemas"]["PairThreePresentExerciseObject"] | components["schemas"]["PairThreeArticleExerciseObject"] | components["schemas"]["PairThreeOrderExerciseObject"] | components["schemas"]["PairFourPresentExerciseObject"] | components["schemas"]["PairFourArticleExerciseObject"] | components["schemas"]["PairFourOrderExerciseObject"] | components["schemas"]["PairFivePresentExerciseObject"] | components["schemas"]["PairFiveArticleExerciseObject"] | components["schemas"]["PairFiveOrderExerciseObject"] | components["schemas"]["PairSixPresentExerciseObject"] | components["schemas"]["PairSixArticleExerciseObject"] | components["schemas"]["PairSixOrderExerciseObject"];
         PairOnePresentExerciseObject: {
             /** Format: uuid */
             id: string;
@@ -882,7 +987,67 @@ export interface components {
             introduction: components["schemas"]["Introduction"][];
             hint: string;
         };
-        LexicalExercise: components["schemas"]["PairThreeRecognitionExercise"] | components["schemas"]["PairThreeRecallExercise"] | components["schemas"]["PairFourRecognitionExercise"] | components["schemas"]["PairFourRecallExercise"] | components["schemas"]["PairFiveRecognitionExercise"] | components["schemas"]["PairFiveRecallExercise"] | components["schemas"]["PairFiveDanishChoiceExercise"];
+        PairSixPresentExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E001" | "E004" | "E005";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairSixArticleExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E002" | "E006";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairSixOrderExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E003";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        LexicalExercise: components["schemas"]["PairThreeRecognitionExercise"] | components["schemas"]["PairThreeRecallExercise"] | components["schemas"]["PairFourRecognitionExercise"] | components["schemas"]["PairFourRecallExercise"] | components["schemas"]["PairFiveRecognitionExercise"] | components["schemas"]["PairFiveRecallExercise"] | components["schemas"]["PairFiveDanishChoiceExercise"] | components["schemas"]["PairSixRecognitionExercise"] | components["schemas"]["PairSixRecallExercise"] | components["schemas"]["PairSixDanishChoiceExercise"];
         PairThreeRecognitionExercise: {
             /** Format: uuid */
             id: string;
@@ -1016,7 +1181,64 @@ export interface components {
             introduction: components["schemas"]["Introduction"][];
             hint: string;
         };
-        WritingExercise: components["schemas"]["PairFourWritingExercise"] | components["schemas"]["PairFiveWritingExercise"];
+        PairSixRecognitionExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E007";
+            targetSkillId?: string | null;
+            lexicalTarget: components["schemas"]["RecognitionLexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairSixRecallExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E008";
+            targetSkillId?: string | null;
+            lexicalTarget: components["schemas"]["RecallLexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairSixDanishChoiceExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E011";
+            targetSkillId?: string | null;
+            lexicalTarget: components["schemas"]["DanishChoiceLexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["DanishChoicePrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        WritingExercise: components["schemas"]["PairFourWritingExercise"] | components["schemas"]["PairFiveWritingExercise"] | components["schemas"]["PairSixWritingExercise"];
         PairFourWritingExercise: {
             /** Format: uuid */
             id: string;
@@ -1057,7 +1279,27 @@ export interface components {
             introduction: components["schemas"]["Introduction"][];
             hint: string;
         };
-        ReadingExercise: components["schemas"]["PairFourReadingExercise"] | components["schemas"]["PairFiveReadingExercise"];
+        PairSixWritingExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E009";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        ReadingExercise: components["schemas"]["PairFourReadingExercise"] | components["schemas"]["PairFiveReadingExercise"] | components["schemas"]["PairSixReadingExercise"];
         PairFourReadingExercise: {
             /** Format: uuid */
             id: string;
@@ -1096,7 +1338,26 @@ export interface components {
             introduction: components["schemas"]["Introduction"][];
             hint: string;
         };
-        TileExercise: components["schemas"]["PairFiveUseAllTilesExercise"] | components["schemas"]["PairFiveSpareTilesExercise"];
+        PairSixReadingExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E010";
+            targetSkillId?: string | null;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["ReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        TileExercise: components["schemas"]["PairFiveUseAllTilesExercise"] | components["schemas"]["PairFiveSpareTilesExercise"] | components["schemas"]["PairSixUseAllTilesExercise"] | components["schemas"]["PairSixSpareTilesExercise"];
         PairFiveUseAllTilesExercise: {
             /** Format: uuid */
             id: string;
@@ -1137,6 +1398,66 @@ export interface components {
             introduction: components["schemas"]["Introduction"][];
             hint: string;
         };
+        PairSixUseAllTilesExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E012";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["UseAllTilePrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairSixSpareTilesExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E013";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["SpareTilePrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        MatchingExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E014";
+            targetSkillId?: string | null;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets: components["schemas"]["MatchingLexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-6";
+            /** @enum {string} */
+            generatorRevision: "generator-6";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["MatchingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
         LexicalTarget: {
             entryId: string;
             senseId: string;
@@ -1169,6 +1490,47 @@ export interface components {
             /** @enum {string} */
             direction: "en-da";
         };
+        MatchingLexicalTarget: components["schemas"]["BookMatchingLexicalTarget"] | components["schemas"]["NewspaperMatchingLexicalTarget"] | components["schemas"]["LetterMatchingLexicalTarget"] | components["schemas"]["MagazineMatchingLexicalTarget"];
+        BookMatchingLexicalTarget: {
+            /** @enum {string} */
+            entryId: "L014";
+            /** @enum {string} */
+            senseId: "L014-S01";
+            /** @enum {string} */
+            facet: "meaning";
+            /** @enum {string} */
+            direction: "en-da";
+        };
+        NewspaperMatchingLexicalTarget: {
+            /** @enum {string} */
+            entryId: "L015";
+            /** @enum {string} */
+            senseId: "L015-S01";
+            /** @enum {string} */
+            facet: "meaning";
+            /** @enum {string} */
+            direction: "en-da";
+        };
+        LetterMatchingLexicalTarget: {
+            /** @enum {string} */
+            entryId: "L018";
+            /** @enum {string} */
+            senseId: "L018-S01";
+            /** @enum {string} */
+            facet: "meaning";
+            /** @enum {string} */
+            direction: "en-da";
+        };
+        MagazineMatchingLexicalTarget: {
+            /** @enum {string} */
+            entryId: "L024";
+            /** @enum {string} */
+            senseId: "L024-S01";
+            /** @enum {string} */
+            facet: "meaning";
+            /** @enum {string} */
+            direction: "en-da";
+        };
         Prompt: {
             /** @description Sentence content before the answer slot. */
             before: string;
@@ -1189,6 +1551,7 @@ export interface components {
             /** @enum {string|null} */
             answerLanguage?: "da" | "en" | null;
             passage?: string[];
+            matchingColumns?: components["schemas"]["MatchingColumns"];
         };
         NonReadingPrompt: {
             /** @description Sentence content before the answer slot. */
@@ -1223,6 +1586,35 @@ export interface components {
             /** @enum {string} */
             answerLanguage: "da";
         };
+        MatchingPrompt: {
+            before: string;
+            after: string;
+            choices: string[];
+            blocks: components["schemas"]["Block"][];
+            punctuation: string;
+            /** @enum {string} */
+            cueLanguage: "en";
+            /** @enum {string} */
+            answerLanguage: "da";
+            matchingColumns: components["schemas"]["MatchingColumns"];
+        };
+        MatchingColumns: {
+            /** @description Exactly one item for each opaque left-column id l0, l1, l2 and l3; generation tests enforce id uniqueness across variable text. */
+            left: components["schemas"]["MatchingLeftItem"][];
+            /** @description Exactly one item for each opaque right-column id r0, r1, r2 and r3; generation tests enforce id uniqueness across variable text. */
+            right: components["schemas"]["MatchingRightItem"][];
+        };
+        MatchingLeftItem: {
+            /** @enum {string} */
+            id: "l0" | "l1" | "l2" | "l3";
+            text: components["schemas"]["MatchingItemText"];
+        };
+        MatchingRightItem: {
+            /** @enum {string} */
+            id: "r0" | "r1" | "r2" | "r3";
+            text: components["schemas"]["MatchingItemText"];
+        };
+        MatchingItemText: string;
         UseAllTilePrompt: {
             before: string;
             after: string;
@@ -1292,7 +1684,7 @@ export interface components {
             attemptId: string;
             /** Format: uuid */
             exerciseId: string;
-            answer: components["schemas"]["TextAnswer"] | components["schemas"]["OrderAnswer"];
+            answer: components["schemas"]["TextAnswer"] | components["schemas"]["OrderAnswer"] | components["schemas"]["MatchingAnswer"];
             hintUsed: boolean;
         };
         TextAnswer: {
@@ -1306,7 +1698,140 @@ export interface components {
             kind: "order";
             blockIds: string[];
         };
-        Attempt: {
+        MatchingAnswer: {
+            /** @enum {string} */
+            kind: "matching";
+            /** @description A partial bijection. The list may be empty; each supplied leftId and rightId must appear at most once. */
+            pairs: components["schemas"]["MatchingPair"][] & (components["schemas"]["MatchingPermutation0123"] | components["schemas"]["MatchingPermutation0132"] | components["schemas"]["MatchingPermutation0213"] | components["schemas"]["MatchingPermutation0231"] | components["schemas"]["MatchingPermutation0312"] | components["schemas"]["MatchingPermutation0321"] | components["schemas"]["MatchingPermutation1023"] | components["schemas"]["MatchingPermutation1032"] | components["schemas"]["MatchingPermutation1203"] | components["schemas"]["MatchingPermutation1230"] | components["schemas"]["MatchingPermutation1302"] | components["schemas"]["MatchingPermutation1320"] | components["schemas"]["MatchingPermutation2013"] | components["schemas"]["MatchingPermutation2031"] | components["schemas"]["MatchingPermutation2103"] | components["schemas"]["MatchingPermutation2130"] | components["schemas"]["MatchingPermutation2301"] | components["schemas"]["MatchingPermutation2310"] | components["schemas"]["MatchingPermutation3012"] | components["schemas"]["MatchingPermutation3021"] | components["schemas"]["MatchingPermutation3102"] | components["schemas"]["MatchingPermutation3120"] | components["schemas"]["MatchingPermutation3201"] | components["schemas"]["MatchingPermutation3210"]);
+        };
+        MatchingPair: {
+            /** @enum {string} */
+            leftId: "l0" | "l1" | "l2" | "l3";
+            /** @enum {string} */
+            rightId: "r0" | "r1" | "r2" | "r3";
+        };
+        MatchingPairL0R0: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l0";
+            /** @enum {string} */
+            rightId?: "r0";
+        };
+        MatchingPairL0R1: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l0";
+            /** @enum {string} */
+            rightId?: "r1";
+        };
+        MatchingPairL0R2: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l0";
+            /** @enum {string} */
+            rightId?: "r2";
+        };
+        MatchingPairL0R3: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l0";
+            /** @enum {string} */
+            rightId?: "r3";
+        };
+        MatchingPairL1R0: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l1";
+            /** @enum {string} */
+            rightId?: "r0";
+        };
+        MatchingPairL1R1: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l1";
+            /** @enum {string} */
+            rightId?: "r1";
+        };
+        MatchingPairL1R2: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l1";
+            /** @enum {string} */
+            rightId?: "r2";
+        };
+        MatchingPairL1R3: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l1";
+            /** @enum {string} */
+            rightId?: "r3";
+        };
+        MatchingPairL2R0: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l2";
+            /** @enum {string} */
+            rightId?: "r0";
+        };
+        MatchingPairL2R1: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l2";
+            /** @enum {string} */
+            rightId?: "r1";
+        };
+        MatchingPairL2R2: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l2";
+            /** @enum {string} */
+            rightId?: "r2";
+        };
+        MatchingPairL2R3: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l2";
+            /** @enum {string} */
+            rightId?: "r3";
+        };
+        MatchingPairL3R0: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l3";
+            /** @enum {string} */
+            rightId?: "r0";
+        };
+        MatchingPairL3R1: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l3";
+            /** @enum {string} */
+            rightId?: "r1";
+        };
+        MatchingPairL3R2: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l3";
+            /** @enum {string} */
+            rightId?: "r2";
+        };
+        MatchingPairL3R3: components["schemas"]["MatchingPair"] & {
+            /** @enum {string} */
+            leftId?: "l3";
+            /** @enum {string} */
+            rightId?: "r3";
+        };
+        MatchingPermutation0123: (components["schemas"]["MatchingPairL0R0"] | components["schemas"]["MatchingPairL1R1"] | components["schemas"]["MatchingPairL2R2"] | components["schemas"]["MatchingPairL3R3"])[];
+        MatchingPermutation0132: (components["schemas"]["MatchingPairL0R0"] | components["schemas"]["MatchingPairL1R1"] | components["schemas"]["MatchingPairL2R3"] | components["schemas"]["MatchingPairL3R2"])[];
+        MatchingPermutation0213: (components["schemas"]["MatchingPairL0R0"] | components["schemas"]["MatchingPairL1R2"] | components["schemas"]["MatchingPairL2R1"] | components["schemas"]["MatchingPairL3R3"])[];
+        MatchingPermutation0231: (components["schemas"]["MatchingPairL0R0"] | components["schemas"]["MatchingPairL1R2"] | components["schemas"]["MatchingPairL2R3"] | components["schemas"]["MatchingPairL3R1"])[];
+        MatchingPermutation0312: (components["schemas"]["MatchingPairL0R0"] | components["schemas"]["MatchingPairL1R3"] | components["schemas"]["MatchingPairL2R1"] | components["schemas"]["MatchingPairL3R2"])[];
+        MatchingPermutation0321: (components["schemas"]["MatchingPairL0R0"] | components["schemas"]["MatchingPairL1R3"] | components["schemas"]["MatchingPairL2R2"] | components["schemas"]["MatchingPairL3R1"])[];
+        MatchingPermutation1023: (components["schemas"]["MatchingPairL0R1"] | components["schemas"]["MatchingPairL1R0"] | components["schemas"]["MatchingPairL2R2"] | components["schemas"]["MatchingPairL3R3"])[];
+        MatchingPermutation1032: (components["schemas"]["MatchingPairL0R1"] | components["schemas"]["MatchingPairL1R0"] | components["schemas"]["MatchingPairL2R3"] | components["schemas"]["MatchingPairL3R2"])[];
+        MatchingPermutation1203: (components["schemas"]["MatchingPairL0R1"] | components["schemas"]["MatchingPairL1R2"] | components["schemas"]["MatchingPairL2R0"] | components["schemas"]["MatchingPairL3R3"])[];
+        MatchingPermutation1230: (components["schemas"]["MatchingPairL0R1"] | components["schemas"]["MatchingPairL1R2"] | components["schemas"]["MatchingPairL2R3"] | components["schemas"]["MatchingPairL3R0"])[];
+        MatchingPermutation1302: (components["schemas"]["MatchingPairL0R1"] | components["schemas"]["MatchingPairL1R3"] | components["schemas"]["MatchingPairL2R0"] | components["schemas"]["MatchingPairL3R2"])[];
+        MatchingPermutation1320: (components["schemas"]["MatchingPairL0R1"] | components["schemas"]["MatchingPairL1R3"] | components["schemas"]["MatchingPairL2R2"] | components["schemas"]["MatchingPairL3R0"])[];
+        MatchingPermutation2013: (components["schemas"]["MatchingPairL0R2"] | components["schemas"]["MatchingPairL1R0"] | components["schemas"]["MatchingPairL2R1"] | components["schemas"]["MatchingPairL3R3"])[];
+        MatchingPermutation2031: (components["schemas"]["MatchingPairL0R2"] | components["schemas"]["MatchingPairL1R0"] | components["schemas"]["MatchingPairL2R3"] | components["schemas"]["MatchingPairL3R1"])[];
+        MatchingPermutation2103: (components["schemas"]["MatchingPairL0R2"] | components["schemas"]["MatchingPairL1R1"] | components["schemas"]["MatchingPairL2R0"] | components["schemas"]["MatchingPairL3R3"])[];
+        MatchingPermutation2130: (components["schemas"]["MatchingPairL0R2"] | components["schemas"]["MatchingPairL1R1"] | components["schemas"]["MatchingPairL2R3"] | components["schemas"]["MatchingPairL3R0"])[];
+        MatchingPermutation2301: (components["schemas"]["MatchingPairL0R2"] | components["schemas"]["MatchingPairL1R3"] | components["schemas"]["MatchingPairL2R0"] | components["schemas"]["MatchingPairL3R1"])[];
+        MatchingPermutation2310: (components["schemas"]["MatchingPairL0R2"] | components["schemas"]["MatchingPairL1R3"] | components["schemas"]["MatchingPairL2R1"] | components["schemas"]["MatchingPairL3R0"])[];
+        MatchingPermutation3012: (components["schemas"]["MatchingPairL0R3"] | components["schemas"]["MatchingPairL1R0"] | components["schemas"]["MatchingPairL2R1"] | components["schemas"]["MatchingPairL3R2"])[];
+        MatchingPermutation3021: (components["schemas"]["MatchingPairL0R3"] | components["schemas"]["MatchingPairL1R0"] | components["schemas"]["MatchingPairL2R2"] | components["schemas"]["MatchingPairL3R1"])[];
+        MatchingPermutation3102: (components["schemas"]["MatchingPairL0R3"] | components["schemas"]["MatchingPairL1R1"] | components["schemas"]["MatchingPairL2R0"] | components["schemas"]["MatchingPairL3R2"])[];
+        MatchingPermutation3120: (components["schemas"]["MatchingPairL0R3"] | components["schemas"]["MatchingPairL1R1"] | components["schemas"]["MatchingPairL2R2"] | components["schemas"]["MatchingPairL3R0"])[];
+        MatchingPermutation3201: (components["schemas"]["MatchingPairL0R3"] | components["schemas"]["MatchingPairL1R2"] | components["schemas"]["MatchingPairL2R0"] | components["schemas"]["MatchingPairL3R1"])[];
+        MatchingPermutation3210: (components["schemas"]["MatchingPairL0R3"] | components["schemas"]["MatchingPairL1R2"] | components["schemas"]["MatchingPairL2R1"] | components["schemas"]["MatchingPairL3R0"])[];
+        Attempt: components["schemas"]["NonMatchingAttempt"] | components["schemas"]["MatchingAttempt"];
+        NonMatchingAttempt: {
             /** Format: uuid */
             attemptId: string;
             /** Format: uuid */
@@ -1329,6 +1854,81 @@ export interface components {
             retryNumber: number;
             /** Format: int64 */
             createdAt: number;
+        };
+        MatchingAttempt: {
+            /** Format: uuid */
+            attemptId: string;
+            /** Format: uuid */
+            exerciseId: string;
+            /** @enum {string} */
+            targetSatisfaction: "met" | "not-met" | "unevaluable";
+            /** @enum {string} */
+            linguisticStatus: "acceptable" | "unknown";
+            /** @enum {string} */
+            linguisticScope: "danish-matching";
+            /** @enum {string} */
+            responseConstraintStatus: "met" | "not-met";
+            /** @enum {string} */
+            meaningSatisfaction: "met" | "not-met" | "unknown";
+            matchingResults: components["schemas"]["MatchingPairResult"][];
+            issues: components["schemas"]["Issue"][];
+            feedback: string;
+            completedSentence: string;
+            /** @enum {string} */
+            evaluationRevision: "evaluation-6";
+            hintUsed: boolean;
+            retryNumber: number;
+            /** Format: int64 */
+            createdAt: number;
+        };
+        MatchingPairResult: components["schemas"]["CorrectMatchingPairResult"] | components["schemas"]["WrongMatchingPairResult"] | components["schemas"]["UnmatchedMatchingPairResult"];
+        CorrectMatchingPairResult: {
+            /** @enum {string} */
+            leftId: "l0" | "l1" | "l2" | "l3";
+            /** @enum {string} */
+            rightId: "r0" | "r1" | "r2" | "r3";
+            lexicalTarget: components["schemas"]["MatchingLexicalTarget"];
+            /** @enum {string} */
+            targetSatisfaction: "met";
+            /** @enum {string} */
+            meaningSatisfaction: "met";
+            /** @enum {string} */
+            responseConstraintStatus: "met";
+            /** @enum {string} */
+            linguisticStatus: "acceptable";
+            feedback: string;
+        };
+        WrongMatchingPairResult: {
+            /** @enum {string} */
+            leftId: "l0" | "l1" | "l2" | "l3";
+            /** @enum {string} */
+            rightId: "r0" | "r1" | "r2" | "r3";
+            lexicalTarget: components["schemas"]["MatchingLexicalTarget"];
+            /** @enum {string} */
+            targetSatisfaction: "not-met";
+            /** @enum {string} */
+            meaningSatisfaction: "not-met";
+            /** @enum {string} */
+            responseConstraintStatus: "met";
+            /** @enum {string} */
+            linguisticStatus: "acceptable";
+            feedback: string;
+        };
+        UnmatchedMatchingPairResult: {
+            /** @enum {string} */
+            leftId: "l0" | "l1" | "l2" | "l3";
+            /** @enum {string} */
+            rightId?: "r0" | "r1" | "r2" | "r3";
+            lexicalTarget: components["schemas"]["MatchingLexicalTarget"];
+            /** @enum {string} */
+            targetSatisfaction: "unevaluable";
+            /** @enum {string} */
+            meaningSatisfaction: "unknown";
+            /** @enum {string} */
+            responseConstraintStatus: "not-met";
+            /** @enum {string} */
+            linguisticStatus: "unknown";
+            feedback: string;
         };
         Issue: {
             code: string;
@@ -1430,7 +2030,7 @@ export interface components {
             introduction: components["schemas"]["Introduction"][];
             introductionOpened: boolean;
             items: components["schemas"]["PracticeItem"][];
-            currentExercise?: components["schemas"]["Exercise"];
+            currentExercise?: components["schemas"]["PracticeExercise"];
             summary: components["schemas"]["PracticeSummary"];
             followUp?: components["schemas"]["PracticeFollowUp"];
             /** @enum {string} */
@@ -1454,13 +2054,14 @@ export interface components {
             hintOpened: boolean;
             attemptIds: string[];
             attemptCount: number;
-            firstAttempt?: components["schemas"]["Attempt"];
-            lastAttempt?: components["schemas"]["Attempt"];
+            firstAttempt?: components["schemas"]["NonMatchingAttempt"];
+            lastAttempt?: components["schemas"]["NonMatchingAttempt"];
             firstAnswer?: components["schemas"]["TextAnswer"] | components["schemas"]["OrderAnswer"];
             lastAnswer?: components["schemas"]["TextAnswer"] | components["schemas"]["OrderAnswer"];
             firstAttemptContext?: components["schemas"]["PracticeAttemptContext"];
             lastAttemptContext?: components["schemas"]["PracticeAttemptContext"];
         };
+        PracticeExercise: components["schemas"]["GrammarExercise"] | components["schemas"]["LexicalExercise"] | components["schemas"]["WritingExercise"] | components["schemas"]["ReadingExercise"] | components["schemas"]["TileExercise"];
         PracticeAttemptContext: {
             introductionOpened: boolean;
             lessonOpened: boolean;
@@ -1530,6 +2131,7 @@ export interface components {
             lexicalSource?: components["schemas"]["LexicalSource"];
             readingSource?: components["schemas"]["ReadingSource"];
             tileSource?: components["schemas"]["TileSource"];
+            matchingSource?: components["schemas"]["MatchingSource"];
         };
         LexicalSource: {
             entryId: string;
@@ -1570,6 +2172,16 @@ export interface components {
         TileDistractor: {
             blockId: string;
             rationale: string;
+        };
+        MatchingSource: {
+            pairs: components["schemas"]["MatchingPairSource"][];
+        };
+        MatchingPairSource: {
+            /** @enum {string} */
+            leftId: "l0" | "l1" | "l2" | "l3";
+            /** @enum {string} */
+            rightId: "r0" | "r1" | "r2" | "r3";
+            lexicalSource: components["schemas"]["LexicalSource"];
         };
         Problem: {
             /** @default about:blank */

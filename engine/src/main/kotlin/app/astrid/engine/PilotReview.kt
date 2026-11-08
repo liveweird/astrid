@@ -3,6 +3,8 @@ package app.astrid.engine
 object PilotReview {
     fun renderMarkdown(): String = renderSnapshot(PilotContent.currentSnapshot)
 
+    fun renderPilotFiveMarkdown(): String = renderSnapshot(PilotContent.pilotFiveSnapshot)
+
     fun renderPilotFourMarkdown(): String = renderSnapshot(PilotContent.pilotFourSnapshot)
 
     fun renderPilotThreeMarkdown(): String = renderSnapshot(PilotContent.pilotThreeSnapshot)
@@ -27,22 +29,32 @@ object PilotReview {
             appendExamples(snapshot)
             if (snapshot.contentRevision in setOf(
                     PilotContent.RETAINED_FOUR_CONTENT_REVISION,
+                    PilotContent.RETAINED_FIVE_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
                 appendWritingInventory(snapshot)
                 appendReadingInventory(snapshot)
             }
-            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            if (snapshot.contentRevision in setOf(
+                    PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+                    PilotContent.CURRENT_CONTENT_REVISION,
+                )
+            ) {
                 appendWordChoiceInventory(snapshot)
                 appendTileInventory(snapshot, "E012", "All-word sentence tiles")
                 appendTileInventory(snapshot, "E013", "Finite-form sentence tiles")
             }
+            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) appendMatchingInventory(snapshot)
         }
     }
 
     private fun reviewProvenance(snapshot: PilotContentSnapshot): String =
-        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+        if (snapshot.contentRevision in setOf(
+                PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+                PilotContent.CURRENT_CONTENT_REVISION,
+            )
+        ) {
             "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
                 "docs/knowledge/module-one-language-pack.md (L024 authoring packet, 2026-11-08)"
         } else {
@@ -50,7 +62,11 @@ object PilotReview {
         }
 
     private fun sourceReview(snapshot: PilotContentSnapshot): String =
-        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+        if (snapshot.contentRevision in setOf(
+                PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+                PilotContent.CURRENT_CONTENT_REVISION,
+            )
+        ) {
             "2026-11-07 retained seed; 2026-11-08 pair-five extension; see " +
                 "docs/knowledge/pilot-source-review.md and docs/knowledge/module-one-language-pack.md"
         } else {
@@ -134,7 +150,11 @@ object PilotReview {
 
     private fun promptSummary(exercise: GeneratedExercise): String {
         val passage = exercise.prompt.passage
+        val matchingColumns = exercise.prompt.matchingColumns
         return when {
+            matchingColumns != null ->
+                "English: " + matchingColumns.left.joinToString("; ") { "${it.id}:${it.text}" } +
+                    " | Danish: " + matchingColumns.right.joinToString("; ") { "${it.id}:${it.text}" }
             passage != null ->
                 passage.joinToString(" ") + " ${exercise.prompt.cue} " +
                     "[${exercise.prompt.choices.joinToString(", ")}]"
@@ -276,6 +296,30 @@ object PilotReview {
         }
     }
 
+    private fun StringBuilder.appendMatchingInventory(snapshot: PilotContentSnapshot) {
+        val engine = PilotEngine()
+        appendLine()
+        appendLine("## English–Danish matching boards")
+        appendLine()
+        appendLine("| Unit | English column | Danish column | Private correspondences |")
+        appendLine("| ---: | --- | --- | --- |")
+        for (index in 0 until MATCHING_UNIT_COUNT) {
+            val exercise = engine.generate(
+                GenerationRequest("E014", null, REVIEW_SEED, index, snapshot.contentRevision, snapshot.generatorRevision),
+            )
+            val columns = requireNotNull(exercise.prompt.matchingColumns)
+            val source = requireNotNull(exercise.inspector.matchingSource)
+            appendLine(
+                listOf(
+                    (index + 1).toString(),
+                    columns.left.joinToString("; ") { "${it.id}:${it.text}" },
+                    columns.right.joinToString("; ") { "${it.id}:${it.text}" },
+                    source.pairs.joinToString("; ") { "${it.leftId}->${it.rightId}:${it.lexicalSource.senseId}" },
+                ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+            )
+        }
+    }
+
     private fun realize(sentence: Sentence): String {
         val parts = listOfNotNull(sentence.subject.text, sentence.verb.present, sentence.complement?.text)
         return parts.joinToString(" ").replaceFirstChar { it.titlecase() } + "."
@@ -289,4 +333,5 @@ object PilotReview {
     private const val WRITING_UNIT_COUNT = 99
     private const val WORD_CHOICE_UNIT_COUNT = 4
     private const val TILE_UNIT_COUNT = 99
+    private const val MATCHING_UNIT_COUNT = 4
 }

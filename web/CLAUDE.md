@@ -21,7 +21,7 @@ building block (Astrid is a much smaller app: no auth screens, tables, forms lib
 - `pages/playground/` (`Playground.tsx` and its pieces, `useCatalogQuery.ts`, `usePlaygroundFocus.ts`), `pages/practice/` (`Practice.tsx` shell, `ActivePractice`, `PracticeChooser`,
   `SupportSections`, `PracticeMessages`, pure `practiceOperations.ts` / `practiceProfiles.ts`, `practiceRecovery.ts` browser outbox, `useInitialPracticeRecovery`, `usePracticeFocusQueue`),
   `pages/Changelog.tsx` (lazy).
-- `components/` (shared UI: `ExercisePrompt`, `FeedbackPanel`, `PracticeSummary`, `FormatSelect`, `InspectorPanel`, `VersionStamp`, `BrandMark`, `MarkdownView`,
+- `components/` (shared UI: `ExercisePrompt`, `MatchingPrompt`, `FeedbackPanel`, `PracticeSummary`, `FormatSelect`, `InspectorPanel`, `VersionStamp`, `BrandMark`, `MarkdownView`,
   `ChangelogErrorBoundary`), `hooks/` (`useChangelogSeen`), `api/` (`client.ts` transport, `models.ts`, generated `schema.ts`), `changelog/` (`version.ts`, `entries.ts`), `test/` (shared test scaffolding).
 - Default exports for components/pages, named exports elsewhere; **relative imports only** (no path aliases); a folder per page, no catch-all `utils/`. Tests are colocated
   (`Foo.test.tsx` beside `Foo.tsx`). Domain logic stays on the server/engine — the UI renders what the API says and never grades.
@@ -60,6 +60,8 @@ race the cross-tab owner checks, and revisions only change with a deploy (a 409 
 Practice persists under `astrid.practice.v1.*` in `localStorage` (run, latest pointer, outbox per run). An outbox entry stores `{ ownerSessionId, practiceSessionId, kind, identity, body }`; replay sends
 `identity` + `body` **unchanged**. Recovery requires the original cookie and storage; otherwise **Start new practice** (old server history stays intact). A confirmed grade is read back, never regraded.
 Persistence failures surface as `PracticePersistenceError` and the operation is **not sent**. Related records: `docs/knowledge/runtime-recovery.md`, `practice-continuity.md`.
+
+Standalone matching keeps the pending serialized attempt in memory and resends it exactly; keep the page open for recovery. The board is scoped to the exercise ID, so an unfinished English selection cannot survive regeneration. A confirmed retry retains pairs, unlocks all of them and focuses the board. Matching feedback maps server rows to displayed words; the UI never determines correctness.
 
 ## Theme and brand
 

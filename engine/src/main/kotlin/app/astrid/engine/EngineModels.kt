@@ -66,6 +66,7 @@ class GeneratedExercise internal constructor(
     val inspector: ExerciseInspector,
     internal val source: ExerciseSource,
     val readingTarget: ReadingTask? = null,
+    val lexicalTargets: List<LexicalTarget>? = null,
 ) {
     val instruction: String get() = presentation.instruction
     val context: String get() = presentation.context
@@ -96,7 +97,17 @@ data class ExercisePrompt(
     val passage: List<String>? = null,
     val tileMode: String? = null,
     val requiredTileCount: Int? = null,
+    val matchingColumns: MatchingColumns? = null,
 )
+
+data class MatchingColumns(
+    val left: List<MatchingItem>,
+    val right: List<MatchingItem>,
+)
+
+data class MatchingItem(val id: String, val text: String)
+
+data class MatchingPair(val leftId: String, val rightId: String)
 
 data class OrderBlock(
     val id: String,
@@ -123,6 +134,15 @@ data class ExerciseInspector(
     val lexicalSource: LexicalSourceDetails? = null,
     val readingSource: ReadingSourceDetails? = null,
     val tileSource: TileSourceDetails? = null,
+    val matchingSource: MatchingSourceDetails? = null,
+)
+
+data class MatchingSourceDetails(val pairs: List<MatchingPairSourceDetails>)
+
+data class MatchingPairSourceDetails(
+    val leftId: String,
+    val rightId: String,
+    val lexicalSource: LexicalSourceDetails,
 )
 
 data class TileSourceDetails(
@@ -174,6 +194,8 @@ sealed interface Answer {
     data class Text(val text: String) : Answer
 
     data class Order(val blockIds: List<String>) : Answer
+
+    data class Matching(val pairs: List<MatchingPair>) : Answer
 }
 
 data class Evaluation(
@@ -187,6 +209,18 @@ data class Evaluation(
     val linguisticScope: LinguisticScope? = null,
     val responseConstraintStatus: ResponseConstraintStatus? = null,
     val meaningSatisfaction: MeaningSatisfaction? = null,
+    val matchingResults: List<MatchingPairResult>? = null,
+)
+
+data class MatchingPairResult(
+    val leftId: String,
+    val rightId: String?,
+    val lexicalTarget: LexicalTarget,
+    val targetStatus: TargetStatus,
+    val meaningSatisfaction: MeaningSatisfaction,
+    val responseConstraintStatus: ResponseConstraintStatus,
+    val linguisticStatus: LinguisticStatus,
+    val feedback: String,
 )
 
 data class EvaluationIssue(
@@ -198,6 +232,8 @@ sealed interface NormalizedAnswer {
     data class Text(val text: String) : NormalizedAnswer
 
     data class Order(val blockIds: List<String>) : NormalizedAnswer
+
+    data class Matching(val pairs: List<MatchingPair>) : NormalizedAnswer
 }
 
 enum class TargetStatus(val wireValue: String) {
@@ -217,6 +253,7 @@ enum class LinguisticScope(val wireValue: String) {
     DANISH_CHOICE("danish-choice"),
     DANISH_HEADWORD("danish-headword"),
     DANISH_SENTENCE("danish-sentence"),
+    DANISH_MATCHING("danish-matching"),
 }
 
 enum class MeaningSatisfaction(val wireValue: String) {
@@ -258,6 +295,11 @@ internal data class ReadingSource(
 
 internal data class TileExerciseSource(
     val sentence: Sentence?,
+    override val answerKey: AnswerKey,
+    override val blockRoles: Map<String, String> = emptyMap(),
+) : ExerciseSource
+
+internal data class MatchingExerciseSource(
     override val answerKey: AnswerKey,
     override val blockRoles: Map<String, String> = emptyMap(),
 ) : ExerciseSource
@@ -316,6 +358,8 @@ internal sealed interface AnswerKey {
         val fronted: List<TileIdentity>?,
         val infinitive: List<TileIdentity>?,
     ) : AnswerKey
+
+    data class Matching(val expectedByLeftId: Map<String, String>) : AnswerKey
 
 }
 

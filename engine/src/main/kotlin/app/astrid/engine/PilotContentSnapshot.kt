@@ -60,7 +60,9 @@ internal object PilotContentValidator {
             PilotContent.RETAINED_CONTENT_REVISION -> setOf("E001", "E002", "E003", "E004", "E005", "E006")
             PilotContent.RETAINED_THREE_CONTENT_REVISION -> EXPECTED_PILOT_THREE_FORMAT_IDS
             PilotContent.RETAINED_FOUR_CONTENT_REVISION -> EXPECTED_PILOT_FOUR_FORMAT_IDS
-            else -> EXPECTED_CURRENT_FORMAT_IDS
+            PilotContent.RETAINED_FIVE_CONTENT_REVISION -> EXPECTED_PILOT_FIVE_FORMAT_IDS
+            PilotContent.CURRENT_CONTENT_REVISION -> EXPECTED_CURRENT_FORMAT_IDS
+            else -> emptySet()
         }
         requireIds("format", snapshot.formats.map { it.id }, expectedFormats)
         val lexicalIds =
@@ -68,7 +70,11 @@ internal object PilotContentValidator {
                 snapshot.verbs.map { it.lexicalId } + snapshot.nouns.map { it.id } +
                 NounGender.entries.map { it.articleId }
         val expectedLexicalIds =
-            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            if (snapshot.contentRevision in setOf(
+                    PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+                    PilotContent.CURRENT_CONTENT_REVISION,
+                )
+            ) {
                 EXPECTED_CURRENT_LEXICAL_IDS
             } else {
                 EXPECTED_RETAINED_LEXICAL_IDS
@@ -137,6 +143,7 @@ internal object PilotContentValidator {
                 "E007" to LexicalTask("meaning", "da-en"),
                 "E008" to LexicalTask("singular-headword", "en-da"),
                 "E011" to LexicalTask("meaning", "en-da"),
+                "E014" to LexicalTask("meaning", "en-da"),
             )
         snapshot.formats.forEach { format ->
             expectedLexicalTasks[format.id]?.let { expected ->
@@ -231,7 +238,9 @@ internal object PilotContentValidator {
                 PilotContent.RETAINED_THREE_CONTENT_REVISION,
                 PilotContent.RETAINED_FOUR_CONTENT_REVISION,
                 -> setOf("L014-S01", "L015-S01", "L018-S01")
-                PilotContent.CURRENT_CONTENT_REVISION ->
+                PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+                PilotContent.CURRENT_CONTENT_REVISION,
+                ->
                     setOf("L014-S01", "L015-S01", "L018-S01", "L024-S01")
                 else -> emptySet()
             }
@@ -369,6 +378,8 @@ internal object PilotContentValidator {
         (1..LAST_PILOT_THREE_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_PILOT_FOUR_FORMAT_IDS =
         (1..LAST_PILOT_FOUR_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
+    private val EXPECTED_PILOT_FIVE_FORMAT_IDS =
+        (1..LAST_PILOT_FIVE_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val KNOWN_SOURCE_URLS =
         setOf(
             "https://sproget.dk/typiske-problemer/pronomener-stedord/",
@@ -396,5 +407,6 @@ internal object PilotContentValidator {
     private const val ROLE_PREDICATIVE = "PREDICATIVE"
     private const val LAST_PILOT_THREE_FORMAT_NUMBER = 8
     private const val LAST_PILOT_FOUR_FORMAT_NUMBER = 10
-    private const val LAST_CURRENT_FORMAT_NUMBER = 13
+    private const val LAST_PILOT_FIVE_FORMAT_NUMBER = 13
+    private const val LAST_CURRENT_FORMAT_NUMBER = 14
 }

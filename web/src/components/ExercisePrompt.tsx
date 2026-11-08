@@ -1,8 +1,9 @@
 import { Button, Group, Paper, Stack, Text, Textarea, TextInput, VisuallyHidden } from "@mantine/core";
-import { useLayoutEffect, useRef, useState, type RefObject } from "react";
-import type { Exercise } from "../api/models";
+import { useLayoutEffect, useRef, useState, type Ref, type RefObject } from "react";
+import type { Exercise, MatchingPair } from "../api/models";
 import classes from "../theme.module.css";
 import SentenceOrderPrompt from "./SentenceOrderPrompt";
+import MatchingPrompt from "./MatchingPrompt";
 
 type Props = {
   exercise: Exercise;
@@ -11,6 +12,9 @@ type Props = {
   disabled: boolean;
   onText: (value: string) => void;
   onOrder: (value: string[]) => void;
+  matchingPairs?: MatchingPair[];
+  matchingFocusRef?: Ref<HTMLDivElement>;
+  onMatchingPairs?: (value: MatchingPair[]) => void;
 };
 
 const DANISH_CHARACTERS = ["æ", "ø", "å"] as const;
@@ -122,13 +126,27 @@ function DanishSentenceInput({ text, disabled, onText, label }: {
   );
 }
 
-export default function ExercisePrompt({ exercise, text, order, disabled, onText, onOrder }: Props) {
+export default function ExercisePrompt({
+  exercise, text, order, disabled, onText, onOrder,
+  matchingPairs = [], matchingFocusRef, onMatchingPairs = () => undefined,
+}: Props) {
+  if (exercise.formatId === "E014") {
+    return (
+      <MatchingPrompt
+        key={exercise.id}
+        columns={exercise.prompt.matchingColumns}
+        pairs={matchingPairs}
+        disabled={disabled}
+        focusRef={matchingFocusRef}
+        onPairs={onMatchingPairs}
+      />
+    );
+  }
   const { prompt, formatId } = exercise;
   const inputLabel = "inputLabel" in prompt ? prompt.inputLabel : undefined;
   const replacementWord = "replacementWord" in prompt ? prompt.replacementWord : undefined;
   const passage = "passage" in prompt ? prompt.passage : undefined;
   const tileMode = "tileMode" in prompt ? prompt.tileMode : undefined;
-
   if (exercise.readingTarget) {
     return (
       <Stack gap="md">

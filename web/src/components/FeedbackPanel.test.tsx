@@ -248,4 +248,5 @@ describe("FeedbackPanel", () => {
     expect(screen.queryByText("Good work")).not.toBeInTheDocument();
     expect(screen.getByText("Target met; adjust the rest of your answer.")).toBeVisible();
   });
+
 });

@@ -89,7 +89,7 @@ internal object PilotFiveCompatibilityGolden {
             evaluationRevision=evaluation-5
             rowCount=$rowCount
             fixtureSha256=${bytes.sha256()}
-            reviewSha256=${PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8).sha256()}
+            reviewSha256=${PilotReview.renderPilotFiveMarkdown().toByteArray(Charsets.UTF_8).sha256()}
             description=All thirteen complete format cycles, boundaries, raw and Unicode grading, writing and tile facets, choice constraints, and framed hashes.
             """.trimIndent() + "\n"
         Files.writeString(provenancePath, provenance, Charsets.UTF_8, StandardOpenOption.CREATE_NEW)
@@ -207,6 +207,7 @@ internal object PilotFiveCompatibilityGolden {
                     field("normalizedAnswer.type", "order")
                     strings("normalizedAnswer.blockIds", answer.blockIds)
                 }
+                is NormalizedAnswer.Matching -> error("Matching answer is unreachable in pilot five")
             }
             nullable("linguisticScope", evaluation.linguisticScope?.wireValue)
             nullable("responseConstraintStatus", evaluation.responseConstraintStatus?.wireValue)
@@ -223,6 +224,7 @@ internal object PilotFiveCompatibilityGolden {
                 field("$name.type", "order")
                 strings("$name.blockIds", answer.blockIds)
             }
+            is Answer.Matching -> error("Matching answer is unreachable in pilot five")
         }
     }
 
@@ -250,6 +252,7 @@ internal object PilotFiveCompatibilityGolden {
                 kind = "O"
                 raw = answer.blockIds.joinToString(ORDER_SEPARATOR)
             }
+            is Answer.Matching -> error("Matching answer is unreachable in pilot five")
         }
         return listOf(
             kind,
@@ -274,6 +277,7 @@ internal object PilotFiveCompatibilityGolden {
             is AnswerKey.Headword -> Answer.Text(key.expected.headword)
             is AnswerKey.SuppliedChoice -> Answer.Text(key.expected)
             is AnswerKey.TileOrder -> Answer.Order(idsFor(key.canonical, exercise))
+            is AnswerKey.Matching -> error("Matching key is unreachable in pilot five")
         }
     }
 
@@ -333,6 +337,7 @@ internal object PilotFiveCompatibilityGolden {
                     Answer.Order(emptyList()),
                 )
             is AnswerKey.TileOrder -> tileAnswers(exercise, key)
+            is AnswerKey.Matching -> error("Matching key is unreachable in pilot five")
         }
 
     private fun specialExercise(format: FormatSpec): GeneratedExercise {

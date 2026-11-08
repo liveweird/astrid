@@ -6,9 +6,9 @@ import { IconAlertCircle, IconBulb, IconRefresh } from "@tabler/icons-react";
 import { type QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import {
-  ApiError, bootstrapPlayground, createExercise, submitAttempt, UncertainResultError,
+  ApiError, bootstrapPlayground, createExercise, submitSerializedAttempt, UncertainResultError,
 } from "../../api/client";
-import type { Attempt, AttemptAnswer, AttemptRequest, Catalog, DevelopmentSession, Exercise } from "../../api/models";
+import type { Attempt, AttemptAnswer, AttemptRequest, Catalog, DevelopmentSession, Exercise, MatchingPair } from "../../api/models";
 import ExercisePrompt from "../../components/ExercisePrompt";
 import FeedbackPanel from "../../components/FeedbackPanel";
 import FormatSelect from "../../components/FormatSelect";
@@ -44,14 +44,20 @@ function tileMode(exercise: Exercise) {
   return "tileMode" in exercise.prompt ? exercise.prompt.tileMode : undefined;
 }
 
-function answerFor(exercise: Exercise, text: string, order: string[]): AttemptAnswer {
+function isMatching(exercise: Exercise) {
+  return exercise.formatId === "E014";
+}
+
+function answerFor(exercise: Exercise, text: string, order: string[], matchingPairs: MatchingPair[]): AttemptAnswer {
+  if (isMatching(exercise)) return { kind: "matching", pairs: matchingPairs };
   return exercise.formatId === "E003" || tileMode(exercise)
     ? { kind: "order", blockIds: order }
     : { kind: "text", text };
 }
 
-function answerIsReady(exercise: Exercise | null, text: string, order: string[]) {
+function answerIsReady(exercise: Exercise | null, text: string, order: string[], matchingPairs: MatchingPair[]) {
   if (!exercise) return false;
+  if (isMatching(exercise)) return matchingPairs.length > 0;
   if (exercise.formatId === "E003") return order.length === exercise.prompt.blocks.length;
   if (tileMode(exercise)) return order.length > 0;
   return text.trim().length > 0;
@@ -87,10 +93,11 @@ export default function Playground() {
   const [activeReproduction, setActiveReproduction] = useState({ seed: INITIAL_SEED, index: INITIAL_INDEX });
   const [text, setText] = useState("");
   const [order, setOrder] = useState<string[]>([]);
+  const [matchingPairs, setMatchingPairs] = useState<MatchingPair[]>([]);
   const [hintUsed, setHintUsed] = useState(false);
   const [hintVisible, setHintVisible] = useState(false);
   const [attempt, setAttempt] = useState<Attempt | null>(null);
-  const [pending, setPending] = useState<AttemptRequest | null>(null);
+  const [pending, setPending] = useState<string | null>(null);
   const [uncertain, setUncertain] = useState(false);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
@@ -99,6 +106,7 @@ export default function Playground() {
   const [errorAlertRef, requestErrorFocus] = useRequestedFocus<HTMLDivElement>();
   const [uncertainAlertRef, requestUncertainFocus] = useRequestedFocus<HTMLDivElement>();
   const [feedbackRef, requestFeedbackFocus] = useRequestedFocus<HTMLDivElement>();
+  const [matchingRef, requestMatchingFocus] = useRequestedFocus<HTMLDivElement>();
   const generate = async (nextFormat: string, nextSeed: number, nextIndex: number, knownCatalog = catalog) => {
     if (!knownCatalog) return;
     const format = knownCatalog.formats.find((candidate) => candidate.id === nextFormat);
@@ -107,14 +115,9 @@ export default function Playground() {
     setError("");
     setRecoveryRequired(null);
     try {
-      const created = await createExercise({
-        formatId: format.id,
-        ...(format.targetSkillId ? { targetSkillId: format.targetSkillId } : {}),
-        seed: nextSeed,
-        index: nextIndex,
-        contentRevision: knownCatalog.contentRevision,
-        generatorRevision: knownCatalog.generatorRevision,
-      });
+      const created = await createExercise({ formatId: format.id,
+        ...(format.targetSkillId ? { targetSkillId: format.targetSkillId } : {}), seed: nextSeed, index: nextIndex,
+        contentRevision: knownCatalog.contentRevision, generatorRevision: knownCatalog.generatorRevision });
       requestExerciseFocus();
       setExercise(created);
       setFormatId(created.formatId);
@@ -123,6 +126,7 @@ export default function Playground() {
       setActiveReproduction({ seed: nextSeed, index: nextIndex });
       setText("");
       setOrder([]);
+      setMatchingPairs([]);
       setHintUsed(false);
       setHintVisible(false);
       setAttempt(null);
@@ -153,14 +157,14 @@ export default function Playground() {
     })();
     return () => { active = false; };
   }, [queryClient]);
-  const deliverAttempt = async (request: AttemptRequest) => {
-    setPending(request);
+  const deliverAttempt = async (serializedRequest: string) => {
+    setPending(serializedRequest);
     setBusy(true);
     setError("");
     setRecoveryRequired(null);
     setUncertain(false);
     try {
-      const result = await submitAttempt(request);
+      const result = await submitSerializedAttempt(serializedRequest);
       requestFeedbackFocus();
       setAttempt(result);
       setPending(null);
@@ -180,18 +184,22 @@ export default function Playground() {
   };
   const checkAnswer = () => {
     if (!exercise) return;
-    void deliverAttempt({
+    const request: AttemptRequest = {
       attemptId: crypto.randomUUID(),
       exerciseId: exercise.id,
-      answer: answerFor(exercise, text, order),
+      answer: answerFor(exercise, text, order, matchingPairs),
       hintUsed,
-    });
+    };
+    void deliverAttempt(JSON.stringify(request));
   };
   const retryKnownAttempt = () => {
-    requestExerciseFocus();
+    if (exercise && isMatching(exercise)) requestMatchingFocus();
+    else requestExerciseFocus();
     setAttempt(null);
-    setText("");
-    setOrder([]);
+    if (!exercise || !isMatching(exercise)) {
+      setText("");
+      setOrder([]);
+    }
     // Support evidence is sticky for this exercise: the learner has already seen it.
     setHintVisible(false);
     setError("");
@@ -200,7 +208,7 @@ export default function Playground() {
     return <Group justify="center" mih={300}><Loader aria-label="Starting learning engine" /></Group>;
   }
   const { id: activeFormatId, format } = activeSelection(catalog, exercise, formatId);
-  const answerReady = answerIsReady(exercise, text, order);
+  const answerReady = answerIsReady(exercise, text, order, matchingPairs);
 
   return (
     <Stack gap="lg" maw={920} className={classes.playground}>
@@ -266,10 +274,13 @@ export default function Playground() {
                 disabled={busy || uncertain || Boolean(attempt)}
                 onText={setText}
                 onOrder={setOrder}
+                matchingPairs={matchingPairs}
+                matchingFocusRef={matchingRef}
+                onMatchingPairs={setMatchingPairs}
               />
               {hintVisible && <Alert color="gray" icon={<IconBulb size={18} />}>{exercise.hint}</Alert>}
               {attempt && (
-                <FeedbackPanel attempt={attempt} focusRef={feedbackRef} tileResponse={tileMode(exercise) != null} />
+                <FeedbackPanel attempt={attempt} exercise={exercise} focusRef={feedbackRef} tileResponse={tileMode(exercise) != null} />
               )}
               <Group justify="space-between" className={classes.exerciseActions}>
                 <Button
@@ -288,16 +299,14 @@ export default function Playground() {
                     <Button
                       loading={busy}
                       disabled={busy || uncertain}
-                      onClick={() => void generate(
-                        activeFormatId,
-                        activeReproduction.seed,
-                        activeReproduction.index + 1,
-                      )}
+                      onClick={() => void generate(activeFormatId, activeReproduction.seed, activeReproduction.index + 1)}
                     >
                       Next exercise
                     </Button>
                   ) : (
-                    <Button loading={busy} disabled={!answerReady || uncertain} onClick={checkAnswer}>Check answer</Button>
+                    <Button loading={busy} disabled={!answerReady || uncertain} onClick={checkAnswer}>
+                      {isMatching(exercise) ? "Check matches" : "Check answer"}
+                    </Button>
                   )}
                 </Group>
               </Group>

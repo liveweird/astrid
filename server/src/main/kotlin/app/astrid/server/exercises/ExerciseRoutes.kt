@@ -179,6 +179,20 @@ private suspend fun evaluateAttempt(
         evaluation.linguisticScope?.wireValue,
         evaluation.responseConstraintStatus?.wireValue,
         evaluation.meaningSatisfaction?.wireValue,
+        evaluation.matchingResults?.map { result ->
+            MatchingPairResultDto(
+                leftId = result.leftId,
+                rightId = result.rightId,
+                lexicalTarget = result.lexicalTarget.let {
+                    LexicalTargetDto(it.entryId, it.senseId, it.facet, it.direction)
+                },
+                targetSatisfaction = result.targetStatus.wireValue,
+                meaningSatisfaction = result.meaningSatisfaction.wireValue,
+                responseConstraintStatus = result.responseConstraintStatus.wireValue,
+                linguisticStatus = result.linguisticStatus.wireValue,
+                feedback = result.feedback,
+            )
+        },
     )
 }
 
@@ -208,6 +222,7 @@ private fun AttemptRequest.validated(): AttemptRequest {
         }
         is AttemptAnswerDto.Order -> if (value.blockIds.size > MAX_BLOCK_COUNT ||
             value.blockIds.any { it.length !in 1..MAX_REVISION_LENGTH }) throw BadRequest("Invalid block answer")
+        is AttemptAnswerDto.Matching -> Unit
     }
     return this
 }
@@ -215,25 +230,59 @@ private fun AttemptRequest.validated(): AttemptRequest {
 private fun AttemptAnswerDto.validateFor(engine: PilotEngine, exercise: GeneratedExercise) {
     val suppliedBlocks = exercise.prompt.blocks.map { it.id }.toSet()
     when (exercise.formatId) {
-        "E003" -> {
-            val order = this as? AttemptAnswerDto.Order ?: throw BadRequest("This exercise requires an order answer")
-            if (order.blockIds.size != suppliedBlocks.size || order.blockIds.toSet() != suppliedBlocks) {
-                throw BadRequest("The answer must contain every supplied block exactly once")
-            }
-        }
-        "E012", "E013" -> {
-            val order = this as? AttemptAnswerDto.Order ?: throw BadRequest("This exercise requires an order answer")
-            if (order.blockIds.size != order.blockIds.toSet().size || !suppliedBlocks.containsAll(order.blockIds)) {
-                throw BadRequest("The answer must use distinct supplied block ids")
-            }
-        }
-        "E011" -> {
-            val text = this as? AttemptAnswerDto.Text ?: throw BadRequest("This exercise requires a text answer")
-            if (!engine.isSuppliedChoice(exercise, text.text)) throw BadRequest("The answer must be one of the supplied choices")
-        }
-        else -> if (this !is AttemptAnswerDto.Text) throw BadRequest("This exercise requires a text answer")
+        "E003" -> validateCompleteOrderAnswer(this, suppliedBlocks)
+        "E012", "E013" -> validateTileOrderAnswer(this, suppliedBlocks)
+        "E011" -> validateSuppliedChoiceAnswer(this, engine, exercise)
+        "E014" -> validateMatchingAnswer(this, exercise)
+        else -> validateTextAnswer(this)
     }
 }
+
+private fun validateCompleteOrderAnswer(answer: AttemptAnswerDto, suppliedBlocks: Set<String>) {
+    val order = answer as? AttemptAnswerDto.Order ?: throw BadRequest("This exercise requires an order answer")
+    val valid = listOf(order.blockIds.size == suppliedBlocks.size, order.blockIds.toSet() == suppliedBlocks).all { it }
+    if (!valid) throw BadRequest("The answer must contain every supplied block exactly once")
+}
+
+private fun validateTileOrderAnswer(answer: AttemptAnswerDto, suppliedBlocks: Set<String>) {
+    val order = answer as? AttemptAnswerDto.Order ?: throw BadRequest("This exercise requires an order answer")
+    val valid = listOf(
+        order.blockIds.size == order.blockIds.toSet().size,
+        suppliedBlocks.containsAll(order.blockIds),
+    ).all { it }
+    if (!valid) throw BadRequest("The answer must use distinct supplied block ids")
+}
+
+private fun validateSuppliedChoiceAnswer(answer: AttemptAnswerDto, engine: PilotEngine, exercise: GeneratedExercise) {
+    val text = answer as? AttemptAnswerDto.Text ?: throw BadRequest("This exercise requires a text answer")
+    if (!engine.isSuppliedChoice(exercise, text.text)) throw BadRequest("The answer must be one of the supplied choices")
+}
+
+private fun validateTextAnswer(answer: AttemptAnswerDto) {
+    if (answer !is AttemptAnswerDto.Text) throw BadRequest("This exercise requires a text answer")
+}
+
+private fun validateMatchingAnswer(answer: AttemptAnswerDto, exercise: GeneratedExercise) {
+    val matching = answer as? AttemptAnswerDto.Matching
+        ?: throw BadRequest("This exercise requires a matching answer")
+    val columns = checkNotNull(exercise.prompt.matchingColumns) { "Matching exercise has no matching columns" }
+    val leftIds = columns.left.map { it.id }.toSet()
+    val rightIds = columns.right.map { it.id }.toSet()
+    val suppliedLeft = matching.pairs.map { it.leftId }
+    val suppliedRight = matching.pairs.map { it.rightId }
+    val valid = listOf(
+        matching.pairs.size <= leftIds.size,
+        suppliedLeft.all(::isValidMatchingId),
+        suppliedRight.all(::isValidMatchingId),
+        suppliedLeft.size == suppliedLeft.toSet().size,
+        suppliedRight.size == suppliedRight.toSet().size,
+        leftIds.containsAll(suppliedLeft),
+        rightIds.containsAll(suppliedRight),
+    ).all { it }
+    if (!valid) throw BadRequest("The answer must pair distinct supplied matching ids")
+}
+
+private fun isValidMatchingId(value: String) = value.length in 1..MAX_REVISION_LENGTH
 
 private fun generate(engine: PilotEngine, request: ExerciseRequest) =
     if (engine.evaluationRevision(request.contentRevision, request.generatorRevision) == null) {

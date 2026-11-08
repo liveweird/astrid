@@ -13,8 +13,8 @@ class TileExercisesTest {
     fun `revision five catalog appends exact word choice and tile metadata`() {
         val catalog = engine.catalog()
 
-        assertEquals("pilot-5", catalog.contentRevision)
-        assertEquals("generator-5", catalog.generatorRevision)
+        assertEquals("pilot-6", catalog.contentRevision)
+        assertEquals("generator-6", catalog.generatorRevision)
         assertEquals("evaluation-5", engine.evaluationRevision("pilot-5", "generator-5"))
         assertEquals("Choose the Danish word", catalog.formats.single { it.id == "E011" }.title)
         assertEquals(LexicalTask("meaning", "en-da"), catalog.formats.single { it.id == "E011" }.lexicalTask)
@@ -242,7 +242,7 @@ class TileExercisesTest {
     @Test
     fun `revision five review exposes all new choice and tile teaching units while retaining four`() {
         val retained = PilotReview.renderPilotFourMarkdown()
-        val current = PilotReview.renderMarkdown()
+        val current = PilotReview.renderPilotFiveMarkdown()
 
         assertTrue("Content revision: `pilot-4`" in retained)
         assertFalse("Danish word-choice teaching units" in retained)

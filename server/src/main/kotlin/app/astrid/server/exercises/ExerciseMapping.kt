@@ -33,15 +33,23 @@ internal fun GeneratedExercise.toResponse(id: String) = ExerciseResponse(
         passage = prompt.passage,
         tileMode = prompt.tileMode,
         requiredTileCount = prompt.requiredTileCount,
+        matchingColumns = prompt.matchingColumns?.let { columns ->
+            MatchingColumnsDto(
+                left = columns.left.map { MatchingItemDto(it.id, it.text) },
+                right = columns.right.map { MatchingItemDto(it.id, it.text) },
+            )
+        },
     ),
     introduction = introduction.map { IntroductionDto(it.title, it.body, it.bodyLanguage) },
     hint = hint,
     readingTarget = readingTarget?.let { ReadingTaskDto(it.facet) },
+    lexicalTargets = lexicalTargets?.map { LexicalTargetDto(it.entryId, it.senseId, it.facet, it.direction) },
 )
 
 internal fun AttemptAnswerDto.toEngineAnswer(): Answer = when (this) {
     is AttemptAnswerDto.Text -> Answer.Text(text)
     is AttemptAnswerDto.Order -> Answer.Order(blockIds)
+    is AttemptAnswerDto.Matching -> Answer.Matching(pairs.map { app.astrid.engine.MatchingPair(it.leftId, it.rightId) })
 }
 
 internal fun GeneratedExercise.toInspector(id: String) = ExerciseInspectorDto(
@@ -74,6 +82,19 @@ internal fun GeneratedExercise.toInspector(id: String) = ExerciseInspectorDto(
             distractors = source.distractors.map { TileDistractorDetailsDto(it.blockId, it.rationale) },
         )
     },
+    matchingSource = inspector.matchingSource?.let { source ->
+        MatchingSourceDetailsDto(
+            source.pairs.map { pair ->
+                MatchingPairSourceDetailsDto(
+                    pair.leftId,
+                    pair.rightId,
+                    pair.lexicalSource.let {
+                        LexicalSourceDto(it.entryId, it.senseId, it.headword, it.gloss, it.article)
+                    },
+                )
+            },
+        )
+    },
 )
 
 internal fun GeneratedExercise.reproductionFingerprint(
@@ -83,6 +104,7 @@ internal fun GeneratedExercise.reproductionFingerprint(
     supportSkillIdsForFingerprint: List<String> = supportSkillIds,
     readingTargetForFingerprint: ReadingTask? = readingTarget,
     introductionForFingerprint: List<IntroductionSection> = introduction,
+    lexicalTargetsForFingerprint: List<LexicalTarget>? = lexicalTargets,
 ): String {
     val legacyCanonical = listOf(
         formatId,
@@ -146,6 +168,15 @@ internal fun GeneratedExercise.reproductionFingerprint(
             supportSkillIdsForFingerprint,
             readingTargetForFingerprint,
             introductionForFingerprint,
+        )
+        "pilot-6" to "generator-6" -> pairSixFingerprintCanonical(
+            promptForFingerprint,
+            lexicalTargetForFingerprint,
+            inspectorForFingerprint,
+            supportSkillIdsForFingerprint,
+            readingTargetForFingerprint,
+            introductionForFingerprint,
+            lexicalTargetsForFingerprint,
         )
         else -> error("Unsupported fingerprint revision pair: $contentRevision/$generatorRevision")
     }
@@ -245,6 +276,48 @@ private fun GeneratedExercise.pairFiveFingerprintCanonical(
                     }),
                 ),
             )
+        }),
+    ),
+)
+
+private fun GeneratedExercise.pairSixFingerprintCanonical(
+    prompt: ExercisePrompt,
+    lexicalTarget: LexicalTarget?,
+    inspector: ExerciseInspector,
+    supportSkillIds: List<String>,
+    readingTarget: ReadingTask?,
+    introduction: List<IntroductionSection>,
+    lexicalTargets: List<LexicalTarget>?,
+): String = framedList(
+    listOf(
+        pairFiveFingerprintCanonical(prompt, lexicalTarget, inspector, supportSkillIds, readingTarget, introduction),
+        framedNullable(lexicalTargets?.let { targets ->
+            framedList(targets.map { target ->
+                framedList(listOf(target.entryId, target.senseId, target.facet, target.direction))
+            })
+        }),
+        framedNullable(prompt.matchingColumns?.let { columns ->
+            framedList(
+                listOf(
+                    framedList(columns.left.map { item -> framedList(listOf(item.id, item.text)) }),
+                    framedList(columns.right.map { item -> framedList(listOf(item.id, item.text)) }),
+                ),
+            )
+        }),
+        framedNullable(inspector.matchingSource?.let { source ->
+            framedList(source.pairs.map { pair ->
+                framedList(
+                    listOf(
+                        pair.leftId,
+                        pair.rightId,
+                        pair.lexicalSource.entryId,
+                        pair.lexicalSource.senseId,
+                        pair.lexicalSource.headword,
+                        pair.lexicalSource.gloss,
+                        pair.lexicalSource.article,
+                    ),
+                )
+            })
         }),
     ),
 )

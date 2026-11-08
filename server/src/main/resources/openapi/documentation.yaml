@@ -1,5 +1,5 @@
 openapi: 3.0.3
-info: { title: Astrid pilot API, version: 0.5.0 }
+info: { title: Astrid pilot API, version: 0.6.0 }
 servers: [{ url: 'http://localhost:8088' }]
 # Every operation needs the development session cookie except the three that declare `security: []`.
 security:
@@ -239,9 +239,9 @@ components:
       properties:
         mode: { type: string, enum: [development] }
         inspectorEnabled: { type: boolean }
-        contentRevision: { type: string, enum: [pilot-5] }
-        generatorRevision: { type: string, enum: [generator-5] }
-        evaluationRevision: { type: string, enum: [evaluation-5] }
+        contentRevision: { type: string, enum: [pilot-6] }
+        generatorRevision: { type: string, enum: [generator-6] }
+        evaluationRevision: { type: string, enum: [evaluation-6] }
     Catalog:
       type: object
       additionalProperties: false
@@ -267,7 +267,7 @@ components:
       additionalProperties: false
       required: [id, title]
       properties:
-        id: { type: string, enum: [E001, E002, E003, E004, E005, E006, E007, E008, E009, E010, E011, E012, E013] }
+        id: { type: string, enum: [E001, E002, E003, E004, E005, E006, E007, E008, E009, E010, E011, E012, E013, E014] }
         title: { type: string }
         targetSkillId: { type: string, nullable: true }
         lexicalTask: { $ref: '#/components/schemas/LexicalTask' }
@@ -310,6 +310,15 @@ components:
         - { $ref: '#/components/schemas/PairFiveReadingRequest' }
         - { $ref: '#/components/schemas/PairFiveUseAllTilesRequest' }
         - { $ref: '#/components/schemas/PairFiveSpareTilesRequest' }
+        - { $ref: '#/components/schemas/PairSixPresentRequest' }
+        - { $ref: '#/components/schemas/PairSixArticleRequest' }
+        - { $ref: '#/components/schemas/PairSixOrderRequest' }
+        - { $ref: '#/components/schemas/PairSixLexicalRequest' }
+        - { $ref: '#/components/schemas/PairSixWritingRequest' }
+        - { $ref: '#/components/schemas/PairSixReadingRequest' }
+        - { $ref: '#/components/schemas/PairSixUseAllTilesRequest' }
+        - { $ref: '#/components/schemas/PairSixSpareTilesRequest' }
+        - { $ref: '#/components/schemas/PairSixMatchingRequest' }
     PairOnePresentRequest:
       type: object
       additionalProperties: false
@@ -568,6 +577,69 @@ components:
         index: { type: integer, minimum: 0, maximum: 1000000 }
         contentRevision: { type: string, enum: [pilot-5] }
         generatorRevision: { type: string, enum: [generator-5] }
+    PairSixPresentRequest: &PairSixTargetedRequest
+      type: object
+      additionalProperties: false
+      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      properties: &PairSixTargetedRequestProperties
+        formatId: { type: string, enum: [E001, E004, E005] }
+        targetSkillId: { type: string, enum: [G004] }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-6] }
+        generatorRevision: { type: string, enum: [generator-6] }
+    PairSixArticleRequest:
+      <<: *PairSixTargetedRequest
+      properties:
+        <<: *PairSixTargetedRequestProperties
+        formatId: { type: string, enum: [E002, E006] }
+        targetSkillId: { type: string, enum: [G006] }
+    PairSixOrderRequest:
+      <<: *PairSixTargetedRequest
+      properties:
+        <<: *PairSixTargetedRequestProperties
+        formatId: { type: string, enum: [E003] }
+        targetSkillId: { type: string, enum: [G005] }
+    PairSixWritingRequest:
+      <<: *PairSixTargetedRequest
+      properties:
+        <<: *PairSixTargetedRequestProperties
+        formatId: { type: string, enum: [E009] }
+        targetSkillId: { type: string, enum: [G005] }
+    PairSixUseAllTilesRequest:
+      <<: *PairSixTargetedRequest
+      properties:
+        <<: *PairSixTargetedRequestProperties
+        formatId: { type: string, enum: [E012] }
+        targetSkillId: { type: string, enum: [G005] }
+    PairSixSpareTilesRequest:
+      <<: *PairSixTargetedRequest
+      properties:
+        <<: *PairSixTargetedRequestProperties
+        formatId: { type: string, enum: [E013] }
+        targetSkillId: { type: string, enum: [G004] }
+    PairSixLexicalRequest: &PairSixUntargetedRequest
+      type: object
+      additionalProperties: false
+      required: [formatId, seed, index, contentRevision, generatorRevision]
+      not: { required: [targetSkillId] }
+      properties: &PairSixUntargetedRequestProperties
+        formatId: { type: string, enum: [E007, E008, E011] }
+        targetSkillId: { type: string, nullable: true, maxLength: 32 }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-6] }
+        generatorRevision: { type: string, enum: [generator-6] }
+    PairSixReadingRequest:
+      <<: *PairSixUntargetedRequest
+      properties:
+        <<: *PairSixUntargetedRequestProperties
+        formatId: { type: string, enum: [E010] }
+    PairSixMatchingRequest:
+      <<: *PairSixUntargetedRequest
+      properties:
+        <<: *PairSixUntargetedRequestProperties
+        formatId: { type: string, enum: [E014] }
     Exercise:
       oneOf:
         - { $ref: '#/components/schemas/GrammarExercise' }
@@ -575,6 +647,7 @@ components:
         - { $ref: '#/components/schemas/WritingExercise' }
         - { $ref: '#/components/schemas/ReadingExercise' }
         - { $ref: '#/components/schemas/TileExercise' }
+        - { $ref: '#/components/schemas/MatchingExercise' }
     GrammarExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairOnePresentExerciseObject' }
@@ -592,6 +665,9 @@ components:
         - { $ref: '#/components/schemas/PairFivePresentExerciseObject' }
         - { $ref: '#/components/schemas/PairFiveArticleExerciseObject' }
         - { $ref: '#/components/schemas/PairFiveOrderExerciseObject' }
+        - { $ref: '#/components/schemas/PairSixPresentExerciseObject' }
+        - { $ref: '#/components/schemas/PairSixArticleExerciseObject' }
+        - { $ref: '#/components/schemas/PairSixOrderExerciseObject' }
     PairOnePresentExerciseObject: &GrammarPresentPairOne
       type: object
       additionalProperties: false
@@ -696,6 +772,24 @@ components:
         <<: *GrammarPresentPairFiveProperties
         formatId: { type: string, enum: [E003] }
         targetSkillId: { type: string, enum: [G005] }
+    PairSixPresentExerciseObject: &GrammarPresentPairSix
+      <<: *GrammarPresentPairFive
+      properties: &GrammarPresentPairSixProperties
+        <<: *GrammarPresentPairFiveProperties
+        contentRevision: { type: string, enum: [pilot-6] }
+        generatorRevision: { type: string, enum: [generator-6] }
+    PairSixArticleExerciseObject:
+      <<: *GrammarPresentPairSix
+      properties:
+        <<: *GrammarPresentPairSixProperties
+        formatId: { type: string, enum: [E002, E006] }
+        targetSkillId: { type: string, enum: [G006] }
+    PairSixOrderExerciseObject:
+      <<: *GrammarPresentPairSix
+      properties:
+        <<: *GrammarPresentPairSixProperties
+        formatId: { type: string, enum: [E003] }
+        targetSkillId: { type: string, enum: [G005] }
     LexicalExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairThreeRecognitionExercise' }
@@ -705,6 +799,9 @@ components:
         - { $ref: '#/components/schemas/PairFiveRecognitionExercise' }
         - { $ref: '#/components/schemas/PairFiveRecallExercise' }
         - { $ref: '#/components/schemas/PairFiveDanishChoiceExercise' }
+        - { $ref: '#/components/schemas/PairSixRecognitionExercise' }
+        - { $ref: '#/components/schemas/PairSixRecallExercise' }
+        - { $ref: '#/components/schemas/PairSixDanishChoiceExercise' }
     PairThreeRecognitionExercise: &PairThreeRecognitionExercise
       type: object
       additionalProperties: false
@@ -773,10 +870,30 @@ components:
         formatId: { type: string, enum: [E011] }
         lexicalTarget: { $ref: '#/components/schemas/DanishChoiceLexicalTarget' }
         prompt: { $ref: '#/components/schemas/DanishChoicePrompt' }
+    PairSixRecognitionExercise: &PairSixRecognitionExercise
+      <<: *PairFiveRecognitionExercise
+      properties: &PairSixRecognitionProperties
+        <<: *PairFiveRecognitionProperties
+        contentRevision: { type: string, enum: [pilot-6] }
+        generatorRevision: { type: string, enum: [generator-6] }
+    PairSixRecallExercise:
+      <<: *PairSixRecognitionExercise
+      properties:
+        <<: *PairSixRecognitionProperties
+        formatId: { type: string, enum: [E008] }
+        lexicalTarget: { $ref: '#/components/schemas/RecallLexicalTarget' }
+    PairSixDanishChoiceExercise:
+      <<: *PairSixRecognitionExercise
+      properties:
+        <<: *PairSixRecognitionProperties
+        formatId: { type: string, enum: [E011] }
+        lexicalTarget: { $ref: '#/components/schemas/DanishChoiceLexicalTarget' }
+        prompt: { $ref: '#/components/schemas/DanishChoicePrompt' }
     WritingExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairFourWritingExercise' }
         - { $ref: '#/components/schemas/PairFiveWritingExercise' }
+        - { $ref: '#/components/schemas/PairSixWritingExercise' }
     PairFourWritingExercise: &PairFourWritingExercise
       type: object
       additionalProperties: false
@@ -815,10 +932,27 @@ components:
         prompt: { $ref: '#/components/schemas/NonReadingPrompt' }
         introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
         hint: { type: string }
+    PairSixWritingExercise:
+      <<: *PairFourWritingExercise
+      properties:
+        id: { type: string, format: uuid }
+        formatId: { type: string, enum: [E009] }
+        targetSkillId: { type: string, enum: [G005] }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        readingTarget: { $ref: '#/components/schemas/ReadingTask' }
+        supportSkillIds: { type: array, items: { type: string } }
+        contentRevision: { type: string, enum: [pilot-6] }
+        generatorRevision: { type: string, enum: [generator-6] }
+        instruction: { type: string }
+        context: { type: string }
+        prompt: { $ref: '#/components/schemas/NonReadingPrompt' }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        hint: { type: string }
     ReadingExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairFourReadingExercise' }
         - { $ref: '#/components/schemas/PairFiveReadingExercise' }
+        - { $ref: '#/components/schemas/PairSixReadingExercise' }
     PairFourReadingExercise: &PairFourReadingExercise
       type: object
       additionalProperties: false
@@ -857,10 +991,28 @@ components:
         prompt: { $ref: '#/components/schemas/ReadingPrompt' }
         introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
         hint: { type: string }
+    PairSixReadingExercise:
+      <<: *PairFourReadingExercise
+      properties:
+        id: { type: string, format: uuid }
+        formatId: { type: string, enum: [E010] }
+        targetSkillId: { type: string, nullable: true }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        readingTarget: { $ref: '#/components/schemas/ReadingTask' }
+        supportSkillIds: { type: array, items: { type: string } }
+        contentRevision: { type: string, enum: [pilot-6] }
+        generatorRevision: { type: string, enum: [generator-6] }
+        instruction: { type: string }
+        context: { type: string }
+        prompt: { $ref: '#/components/schemas/ReadingPrompt' }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        hint: { type: string }
     TileExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairFiveUseAllTilesExercise' }
         - { $ref: '#/components/schemas/PairFiveSpareTilesExercise' }
+        - { $ref: '#/components/schemas/PairSixUseAllTilesExercise' }
+        - { $ref: '#/components/schemas/PairSixSpareTilesExercise' }
     PairFiveUseAllTilesExercise: &PairFiveUseAllTilesExercise
       type: object
       additionalProperties: false
@@ -887,6 +1039,48 @@ components:
         formatId: { type: string, enum: [E013] }
         targetSkillId: { type: string, enum: [G004] }
         prompt: { $ref: '#/components/schemas/SpareTilePrompt' }
+    PairSixUseAllTilesExercise: &PairSixUseAllTilesExercise
+      <<: *PairFiveUseAllTilesExercise
+      properties: &PairSixUseAllTilesProperties
+        <<: *PairFiveUseAllTilesProperties
+        contentRevision: { type: string, enum: [pilot-6] }
+        generatorRevision: { type: string, enum: [generator-6] }
+    PairSixSpareTilesExercise:
+      <<: *PairSixUseAllTilesExercise
+      properties:
+        <<: *PairSixUseAllTilesProperties
+        formatId: { type: string, enum: [E013] }
+        targetSkillId: { type: string, enum: [G004] }
+        prompt: { $ref: '#/components/schemas/SpareTilePrompt' }
+    MatchingExercise:
+      type: object
+      additionalProperties: false
+      required: [id, formatId, lexicalTargets, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not:
+        anyOf:
+          - { required: [targetSkillId] }
+          - { required: [lexicalTarget] }
+          - { required: [readingTarget] }
+      properties:
+        id: { type: string, format: uuid }
+        formatId: { type: string, enum: [E014] }
+        targetSkillId: { type: string, nullable: true }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        lexicalTargets:
+          type: array
+          minItems: 4
+          maxItems: 4
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/MatchingLexicalTarget' }
+        readingTarget: { $ref: '#/components/schemas/ReadingTask' }
+        supportSkillIds: { type: array, items: { type: string } }
+        contentRevision: { type: string, enum: [pilot-6] }
+        generatorRevision: { type: string, enum: [generator-6] }
+        instruction: { type: string }
+        context: { type: string }
+        prompt: { $ref: '#/components/schemas/MatchingPrompt' }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        hint: { type: string }
     LexicalTarget:
       type: object
       additionalProperties: false
@@ -923,6 +1117,39 @@ components:
         senseId: { type: string }
         facet: { type: string, enum: [meaning] }
         direction: { type: string, enum: [en-da] }
+    MatchingLexicalTarget:
+      oneOf:
+        - { $ref: '#/components/schemas/BookMatchingLexicalTarget' }
+        - { $ref: '#/components/schemas/NewspaperMatchingLexicalTarget' }
+        - { $ref: '#/components/schemas/LetterMatchingLexicalTarget' }
+        - { $ref: '#/components/schemas/MagazineMatchingLexicalTarget' }
+    BookMatchingLexicalTarget: &MatchingLexicalTargetObject
+      type: object
+      additionalProperties: false
+      required: [entryId, senseId, facet, direction]
+      properties: &MatchingLexicalTargetProperties
+        entryId: { type: string, enum: [L014] }
+        senseId: { type: string, enum: [L014-S01] }
+        facet: { type: string, enum: [meaning] }
+        direction: { type: string, enum: [en-da] }
+    NewspaperMatchingLexicalTarget:
+      <<: *MatchingLexicalTargetObject
+      properties:
+        <<: *MatchingLexicalTargetProperties
+        entryId: { type: string, enum: [L015] }
+        senseId: { type: string, enum: [L015-S01] }
+    LetterMatchingLexicalTarget:
+      <<: *MatchingLexicalTargetObject
+      properties:
+        <<: *MatchingLexicalTargetProperties
+        entryId: { type: string, enum: [L018] }
+        senseId: { type: string, enum: [L018-S01] }
+    MagazineMatchingLexicalTarget:
+      <<: *MatchingLexicalTargetObject
+      properties:
+        <<: *MatchingLexicalTargetProperties
+        entryId: { type: string, enum: [L024] }
+        senseId: { type: string, enum: [L024-S01] }
     Prompt:
       type: object
       additionalProperties: false
@@ -939,6 +1166,7 @@ components:
         cueLanguage: { type: string, nullable: true, enum: [da, en] }
         answerLanguage: { type: string, nullable: true, enum: [da, en] }
         passage: { type: array, minItems: 3, maxItems: 3, items: { type: string } }
+        matchingColumns: { $ref: '#/components/schemas/MatchingColumns' }
     NonReadingPrompt:
       type: object
       additionalProperties: false
@@ -969,6 +1197,53 @@ components:
         cue: { type: string }
         cueLanguage: { type: string, enum: [en] }
         answerLanguage: { type: string, enum: [da] }
+    MatchingPrompt:
+      type: object
+      additionalProperties: false
+      required: [before, after, choices, blocks, punctuation, cueLanguage, answerLanguage, matchingColumns]
+      properties:
+        before: { type: string, maxLength: 0 }
+        after: { type: string, maxLength: 0 }
+        choices: { type: array, maxItems: 0, items: { type: string } }
+        blocks: { type: array, maxItems: 0, items: { $ref: '#/components/schemas/Block' } }
+        punctuation: { type: string, maxLength: 0 }
+        cueLanguage: { type: string, enum: [en] }
+        answerLanguage: { type: string, enum: [da] }
+        matchingColumns: { $ref: '#/components/schemas/MatchingColumns' }
+    MatchingColumns:
+      type: object
+      additionalProperties: false
+      required: [left, right]
+      properties:
+        left:
+          type: array
+          minItems: 4
+          maxItems: 4
+          uniqueItems: true
+          description: Exactly one item for each opaque left-column id l0, l1, l2 and l3; generation tests enforce id uniqueness across variable text.
+          items: { $ref: '#/components/schemas/MatchingLeftItem' }
+        right:
+          type: array
+          minItems: 4
+          maxItems: 4
+          uniqueItems: true
+          description: Exactly one item for each opaque right-column id r0, r1, r2 and r3; generation tests enforce id uniqueness across variable text.
+          items: { $ref: '#/components/schemas/MatchingRightItem' }
+    MatchingLeftItem:
+      type: object
+      additionalProperties: false
+      required: [id, text]
+      properties:
+        id: { type: string, enum: [l0, l1, l2, l3] }
+        text: { $ref: '#/components/schemas/MatchingItemText' }
+    MatchingRightItem:
+      type: object
+      additionalProperties: false
+      required: [id, text]
+      properties:
+        id: { type: string, enum: [r0, r1, r2, r3] }
+        text: { $ref: '#/components/schemas/MatchingItemText' }
+    MatchingItemText: { type: string, minLength: 1 }
     UseAllTilePrompt:
       type: object
       additionalProperties: false
@@ -1032,7 +1307,7 @@ components:
         attemptId: { type: string, format: uuid }
         exerciseId: { type: string, format: uuid }
         answer:
-          oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }]
+          oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }, { $ref: '#/components/schemas/MatchingAnswer' }]
         hintUsed: { type: boolean }
     TextAnswer:
       type: object
@@ -1051,10 +1326,148 @@ components:
       properties:
         kind: { type: string, enum: [order] }
         blockIds: { type: array, maxItems: 16, items: { type: string, maxLength: 64 } }
+    MatchingAnswer:
+      type: object
+      additionalProperties: false
+      required: [kind, pairs]
+      properties:
+        kind: { type: string, enum: [matching] }
+        pairs:
+          description: A partial bijection. The list may be empty; each supplied leftId and rightId must appear at most once.
+          allOf:
+            - type: array
+              maxItems: 4
+              uniqueItems: true
+              items: { $ref: '#/components/schemas/MatchingPair' }
+            - anyOf:
+                - { $ref: '#/components/schemas/MatchingPermutation0123' }
+                - { $ref: '#/components/schemas/MatchingPermutation0132' }
+                - { $ref: '#/components/schemas/MatchingPermutation0213' }
+                - { $ref: '#/components/schemas/MatchingPermutation0231' }
+                - { $ref: '#/components/schemas/MatchingPermutation0312' }
+                - { $ref: '#/components/schemas/MatchingPermutation0321' }
+                - { $ref: '#/components/schemas/MatchingPermutation1023' }
+                - { $ref: '#/components/schemas/MatchingPermutation1032' }
+                - { $ref: '#/components/schemas/MatchingPermutation1203' }
+                - { $ref: '#/components/schemas/MatchingPermutation1230' }
+                - { $ref: '#/components/schemas/MatchingPermutation1302' }
+                - { $ref: '#/components/schemas/MatchingPermutation1320' }
+                - { $ref: '#/components/schemas/MatchingPermutation2013' }
+                - { $ref: '#/components/schemas/MatchingPermutation2031' }
+                - { $ref: '#/components/schemas/MatchingPermutation2103' }
+                - { $ref: '#/components/schemas/MatchingPermutation2130' }
+                - { $ref: '#/components/schemas/MatchingPermutation2301' }
+                - { $ref: '#/components/schemas/MatchingPermutation2310' }
+                - { $ref: '#/components/schemas/MatchingPermutation3012' }
+                - { $ref: '#/components/schemas/MatchingPermutation3021' }
+                - { $ref: '#/components/schemas/MatchingPermutation3102' }
+                - { $ref: '#/components/schemas/MatchingPermutation3120' }
+                - { $ref: '#/components/schemas/MatchingPermutation3201' }
+                - { $ref: '#/components/schemas/MatchingPermutation3210' }
+    MatchingPair:
+      type: object
+      additionalProperties: false
+      required: [leftId, rightId]
+      properties:
+        leftId: { type: string, enum: [l0, l1, l2, l3] }
+        rightId: { type: string, enum: [r0, r1, r2, r3] }
+    MatchingPairL0R0: &MatchingPairL0R0
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l0] }, rightId: { type: string, enum: [r0] } } }
+    MatchingPairL0R1: &MatchingPairL0R1
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l0] }, rightId: { type: string, enum: [r1] } } }
+    MatchingPairL0R2: &MatchingPairL0R2
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l0] }, rightId: { type: string, enum: [r2] } } }
+    MatchingPairL0R3: &MatchingPairL0R3
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l0] }, rightId: { type: string, enum: [r3] } } }
+    MatchingPairL1R0: &MatchingPairL1R0
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l1] }, rightId: { type: string, enum: [r0] } } }
+    MatchingPairL1R1: &MatchingPairL1R1
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l1] }, rightId: { type: string, enum: [r1] } } }
+    MatchingPairL1R2: &MatchingPairL1R2
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l1] }, rightId: { type: string, enum: [r2] } } }
+    MatchingPairL1R3: &MatchingPairL1R3
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l1] }, rightId: { type: string, enum: [r3] } } }
+    MatchingPairL2R0: &MatchingPairL2R0
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l2] }, rightId: { type: string, enum: [r0] } } }
+    MatchingPairL2R1: &MatchingPairL2R1
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l2] }, rightId: { type: string, enum: [r1] } } }
+    MatchingPairL2R2: &MatchingPairL2R2
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l2] }, rightId: { type: string, enum: [r2] } } }
+    MatchingPairL2R3: &MatchingPairL2R3
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l2] }, rightId: { type: string, enum: [r3] } } }
+    MatchingPairL3R0: &MatchingPairL3R0
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l3] }, rightId: { type: string, enum: [r0] } } }
+    MatchingPairL3R1: &MatchingPairL3R1
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l3] }, rightId: { type: string, enum: [r1] } } }
+    MatchingPairL3R2: &MatchingPairL3R2
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l3] }, rightId: { type: string, enum: [r2] } } }
+    MatchingPairL3R3: &MatchingPairL3R3
+      allOf:
+        - { $ref: '#/components/schemas/MatchingPair' }
+        - { type: object, properties: { leftId: { type: string, enum: [l3] }, rightId: { type: string, enum: [r3] } } }
+    MatchingPermutation0123: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R0' }, { $ref: '#/components/schemas/MatchingPairL1R1' }, { $ref: '#/components/schemas/MatchingPairL2R2' }, { $ref: '#/components/schemas/MatchingPairL3R3' }] } }
+    MatchingPermutation0132: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R0' }, { $ref: '#/components/schemas/MatchingPairL1R1' }, { $ref: '#/components/schemas/MatchingPairL2R3' }, { $ref: '#/components/schemas/MatchingPairL3R2' }] } }
+    MatchingPermutation0213: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R0' }, { $ref: '#/components/schemas/MatchingPairL1R2' }, { $ref: '#/components/schemas/MatchingPairL2R1' }, { $ref: '#/components/schemas/MatchingPairL3R3' }] } }
+    MatchingPermutation0231: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R0' }, { $ref: '#/components/schemas/MatchingPairL1R2' }, { $ref: '#/components/schemas/MatchingPairL2R3' }, { $ref: '#/components/schemas/MatchingPairL3R1' }] } }
+    MatchingPermutation0312: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R0' }, { $ref: '#/components/schemas/MatchingPairL1R3' }, { $ref: '#/components/schemas/MatchingPairL2R1' }, { $ref: '#/components/schemas/MatchingPairL3R2' }] } }
+    MatchingPermutation0321: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R0' }, { $ref: '#/components/schemas/MatchingPairL1R3' }, { $ref: '#/components/schemas/MatchingPairL2R2' }, { $ref: '#/components/schemas/MatchingPairL3R1' }] } }
+    MatchingPermutation1023: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R1' }, { $ref: '#/components/schemas/MatchingPairL1R0' }, { $ref: '#/components/schemas/MatchingPairL2R2' }, { $ref: '#/components/schemas/MatchingPairL3R3' }] } }
+    MatchingPermutation1032: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R1' }, { $ref: '#/components/schemas/MatchingPairL1R0' }, { $ref: '#/components/schemas/MatchingPairL2R3' }, { $ref: '#/components/schemas/MatchingPairL3R2' }] } }
+    MatchingPermutation1203: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R1' }, { $ref: '#/components/schemas/MatchingPairL1R2' }, { $ref: '#/components/schemas/MatchingPairL2R0' }, { $ref: '#/components/schemas/MatchingPairL3R3' }] } }
+    MatchingPermutation1230: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R1' }, { $ref: '#/components/schemas/MatchingPairL1R2' }, { $ref: '#/components/schemas/MatchingPairL2R3' }, { $ref: '#/components/schemas/MatchingPairL3R0' }] } }
+    MatchingPermutation1302: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R1' }, { $ref: '#/components/schemas/MatchingPairL1R3' }, { $ref: '#/components/schemas/MatchingPairL2R0' }, { $ref: '#/components/schemas/MatchingPairL3R2' }] } }
+    MatchingPermutation1320: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R1' }, { $ref: '#/components/schemas/MatchingPairL1R3' }, { $ref: '#/components/schemas/MatchingPairL2R2' }, { $ref: '#/components/schemas/MatchingPairL3R0' }] } }
+    MatchingPermutation2013: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R2' }, { $ref: '#/components/schemas/MatchingPairL1R0' }, { $ref: '#/components/schemas/MatchingPairL2R1' }, { $ref: '#/components/schemas/MatchingPairL3R3' }] } }
+    MatchingPermutation2031: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R2' }, { $ref: '#/components/schemas/MatchingPairL1R0' }, { $ref: '#/components/schemas/MatchingPairL2R3' }, { $ref: '#/components/schemas/MatchingPairL3R1' }] } }
+    MatchingPermutation2103: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R2' }, { $ref: '#/components/schemas/MatchingPairL1R1' }, { $ref: '#/components/schemas/MatchingPairL2R0' }, { $ref: '#/components/schemas/MatchingPairL3R3' }] } }
+    MatchingPermutation2130: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R2' }, { $ref: '#/components/schemas/MatchingPairL1R1' }, { $ref: '#/components/schemas/MatchingPairL2R3' }, { $ref: '#/components/schemas/MatchingPairL3R0' }] } }
+    MatchingPermutation2301: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R2' }, { $ref: '#/components/schemas/MatchingPairL1R3' }, { $ref: '#/components/schemas/MatchingPairL2R0' }, { $ref: '#/components/schemas/MatchingPairL3R1' }] } }
+    MatchingPermutation2310: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R2' }, { $ref: '#/components/schemas/MatchingPairL1R3' }, { $ref: '#/components/schemas/MatchingPairL2R1' }, { $ref: '#/components/schemas/MatchingPairL3R0' }] } }
+    MatchingPermutation3012: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R3' }, { $ref: '#/components/schemas/MatchingPairL1R0' }, { $ref: '#/components/schemas/MatchingPairL2R1' }, { $ref: '#/components/schemas/MatchingPairL3R2' }] } }
+    MatchingPermutation3021: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R3' }, { $ref: '#/components/schemas/MatchingPairL1R0' }, { $ref: '#/components/schemas/MatchingPairL2R2' }, { $ref: '#/components/schemas/MatchingPairL3R1' }] } }
+    MatchingPermutation3102: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R3' }, { $ref: '#/components/schemas/MatchingPairL1R1' }, { $ref: '#/components/schemas/MatchingPairL2R0' }, { $ref: '#/components/schemas/MatchingPairL3R2' }] } }
+    MatchingPermutation3120: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R3' }, { $ref: '#/components/schemas/MatchingPairL1R1' }, { $ref: '#/components/schemas/MatchingPairL2R2' }, { $ref: '#/components/schemas/MatchingPairL3R0' }] } }
+    MatchingPermutation3201: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R3' }, { $ref: '#/components/schemas/MatchingPairL1R2' }, { $ref: '#/components/schemas/MatchingPairL2R0' }, { $ref: '#/components/schemas/MatchingPairL3R1' }] } }
+    MatchingPermutation3210: { type: array, items: { anyOf: [{ $ref: '#/components/schemas/MatchingPairL0R3' }, { $ref: '#/components/schemas/MatchingPairL1R2' }, { $ref: '#/components/schemas/MatchingPairL2R1' }, { $ref: '#/components/schemas/MatchingPairL3R0' }] } }
     Attempt:
+      oneOf:
+        - { $ref: '#/components/schemas/NonMatchingAttempt' }
+        - { $ref: '#/components/schemas/MatchingAttempt' }
+    NonMatchingAttempt:
       type: object
       additionalProperties: false
       required: [attemptId, exerciseId, targetSatisfaction, linguisticStatus, issues, feedback, completedSentence, evaluationRevision, hintUsed, retryNumber, createdAt]
+      not: { required: [matchingResults] }
       properties:
         attemptId: { type: string, format: uuid }
         exerciseId: { type: string, format: uuid }
@@ -1070,6 +1483,64 @@ components:
         hintUsed: { type: boolean }
         retryNumber: { type: integer, minimum: 1 }
         createdAt: { type: integer, format: int64 }
+    MatchingAttempt:
+      type: object
+      additionalProperties: false
+      required: [attemptId, exerciseId, targetSatisfaction, linguisticStatus, linguisticScope, responseConstraintStatus, meaningSatisfaction, matchingResults, issues, feedback, completedSentence, evaluationRevision, hintUsed, retryNumber, createdAt]
+      properties:
+        attemptId: { type: string, format: uuid }
+        exerciseId: { type: string, format: uuid }
+        targetSatisfaction: { type: string, enum: [met, not-met, unevaluable] }
+        linguisticStatus: { type: string, enum: [acceptable, unknown] }
+        linguisticScope: { type: string, enum: [danish-matching] }
+        responseConstraintStatus: { type: string, enum: [met, not-met] }
+        meaningSatisfaction: { type: string, enum: [met, not-met, unknown] }
+        matchingResults: { type: array, minItems: 4, maxItems: 4, items: { $ref: '#/components/schemas/MatchingPairResult' } }
+        issues: { type: array, items: { $ref: '#/components/schemas/Issue' } }
+        feedback: { type: string }
+        completedSentence: { type: string, maxLength: 0 }
+        evaluationRevision: { type: string, enum: [evaluation-6] }
+        hintUsed: { type: boolean }
+        retryNumber: { type: integer, minimum: 1 }
+        createdAt: { type: integer, format: int64 }
+    MatchingPairResult:
+      oneOf:
+        - { $ref: '#/components/schemas/CorrectMatchingPairResult' }
+        - { $ref: '#/components/schemas/WrongMatchingPairResult' }
+        - { $ref: '#/components/schemas/UnmatchedMatchingPairResult' }
+    CorrectMatchingPairResult: &SelectedMatchingPairResult
+      type: object
+      additionalProperties: false
+      required: [leftId, rightId, lexicalTarget, targetSatisfaction, meaningSatisfaction, responseConstraintStatus, linguisticStatus, feedback]
+      properties: &SelectedMatchingPairResultProperties
+        leftId: { type: string, enum: [l0, l1, l2, l3] }
+        rightId: { type: string, enum: [r0, r1, r2, r3] }
+        lexicalTarget: { $ref: '#/components/schemas/MatchingLexicalTarget' }
+        targetSatisfaction: { type: string, enum: [met] }
+        meaningSatisfaction: { type: string, enum: [met] }
+        responseConstraintStatus: { type: string, enum: [met] }
+        linguisticStatus: { type: string, enum: [acceptable] }
+        feedback: { type: string }
+    WrongMatchingPairResult:
+      <<: *SelectedMatchingPairResult
+      properties:
+        <<: *SelectedMatchingPairResultProperties
+        targetSatisfaction: { type: string, enum: [not-met] }
+        meaningSatisfaction: { type: string, enum: [not-met] }
+    UnmatchedMatchingPairResult:
+      type: object
+      additionalProperties: false
+      required: [leftId, lexicalTarget, targetSatisfaction, meaningSatisfaction, responseConstraintStatus, linguisticStatus, feedback]
+      not: { required: [rightId] }
+      properties:
+        leftId: { type: string, enum: [l0, l1, l2, l3] }
+        rightId: { type: string, enum: [r0, r1, r2, r3] }
+        lexicalTarget: { $ref: '#/components/schemas/MatchingLexicalTarget' }
+        targetSatisfaction: { type: string, enum: [unevaluable] }
+        meaningSatisfaction: { type: string, enum: [unknown] }
+        responseConstraintStatus: { type: string, enum: [not-met] }
+        linguisticStatus: { type: string, enum: [unknown] }
+        feedback: { type: string }
     Issue: { type: object, additionalProperties: false, required: [code, message], properties: { code: { type: string }, message: { type: string } } }
     PracticeContext:
       type: object
@@ -1174,7 +1645,7 @@ components:
         introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
         introductionOpened: { type: boolean }
         items: { type: array, items: { $ref: '#/components/schemas/PracticeItem' } }
-        currentExercise: { $ref: '#/components/schemas/Exercise' }
+        currentExercise: { $ref: '#/components/schemas/PracticeExercise' }
         summary: { $ref: '#/components/schemas/PracticeSummary' }
         followUp: { $ref: '#/components/schemas/PracticeFollowUp' }
         followUpPlanRevision: { type: string, enum: [follow-up-2] }
@@ -1200,14 +1671,21 @@ components:
         hintOpened: { type: boolean }
         attemptIds: { type: array, items: { type: string, format: uuid } }
         attemptCount: { type: integer, minimum: 0 }
-        firstAttempt: { $ref: '#/components/schemas/Attempt' }
-        lastAttempt: { $ref: '#/components/schemas/Attempt' }
+        firstAttempt: { $ref: '#/components/schemas/NonMatchingAttempt' }
+        lastAttempt: { $ref: '#/components/schemas/NonMatchingAttempt' }
         firstAnswer:
           oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }]
         lastAnswer:
           oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }]
         firstAttemptContext: { $ref: '#/components/schemas/PracticeAttemptContext' }
         lastAttemptContext: { $ref: '#/components/schemas/PracticeAttemptContext' }
+    PracticeExercise:
+      oneOf:
+        - { $ref: '#/components/schemas/GrammarExercise' }
+        - { $ref: '#/components/schemas/LexicalExercise' }
+        - { $ref: '#/components/schemas/WritingExercise' }
+        - { $ref: '#/components/schemas/ReadingExercise' }
+        - { $ref: '#/components/schemas/TileExercise' }
     PracticeAttemptContext:
       type: object
       additionalProperties: false
@@ -1295,6 +1773,7 @@ components:
         lexicalSource: { $ref: '#/components/schemas/LexicalSource' }
         readingSource: { $ref: '#/components/schemas/ReadingSource' }
         tileSource: { $ref: '#/components/schemas/TileSource' }
+        matchingSource: { $ref: '#/components/schemas/MatchingSource' }
     LexicalSource:
       type: object
       additionalProperties: false
@@ -1354,6 +1833,20 @@ components:
       properties:
         blockId: { type: string }
         rationale: { type: string }
+    MatchingSource:
+      type: object
+      additionalProperties: false
+      required: [pairs]
+      properties:
+        pairs: { type: array, minItems: 4, maxItems: 4, items: { $ref: '#/components/schemas/MatchingPairSource' } }
+    MatchingPairSource:
+      type: object
+      additionalProperties: false
+      required: [leftId, rightId, lexicalSource]
+      properties:
+        leftId: { type: string, enum: [l0, l1, l2, l3] }
+        rightId: { type: string, enum: [r0, r1, r2, r3] }
+        lexicalSource: { $ref: '#/components/schemas/LexicalSource' }
     Problem:
       type: object
       additionalProperties: false

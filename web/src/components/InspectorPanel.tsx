@@ -11,6 +11,7 @@ export default function InspectorPanel({ exerciseId }: { exerciseId: string }) {
   const requestVersion = useRef(0);
   const details = result?.exerciseId === exerciseId ? result.details : null;
   const tileSource = details?.tileSource;
+  const matchingSource = details?.matchingSource;
   const error = failure?.exerciseId === exerciseId ? failure.message : "";
 
   const inspect = async () => {
@@ -44,7 +45,16 @@ export default function InspectorPanel({ exerciseId }: { exerciseId: string }) {
       {error && <Alert color="red">{error}</Alert>}
       {details && (
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xs">
-          {details.readingSource ? (
+          {matchingSource ? (
+            <Text size="sm" style={{ gridColumn: "1 / -1" }}>
+              Correct matching evidence<br />
+              {matchingSource.pairs.map((pair) => (
+                <Code key={pair.leftId} display="block">
+                  {pair.leftId} → {pair.rightId}: {pair.lexicalSource.entryId} · {pair.lexicalSource.senseId} · <span lang="da">{pair.lexicalSource.article} {pair.lexicalSource.headword}</span> · <span lang="en">{pair.lexicalSource.gloss}</span>
+                </Code>
+              ))}
+            </Text>
+          ) : details.readingSource ? (
             <>
               <Text size="sm">Question relation<br /><Code>{details.readingSource.questionSubjectId} · {details.readingSource.questionVerbId}</Code></Text>
               <Text size="sm">Answer evidence<br /><Code>{details.readingSource.answerNounId} · {details.readingSource.answer}</Code></Text>

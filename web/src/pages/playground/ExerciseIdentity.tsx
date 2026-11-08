@@ -27,6 +27,7 @@ export default function ExerciseIdentity({ catalog, exercise, format }: {
   const skill = catalog?.skills.find((candidate) => candidate.id === format?.targetSkillId);
   const lexicalLabel = lexicalTargetLabel(format);
   const readingLabel = readingTargetLabel(format);
+  const lexicalTargetCount = exercise?.formatId === "E014" ? exercise.lexicalTargets.length : 0;
   return (
     <Group justify="space-between" align="start">
       <Box>
@@ -35,7 +36,9 @@ export default function ExerciseIdentity({ catalog, exercise, format }: {
         {lexicalLabel && <Text size="sm" c="dimmed">Target: {lexicalLabel}</Text>}
         {readingLabel && <Text size="sm" c="dimmed">Task: {readingLabel}</Text>}
       </Box>
-      {exercise?.targetSkillId && <Badge color="astrid" variant="light">{exercise.targetSkillId}</Badge>}
+      {lexicalTargetCount > 1
+        ? <Badge color="astrid" variant="light">Four lexical meanings</Badge>
+        : exercise?.targetSkillId && <Badge color="astrid" variant="light">{exercise.targetSkillId}</Badge>}
     </Group>
   );
 }

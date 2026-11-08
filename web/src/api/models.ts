@@ -7,7 +7,13 @@ export type Exercise = components["schemas"]["Exercise"];
 
 // The server's Kotlin discriminator uses these wire values. Keeping the union explicit also
 // avoids generators substituting component names for discriminator values.
-export type AttemptAnswer = { kind: "text"; text: string } | { kind: "order"; blockIds: string[] };
+export type MatchingPair = components["schemas"]["MatchingPair"];
+export type MatchingColumns = components["schemas"]["MatchingColumns"];
+export type MatchingPairResult = components["schemas"]["MatchingPairResult"];
+export type AttemptAnswer =
+  | { kind: "text"; text: string }
+  | { kind: "order"; blockIds: string[] }
+  | { kind: "matching"; pairs: MatchingPair[] };
 export type AttemptRequest = Omit<components["schemas"]["AttemptRequest"], "answer"> & { answer: AttemptAnswer };
 export type Attempt = components["schemas"]["Attempt"];
 

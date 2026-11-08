@@ -88,6 +88,7 @@ class PilotTwoCompatibilityGoldenTest {
         val normalized = when (val answer = evaluation.normalizedAnswer) {
             is NormalizedAnswer.Text -> "T:${answer.text}"
             is NormalizedAnswer.Order -> "O:${answer.blockIds.joinToString(",")}"
+            is NormalizedAnswer.Matching -> error("Matching answer is unreachable in pilot two")
         }
         return hash(
             listOf(

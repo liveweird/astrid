@@ -19,11 +19,12 @@ class VocabularyAssessmentTest {
                 RevisionPair("pilot-3", "generator-3"),
                 RevisionPair("pilot-4", "generator-4"),
                 RevisionPair("pilot-5", "generator-5"),
+                RevisionPair("pilot-6", "generator-6"),
             ),
             engine.supportedRevisionPairs(),
         )
         assertEquals("evaluation-3", engine.evaluationRevision("pilot-3", "generator-3"))
-        assertEquals((1..13).map { "E${it.toString().padStart(3, '0')}" }, engine.catalog().formats.map { it.id })
+        assertEquals((1..14).map { "E${it.toString().padStart(3, '0')}" }, engine.catalog().formats.map { it.id })
         assertEquals(LexicalTask("meaning", "da-en"), engine.catalog().formats.single { it.id == "E007" }.lexicalTask)
         assertEquals(LexicalTask("singular-headword", "en-da"), engine.catalog().formats.single { it.id == "E008" }.lexicalTask)
     }

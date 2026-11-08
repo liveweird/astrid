@@ -491,6 +491,7 @@ internal object TileExerciseEvaluator {
     private fun normalized(answer: Answer): NormalizedAnswer = when (answer) {
         is Answer.Text -> NormalizedAnswer.Text(normalizeText(answer.text))
         is Answer.Order -> NormalizedAnswer.Order(answer.blockIds)
+        is Answer.Matching -> NormalizedAnswer.Matching(answer.pairs)
     }
 
     private fun completedSentence(

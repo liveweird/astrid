@@ -76,7 +76,18 @@ data class ExercisePromptDto(
     val tileMode: String? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val requiredTileCount: Int? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val matchingColumns: MatchingColumnsDto? = null,
 )
+
+@Serializable
+data class MatchingColumnsDto(
+    val left: List<MatchingItemDto>,
+    val right: List<MatchingItemDto>,
+)
+
+@Serializable
+data class MatchingItemDto(val id: String, val text: String)
 
 @Serializable
 data class IntroductionDto(
@@ -110,6 +121,8 @@ data class ExerciseResponse(
     val hint: String,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val readingTarget: ReadingTaskDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val lexicalTargets: List<LexicalTargetDto>? = null,
 )
 
 @Serializable
@@ -123,7 +136,14 @@ sealed interface AttemptAnswerDto {
     @Serializable
     @SerialName("order")
     data class Order(val blockIds: List<String>) : AttemptAnswerDto
+
+    @Serializable
+    @SerialName("matching")
+    data class Matching(val pairs: List<MatchingPairDto>) : AttemptAnswerDto
 }
+
+@Serializable
+data class MatchingPairDto(val leftId: String, val rightId: String)
 
 @Serializable
 data class AttemptRequest(
@@ -153,6 +173,21 @@ data class AttemptResponse(
     val responseConstraintStatus: String? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val meaningSatisfaction: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val matchingResults: List<MatchingPairResultDto>? = null,
+)
+
+@Serializable
+data class MatchingPairResultDto(
+    val leftId: String,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val rightId: String? = null,
+    val lexicalTarget: LexicalTargetDto,
+    val targetSatisfaction: String,
+    val meaningSatisfaction: String,
+    val responseConstraintStatus: String,
+    val linguisticStatus: String,
+    val feedback: String,
 )
 
 @Serializable
@@ -208,6 +243,16 @@ data class TileSourceDetailsDto(
 )
 
 @Serializable
+data class MatchingPairSourceDetailsDto(
+    val leftId: String,
+    val rightId: String,
+    val lexicalSource: LexicalSourceDto,
+)
+
+@Serializable
+data class MatchingSourceDetailsDto(val pairs: List<MatchingPairSourceDetailsDto>)
+
+@Serializable
 data class ExerciseInspectorDto(
     val exercise: ExerciseResponse,
     val seed: Int,
@@ -222,4 +267,6 @@ data class ExerciseInspectorDto(
     val readingSource: ReadingSourceDetailsDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val tileSource: TileSourceDetailsDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val matchingSource: MatchingSourceDetailsDto? = null,
 )

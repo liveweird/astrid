@@ -21,6 +21,7 @@ class PilotEngine {
             PILOT_TWO_REVISION_PAIR -> PilotContent.RETAINED_EVALUATION_REVISION
             PILOT_THREE_REVISION_PAIR -> PilotContent.RETAINED_THREE_EVALUATION_REVISION
             PILOT_FOUR_REVISION_PAIR -> PilotContent.RETAINED_FOUR_EVALUATION_REVISION
+            PILOT_FIVE_REVISION_PAIR -> PilotContent.RETAINED_FIVE_EVALUATION_REVISION
             CURRENT_REVISION_PAIR -> PilotContent.CURRENT_EVALUATION_REVISION
             else -> null
         }
@@ -28,6 +29,7 @@ class PilotEngine {
     fun generate(request: GenerationRequest): GeneratedExercise {
         validate(request)
         return when {
+            request.formatId == MATCHING_FORMAT_ID -> MatchingExerciseGenerator.create(request)
             request.formatId == WORD_CHOICE_FORMAT_ID -> TileExerciseGenerator.createWordChoiceExercise(request)
             request.formatId in TILE_FORMAT_IDS -> TileExerciseGenerator.createTileExercise(request)
             request.formatId == WRITING_FORMAT_ID -> WritingReadingGenerator.createWritingExercise(request)
@@ -86,6 +88,7 @@ class PilotEngine {
             PILOT_TWO_REVISION_PAIR -> PILOT_TWO_FORMAT_IDS
             PILOT_THREE_REVISION_PAIR -> PILOT_THREE_FORMAT_IDS
             PILOT_FOUR_REVISION_PAIR -> PILOT_FOUR_FORMAT_IDS
+            PILOT_FIVE_REVISION_PAIR -> PILOT_FIVE_FORMAT_IDS
             CURRENT_REVISION_PAIR -> CURRENT_FORMAT_IDS
             else -> emptySet()
         }
@@ -571,6 +574,8 @@ class PilotEngine {
             RevisionPair(PilotContent.RETAINED_THREE_CONTENT_REVISION, PilotContent.RETAINED_THREE_GENERATOR_REVISION)
         val PILOT_FOUR_REVISION_PAIR =
             RevisionPair(PilotContent.RETAINED_FOUR_CONTENT_REVISION, PilotContent.RETAINED_FOUR_GENERATOR_REVISION)
+        val PILOT_FIVE_REVISION_PAIR =
+            RevisionPair(PilotContent.RETAINED_FIVE_CONTENT_REVISION, PilotContent.RETAINED_FIVE_GENERATOR_REVISION)
         val CURRENT_REVISION_PAIR =
             RevisionPair(PilotContent.CURRENT_CONTENT_REVISION, PilotContent.CURRENT_GENERATOR_REVISION)
         val SUPPORTED_REVISION_PAIRS =
@@ -579,15 +584,17 @@ class PilotEngine {
                 PILOT_TWO_REVISION_PAIR,
                 PILOT_THREE_REVISION_PAIR,
                 PILOT_FOUR_REVISION_PAIR,
+                PILOT_FIVE_REVISION_PAIR,
                 CURRENT_REVISION_PAIR,
             )
         val LEGACY_FORMAT_IDS = setOf("E001", "E002", "E003")
         val PILOT_TWO_FORMAT_IDS = LEGACY_FORMAT_IDS + setOf("E004", "E005", "E006")
         val RETAINED_LEXICAL_FORMAT_IDS = setOf("E007", "E008")
-        val LEXICAL_FORMAT_IDS = RETAINED_LEXICAL_FORMAT_IDS + WORD_CHOICE_FORMAT_ID
+        val LEXICAL_FORMAT_IDS = RETAINED_LEXICAL_FORMAT_IDS + setOf(WORD_CHOICE_FORMAT_ID, MATCHING_FORMAT_ID)
         val PILOT_THREE_FORMAT_IDS = PILOT_TWO_FORMAT_IDS + RETAINED_LEXICAL_FORMAT_IDS
         val PILOT_FOUR_FORMAT_IDS = PILOT_TWO_FORMAT_IDS + setOf("E007", "E008", "E009", "E010")
-        val CURRENT_FORMAT_IDS = PILOT_FOUR_FORMAT_IDS + setOf("E011", "E012", "E013")
+        val PILOT_FIVE_FORMAT_IDS = PILOT_FOUR_FORMAT_IDS + setOf("E011", "E012", "E013")
+        val CURRENT_FORMAT_IDS = PILOT_FIVE_FORMAT_IDS + MATCHING_FORMAT_ID
         val TILE_FORMAT_IDS = setOf("E012", "E013")
         val NEW_FORMAT_IDS = setOf("E004", "E005", "E006")
         const val MAX_INDEX = 1_000_000
@@ -596,6 +603,7 @@ class PilotEngine {
         const val WRITING_FORMAT_ID = "E009"
         const val READING_FORMAT_ID = "E010"
         const val WORD_CHOICE_FORMAT_ID = "E011"
+        const val MATCHING_FORMAT_ID = "E014"
         const val GOLDEN_GAMMA = -7046029254386353131L
         const val MIX_MULTIPLIER_ONE = -4658895280553007687L
         const val MIX_MULTIPLIER_TWO = -7723592293110705685L

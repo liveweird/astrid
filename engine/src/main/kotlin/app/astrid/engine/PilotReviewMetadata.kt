@@ -20,9 +20,10 @@ internal object PilotReviewMetadata {
         identifyingPronoun: PronounEntry,
         verbs: List<Verb>,
         nouns: List<NounEntry>,
+        matching: Boolean = false,
     ): List<LexicalReviewRecord> =
         pronounRecords(pronouns, identifyingPronoun) +
-            verbRecords(verbs) + nounRecords(nouns) + articleRecords()
+            verbRecords(verbs) + nounRecords(nouns, matching) + articleRecords()
 
     private fun pronounRecords(
         pronouns: List<PronounEntry>,
@@ -79,7 +80,7 @@ internal object PilotReviewMetadata {
         }
     }
 
-    private fun nounRecords(nouns: List<NounEntry>): List<LexicalReviewRecord> {
+    private fun nounRecords(nouns: List<NounEntry>, matching: Boolean): List<LexicalReviewRecord> {
         val details =
             mapOf(
                 "L014" to ("book" to "Written text and ownable count noun; beech-mast homonym excluded."),
@@ -90,10 +91,11 @@ internal object PilotReviewMetadata {
                 "L019" to ("house" to "Building and ownable count noun."),
                 "L020" to ("table" to "Furniture count noun; ship-plank sense excluded."),
                 "L021" to ("apple fruit" to "Food count noun; tree and metaphorical senses excluded."),
-                "L024" to (
-                    "printed magazine" to
-                        "Printed periodical count noun for E011 only; store, depot, broadcast and weapon-container senses excluded."
-                ),
+                "L024" to ("printed magazine" to if (matching) {
+                    "Printed periodical count noun for E011 and E014 only; store, depot, broadcast and weapon-container senses excluded."
+                } else {
+                    "Printed periodical count noun for E011 only; store, depot, broadcast and weapon-container senses excluded."
+                }),
             )
         return nouns.map { noun ->
             val detail = details.getValue(noun.id)

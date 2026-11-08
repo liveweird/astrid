@@ -10,6 +10,16 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.6.0",
+    date: "2026-11-08",
+    body: `**Match English and Danish words.**
+
+- Match four English meanings with Danish nouns, each shown with its article, in independently shuffled columns.
+- Check a complete or partial board and see feedback for each pair. Use touch, mouse or keyboard to make and remove matches.
+- Try again keeps your selections editable. After an uncertain connection, checking the same attempt safely retrieves its saved result.
+- Existing exercises, saved results and guided practice keep their original revisions.`,
+  },
+  {
     version: "0.5.0",
     date: "2026-11-08",
     body: `**More ways to practise Danish.**

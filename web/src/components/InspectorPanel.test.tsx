@@ -92,4 +92,27 @@ describe("InspectorPanel", () => {
     expect(screen.getByText("subject-first: b0 → b1")).toBeVisible();
     expect(screen.getByText("b2: infinitive-spare")).toBeVisible();
   });
+
+  it("renders matching correspondences only after private inspection", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({
+      exercise: {}, seed: 17, index: 3, lexicalIds: ["L014", "L015"], clauseRoles: [],
+      matchingSource: {
+        pairs: [{
+          leftId: "l0", rightId: "r1",
+          lexicalSource: {
+            entryId: "L014", senseId: "L014-S01", headword: "bog", gloss: "book", article: "en",
+          },
+        }],
+      },
+    })));
+    render(<MantineProvider env="test"><InspectorPanel exerciseId="exercise-matching" /></MantineProvider>);
+    expect(screen.queryByText("Correct matching evidence")).not.toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText("Inspector key"), "a-secure-inspector-key-with-32-chars");
+    await userEvent.click(screen.getByRole("button", { name: "Inspect this exercise" }));
+
+    expect(await screen.findByText("Correct matching evidence")).toBeVisible();
+    expect(screen.getByText(/l0 → r1: L014 · L014-S01/)).toBeVisible();
+    expect(screen.getByText("en bog")).toHaveAttribute("lang", "da");
+    expect(screen.getByText("book")).toHaveAttribute("lang", "en");
+  });
 });

@@ -1,7 +1,7 @@
-import { Alert, Badge, Group, Stack, Text } from "@mantine/core";
+import { Alert, Badge, Group, Paper, Stack, Text, ThemeIcon } from "@mantine/core";
 import { IconAlertTriangle, IconCircleCheck } from "@tabler/icons-react";
 import type { Ref } from "react";
-import type { Attempt } from "../api/models";
+import type { Attempt, Exercise, MatchingColumns, MatchingPairResult } from "../api/models";
 import classes from "../theme.module.css";
 
 function targetLabel(value: string) {
@@ -23,19 +23,21 @@ function meaningLabel(value: string) {
 }
 
 function lexicalLanguageLabel(attempt: Attempt) {
-  if (attempt.linguisticScope === "english-choice") {
+  const scope = attempt.linguisticScope;
+  if (scope === "english-choice") {
     return attempt.linguisticStatus === "acceptable"
       ? "Recognized English choice"
       : "Unrecognized English choice";
   }
-  if (attempt.linguisticScope === "danish-headword" && attempt.linguisticStatus === "acceptable") {
+  if (scope === "danish-headword" && attempt.linguisticStatus === "acceptable") {
     return "Recognized Danish headword";
   }
-  if (attempt.linguisticScope === "danish-choice") {
+  if (scope === "danish-choice") {
     return attempt.linguisticStatus === "acceptable"
       ? "Recognized Danish choice"
       : "Unrecognized Danish choice";
   }
+  if (scope === "danish-matching") return "Supplied Danish noun phrases";
   return languageLabel(attempt.linguisticStatus);
 }
 
@@ -46,28 +48,67 @@ function feedbackTitle(goodWork: boolean, identifiedHeadword: boolean, identifie
   return "Look at the target once more";
 }
 
-function failedConstraintLabel(scope: Attempt["linguisticScope"], tileResponse: boolean) {
+function failedConstraintLabel(scope: string | null | undefined, tileResponse: boolean) {
+  if (scope === "danish-matching") return "Complete four matches";
   if (tileResponse) return "Response constraint to revisit";
   if (scope === "danish-headword") return "One-word response required";
   if (scope === "danish-sentence") return "One statement required";
   return "Supplied choice required";
 }
 
-function metConstraintLabel(scope: Attempt["linguisticScope"], tileResponse: boolean) {
+function metConstraintLabel(scope: string | null | undefined, tileResponse: boolean) {
+  if (scope === "danish-matching") return "Four matches supplied";
   if (tileResponse) return "Response constraint met";
   if (scope === "danish-sentence") return "One statement supplied";
   return "Supplied choice used";
 }
 
-export default function FeedbackPanel({ attempt, focusRef, supportDescription, tileResponse = false }: {
+function matchingEvidence(attempt: Attempt, exercise: Exercise | undefined) {
+  if (attempt.linguisticScope !== "danish-matching" || exercise?.formatId !== "E014") return null;
+  return { results: attempt.matchingResults, columns: exercise.prompt.matchingColumns };
+}
+
+function MatchingFeedback({ results, columns }: { results: MatchingPairResult[]; columns: MatchingColumns }) {
+  return (
+    <Stack gap="xs" role="group" aria-label="Matching feedback">
+      {results.map((result) => {
+        const left = columns.left.find((item) => item.id === result.leftId)?.text ?? result.leftId;
+        const right = columns.right.find((item) => item.id === result.rightId)?.text;
+        const correct = result.targetSatisfaction === "met" && result.meaningSatisfaction === "met";
+        return (
+          <Paper key={result.leftId} withBorder p="sm" role="group" aria-label={`Match for ${left}`}>
+            <Group align="flex-start" wrap="nowrap">
+              <ThemeIcon color={correct ? "teal" : "orange"} variant="light" aria-hidden="true">
+                {correct ? <IconCircleCheck size={18} /> : <IconAlertTriangle size={18} />}
+              </ThemeIcon>
+              <Stack gap={2}>
+                <Text fw={650}><span lang="en">{left}</span>{right ? <> → <span lang="da">{right}</span></> : " — no match selected"}</Text>
+                <Text size="sm">{result.feedback}</Text>
+              </Stack>
+            </Group>
+          </Paper>
+        );
+      })}
+    </Stack>
+  );
+}
+
+function showDanishUnknownDisclaimer(attempt: Attempt) {
+  return attempt.linguisticStatus === "unknown"
+    && (attempt.linguisticScope == null || attempt.linguisticScope === "danish-sentence");
+}
+
+export default function FeedbackPanel({ attempt, exercise, focusRef, supportDescription, tileResponse = false }: {
   attempt: Attempt;
+  exercise?: Exercise;
   focusRef?: Ref<HTMLDivElement>;
   supportDescription?: string;
   tileResponse?: boolean;
 }) {
+  const scope = attempt.linguisticScope;
   const met = attempt.targetSatisfaction === "met";
-  const writing = attempt.linguisticScope === "danish-sentence";
-  const requiresAllFacets = writing || attempt.linguisticScope === "danish-choice";
+  const matching = scope === "danish-matching";
+  const requiresAllFacets = ["danish-sentence", "danish-choice", "danish-matching"].includes(scope ?? "");
   const constraintMet = requiresAllFacets
     ? attempt.responseConstraintStatus === "met"
     : attempt.responseConstraintStatus == null || attempt.responseConstraintStatus === "met";
@@ -77,8 +118,9 @@ export default function FeedbackPanel({ attempt, focusRef, supportDescription, t
   const goodWork = attempt.linguisticScope
     ? met && meaningMet && attempt.linguisticStatus === "acceptable" && constraintMet
     : met;
-  const identifiedHeadword = attempt.linguisticScope === "danish-headword" && met && !goodWork;
-  const identifiedWritingTarget = attempt.linguisticScope === "danish-sentence" && met && !goodWork;
+  const identifiedHeadword = scope === "danish-headword" && met && !goodWork;
+  const identifiedWritingTarget = scope === "danish-sentence" && met && !goodWork;
+  const matchingDetails = matchingEvidence(attempt, exercise);
   return (
     <Alert
       ref={focusRef}
@@ -94,7 +136,9 @@ export default function FeedbackPanel({ attempt, focusRef, supportDescription, t
     >
       <Stack gap="xs">
         <Group className={classes.feedbackBadges} gap="xs">
-          <Badge className={classes.feedbackBadge} variant="default">{targetLabel(attempt.targetSatisfaction)}</Badge>
+          <Badge className={classes.feedbackBadge} variant="default">
+            {matching ? "Four lexical meanings" : targetLabel(attempt.targetSatisfaction)}
+          </Badge>
           {attempt.meaningSatisfaction && (
             <Badge className={classes.feedbackBadge} variant="default">
               {meaningLabel(attempt.meaningSatisfaction)}
@@ -103,25 +147,26 @@ export default function FeedbackPanel({ attempt, focusRef, supportDescription, t
           <Badge className={classes.feedbackBadge} variant="default">
             {attempt.linguisticScope ? lexicalLanguageLabel(attempt) : languageLabel(attempt.linguisticStatus)}
           </Badge>
-          {(attempt.linguisticScope === "danish-sentence" || attempt.linguisticScope === "danish-choice")
+          {(["danish-sentence", "danish-choice"].includes(scope ?? "") || matching)
             && attempt.responseConstraintStatus === "met" && (
             <Badge className={classes.feedbackBadge} variant="default">
-              {metConstraintLabel(attempt.linguisticScope, tileResponse)}
+              {metConstraintLabel(scope, tileResponse)}
             </Badge>
           )}
           {attempt.responseConstraintStatus === "not-met" && (
             <Badge className={classes.feedbackBadge} color="orange" variant="light">
-              {failedConstraintLabel(attempt.linguisticScope, tileResponse)}
+              {failedConstraintLabel(scope, tileResponse)}
             </Badge>
           )}
         </Group>
         <Text>{attempt.feedback}</Text>
+        {matchingDetails && <MatchingFeedback {...matchingDetails} />}
         {attempt.completedSentence && <Text lang="da" fw={650}>{attempt.completedSentence}</Text>}
-        {attempt.linguisticStatus === "unknown"
-          && (attempt.linguisticScope == null || attempt.linguisticScope === "danish-sentence") && (
+        {showDanishUnknownDisclaimer(attempt) && (
           <Text size="sm">This answer is outside the pilot’s licensed patterns. It is not a general judgment about Danish.</Text>
         )}
         {attempt.issues.map((issue) => <Text size="sm" key={issue.code}>{issue.message}</Text>)}
+        {matching && attempt.retryNumber > 1 && <Text size="xs" fw={650}>Retry after feedback</Text>}
         <Text size="xs" c="var(--mantine-color-text)">
           Try {attempt.retryNumber} · {supportDescription ?? (attempt.hintUsed ? "Supported practice" : "No support opened")}
         </Text>

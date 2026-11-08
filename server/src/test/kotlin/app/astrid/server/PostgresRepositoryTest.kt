@@ -14,6 +14,9 @@ import app.astrid.server.exercises.CreatedAttempt
 import app.astrid.server.exercises.EVALUATION_REVISION
 import app.astrid.server.exercises.ExerciseResponse
 import app.astrid.server.exercises.IntroductionDto
+import app.astrid.server.exercises.LexicalTargetDto
+import app.astrid.server.exercises.MatchingPairDto
+import app.astrid.server.exercises.MatchingPairResultDto
 import app.astrid.server.exercises.PracticeAttemptContextDto
 import app.astrid.server.exercises.PracticeCrossRunExposureDto
 import app.astrid.server.exercises.StoredExercise
@@ -676,6 +679,91 @@ class PostgresRepositoryTest {
                 assertEquals(response, second.exercises.findAttempt(owner.id, UUID.fromString(request.attemptId)))
                 assertNull(second.exercises.findAttempt(outsider.id, UUID.fromString(request.attemptId)))
             }
+        }
+
+    @Test
+    fun `pair six matching raw order and per-pair result persist and replay across pools`() =
+        withRepositories { first, second ->
+            val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+            val outsider = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+            val generated = PilotEngine().generate(GenerationRequest("E014", null, 47, 0, "pilot-6", "generator-6"))
+            val exerciseId = UUID.randomUUID()
+            val stored = StoredExercise(
+                exerciseId,
+                owner.id,
+                generated.formatId,
+                generated.targetSkillId,
+                generated.reproduction.seed,
+                generated.reproduction.index,
+                generated.contentRevision,
+                generated.generatorRevision,
+                generated.toResponse(exerciseId.toString()),
+                generated.reproductionFingerprint(),
+            )
+            first.exercises.insertExercise(stored)
+            assertEquals(stored, second.exercises.findExercise(owner.id, exerciseId))
+            assertNull(second.exercises.findExercise(outsider.id, exerciseId))
+
+            val source = requireNotNull(generated.inspector.matchingSource)
+            val rawPairs = source.pairs.reversed().map { MatchingPairDto(it.leftId, it.rightId) }
+            val request = AttemptRequest(
+                UUID.randomUUID().toString(),
+                exerciseId.toString(),
+                AttemptAnswerDto.Matching(rawPairs),
+                false,
+            )
+            val payload = wireJson.encodeToString(request)
+            val callbackCount = AtomicInteger()
+            val created = second.exercises.writeAttempt(owner.id, request, payload) { exercise, retry, createdAt ->
+                callbackCount.incrementAndGet()
+                AttemptResponse(
+                    attemptId = request.attemptId,
+                    exerciseId = exercise.id.toString(),
+                    targetSatisfaction = "met",
+                    linguisticStatus = "acceptable",
+                    issues = emptyList(),
+                    feedback = "All four meanings match.",
+                    completedSentence = "",
+                    evaluationRevision = "evaluation-6",
+                    hintUsed = false,
+                    retryNumber = retry,
+                    createdAt = createdAt,
+                    linguisticScope = "danish-matching",
+                    responseConstraintStatus = "met",
+                    meaningSatisfaction = "met",
+                    matchingResults = source.pairs.map { pair ->
+                        MatchingPairResultDto(
+                            leftId = pair.leftId,
+                            rightId = pair.rightId,
+                            lexicalTarget = pair.lexicalSource.let {
+                                LexicalTargetDto(it.entryId, it.senseId, "meaning", "en-da")
+                            },
+                            targetSatisfaction = "met",
+                            meaningSatisfaction = "met",
+                            responseConstraintStatus = "met",
+                            linguisticStatus = "acceptable",
+                            feedback = "Match confirmed.",
+                        )
+                    },
+                )
+            }
+            val response = assertIs<AttemptWriteResult.Created>(created).response
+            val replay = first.exercises.writeAttempt(owner.id, request, payload) { _, _, _ ->
+                callbackCount.incrementAndGet()
+                error("saved matching attempt must replay before regeneration")
+            }
+            assertEquals(1, callbackCount.get())
+            assertEquals(response, assertIs<AttemptWriteResult.Existing>(replay).response)
+            assertStoredRawAnswer(owner.id, request, payload)
+            assertEquals(response, second.exercises.findAttempt(owner.id, UUID.fromString(request.attemptId)))
+            assertNull(second.exercises.findAttempt(outsider.id, UUID.fromString(request.attemptId)))
+
+            val reordered = request.copy(answer = AttemptAnswerDto.Matching(rawPairs.reversed()))
+            assertIs<AttemptWriteResult.PayloadConflict>(
+                first.exercises.writeAttempt(owner.id, reordered, wireJson.encodeToString(reordered)) { _, _, _ ->
+                    error("conflicting raw order must not grade")
+                },
+            )
         }
 
     private fun assertStoredRawAnswer(ownerId: UUID, request: AttemptRequest, payload: String) {

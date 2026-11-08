@@ -231,6 +231,7 @@ internal object WritingReadingEvaluator {
         val normalized = when (answer) {
             is Answer.Text -> NormalizedAnswer.Text(normalizeText(answer.text))
             is Answer.Order -> NormalizedAnswer.Order(answer.blockIds)
+            is Answer.Matching -> NormalizedAnswer.Matching(answer.pairs)
         }
         return Evaluation(
             TargetStatus.UNEVALUABLE,
@@ -273,6 +274,7 @@ internal object WritingReadingEvaluator {
         val normalized = when (answer) {
             is Answer.Text -> NormalizedAnswer.Text(normalizeText(answer.text))
             is Answer.Order -> NormalizedAnswer.Order(answer.blockIds)
+            is Answer.Matching -> NormalizedAnswer.Matching(answer.pairs)
         }
         return Evaluation(
             TargetStatus.UNEVALUABLE,

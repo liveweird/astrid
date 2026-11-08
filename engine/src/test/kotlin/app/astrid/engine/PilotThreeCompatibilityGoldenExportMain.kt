@@ -173,6 +173,7 @@ internal object PilotThreeCompatibilityGolden {
                     field("normalizedAnswer.type", "order")
                     strings("normalizedAnswer.blockIds", answer.blockIds)
                 }
+                is NormalizedAnswer.Matching -> error("Matching answer is unreachable in pilot three")
             }
             nullable("linguisticScope", evaluation.linguisticScope?.wireValue)
             nullable("responseConstraintStatus", evaluation.responseConstraintStatus?.wireValue)
@@ -191,6 +192,7 @@ internal object PilotThreeCompatibilityGolden {
                 field("$name.type", "order")
                 strings("$name.blockIds", answer.blockIds)
             }
+            is Answer.Matching -> error("Matching answer is unreachable in pilot three")
         }
     }
 
@@ -227,6 +229,7 @@ internal object PilotThreeCompatibilityGolden {
                 kind = "O"
                 raw = answer.blockIds.joinToString(ORDER_SEPARATOR)
             }
+            is Answer.Matching -> error("Matching answer is unreachable in pilot three")
         }
         return listOf(
             kind,
@@ -246,6 +249,7 @@ internal object PilotThreeCompatibilityGolden {
             is AnswerKey.SubjectFirstOrder -> Answer.Order(orderForRoles(exercise, key.canonicalRoles))
             is AnswerKey.MeaningChoice -> Answer.Text(key.expected)
             is AnswerKey.Headword -> Answer.Text(key.expected.headword)
+            is AnswerKey.Matching -> error("Matching key is unreachable in pilot three")
             else -> error("Newer answer key is unreachable in the frozen pilot-three exporter")
         }
 
@@ -310,6 +314,7 @@ internal object PilotThreeCompatibilityGolden {
                     Answer.Order(emptyList()),
                 )
             }
+            is AnswerKey.Matching -> error("Matching key is unreachable in pilot three")
             else -> error("Newer answer key is unreachable in the frozen pilot-three exporter")
         }
 

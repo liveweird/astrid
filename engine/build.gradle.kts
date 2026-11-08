@@ -17,8 +17,12 @@ data class PilotReview(val task: String, val report: String, val flag: String?, 
 
 listOf(
     PilotReview(
-        "exportPilotReview", "pilot-5.md", null,
-        "Writes the deterministic current pilot content review to engine/build/review/pilot-5.md",
+        "exportPilotReview", "pilot-6.md", null,
+        "Writes the deterministic current pilot content review to engine/build/review/pilot-6.md",
+    ),
+    PilotReview(
+        "exportPilotFiveReview", "pilot-5.md", "--pilot-five",
+        "Writes the retained pilot-5 content review to engine/build/review/pilot-5.md",
     ),
     PilotReview(
         "exportPilotFourReview", "pilot-4.md", "--pilot-four",
@@ -129,11 +133,11 @@ kover {
                 // Line-coverage floor: the integer below the measured value, RAISED as coverage
                 // grows, never lowered. Re-measure with `:engine:koverXmlReport` (`check` runs only
                 // koverVerify, which reports pass/fail, not the actual).
-                // 2026-11-08, revision-five cycle/grading coverage: actual 98.12% -> floor 98.
+                // 2026-11-08, revision-six matching coverage: actual 98.07% -> floor 98.
                 minBound(98)
                 // Branch-coverage floor, same rule.
-                // 2026-11-07, scaffold alignment: actual 83.21% -> floor 83.
-                minBound(83, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
+                // 2026-11-08, revision-six matching coverage: actual 84.30% -> floor 84.
+                minBound(84, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
             }
         }
     }

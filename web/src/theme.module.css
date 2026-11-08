@@ -62,6 +62,18 @@
   min-width: 0;
 }
 
+.matchingPair {
+  align-items: center;
+  display: grid;
+  gap: var(--mantine-spacing-xs);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+}
+
+.matchingPair > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 
 @container playground (min-width: 48rem) {
   .exerciseCard {
@@ -86,6 +98,13 @@
 }
 
 @container playground (max-width: 30rem) {
+  .matchingPair {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .matchingPair > :global(.mantine-Button-root) {
+    grid-column: 1 / -1;
+  }
   .feedbackBadge {
     border-radius: var(--mantine-radius-sm);
   }

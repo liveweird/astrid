@@ -182,6 +182,7 @@ internal object PilotFourCompatibilityGolden {
                     field("normalizedAnswer.type", "order")
                     strings("normalizedAnswer.blockIds", answer.blockIds)
                 }
+                is NormalizedAnswer.Matching -> error("Matching answer is unreachable in pilot four")
             }
             nullable("linguisticScope", evaluation.linguisticScope?.wireValue)
             nullable("responseConstraintStatus", evaluation.responseConstraintStatus?.wireValue)
@@ -198,6 +199,7 @@ internal object PilotFourCompatibilityGolden {
                 field("$name.type", "order")
                 strings("$name.blockIds", answer.blockIds)
             }
+            is Answer.Matching -> error("Matching answer is unreachable in pilot four")
         }
     }
 
@@ -225,6 +227,7 @@ internal object PilotFourCompatibilityGolden {
                 kind = "O"
                 raw = answer.blockIds.joinToString(ORDER_SEPARATOR)
             }
+            is Answer.Matching -> error("Matching answer is unreachable in pilot four")
         }
         return listOf(
             kind,
@@ -247,6 +250,7 @@ internal object PilotFourCompatibilityGolden {
             is AnswerKey.SubjectFirstOrder -> Answer.Order(orderForRoles(exercise, key.canonicalRoles))
             is AnswerKey.MeaningChoice -> Answer.Text(key.expected)
             is AnswerKey.Headword -> Answer.Text(key.expected.headword)
+            is AnswerKey.Matching -> error("Matching key is unreachable in pilot four")
             else -> error("Pair-five key is unreachable in the frozen pilot-four exporter")
         }
     }
@@ -298,6 +302,7 @@ internal object PilotFourCompatibilityGolden {
                     Answer.Text("a\u030Avis"), Answer.Order(emptyList()),
                 )
             }
+            is AnswerKey.Matching -> error("Matching key is unreachable in pilot four")
             else -> error("Pair-five key is unreachable in the frozen pilot-four exporter")
         }
 

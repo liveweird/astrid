@@ -8,9 +8,10 @@ object PilotReviewExportMain {
     fun main(args: Array<String>) {
         require(
             args.size == 1 ||
-                (args.size == 2 && args.first() in setOf("--legacy", "--pilot-two", "--pilot-three", "--pilot-four")),
+                (args.size == 2 && args.first() in
+                    setOf("--legacy", "--pilot-two", "--pilot-three", "--pilot-four", "--pilot-five")),
         ) {
-            "Expected an output path, optionally preceded by --legacy, --pilot-two, --pilot-three, or --pilot-four"
+            "Expected an output path, optionally preceded by --legacy, --pilot-two, --pilot-three, --pilot-four, or --pilot-five"
         }
         val output = Path.of(args.last())
         Files.createDirectories(output.parent)
@@ -19,6 +20,7 @@ object PilotReviewExportMain {
             "--pilot-two" -> PilotReview.renderPilotTwoMarkdown()
             "--pilot-three" -> PilotReview.renderPilotThreeMarkdown()
             "--pilot-four" -> PilotReview.renderPilotFourMarkdown()
+            "--pilot-five" -> PilotReview.renderPilotFiveMarkdown()
             else -> PilotReview.renderMarkdown()
         }
         Files.writeString(output, markdown)

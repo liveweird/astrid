@@ -7,6 +7,11 @@ internal object PilotEvaluator {
         exercise: GeneratedExercise,
         answer: Answer,
     ): Evaluation = when (exercise.formatId) {
+        "E014" -> MatchingExerciseEvaluator.evaluate(
+            exercise,
+            answer,
+            exercise.source.answerKey as AnswerKey.Matching,
+        )
         "E011" -> TileExerciseEvaluator.evaluateChoice(
             answer,
             exercise.source.answerKey as AnswerKey.SuppliedChoice,
@@ -34,7 +39,8 @@ internal object PilotEvaluator {
             is AnswerKey.SubjectFirstOrder -> evaluateOrder(exercise, answer, key)
             is AnswerKey.MeaningChoice -> evaluateMeaning(answer, key)
             is AnswerKey.Headword -> evaluateHeadword(answer, key)
-            is AnswerKey.SuppliedChoice, is AnswerKey.TileOrder -> error("New answer key reached retained evaluator")
+            is AnswerKey.SuppliedChoice, is AnswerKey.TileOrder, is AnswerKey.Matching ->
+                error("New answer key reached retained evaluator")
         }
 
     private fun evaluateMeaning(
@@ -375,6 +381,7 @@ internal object PilotEvaluator {
             when (answer) {
                 is Answer.Text -> NormalizedAnswer.Text(normalizeText(answer.text))
                 is Answer.Order -> NormalizedAnswer.Order(answer.blockIds)
+                is Answer.Matching -> NormalizedAnswer.Matching(answer.pairs)
             },
         )
 
@@ -385,6 +392,7 @@ internal object PilotEvaluator {
         val normalized = when (answer) {
             is Answer.Text -> NormalizedAnswer.Text(normalizeText(answer.text))
             is Answer.Order -> NormalizedAnswer.Order(answer.blockIds)
+            is Answer.Matching -> NormalizedAnswer.Matching(answer.pairs)
         }
         return Evaluation(
             TargetStatus.UNEVALUABLE,
