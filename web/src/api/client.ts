@@ -66,7 +66,7 @@ function jsonInit(_method: "POST", body: unknown, extraHeaders?: HeadersInit): R
 export const startDevelopmentSession = () =>
   readJson<DevelopmentSession>("/api/v1/development-session", jsonInit("POST", {}));
 
-const loadCatalog = () => readJson<Catalog>("/api/v1/catalog");
+export const loadCatalog = () => readJson<Catalog>("/api/v1/catalog");
 
 export function createExercise(request: {
   formatId: string; targetSkillId?: string | null; seed: number; index: number;
@@ -75,10 +75,10 @@ export function createExercise(request: {
   return readJson<Exercise>("/api/v1/exercises", jsonInit("POST", request));
 }
 
-export async function bootstrapPlayground(seed: number, index: number) {
+export async function bootstrapPlayground(seed: number, index: number, readCatalog = loadCatalog) {
   // Catalog is session-scoped: wait for Set-Cookie before issuing authenticated reads.
   const session = await startDevelopmentSession();
-  const catalog = await loadCatalog();
+  const catalog = await readCatalog();
   const format = catalog.formats[0];
   if (!format) throw new Error("The engine catalog has no exercise formats.");
   const exercise = await createExercise({

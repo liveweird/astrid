@@ -15,6 +15,7 @@
 | OpenAPI, generated client types, validation and test approach | Adapt for the smaller contract | Detect API drift and test real persistence |
 | Docker image, Compose, Kubernetes, CI | Adapt private single-app deployment; retain digest/action pins | User explicitly retained both deployment options |
 | Flow authentication, ingestion, telemetry, admin tools and domain model | Omit | Unrelated to validating Danish learning |
+| i18next EN/PL localization | Omit | Single-language learning UI; Danish is content, not chrome |
 | JVM tuning and class-data archive | Omit for this milestone | Measure Astrid before adding optimization |
 | Lesson generation and assessment | New pure Kotlin module | Astrid-specific typed language model and deterministic rules |
 

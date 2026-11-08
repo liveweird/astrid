@@ -1,29 +1,36 @@
 import {
-  Accordion, Alert, Badge, Box, Button, Divider, Group, Loader, NumberInput,
+  Accordion, Alert, Box, Button, Divider, Group, Loader, NumberInput,
   Paper, SimpleGrid, Stack, Text, Title,
 } from "@mantine/core";
 import { IconAlertCircle, IconBulb, IconRefresh } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { type QueryClient, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
   ApiError, bootstrapPlayground, createExercise, submitAttempt, UncertainResultError,
-} from "./api/client";
-import type { Attempt, AttemptAnswer, AttemptRequest, Catalog, DevelopmentSession, Exercise } from "./api/models";
-import ExercisePrompt from "./components/ExercisePrompt";
-import FeedbackPanel from "./components/FeedbackPanel";
-import FormatSelect from "./components/FormatSelect";
-import InspectorPanel from "./components/InspectorPanel";
-import classes from "./theme.module.css";
+} from "../../api/client";
+import type { Attempt, AttemptAnswer, AttemptRequest, Catalog, DevelopmentSession, Exercise } from "../../api/models";
+import ExercisePrompt from "../../components/ExercisePrompt";
+import FeedbackPanel from "../../components/FeedbackPanel";
+import FormatSelect from "../../components/FormatSelect";
+import InspectorPanel from "../../components/InspectorPanel";
+import classes from "../../theme.module.css";
+import ErrorRecoveryActions, { type RecoveryRequired } from "./ErrorRecoveryActions";
+import ExerciseIdentity from "./ExerciseIdentity";
+import PlaygroundIntroduction from "./PlaygroundIntroduction";
+import { catalogQuery, useCatalogQuery } from "./useCatalogQuery";
+import { useExerciseFocus, useRequestedFocus } from "./usePlaygroundFocus";
 
 const INITIAL_SEED = 20261107;
 const INITIAL_INDEX = 0;
 let bootstrapPromise: Promise<[DevelopmentSession, Catalog, Exercise]> | null = null;
 
-function bootstrap() {
-  bootstrapPromise ??= bootstrapPlayground(INITIAL_SEED, INITIAL_INDEX)
+// Deduplicates the in-flight start (Strict Mode effect replays); each later mount starts afresh,
+// as a page load did, while the catalog itself comes from the query cache.
+function bootstrap(queryClient: QueryClient) {
+  bootstrapPromise ??= bootstrapPlayground(INITIAL_SEED, INITIAL_INDEX, () => queryClient.ensureQueryData(catalogQuery))
     .then(({ session, catalog, exercise }) => [session, catalog, exercise] as [DevelopmentSession, Catalog, Exercise])
-    .catch((error: unknown) => {
+    .finally(() => {
       bootstrapPromise = null;
-      throw error;
     });
   return bootstrapPromise;
 }
@@ -39,13 +46,6 @@ function messageFor(error: unknown) {
   return "The learning engine could not be reached. Check that the server is running.";
 }
 
-function activeSelection(catalog: Catalog | null, exercise: Exercise | null, requestedFormatId: string) {
-  const id = exercise?.formatId ?? requestedFormatId;
-  return { id, format: catalog?.formats.find((candidate) => candidate.id === id) };
-}
-
-type RecoveryRequired = "engine" | "session" | null;
-
 function recoveryFor(error: unknown): RecoveryRequired {
   if (!(error instanceof ApiError)) return null;
   if (error.status === 401) return "session";
@@ -53,97 +53,15 @@ function recoveryFor(error: unknown): RecoveryRequired {
   return null;
 }
 
-function ErrorRecoveryActions({ recoveryRequired, hasExercise }: {
-  recoveryRequired: RecoveryRequired; hasExercise: boolean;
-}) {
-  if (recoveryRequired === "session") {
-    return <Button color="red" variant="light" onClick={() => window.location.reload()}>Reconnect session</Button>;
-  }
-  if (recoveryRequired === "engine") {
-    return <Button color="red" variant="light" onClick={() => window.location.reload()}>Reload engine</Button>;
-  }
-  if (!hasExercise) {
-    return <Button color="red" variant="light" onClick={() => window.location.reload()}>Try connection again</Button>;
-  }
-  return null;
-}
-
-function PlaygroundIntroduction({ sentenceCount }: { sentenceCount: number }) {
-  return (
-    <Box>
-      <Group justify="space-between" align="start">
-        <Box>
-          <Title order={2}>Danish engine playground</Title>
-          <Text c="dimmed">Practise one language target at a time with generated exercises.</Text>
-        </Box>
-        <Badge variant="light" color="gray">{sentenceCount} sentence combinations</Badge>
-      </Group>
-    </Box>
-  );
-}
-
-function lexicalTargetLabel(format: Catalog["formats"][number] | undefined) {
-  const task = format?.lexicalTask;
-  if (!task) return null;
-  if (task.facet === "meaning" && task.direction === "da-en") return "Meaning · Danish → English";
-  if (task.facet === "singular-headword" && task.direction === "en-da") {
-    return "Singular headword · English → Danish";
-  }
-  return "Vocabulary target";
-}
-
-function readingTargetLabel(format: Catalog["formats"][number] | undefined) {
-  if (format?.readingTask?.facet === "participant-action-complement") {
-    return "Reading · participant, action and object";
-  }
-  return null;
-}
-
-function ExerciseIdentity({ catalog, exercise, format }: {
-  catalog: Catalog | null;
-  exercise: Exercise | null;
-  format: Catalog["formats"][number] | undefined;
-}) {
-  const skill = catalog?.skills.find((candidate) => candidate.id === format?.targetSkillId);
-  const lexicalLabel = lexicalTargetLabel(format);
-  const readingLabel = readingTargetLabel(format);
-  return (
-    <Group justify="space-between" align="start">
-      <Box>
-        <Text fw={650}>{format?.title ?? "Exercise"}</Text>
-        {skill && <Text size="sm" c="dimmed">Target: {skill.title}</Text>}
-        {lexicalLabel && <Text size="sm" c="dimmed">Target: {lexicalLabel}</Text>}
-        {readingLabel && <Text size="sm" c="dimmed">Task: {readingLabel}</Text>}
-      </Box>
-      {exercise?.targetSkillId && <Badge color="astrid" variant="light">{exercise.targetSkillId}</Badge>}
-    </Group>
-  );
-}
-
-function useExerciseFocus(attempt: Attempt | null, exercise: Exercise | null) {
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const afterRender = useRef(false);
-  useEffect(() => {
-    if (!afterRender.current) return;
-    headingRef.current?.focus();
-    afterRender.current = false;
-  }, [attempt, exercise]);
-  const requestFocus = () => { afterRender.current = true; };
-  return [headingRef, requestFocus] as const;
-}
-
-function useRequestedFocus<T extends HTMLElement>() {
-  const targetRef = useRef<T>(null);
-  const [request, setRequest] = useState(0);
-  useEffect(() => {
-    if (request > 0) targetRef.current?.focus();
-  }, [request]);
-  return [targetRef, () => setRequest((current) => current + 1)] as const;
+function activeSelection(catalog: Catalog | null, exercise: Exercise | null, requestedFormatId: string) {
+  const id = exercise?.formatId ?? requestedFormatId;
+  return { id, format: catalog?.formats.find((candidate) => candidate.id === id) };
 }
 
 export default function Playground() {
+  const queryClient = useQueryClient();
   const [session, setSession] = useState<DevelopmentSession | null>(null);
-  const [catalog, setCatalog] = useState<Catalog | null>(null);
+  const { data: catalog = null } = useCatalogQuery(session !== null);
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [formatId, setFormatId] = useState("");
   const [seed, setSeed] = useState(INITIAL_SEED);
@@ -204,11 +122,10 @@ export default function Playground() {
     let active = true;
     void (async () => {
       try {
-        const [started, loaded, created] = await bootstrap();
+        const [started, loaded, created] = await bootstrap(queryClient);
         if (!active) return;
         const first = loaded.formats[0]?.id ?? "";
         setSession(started);
-        setCatalog(loaded);
         setFormatId(first);
         setExercise(created);
         setBusy(false);
@@ -217,7 +134,7 @@ export default function Playground() {
       }
     })();
     return () => { active = false; };
-  }, []);
+  }, [queryClient]);
   const deliverAttempt = async (request: AttemptRequest) => {
     setPending(request);
     setBusy(true);

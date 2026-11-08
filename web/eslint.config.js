@@ -32,13 +32,14 @@ export default defineConfig([
       // idiom, with a comment naming it. No inline eslint-disable without a comment.
 
       // Flat selection and fallback chains (`a ? x : b ? y : z`) are idiomatic here: error-detail
-      // mapping in api/client.ts, status wording in Practice.tsx and the inspector panel, and the
+      // mapping in api/client.ts, status wording in pages/practice and the inspector panel, and the
       // commit-stamp fallback in vite.config.ts read best top to bottom.
       "sonarjs/no-nested-conditional": "off",
 
       // Core size/complexity backstops — generous by design (page components are single
-      // functions); they only catch future monsters. Today's max (re-measured 2026-11-07):
-      // cyclomatic complexity 34 (Playground), 260 lines (Practice; Playground 252), 5 parameters.
+      // functions); they only catch future monsters. Today's max (re-measured 2026-11-08, after the
+      // pages/ split): cyclomatic complexity 35 (Playground), 252 lines (Playground; Practice 248),
+      // 5 parameters.
       complexity: ["error", 40],
       "max-lines-per-function": ["error", { "max": 260, "skipBlankLines": true, "skipComments": true }],
       "max-params": ["error", 6],
