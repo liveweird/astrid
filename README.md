@@ -36,7 +36,7 @@ npm run dev
 
 Open **http://localhost:5180**; Vite proxies API calls to port 8088. The narrow peer-dependency exception supports openapi-typescript's TypeScript 5 declaration alongside Flow's tested TypeScript 6 toolchain. It does not replace type checks or dependency audit.
 
-Native development binds to `127.0.0.1`; `ASTRID_BIND_HOST` overrides it. The container explicitly binds its internal interface, with Compose publishing only loopback ports. Default database URLs use `localhost:5438/astrid`. Override `POSTGRES_JDBC_URL`, `POSTGRES_R2DBC_URL`, `POSTGRES_USER` and `POSTGRES_PASSWORD` together when using another database. Do not commit `.env` or credentials. OrbStack users may need `export DOCKER_HOST=unix://$HOME/.orbstack/run/docker.sock` for Testcontainers.
+Native development binds to `127.0.0.1:8088`; `ASTRID_BIND_HOST` and `ASTRID_PORT` (1-65535) override them, and a non-default port moves the default allowed hosts and origins with it (the Vite proxy and the container stay on 8088). The container explicitly binds its internal interface, with Compose publishing only loopback ports. Default database URLs use `localhost:5438/astrid`. Override `POSTGRES_JDBC_URL`, `POSTGRES_R2DBC_URL`, `POSTGRES_USER` and `POSTGRES_PASSWORD` together when using another database. Do not commit `.env` or credentials. OrbStack users may need `export DOCKER_HOST=unix://$HOME/.orbstack/run/docker.sock` for Testcontainers.
 
 ## Use the playground
 
@@ -75,15 +75,16 @@ The navigation footer shows the running app version, source commit and commit ti
 
 Use a regular Git checkout when building the Docker image: the web builder reads `.git` for identity, and the runtime receives only the compiled stamp. Local Vite builds show `+dirty` for uncommitted work. `GIT_SHA` and `GIT_COMMIT_TIME` can explicitly supply build metadata.
 
-For a user-visible feature, bump the minor application version; for a fix, bump the patch. In the same commit, update `web/src/changelog/version.ts`, prepend an authored English entry in `web/src/changelog/entries.ts`, and match `info.version` in `server/src/main/resources/openapi.yaml`. Tests guard consistency. Keep old entries unchanged. Documentation/test/CI/dependency-only changes may retain the version. Gradle/npm package and learning-content revision numbers are separate. See the [versioning contract](docs/knowledge/app-versioning.md) for explicit tag/release publication.
+For a user-visible feature, bump the minor application version; for a fix, bump the patch. In the same commit, update `web/src/changelog/version.ts`, prepend an authored English entry in `web/src/changelog/entries.ts`, and match `info.version` in `server/src/main/resources/openapi/documentation.yaml`. Tests guard consistency. Keep old entries unchanged. Documentation/test/CI/dependency-only changes may retain the version. Gradle/npm package and learning-content revision numbers are separate. See the [versioning contract](docs/knowledge/app-versioning.md) for explicit tag/release publication.
 
 ## Structure and conventions
 
 | Path | Responsibility |
 | --- | --- |
 | `engine/` | Pure Kotlin language content, validation, generation and grading; no HTTP/database dependencies |
-| `server/` | Ktor API, public DTO mapping, session ownership, PostgreSQL and Flyway migrations |
-| `web/` | React/Mantine shell, exercise controls, generated API types and interaction tests |
+| `server/` | Ktor API (`application/problem+json` errors, hand-maintained spec at `server/src/main/resources/openapi/documentation.yaml`), PostgreSQL and Flyway migrations. Packages under `app.astrid.server`: the composition root (`Main`, `Application`, `Stores`, `PostgresStores`); `plugins/` (Ktor wiring: errors, compression, security headers, HTTP, SPA routing, health); `infra/` (`config`, `db` Flyway and pool, `json` wire format); `authz/` (typed HTTP exceptions, guards, the `SessionPrincipal`/`Authenticator` seam); then the features, one-way `session` < `exercises` < `practice` (each: DTOs, routes, store port, Postgres store). `exercises/` reaches practice state only through `AttemptPracticeHook`; `PackageBoundaryTest` enforces the layering |
+| `api-guidelines/` | Shared API rulebook and Spectral ruleset (copied from Flow, never edited here); Astrid's severity decisions live in `web/spectral.astrid.yaml` |
+| `web/` | React/Mantine shell (`App.tsx` owns the React Router routes `/`, `/practice`, lazy `/changelog`; unknown paths show the playground), one folder per page under `src/pages/` (`playground/`, `practice/` with its browser-storage recovery outbox), shared `components/`, generated API types in `api/`. TanStack Query only for the catalog reads (`GET /catalog`, `GET /practice-profiles`); every mutation stays on `api/client.ts`. Colocated interaction tests use `src/test/render.tsx` |
 | `e2e/` | Browser journeys against the assembled app |
 | `k8s/` | Private single-replica playground deployment |
 | `docs/knowledge/` | Requirements, decisions, language drafts, sources and open points |
@@ -99,13 +100,14 @@ With Docker running, `kubectl` installed, and dependencies installed in both `we
 ./scripts/check.sh
 ```
 
-The gate runs offline documentation integrity checks, strict Gradle checksum verification, engine/server tests, detekt, coverage verification, distribution packaging, API type drift detection, frontend lint/tests/build, and deployment rendering. PostgreSQL integration tests use the pinned Testcontainers image. Do not skip Docker tests when reporting the whole suite as passing.
+The gate runs offline documentation integrity checks, strict Gradle checksum verification, engine/server tests, detekt, coverage verification, distribution packaging, API guideline linting (Spectral) and type drift detection, frontend and e2e lint, dead-code detection (knip) in both workspaces, frontend tests/build, e2e type checking, the e2e spec ↔ scenario parity check (`e2e/scenarios/`), and deployment rendering. Kover line and branch coverage floors for the engine and server only ratchet upward (see the comments in each `build.gradle.kts`). `MigrationChecksumTest` pins the Flyway checksum of every applied migration: add a migration, never edit one. PostgreSQL integration tests use the pinned Testcontainers image. Do not skip Docker tests when reporting the whole suite as passing.
 
 ```sh
 ./gradlew :engine:test                 # Focused language-engine tests
 ./gradlew :engine:localeCompatibilityTest # Same suite in a fresh Arabic-locale JVM
 ./gradlew :server:test                 # API and real PostgreSQL integration tests
 npm --prefix web run gen:api           # Refresh committed types after an OpenAPI change
+npm --prefix web run lint:api          # Spectral-lint the spec against api-guidelines/
 npm --prefix web run check:api         # Check without rewriting committed types
 ```
 
@@ -128,7 +130,7 @@ CI repeats the gates on pull requests and master, validates Kubernetes schemas a
 ./gradlew :engine:exportPilotReview
 ```
 
-The deterministic report is written to `engine/build/review/pilot-3.md`. It includes the 23 lexical records, sources and draft review status, all 99 sentences and reproducible exercise examples. The production engine remains free of file I/O; the export adapter runs only as a local build tool. Run `./gradlew :engine:exportLegacyPilotReview` or `./gradlew :engine:exportPilotTwoReview` for the retained `pilot-1`/`pilot-2` reports. Compatibility fixtures preserve 335 original cases, 952 revision-2 generation/evaluation cases and 978 published fingerprint cases. Their generated origin establishes compatibility, while the independently specified worked examples and eventual Danish teaching review address linguistic correctness.
+The deterministic report is written to `engine/build/review/pilot-4.md`. It includes the 23 lexical records, sources and draft review status, all 99 sentences and reproducible exercise examples. The production engine remains free of file I/O; the export adapter runs only as a local build tool. Run `./gradlew :engine:exportLegacyPilotReview`, `:engine:exportPilotTwoReview` or `:engine:exportPilotThreeReview` for the retained `pilot-1`/`pilot-2`/`pilot-3` reports. Compatibility fixtures preserve 335 original cases, 952 revision-2 generation/evaluation cases, 978 published fingerprint cases and the frozen pilot-3 engine and wire fixtures (see `.claude/docs/compatibility.md`). Their generated origin establishes compatibility, while the independently specified worked examples and eventual Danish teaching review address linguistic correctness.
 
 Vocabulary introduces a forward migration permitting a null grammar target; its separate lexical target lives in the stored presentation. After vocabulary writes, rollback requires a reader compatible with new metadata and nullable targets; a bare older image is unsafe. See the [contract](docs/knowledge/vocabulary-assessment.md).
 
@@ -150,4 +152,4 @@ No ingress or public service is installed. The database needs a default storage 
 
 ## Project records
 
-Start with the [knowledge index](docs/knowledge/README.md), [implementation decisions](docs/knowledge/implementation-decisions.md), [Flow reuse manifest](docs/knowledge/flow-reuse-manifest.md), and [backlog](BACKLOG.md). The root `AGENTS.md` is preserved from repository initialization; its empty-repository description is historical. Reused Flow tooling/patterns retain their [MIT notice](THIRD_PARTY_NOTICES.md).
+Start with the [knowledge index](docs/knowledge/README.md), [implementation decisions](docs/knowledge/implementation-decisions.md), [Flow reuse manifest](docs/knowledge/flow-reuse-manifest.md), and [backlog](BACKLOG.md). Agent and contributor conventions live in [CLAUDE.md](CLAUDE.md) (Codex enters through [AGENTS.md](AGENTS.md)), `web/CLAUDE.md` and `.claude/docs/`. Astrid is MIT-licensed ([LICENSE](LICENSE)); reused Flow tooling/patterns retain their [MIT notice](THIRD_PARTY_NOTICES.md).

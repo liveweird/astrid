@@ -6,7 +6,7 @@ export type PracticeExercise = {
   formatId: string;
   prompt: { cue?: string; choices: string[]; blocks: { id: string; text: string }[] };
 };
-export type PracticeContext = {
+type PracticeContext = {
   introductionOpened: boolean;
   lessonOpened: boolean;
   hintOpened: boolean;

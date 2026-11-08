@@ -4,6 +4,18 @@ package app.astrid.server
 
 import app.astrid.engine.GenerationRequest
 import app.astrid.engine.PilotEngine
+import app.astrid.server.authz.BadRequest
+import app.astrid.server.authz.Conflict
+import app.astrid.server.exercises.AttemptAnswerDto
+import app.astrid.server.exercises.AttemptRequest
+import app.astrid.server.exercises.AttemptResponse
+import app.astrid.server.exercises.ExercisePromptDto
+import app.astrid.server.exercises.ExerciseResponse
+import app.astrid.server.exercises.reproductionFingerprint
+import app.astrid.server.exercises.toResponse
+import app.astrid.server.infra.config.ServerConfig
+import app.astrid.server.infra.json.wireJson
+import app.astrid.server.session.SESSION_COOKIE
 import io.ktor.client.request.cookie
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -20,8 +32,8 @@ import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.serialization.json.JsonArray
@@ -32,7 +44,7 @@ import kotlinx.serialization.json.jsonPrimitive
 class RecallRepairApplicationTest {
     @Test
     fun `session and catalog advertise the complete current revision`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val (cookieValue, sessionBody) = createSession()
         val session = wireJson.parseToJsonElement(sessionBody).jsonObject
         assertEquals("pilot-4", session.getValue("contentRevision").jsonPrimitive.content)
@@ -56,7 +68,7 @@ class RecallRepairApplicationTest {
 
     @Test
     fun `only complete supported revision pairs are accepted`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val cookieValue = createSession().first
 
         assertEquals(HttpStatusCode.Created, createExercise(cookieValue, "E001", "G004", "pilot-1", "generator-1").status)
@@ -70,7 +82,7 @@ class RecallRepairApplicationTest {
 
     @Test
     fun `new recall and repair prompts expose only public text metadata`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val cookieValue = createSession().first
 
         listOf("E004" to "G004", "E005" to "G004", "E006" to "G006").forEach { (format, target) ->
@@ -158,7 +170,7 @@ class RecallRepairApplicationTest {
 
     @Test
     fun `attempt revision follows stored pair and new attempts preserve replay semantics`() = testApplication {
-        val repository = InMemoryAstridRepository()
+        val repository = InMemoryStores()
         application { astridModule(config(), repository) }
         val cookieValue = createSession().first
         val legacyId = exerciseId(createExercise(cookieValue, "E001", "G004", "pilot-1", "generator-1").bodyAsText())

@@ -1,6 +1,6 @@
 import type {
   Attempt, AttemptRequest, Catalog, DevelopmentSession, Exercise, InspectorDetails,
-  PracticeContext, PracticeCreationRequest, PracticeProfiles, PracticeSession,
+  PracticeContext, PracticeProfiles, PracticeSession,
 } from "./models";
 
 const CLIENT_HEADER = { "X-Astrid-Client": "playground" };
@@ -51,7 +51,7 @@ async function readJson<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
-export function serializedJsonInit(serializedBody: string, extraHeaders?: HeadersInit): RequestInit {
+function serializedJsonInit(serializedBody: string, extraHeaders?: HeadersInit): RequestInit {
   return {
     method: "POST",
     headers: { "Content-Type": "application/json", ...CLIENT_HEADER, ...extraHeaders },
@@ -75,10 +75,10 @@ export function createExercise(request: {
   return readJson<Exercise>("/api/v1/exercises", jsonInit("POST", request));
 }
 
-export async function bootstrapPlayground(seed: number, index: number) {
+export async function bootstrapPlayground(seed: number, index: number, readCatalog = loadCatalog) {
   // Catalog is session-scoped: wait for Set-Cookie before issuing authenticated reads.
   const session = await startDevelopmentSession();
-  const catalog = await loadCatalog();
+  const catalog = await readCatalog();
   const format = catalog.formats[0];
   if (!format) throw new Error("The engine catalog has no exercise formats.");
   const exercise = await createExercise({
@@ -152,13 +152,6 @@ export const advancePracticeSession = (
   `/api/v1/practice-sessions/${encodeURIComponent(practiceSessionId)}/advance`,
   serializedJsonInit(serializedBody, { "X-Astrid-Practice-Owner": ownerSessionId }),
 );
-
-export function practiceCreationBody(request: PracticeCreationRequest) {
-  return JSON.stringify(request);
-}
-
-export const loadAttempt = (attemptId: string) =>
-  readJson<Attempt>(`/api/v1/attempts/${encodeURIComponent(attemptId)}`);
 
 export const inspectExercise = (exerciseId: string, key: string) =>
   readJson<InspectorDetails>(`/api/v1/dev/exercises/${encodeURIComponent(exerciseId)}`, {

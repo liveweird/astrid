@@ -11,6 +11,19 @@ async function scan(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 }
 
+/**
+ * Clicking the rail toggle leaves the pointer over it, so its Mantine tooltip (named for the toggle's next action) fades in.
+ * axe computes contrast on whatever opacity the tooltip has mid-transition and intermittently flags it, so wait until the
+ * tooltip is fully shown and opaque before scanning. (Moving the pointer away and waiting for the tooltip to unmount is not
+ * an option: under `emulateMedia` WebKit never delivers the leave, so the tooltip stays open.)
+ */
+async function scanWithSettledTooltip(page: Page, name: string) {
+  const tooltip = page.getByRole("tooltip", { name, exact: true });
+  await expect(tooltip).toBeVisible();
+  await expect(tooltip).toHaveCSS("opacity", "1");
+  await scan(page);
+}
+
 async function openChangelog(page: Page) {
   await page.goto("/changelog");
   await expect(page.getByRole("heading", { name: "Changelog", exact: true })).toBeVisible();
@@ -90,10 +103,10 @@ for (const theme of ["light", "dark"] as const) {
     const compact = page.getByRole("link", { name: VERSION });
     await expect(compact).toBeVisible();
     await expect(compact).toHaveAttribute("title", BUILD);
-    await scan(page);
+    await scanWithSettledTooltip(page, "Expand navigation");
     await page.getByRole("button", { name: "Expand navigation", exact: true }).click();
     await expect(page.getByTitle("Build version", { exact: true })).toBeVisible();
-    await scan(page);
+    await scanWithSettledTooltip(page, "Collapse navigation");
   });
 }
 

@@ -7,12 +7,13 @@ import {
   IconBook2, IconFlask, IconHistory, IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand, IconMoon, IconSun,
 } from "@tabler/icons-react";
 import { lazy, Suspense, useEffect, useState } from "react";
-import Playground from "./Playground";
-import Practice from "./Practice";
+import { Link as RouterLink, Route, Routes, useLocation, useMatch, useNavigationType } from "react-router-dom";
 import BrandMark from "./components/BrandMark";
 import ChangelogErrorBoundary from "./components/ChangelogErrorBoundary";
 import VersionStamp from "./components/VersionStamp";
 import { useChangelogUnseen } from "./hooks/useChangelogSeen";
+import Playground from "./pages/playground/Playground";
+import Practice from "./pages/practice/Practice";
 import classes from "./theme.module.css";
 
 const Changelog = lazy(() => import("./pages/Changelog"));
@@ -42,29 +43,36 @@ interface NavigationProps {
 }
 
 function PrimaryNavigation({ changelog, changelogUnseen, close, practice, rail }: NavigationProps) {
+  const playgroundLink = {
+    label: rail ? undefined : "Engine playground",
+    leftSection: <IconFlask size={19} stroke={1.6} />,
+    "aria-label": "Engine playground",
+    className: rail ? classes.railLink : undefined,
+    onClick: close,
+  };
   return (
     <>
       <AppShell.Section grow component={ScrollArea}>
         {!rail && <Text size="xs" fw={650} c="dimmed" px="sm" py="xs">Learn Danish</Text>}
+        {practice || changelog ? (
+          <NavLink {...playgroundLink} component={RouterLink} to="/" />
+        ) : (
+          // Already on the playground: a plain fragment link moves focus to the main landmark.
+          <NavLink {...playgroundLink} active href="#main-content" />
+        )}
         <NavLink
-          active={!practice && !changelog}
-          label={rail ? undefined : "Engine playground"}
-          leftSection={<IconFlask size={19} stroke={1.6} />}
-          aria-label="Engine playground"
-          className={rail ? classes.railLink : undefined}
-          href={practice || changelog ? "/" : "#main-content"}
-          onClick={close}
-        />
-        <NavLink
+          component={RouterLink}
+          to="/practice"
           active={practice}
           label={rail ? undefined : "Practice"}
           leftSection={<IconBook2 size={19} stroke={1.6} />}
           aria-label="Practice"
           className={rail ? classes.railLink : undefined}
-          href="/practice"
           onClick={close}
         />
         <NavLink
+          component={RouterLink}
+          to="/changelog"
           active={changelog}
           label={rail ? undefined : "Changelog"}
           leftSection={(
@@ -80,7 +88,6 @@ function PrimaryNavigation({ changelog, changelogUnseen, close, practice, rail }
           )}
           aria-label="Changelog"
           className={rail ? classes.railLink : undefined}
-          href="/changelog"
           onClick={close}
         />
       </AppShell.Section>
@@ -94,15 +101,57 @@ function PrimaryNavigation({ changelog, changelogUnseen, close, practice, rail }
   );
 }
 
-function RouteContent({ changelog, practice }: { changelog: boolean; practice: boolean }) {
-  if (changelog) return (
-    <ChangelogErrorBoundary>
-      <Suspense fallback={<Group justify="center" py="xl"><Loader aria-label="Loading changelog" /></Group>}>
-        <Changelog />
-      </Suspense>
-    </ChangelogErrorBoundary>
+/**
+ * Practice recovers its run once, on mount, from the URL and browser storage. Its own URL binding
+ * (`?session=<id>`) replaces the entry and must keep the mounted run; a pushed navigation to
+ * /practice (the nav link) starts recovery afresh, as the former full page load did. Fragment
+ * links (skip link) arrive as POP with the same session and keep the run too, but Back/Forward
+ * onto an entry for a different session remounts so the run always matches its URL.
+ */
+function PracticeRoute() {
+  const { key, search } = useLocation();
+  const navigationType = useNavigationType();
+  const session = new URLSearchParams(search).get("session");
+  const [mount, setMount] = useState({ location: key, instance: key, session });
+  if (mount.location !== key) {
+    const restart = navigationType === "PUSH" || (navigationType === "POP" && session !== mount.session);
+    setMount({ location: key, instance: restart ? key : mount.instance, session });
+  }
+  return <Practice key={mount.instance} />;
+}
+
+/**
+ * A pushed navigation moves focus to the main landmark, as a full page load restarts the reading
+ * position there (the skip link and the playground fragment link do the same natively). Replaces
+ * (Practice binding its run) and history traversals leave focus where the user has it.
+ */
+function useRouteChangeFocus() {
+  const { key } = useLocation();
+  const navigationType = useNavigationType();
+  useEffect(() => {
+    if (navigationType === "PUSH") document.getElementById("main-content")?.focus();
+  }, [key, navigationType]);
+}
+
+function RouteContent() {
+  return (
+    <Routes>
+      <Route path="/" element={<Playground />} />
+      <Route path="/practice" element={<PracticeRoute />} />
+      <Route
+        path="/changelog"
+        element={(
+          <ChangelogErrorBoundary>
+            <Suspense fallback={<Group justify="center" py="xl"><Loader aria-label="Loading changelog" /></Group>}>
+              <Changelog />
+            </Suspense>
+          </ChangelogErrorBoundary>
+        )}
+      />
+      {/* Unknown paths keep today's fallback: the playground, without a redirect. */}
+      <Route path="*" element={<Playground />} />
+    </Routes>
   );
-  return practice ? <Practice /> : <Playground />;
 }
 
 export default function App() {
@@ -112,9 +161,9 @@ export default function App() {
   const { setColorScheme } = useMantineColorScheme();
   const colorScheme = useComputedColorScheme("light", { getInitialValueInEffect: false });
   const rail = collapsed && (desktop || !opened);
-  const path = window.location.pathname;
-  const practice = path === "/practice";
-  const changelog = path === "/changelog";
+  useRouteChangeFocus();
+  const practice = useMatch("/practice") !== null;
+  const changelog = useMatch("/changelog") !== null;
   const changelogUnseen = useChangelogUnseen();
   useEffect(() => {
     if (desktop) close();
@@ -185,7 +234,7 @@ export default function App() {
       </AppShell.Navbar>
 
       <AppShell.Main id="main-content" tabIndex={-1}>
-        <RouteContent changelog={changelog} practice={practice} />
+        <RouteContent />
       </AppShell.Main>
     </AppShell>
   );

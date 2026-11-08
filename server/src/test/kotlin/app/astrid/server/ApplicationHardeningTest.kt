@@ -3,6 +3,14 @@
 package app.astrid.server
 
 import app.astrid.engine.PilotEngine
+import app.astrid.server.authz.BadRequest
+import app.astrid.server.authz.Conflict
+import app.astrid.server.authz.NotFound
+import app.astrid.server.exercises.AttemptResponse
+import app.astrid.server.exercises.ExerciseResponse
+import app.astrid.server.infra.config.ServerConfig
+import app.astrid.server.infra.json.wireJson
+import app.astrid.server.session.SESSION_COOKIE
 import io.ktor.client.request.cookie
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -24,7 +32,7 @@ import kotlinx.coroutines.CancellationException
 class ApplicationHardeningTest {
     @Test
     fun `stored attempt replays after its exercise revision becomes unsupported`() = testApplication {
-        val repository = InMemoryAstridRepository()
+        val repository = InMemoryStores()
         application { astridModule(config(), repository) }
         val cookie = createSession()
         val exerciseId = createExercise(cookie).id
@@ -50,7 +58,7 @@ class ApplicationHardeningTest {
 
     @Test
     fun `failed evaluation stores nothing and same request recovers at retry one`() = testApplication {
-        val repository = InMemoryAstridRepository()
+        val repository = InMemoryStores()
         val engine = PilotEngine()
         var available = false
         application {
@@ -82,7 +90,7 @@ class ApplicationHardeningTest {
 
     @Test
     fun `cancelled evaluation is not graded and same request remains unused`() = testApplication {
-        val repository = InMemoryAstridRepository()
+        val repository = InMemoryStores()
         val engine = PilotEngine()
         var cancel = true
         application {
@@ -115,7 +123,7 @@ class ApplicationHardeningTest {
 
     @Test
     fun `all formats expose evaluation facets and reject malformed order answers`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val cookie = createSession()
         val present = createExercise(cookie, "E001", "G004", 0)
         val presentCorrect = present.prompt.choices.single { it.endsWith("r") }
@@ -150,7 +158,7 @@ class ApplicationHardeningTest {
 
     @Test
     fun `malformed unknown and oversized json bodies are bounded`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         assertEquals(HttpStatusCode.BadRequest, sessionRequest("{").status)
         assertEquals(HttpStatusCode.BadRequest, sessionRequest("""{"unexpected":true}""").status)
         assertEquals(
@@ -161,7 +169,7 @@ class ApplicationHardeningTest {
 
     @Test
     fun `uuid boundaries reject jdk shorthand and accept canonical uppercase`() = testApplication {
-        val repository = InMemoryAstridRepository()
+        val repository = InMemoryStores()
         val engine = PilotEngine()
         val evaluations = AtomicInteger()
         application {
@@ -217,7 +225,7 @@ class ApplicationHardeningTest {
 
     @Test
     fun `malformed unicode is rejected without consuming attempt identity`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val cookie = createSession()
         val malformedJsonStrings = listOf(
             "\"\\uD800\"",
@@ -243,7 +251,7 @@ class ApplicationHardeningTest {
 
     @Test
     fun `valid unicode preserves stable attempt replay and readback`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val cookie = createSession()
         val exerciseId = createExercise(cookie).id
         val validJsonStrings = listOf(
@@ -271,7 +279,7 @@ class ApplicationHardeningTest {
 
     @Test
     fun `text answer limit counts unicode code points`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val cookie = createSession()
         val codePoints = listOf("x", "\\uD83D\\uDE00")
 

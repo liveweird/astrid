@@ -1,5 +1,11 @@
 package app.astrid.server
 
+import app.astrid.server.authz.BadRequest
+import app.astrid.server.authz.Conflict
+import app.astrid.server.authz.NotFound
+import app.astrid.server.authz.Unauthorized
+import app.astrid.server.infra.config.ServerConfig
+import app.astrid.server.infra.json.wireJson
 import io.ktor.client.request.cookie
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -30,7 +36,7 @@ class PracticeApplicationTest {
     @Test
     fun `practice profiles are authenticated stable and do not renew the session`() = testApplication {
         val now = AtomicLong(1_000)
-        application { astridModule(config(), InMemoryAstridRepository(clock = now::get), clock = now::get) }
+        application { astridModule(config(), InMemoryStores(clock = now::get), clock = now::get) }
         val auth = authenticate()
 
         val profiles = client.get("/api/v1/practice-profiles") {
@@ -63,7 +69,7 @@ class PracticeApplicationTest {
 
     @Test
     fun `present verb mode metadata is frozen and follow-up 2 is source constrained`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val auth = authenticate()
         assertEquals(
             HttpStatusCode.Conflict,
@@ -142,7 +148,7 @@ class PracticeApplicationTest {
 
     @Test
     fun `completed practice creates a selected follow-up with frozen lineage and exposure`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val auth = authenticate()
         val sourceId = UUID.randomUUID().toString()
         val source = create(auth.cookie, auth.ownerId, createBody(sourceId))
@@ -197,7 +203,7 @@ class PracticeApplicationTest {
 
     @Test
     fun `follow-up rejects missing ownership invalid targets and competing source identity`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val owner = authenticate()
         val outsider = authenticate()
         val sourceId = UUID.randomUUID().toString()
@@ -225,7 +231,7 @@ class PracticeApplicationTest {
 
     @Test
     fun `nested follow-up keeps one original ancestor witness per relevant knowledge key`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val auth = authenticate()
         val sourceId = UUID.randomUUID().toString()
         val source = create(auth.cookie, auth.ownerId, createBody(sourceId))
@@ -267,7 +273,7 @@ class PracticeApplicationTest {
 
     @Test
     fun `practice owner cursor support and replay invariants hold`() = testApplication {
-        application { astridModule(config(), InMemoryAstridRepository()) }
+        application { astridModule(config(), InMemoryStores()) }
         val auth = authenticate()
         val practiceId = UUID.randomUUID().toString()
         val body = createBody(practiceId)
@@ -326,7 +332,7 @@ class PracticeApplicationTest {
         val fail = AtomicBoolean(true)
         application {
             val engine = app.astrid.engine.PilotEngine()
-            astridModule(config(), InMemoryAstridRepository(), engine, evaluator = { exercise, answer ->
+            astridModule(config(), InMemoryStores(), engine, evaluator = { exercise, answer ->
                 if (fail.getAndSet(false)) error("offline")
                 engine.evaluate(exercise, answer)
             })

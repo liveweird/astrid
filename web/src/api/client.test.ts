@@ -54,7 +54,7 @@ describe("attempt transport", () => {
   it("treats a server failure after submission as uncertain", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response(
       JSON.stringify({ detail: "temporarily unavailable" }),
-      { status: 503, headers: { "Content-Type": "application/json" } },
+      { status: 503, headers: { "Content-Type": "application/problem+json" } },
     )));
     await expect(submitAttempt(request)).rejects.toBeInstanceOf(UncertainResultError);
   });

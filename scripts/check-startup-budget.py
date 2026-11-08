@@ -4,8 +4,8 @@ from pathlib import Path
 import re
 
 root = Path(__file__).resolve().parents[1]
-bootstrap = (root / "server/src/main/kotlin/app/astrid/server/DatabaseBootstrap.kt").read_text()
-configuration = (root / "server/src/main/kotlin/app/astrid/server/ServerConfig.kt").read_text()
+bootstrap = (root / "server/src/main/kotlin/app/astrid/server/infra/db/Flyway.kt").read_text()
+configuration = (root / "server/src/main/kotlin/app/astrid/server/infra/config/ServerConfig.kt").read_text()
 
 
 def constant(name):

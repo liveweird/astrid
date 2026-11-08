@@ -2,6 +2,12 @@
 
 package app.astrid.server
 
+import app.astrid.server.exercises.AttemptAnswerDto
+import app.astrid.server.exercises.AttemptRequest
+import app.astrid.server.infra.config.ServerConfig
+import app.astrid.server.infra.json.wireJson
+import app.astrid.server.plugins.ProblemJson
+import app.astrid.server.plugins.Readiness
 import com.atlassian.oai.validator.OpenApiInteractionValidator
 import com.atlassian.oai.validator.model.SimpleRequest
 import com.atlassian.oai.validator.model.SimpleResponse
@@ -31,7 +37,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 class OpenApiContractTest {
-    private val rawSpec = checkNotNull(javaClass.getResource("/openapi.yaml")).readText()
+    private val rawSpec = checkNotNull(javaClass.getResource("/openapi/documentation.yaml")).readText()
     private val strictValidator = OpenApiInteractionValidator.createForInlineApiSpecification(rawSpec).build()
     private val validator = OpenApiInteractionValidator.createForInlineApiSpecification(rawSpec)
         .withLevelResolver(
@@ -213,7 +219,7 @@ class OpenApiContractTest {
     fun `spec parses and validates critical runtime responses`() = testApplication {
         val parse = OpenAPIV3Parser().readContents(rawSpec)
         assertNotNull(parse.openAPI, "OpenAPI parse failed: ${parse.messages}")
-        application { astridModule(config(inspectorKey = "k".repeat(32)), InMemoryAstridRepository()) }
+        application { astridModule(config(inspectorKey = "k".repeat(32)), InMemoryStores()) }
 
         val sessionResponse = client.post("/api/v1/development-session") {
             trustedHost()
@@ -398,7 +404,7 @@ class OpenApiContractTest {
 
     @Test
     fun `security and production mode responses conform to declared api statuses`() = testApplication {
-        application { astridModule(config(developmentMode = false), InMemoryAstridRepository()) }
+        application { astridModule(config(developmentMode = false), InMemoryStores()) }
         val forbiddenCatalog = client.get("/api/v1/catalog") {
             trustedHost()
             header(HttpHeaders.Origin, "https://attacker.example")
@@ -424,8 +430,66 @@ class OpenApiContractTest {
         validate(HttpMethod.Post, "/api/v1/exercises", createExercise)
     }
 
+    @Test
+    fun `creation responses carry a Location header and an unready service answers a problem`() = testApplication {
+        val repository = InMemoryStores()
+        val unready = object : Stores by repository {
+            override val readiness = Readiness { false }
+        }
+        application { astridModule(config(), unready) }
+        val session = client.post("/api/v1/development-session") {
+            trustedHost()
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+        val cookie = session.headers[HttpHeaders.SetCookie]!!.substringAfter("astrid_session=").substringBefore(';')
+        val exercise = client.post("/api/v1/exercises") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody(EXERCISE_REQUEST)
+        }
+        validate(HttpMethod.Post, "/api/v1/exercises", exercise)
+        val id = (wireJson.parseToJsonElement(exercise.bodyAsText()) as JsonObject).getValue("id").jsonPrimitive.content
+        assertEquals("/api/v1/exercises/$id", exercise.headers[HttpHeaders.Location])
+
+        val context = client.get("/api/v1/practice-context") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+        }
+        val owner = (wireJson.parseToJsonElement(context.bodyAsText()) as JsonObject)
+            .getValue("ownerSessionId").jsonPrimitive.content
+        val practiceId = UUID.randomUUID()
+        val practice = client.post("/api/v1/practice-sessions") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+            header("X-Astrid-Client", "playground")
+            header("X-Astrid-Practice-Owner", owner)
+            contentType(ContentType.Application.Json)
+            setBody("""{"practiceSessionId":"$practiceId","focusId":"reading-basics","planRevision":"practice-1","seed":47}""")
+        }
+        validate(HttpMethod.Post, "/api/v1/practice-sessions", practice)
+        assertEquals(201, practice.status.value)
+        assertEquals("/api/v1/practice-sessions/$practiceId", practice.headers[HttpHeaders.Location])
+
+        val ready = client.get("/api/v1/ready") { trustedHost() }
+        validate(HttpMethod.Get, "/api/v1/ready", ready)
+        assertEquals(503, ready.status.value)
+        val code = (wireJson.parseToJsonElement(ready.bodyAsText()) as JsonObject).getValue("code").jsonPrimitive.content
+        assertEquals("not_ready", code)
+    }
+
     private suspend fun validate(method: HttpMethod, path: String, response: HttpResponse) {
         val body = response.bodyAsText()
+        if (response.status.value >= 400) {
+            assertEquals(
+                ProblemJson.toString(),
+                response.contentType()?.withoutParameters()?.toString(),
+                "Error responses must be application/problem+json: ${response.status} $body",
+            )
+        }
         val request = SimpleRequest.Builder(method.value, path).build()
         val simpleResponse = SimpleResponse.Builder(response.status.value).apply {
             response.headers.forEach { name, values -> values.forEach { withHeader(name, it) } }

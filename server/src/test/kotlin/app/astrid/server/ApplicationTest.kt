@@ -2,6 +2,13 @@
 
 package app.astrid.server
 
+import app.astrid.server.authz.BadRequest
+import app.astrid.server.authz.Conflict
+import app.astrid.server.authz.Forbidden
+import app.astrid.server.authz.NotFound
+import app.astrid.server.authz.UnsupportedMediaType
+import app.astrid.server.infra.config.ServerConfig
+import app.astrid.server.infra.json.wireJson
 import io.ktor.client.request.cookie
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -13,8 +20,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
-import java.util.UUID
 import java.nio.file.Files
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -25,7 +32,7 @@ import kotlinx.serialization.json.jsonPrimitive
 class ApplicationTest {
     @Test
     fun `development session fails closed`() = testApplication {
-        application { astridModule(testConfig(developmentMode = false), InMemoryAstridRepository()) }
+        application { astridModule(testConfig(developmentMode = false), InMemoryStores()) }
         val response = client.post("/api/v1/development-session") {
             trustedHost()
             header("X-Astrid-Client", "playground")
@@ -38,7 +45,7 @@ class ApplicationTest {
 
     @Test
     fun `exercise omits inspector data and attempt retry is stable`() = testApplication {
-        application { astridModule(testConfig(), InMemoryAstridRepository()) }
+        application { astridModule(testConfig(), InMemoryStores()) }
         val cookie = createSession()
         val exercise = client.post("/api/v1/exercises") {
             trustedHost()
@@ -64,7 +71,7 @@ class ApplicationTest {
 
     @Test
     fun `resources are isolated by development session`() = testApplication {
-        application { astridModule(testConfig(), InMemoryAstridRepository()) }
+        application { astridModule(testConfig(), InMemoryStores()) }
         val owner = createSession()
         val outsider = createSession()
         val exercise = client.post("/api/v1/exercises") {
@@ -84,7 +91,7 @@ class ApplicationTest {
 
     @Test
     fun `catalog responses are never stored`() = testApplication {
-        application { astridModule(testConfig(), InMemoryAstridRepository()) }
+        application { astridModule(testConfig(), InMemoryStores()) }
         val cookie = createSession()
         val response = client.get("/api/v1/catalog") {
             trustedHost()
@@ -97,7 +104,7 @@ class ApplicationTest {
 
     @Test
     fun `untrusted origin and forwarded headers are rejected`() = testApplication {
-        application { astridModule(testConfig(), InMemoryAstridRepository()) }
+        application { astridModule(testConfig(), InMemoryStores()) }
         val origin = client.get("/api/v1/health") {
             trustedHost()
             header(HttpHeaders.Origin, "https://attacker.example")
@@ -113,7 +120,7 @@ class ApplicationTest {
 
     @Test
     fun `mutations require json media type`() = testApplication {
-        application { astridModule(testConfig(), InMemoryAstridRepository()) }
+        application { astridModule(testConfig(), InMemoryStores()) }
         val missing = client.post("/api/v1/development-session") {
             trustedHost()
             header("X-Astrid-Client", "playground")
@@ -130,7 +137,7 @@ class ApplicationTest {
 
     @Test
     fun `inspector requires enabled key and session ownership`() = testApplication {
-        val repository = InMemoryAstridRepository()
+        val repository = InMemoryStores()
         application { astridModule(testConfig(inspectorKey = "k".repeat(32)), repository) }
         val owner = createSession()
         val outsider = createSession()
@@ -160,7 +167,7 @@ class ApplicationTest {
 
     @Test
     fun `inspector is hidden when disabled`() = testApplication {
-        application { astridModule(testConfig(), InMemoryAstridRepository()) }
+        application { astridModule(testConfig(), InMemoryStores()) }
         val owner = createSession()
         val exerciseId = createExercise(owner)
         val response = client.get("/api/v1/dev/exercises/$exerciseId") {
@@ -173,7 +180,7 @@ class ApplicationTest {
 
     @Test
     fun `fingerprint drift conflicts without persisting an attempt`() = testApplication {
-        val repository = InMemoryAstridRepository()
+        val repository = InMemoryStores()
         application { astridModule(testConfig(inspectorKey = "k".repeat(32)), repository) }
         val cookie = createSession()
         val exerciseId = createExercise(cookie)
@@ -216,7 +223,7 @@ class ApplicationTest {
             assets.resolve("app.js").writeText("window.astridLoaded = true;")
             assets.resolve("app.css").writeText("body { color: #8f173b; }")
             testApplication {
-                application { astridModule(testConfig(webStaticDir = root.path), InMemoryAstridRepository()) }
+                application { astridModule(testConfig(webStaticDir = root.path), InMemoryStores()) }
                 val script = client.get("/assets/app.js") { trustedHost() }
                 assertEquals(HttpStatusCode.OK, script.status)
                 assertEquals("window.astridLoaded = true;", script.bodyAsText())
