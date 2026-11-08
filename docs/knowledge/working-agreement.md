@@ -46,6 +46,8 @@ Tag every top-level item with its own status (`- [todo] **BL-nnn — Title.** �
 
 ## Confirmed workflow decisions
 
+- **8 November 2026 — Module 1 authoring authorized:** after supplying the seven-module grammar/vocabulary blueprints and confirming multi-session grammar topic units, the user said “OK, go for it” to the proposed Module 1 plan, bounded vocabulary pack, worked exercise/grading cases and engine gap list. Deliver the [reviewable authoring packet](module-one-course-slice.md) under the standing documentation and focused commit/merge/push workflow. Session sequence, packet size and response examples are authoring defaults for review; Q27/Q28 remain open. This milestone does not activate the full course, new runtime grammar, new exercise formats, scheduling or accounts.
+
 - **6 November 2026 — Repository documentation:** Keep the project knowledge base in `docs/knowledge/`; the user subsequently established continuous documentation as a standing requirement.
 - **6 November 2026 — Separate backlog:** Use root-level `BACKLOG.md` with the five requested statuses. The location and detailed status meanings are initial working conventions chosen to implement the user's request.
 - **6 November 2026 — Git initialization:** The user authorized initialization, then initialized the repository locally after the session's attempt was blocked. Verified the local repository and the configured GitHub origin, `https://github.com/liveweird/astrid.git`.

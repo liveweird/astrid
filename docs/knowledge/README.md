@@ -17,6 +17,7 @@ This is the repository record of the Danish learning app's requirements, design 
 - [Danish grammar map](danish-grammar-map.md): 58 draft skills in eight proposed phases with prerequisite links.
 - [Seven-module grammar course blueprint](grammar-course-blueprint.md): the user's 28 topic units, each with multiple short sessions, mapped to existing skills with source checks and reconciliation proposals.
 - [Seven-module vocabulary course blueprint](vocabulary-course-blueprint.md): the user's 35 synchronized thematic units, four design principles, proposed lesson mix and evidence/authoring qualifications.
+- [Module 1 course slice](module-one-course-slice.md): authorized short-session authoring plan, prerequisite reconciliation, learning evidence and dependency-ordered engine gaps; [language pack](module-one-language-pack.md) and [worked exercises](module-one-worked-exercises.md) supply bounded source-checked material and grading cases.
 - [Danish sentence catalogue](danish-sentence-catalogue.md): 30 phrase/clause constructions and generation constraints.
 - [Danish vocabulary seed](danish-vocabulary-seed.md): 23 selected pilot entries, grammatical forms, senses, and combination allowlists.
 - [Beginner slice specification](beginner-slice-spec.md): connected targets, three exercise formats, grading examples, variation rules, and content/API responsibilities.

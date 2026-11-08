@@ -127,4 +127,6 @@ For each resulting step, author the target, prerequisites, licensed structures a
 
 ## Open work
 
+**8 November 2026 — Bounded authoring pass authorized:** the user selected the proposed Module 1 session plan, vocabulary pack, worked cases and implementation gap list. The [Module 1 packet](module-one-course-slice.md) makes that subset concrete without activating new runtime grammar. The wider seven-module reconciliation remains BL-045 work.
+
 BL-045 records reconciliation of this blueprint; BL-022 retains linguistic/teaching validation. Q02 tracks outcome/CEFR validation and Q03 register; Q26 resolves lessons as topic units. Bounded independent source review confirmed the field, auxiliary, subordinate-order, passive and reference qualifications above. Detailed lexical exceptions, modal meanings, the proposed `opgå` example and pragmatic register still need authoring review before exercises use them. Recording this blueprint selects no new implementation milestone.
