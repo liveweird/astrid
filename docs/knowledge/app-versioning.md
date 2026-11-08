@@ -51,3 +51,11 @@ Private build hashes, screenshots, HTTP probes, archive and verification logs re
 ## First tag and GitHub Release — 8 November 2026
 
 The user's explicit instruction to version and release BL-047 properly authorized the first annotated tag and [GitHub Release, v0.5.0](https://github.com/liveweird/astrid/releases/tag/v0.5.0). Tag source `b8ff9f9` matched verified master, all five [CI jobs](https://github.com/liveweird/astrid/actions/runs/42523608309) and 250 Linux browser journeys passed without retries/flakies, and remote annotated-tag/source and authored notes were read back. Earlier application entries remain unchanged changelog history; no retroactive tags were invented. App-only private-preview promotion followed a readable backup and preserved history. The [delivery record](word-choice-tiles-contract.md#observed-delivery--8-november-2026) supersedes the earlier running-version statements; learning pair five remains distinct from app 0.5.0.
+
+
+**Subsequent release — 8 November 2026:** app [0.6.0](https://github.com/liveweird/astrid/releases/tag/v0.6.0), source `7bd0bf2`, is the
+next annotated tag/GitHub Release and the current preview. All five [exact-master CI jobs](https://github.com/liveweird/astrid/actions/runs/42530713758),
+266 Linux and 266 native browser journeys passed without retries/flakies; a readable backup
+preceded app-only promotion. The [matching delivery record](vocabulary-matching-contract.md#observed-delivery--8-november-2026)
+supersedes the earlier running-version statement. Published older entries and tags remain unchanged;
+learning pair six is separate from app 0.6.0 and guided plans remain at pair three.

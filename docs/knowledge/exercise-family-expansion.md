@@ -55,7 +55,7 @@ The selected first batch is governed by the [writing/reading implementation cont
 | 8 | Danish sentence → English, spare tiles | Not implemented; direction confirmed by the user. |
 | 9 | One Danish sentence gap, choose the word | E001, finite present versus infinitive of the same verb; two choices. Other word classes are not implemented as choice gaps. |
 | 10 | Several Danish sentence gaps, choose words | Not implemented. |
-| 11 | English–Danish word matching grid, either orientation | Not implemented. |
+| 11 | English–Danish word matching grid, either orientation | E014, four article+noun pairs with English left and Danish right, per-pair feedback and partial checking. Reverse orientation remains unimplemented. |
 | 12 | Produce a question for an answer, typed or tiles | Not implemented; requires question grammar and a constrained intended question. |
 | 13 | Reorder a scrambled Danish sentence | E003, all supplied blocks used; article+noun stay together, and the task requests subject-first order. |
 | 14 | Match sentence beginnings and continuations | Not implemented. |
@@ -83,3 +83,9 @@ For tile tasks, distinguish individual words from existing constituent blocks, p
 for #11, English-left/Danish-right with four existing article+noun senses, partial checking and
 per-pair feedback. The [matching contract](vocabulary-matching-contract.md) supersedes its
 unselected status above. Opposite orientation, multiple gaps and further families remain proposals.
+
+
+**Observed matching delivery:** item 11 is delivered at [0.6.0](https://github.com/liveweird/astrid/releases/tag/v0.6.0) under the
+[verified matching contract](vocabulary-matching-contract.md#observed-delivery--8-november-2026),
+superseding its earlier proposed status. It remains standalone; multiple gaps, reversed
+orientation and guided integration remain separate decisions.

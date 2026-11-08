@@ -138,3 +138,9 @@ using the existing E011 senses, with per-pair server feedback and whole-board ch
 [matching contract](vocabulary-matching-contract.md) defines partial grading, editable supported
 retries, opaque independent shuffles and learning pair six / app 0.6.0. Pair five is frozen first;
 all historical grading and guided-plan revisions remain executable. No new vocabulary is selected.
+
+
+**Observed matching delivery:** E014 is available in the fourteen-entry standalone catalog at
+0.6.0, with four supplied meanings and separately stored per-pair outcomes. The
+[verified delivery](vocabulary-matching-contract.md#observed-delivery--8-november-2026)
+closes BL-048 without activating new language, multiple gaps or guided-plan changes.

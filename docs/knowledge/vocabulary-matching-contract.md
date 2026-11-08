@@ -157,3 +157,33 @@ The complete browser matrix also exposed a narrow changelog overflow from `indep
 the new release notes (338px document width at a 320px viewport/200% text). Keep the authored
 notes intact and allow the shared Markdown renderer to wrap long words. Existing changelog
 reflow cases cover both engines/themes; the final full matrix must pass this correction too.
+
+
+## Observed delivery — 8 November 2026
+
+Released app [0.6.0](https://github.com/liveweird/astrid/releases/tag/v0.6.0) at annotated tag `v0.6.0`, source `7bd0bf2`. All five
+[exact-master CI jobs](https://github.com/liveweird/astrid/actions/runs/42530713758) passed, including 266 Linux browser journeys without
+retries or flakies. All 266 native Chromium/WebKit journeys and 58 live-preview smoke
+journeys also passed without retries. The full Docker-backed gate passed with 128 engine tests
+plus the fresh Arabic-locale suite, 120 server tests and 169 frontend tests; no coverage floor
+was lowered. All six teaching reports export, and retained-five review bytes stay exact.
+
+Independent engine, API and UI reviews closed their findings. Final clean-image readback
+confirmed readable light/dark desktop and 320px/200% feedback. The browser text-range checks
+catch the original local clipping; the complete matrix also covers the corrected changelog.
+Matching records recognition of four supplied article+noun meanings with support/retry context.
+
+A 3,069,379-byte mode-0600 PostgreSQL backup was verified readable before app-only promotion.
+The upgrade preserved 15,920 exercises, 7,018 attempts, 1,615 practice runs,
+11,106 items and 4,854 attempt contexts, with the same PostgreSQL process/mounts
+and schema versions 1/2/3. Main-preview retained reads/replay/fresh grading passed for pairs
+one through five. Actual owned-QA app restart preserved all six revisions, old practice and
+new partial/complete matching results. Only owned QA containers, volume and network were
+removed; the main app and database stayed intact.
+
+The preview serves immutable image `sha256:cb3c9e2e668cace5c0a8c511abb0cd22d27f06f69bf13e838b1a4de53a849eb4`.
+Runtime non-root/read-only/capability policy, absence of Git tooling and the vulnerability
+policy passed for that image. Private logs, proofs, captures and backup remain ignored under
+`.local/vocabulary-matching/`. BL-048 is complete; this documentation-only follow-up records
+delivery. Guided plans stay at pair three; multiple gaps, course integration, further language
+and teaching approval remain separate work.

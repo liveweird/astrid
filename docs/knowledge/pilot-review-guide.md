@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This proposed walkthrough helps evaluate the engine before expanding content or producing media. Open `http://localhost:8088`. It is a private developer preview, with thirteen entries and draft Danish content rather than a complete beginner course.
+This proposed walkthrough helps evaluate the engine before expanding content or producing media. Open `http://localhost:8088`. It is a private developer preview, with fourteen entries and draft Danish content rather than a complete beginner course.
 
-## Try the thirteen entries
+## Try the fourteen entries
 
 1. **Present form:** open “Learn this first,” then choose the finite present form. The alternatives deliberately use the same verb. Check the answer, inspect feedback, retry, then advance. Opening the lesson or hint records supported practice; that evidence stays attached to retries of the same exercise.
 2. **Article:** expand “Generation controls” and select “Supply the indefinite article.” Type `en` or `et`. Try the wrong gender, then retry with the matching form. A matching accented numeral such as `én` has a different target interpretation from the requested unstressed article; feedback should distinguish that from a gender error.
@@ -23,6 +23,8 @@ This proposed walkthrough helps evaluate the engine before expanding content or 
 11. **Danish word choice:** select “Choose the Danish word.” Match an English meaning to one of four related article+noun bundles. Compare a wrong meaning with the correct choice; both are supplied Danish, while only one matches the cue. Optional support explains all four.
 12. **All-word tiles:** select “Build a Danish sentence.” Translate the English cue with individual word tiles, including a separate article. Compare subject-first and licensed object-first orders, then omit a required tile; feedback should distinguish target, meaning and response shape.
 13. **Spare-word tiles:** select “Choose the present form with word tiles.” Build the sentence while leaving its infinitive unused. Try the infinitive instead, both forms together and a finite fronted statement. A correct finite verb with fronting meets the verb target but misses the requested response order.
+
+14. **Word matching:** select “Match English and Danish words.” Choose an English meaning, then its Danish article+noun phrase. Check one pair, a mixed board and all four correct pairs. Compare per-pair feedback with the whole-board status. **Try again** keeps every pair editable; later attempts are labeled **Retry after feedback**. Use Enter/Space on the buttons, remove a match and regenerate with an unfinished selection. The new board should start with no selection. Check that complete feedback remains readable at 320px with 200% text.
 
 Use Tab/Enter throughout and try the narrow layout and both themes. If a result cannot be confirmed after a connection problem, “Check the same attempt” safely replays the original submission.
 
@@ -47,9 +49,9 @@ Check whether selecting targets feels useful and whether source exposure is unde
 
 ## Inspect variation
 
-Record the format, seed and index under “Generation controls.” Reusing those coordinates and revisions reproduces the exercise presentation; the API's persisted UUID is a separate identity. Change the index or use “Next exercise” to sample variation. The finite pools contain 99 sentences for present/order and 92 for articles, while E007/E008 each cycle through three selected senses and E011 cycles through four. Long-term variety needs more reviewed content.
+Record the format, seed and index under “Generation controls.” Reusing those coordinates and revisions reproduces the exercise presentation; the API's persisted UUID is a separate identity. Change the index or use “Next exercise” to sample variation. The finite pools contain 99 sentences for present/order and 92 for articles, while E007/E008 each cycle through three selected senses and E011 cycles through four. Matching reuses those four E011 senses with independently shuffled columns; occasional correctly aligned rows are possible. Long-term variety needs more reviewed content.
 
-For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-5.md`. Retained revision four is available with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
+For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-6.md`. Retained revision five is available with `:engine:exportPilotFiveReview` at `engine/build/review/pilot-5.md`; revision four is available with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
 
 ## Record feedback
 

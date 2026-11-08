@@ -153,3 +153,14 @@ The [practice-session contract](practice-sessions.md) records BL-009 implementat
 ## Vocabulary matching authorization
 
 **8 November 2026 — Confirmed:** “go for hat” accepts the proposed four-pair vocabulary matching grid as the next 0.6.0 milestone. Implement the [matching contract](vocabulary-matching-contract.md), preserve historical results and practice plans, independently review and verify it, then deliver focused commits merged/pushed and a properly versioned tag/GitHub release with backed-up private-preview promotion. Multiple gaps, new language and guided-course integration remain separate selections.
+
+
+**8 November 2026 — Vocabulary matching delivery observed:** released app [0.6.0](https://github.com/liveweird/astrid/releases/tag/v0.6.0),
+source `7bd0bf2`, after all five [release CI jobs](https://github.com/liveweird/astrid/actions/runs/42530713758) and 266 Linux browser journeys
+passed without retries/flakies. All 266 native journeys and 58 live-preview checks passed.
+Independent reviews and pre-release visual corrections are resolved; a readable backup
+preceded app-only promotion, preserving history and PostgreSQL process/mounts. Actual QA
+restart preserved all six revisions; only owned QA resources were removed. The
+[contract and evidence](vocabulary-matching-contract.md#observed-delivery--8-november-2026)
+close BL-048. This is the documentation-only follow-up; teaching review, further families
+and course activation remain separate.
