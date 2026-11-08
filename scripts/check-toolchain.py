@@ -15,12 +15,20 @@ def tool_pin(name):
 
 
 node = tool_pin("node")
-java_patch = re.search(r"\d+\.\d+\.\d+", tool_pin("java"))[0]
+# Ported from Flow's check-toolchain-pins.mjs. Adoptium folds a respin into mise's build number (21.0.12.1+1 is
+# temurin-21.0.12+101: respin x 100 + build), while the Docker tag names the respin (21.0.12.1_1) and setup-java takes the patch only.
+java_match = re.fullmatch(r"temurin-(\d+\.\d+\.\d+)\+(\d+)(?:\.\d+)?\.LTS", tool_pin("java"))
+assert java_match, "Expected a temurin-<patch>+<build>.LTS java pin in mise.toml"
+java_patch = java_match[1]
+java_respin = int(java_match[2]) // 100
+java_tag = f"{java_patch}.{java_respin}" if java_respin else java_patch
 assert (root / ".nvmrc").read_text().strip() == node, ".nvmrc differs from mise.toml"
 dockerfile = (root / "Dockerfile").read_text()
 assert f"FROM node:{node}-alpine@sha256:" in dockerfile, "Node image pin differs"
-assert f"FROM eclipse-temurin:{java_patch}.1_1-jdk-noble@sha256:" in dockerfile, "JDK image pin differs"
-assert f"FROM eclipse-temurin:{java_patch}.1_1-jre-noble@sha256:" in dockerfile, "JRE image pin differs"
+temurin_images = re.findall(r"^FROM eclipse-temurin:([\d.]+)_\d+-(jdk|jre)-noble@sha256:", dockerfile, re.MULTILINE)
+assert {kind for _, kind in temurin_images} == {"jdk", "jre"}, "Dockerfile needs pinned Temurin JDK and JRE stages"
+for tag, kind in temurin_images:
+    assert tag == java_tag, f"{kind.upper()} image pin differs: {tag} != {java_tag}"
 ci = (root / ".github/workflows/ci.yml").read_text()
 assert f"java-version: {java_patch}" in ci, "CI JDK differs"
 assert "node-version-file: .nvmrc" in ci, "CI must read the Node pin"
