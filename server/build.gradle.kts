@@ -123,7 +123,8 @@ kover {
                 // 2026-11-07, scaffold alignment: actual 72.32% -> floor 72.
                 // 2026-11-08, server package split + store contract suite: actual 76.35% -> floor 76.
                 // 2026-11-08, port config + call logging tests: actual 77.59% -> floor 77.
-                minBound(77, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
+                // 2026-11-08, word choice/tiles HTTP and persistence coverage: actual 79.25% -> floor 79.
+                minBound(79, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
             }
         }
     }

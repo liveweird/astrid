@@ -7,8 +7,6 @@ import app.astrid.engine.GeneratedExercise
 import app.astrid.engine.IntroductionSection
 import app.astrid.engine.LexicalTarget
 import app.astrid.engine.ReadingTask
-import app.astrid.server.session.CURRENT_CONTENT_REVISION
-import app.astrid.server.session.CURRENT_GENERATOR_REVISION
 import java.security.MessageDigest
 
 internal fun GeneratedExercise.toResponse(id: String) = ExerciseResponse(
@@ -33,6 +31,8 @@ internal fun GeneratedExercise.toResponse(id: String) = ExerciseResponse(
         cueLanguage = prompt.cueLanguage,
         answerLanguage = prompt.answerLanguage,
         passage = prompt.passage,
+        tileMode = prompt.tileMode,
+        requiredTileCount = prompt.requiredTileCount,
     ),
     introduction = introduction.map { IntroductionDto(it.title, it.body, it.bodyLanguage) },
     hint = hint,
@@ -65,6 +65,13 @@ internal fun GeneratedExercise.toInspector(id: String) = ExerciseInspectorDto(
             questionVerbId = source.questionVerbId,
             answerNounId = source.answerNounId,
             answer = source.answer,
+        )
+    },
+    tileSource = inspector.tileSource?.let { source ->
+        TileSourceDetailsDto(
+            tokens = source.tokens.map { TileTokenDetailsDto(it.blockId, it.lexicalId, it.form) },
+            licensedOrders = source.licensedOrders.map { TileLicensedOrderDetailsDto(it.kind, it.blockIds) },
+            distractors = source.distractors.map { TileDistractorDetailsDto(it.blockId, it.rationale) },
         )
     },
 )
@@ -124,7 +131,15 @@ internal fun GeneratedExercise.reproductionFingerprint(
         CONTENT_REVISION to GENERATOR_REVISION -> legacyCanonical.joinToString("\u001f")
         "pilot-2" to "generator-2" -> pairTwoCanonical.joinToString("\u001f")
         "pilot-3" to "generator-3" -> pairThreeCanonical.joinToString("\u001f")
-        CURRENT_CONTENT_REVISION to CURRENT_GENERATOR_REVISION -> pairFourFingerprintCanonical(
+        "pilot-4" to "generator-4" -> pairFourFingerprintCanonical(
+            promptForFingerprint,
+            lexicalTargetForFingerprint,
+            inspectorForFingerprint,
+            supportSkillIdsForFingerprint,
+            readingTargetForFingerprint,
+            introductionForFingerprint,
+        )
+        "pilot-5" to "generator-5" -> pairFiveFingerprintCanonical(
             promptForFingerprint,
             lexicalTargetForFingerprint,
             inspectorForFingerprint,
@@ -198,6 +213,36 @@ private fun GeneratedExercise.pairFourFingerprintCanonical(
                     source.questionVerbId,
                     source.answerNounId,
                     source.answer,
+                ),
+            )
+        }),
+    ),
+)
+
+private fun GeneratedExercise.pairFiveFingerprintCanonical(
+    prompt: ExercisePrompt,
+    lexicalTarget: LexicalTarget?,
+    inspector: ExerciseInspector,
+    supportSkillIds: List<String>,
+    readingTarget: ReadingTask?,
+    introduction: List<IntroductionSection>,
+): String = framedList(
+    listOf(
+        pairFourFingerprintCanonical(prompt, lexicalTarget, inspector, supportSkillIds, readingTarget, introduction),
+        framedNullable(prompt.tileMode),
+        framedNullable(prompt.requiredTileCount?.toString()),
+        framedNullable(inspector.tileSource?.let { source ->
+            framedList(
+                listOf(
+                    framedList(source.tokens.map { token ->
+                        framedList(listOf(token.blockId, token.lexicalId, token.form))
+                    }),
+                    framedList(source.licensedOrders.map { order ->
+                        framedList(listOf(order.kind, framedList(order.blockIds)))
+                    }),
+                    framedList(source.distractors.map { distractor ->
+                        framedList(listOf(distractor.blockId, distractor.rationale))
+                    }),
                 ),
             )
         }),

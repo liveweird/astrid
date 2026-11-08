@@ -72,6 +72,10 @@ data class ExercisePromptDto(
     val answerLanguage: String? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val passage: List<String>? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val tileMode: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val requiredTileCount: Int? = null,
 )
 
 @Serializable
@@ -178,6 +182,32 @@ data class ReadingSourceDetailsDto(
 )
 
 @Serializable
+data class TileTokenDetailsDto(
+    val blockId: String,
+    val lexicalId: String,
+    val form: String,
+)
+
+@Serializable
+data class TileLicensedOrderDetailsDto(
+    val kind: String,
+    val blockIds: List<String>,
+)
+
+@Serializable
+data class TileDistractorDetailsDto(
+    val blockId: String,
+    val rationale: String,
+)
+
+@Serializable
+data class TileSourceDetailsDto(
+    val tokens: List<TileTokenDetailsDto>,
+    val licensedOrders: List<TileLicensedOrderDetailsDto>,
+    val distractors: List<TileDistractorDetailsDto>,
+)
+
+@Serializable
 data class ExerciseInspectorDto(
     val exercise: ExerciseResponse,
     val seed: Int,
@@ -190,4 +220,6 @@ data class ExerciseInspectorDto(
     val lexicalSource: LexicalSourceDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val readingSource: ReadingSourceDetailsDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val tileSource: TileSourceDetailsDto? = null,
 )

@@ -5,7 +5,12 @@ import { useState } from "react";
 import type { Exercise } from "../api/models";
 import ExercisePrompt from "./ExercisePrompt";
 
-function exercise(formatId: Exercise["formatId"], promptMetadata: Partial<Exercise["prompt"]> = {}): Exercise {
+type PromptMetadata = Partial<Exercise["prompt"]> & {
+  tileMode?: "use-all" | "with-spares";
+  requiredTileCount?: number;
+};
+
+function exercise(formatId: Exercise["formatId"], promptMetadata: PromptMetadata = {}): Exercise {
   return {
     id: "011835c0-bb42-47ef-b21e-ae21411b24a1",
     formatId,
@@ -100,6 +105,88 @@ describe("ExercisePrompt", () => {
     }
     await userEvent.click(screen.getByRole("button", { name: "a newspaper" }));
     expect(onText).toHaveBeenCalledWith("a newspaper");
+  });
+
+  it("renders an English meaning cue with Danish article and noun choices", async () => {
+    const onText = vi.fn();
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E011" as Exercise["formatId"], {
+              before: "", after: "", punctuation: "", cue: "magazine",
+              cueLanguage: "en", answerLanguage: "da",
+              choices: ["en bog", "en avis", "et brev", "et magasin"],
+            }),
+            targetSkillId: null,
+            lexicalTarget: { entryId: "L024", senseId: "L024-S01", facet: "meaning", direction: "en-da" },
+          } as Exercise}
+          text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("magazine")).toHaveAttribute("lang", "en");
+    for (const choice of ["en bog", "en avis", "et brev", "et magasin"]) {
+      expect(screen.getByText(choice)).toHaveAttribute("lang", "da");
+    }
+    await userEvent.click(screen.getByRole("button", { name: "et magasin" }));
+    expect(onText).toHaveBeenCalledWith("et magasin");
+  });
+
+  it("explains all-word tiles while keeping punctuation outside the tile bank", () => {
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={exercise("E012" as Exercise["formatId"], {
+            before: "", after: "", cue: "She reads a newspaper.", cueLanguage: "en", answerLanguage: "da",
+            tileMode: "use-all", requiredTileCount: 4,
+            blocks: [
+              { id: "b0", text: "hun" }, { id: "b1", text: "læser" },
+              { id: "b2", text: "en" }, { id: "b3", text: "avis" },
+            ],
+          })}
+          text="" order={["b0", "b1"]} disabled={false} onText={vi.fn()} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("She reads a newspaper.")).toHaveAttribute("lang", "en");
+    expect(screen.getByText("Use every word tile.")).toBeVisible();
+    expect(screen.getByLabelText("Your Danish sentence")).toHaveTextContent("Hunlæser.");
+    expect(screen.getByRole("group", { name: "Available Danish word tiles" })).toHaveTextContent("enavis");
+    expect(screen.getAllByText(".")).toHaveLength(1);
+  });
+
+  it("keeps occurrence identity and focus stable for duplicate and spare word tiles", async () => {
+    function TileHarness() {
+      const [order, setOrder] = useState<string[]>([]);
+      return (
+        <ExercisePrompt
+          exercise={exercise("E013" as Exercise["formatId"], {
+            before: "", after: "", cue: "You read.", cueLanguage: "en", answerLanguage: "da",
+            tileMode: "with-spares", requiredTileCount: 2,
+            blocks: [
+              { id: "b0", text: "I" }, { id: "b1", text: "læser" },
+              { id: "b2", text: "I" }, { id: "b3", text: "læse" },
+            ],
+          })}
+          text="" order={order} disabled={false} onText={vi.fn()} onOrder={setOrder}
+        />
+      );
+    }
+    render(<MantineProvider env="test"><TileHarness /></MantineProvider>);
+
+    expect(screen.getByText("One word tile will be left unused.")).toBeVisible();
+    const duplicateTiles = screen.getAllByRole("button", { name: "I" });
+    duplicateTiles[0]!.focus();
+    await userEvent.keyboard("{Enter}");
+    expect(screen.getByRole("button", { name: "læser" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Remove I from position 1" })).toBeVisible();
+    expect(screen.getAllByRole("button", { name: "I" })).toHaveLength(1);
+    await userEvent.click(screen.getByRole("button", { name: "Remove I from position 1" }));
+    expect(screen.getAllByRole("button", { name: "I" })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: "I" })[0]).toHaveFocus();
   });
 });
 

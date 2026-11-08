@@ -10,6 +10,16 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.5.0",
+    date: "2026-11-08",
+    body: `**More ways to practise Danish.**
+
+- **Choose the Danish word** matches an English meaning to one of four related Danish nouns, each shown with its article.
+- **Build a Danish sentence** translates an English sentence using every individual word tile.
+- **Choose the present form with word tiles** adds a spare infinitive, so you practise choosing the present verb while building the sentence.
+- Feedback separates the grammar target, meaning, language and requested response shape. Saved exercises and existing guided practice retain their original revisions.`,
+  },
+  {
     version: "0.4.1",
     date: "2026-11-08",
     body: `**A new Astrid logo.**

@@ -90,6 +90,9 @@ class OpenApiContractTest {
             exerciseRequest("E008", null, "pilot-4", "generator-4"),
             exerciseRequest("E009", "G005", "pilot-4", "generator-4"),
             exerciseRequest("E010", null, "pilot-4", "generator-4"),
+            exerciseRequest("E011", null, "pilot-5", "generator-5"),
+            exerciseRequest("E012", "G005", "pilot-5", "generator-5"),
+            exerciseRequest("E013", "G004", "pilot-5", "generator-5"),
         )
         val rejected = listOf(
             exerciseRequest("E009", null, "pilot-4", "generator-4"),
@@ -101,6 +104,11 @@ class OpenApiContractTest {
             exerciseRequest("E010", null, "pilot-4", "generator-3"),
             exerciseRequest("E001", "G004", "pilot-1", "generator-2"),
             exerciseRequest("E007", null, "pilot-3", "generator-4"),
+            exerciseRequest("E011", "G005", "pilot-5", "generator-5"),
+            exerciseRequest("E011", null, "pilot-4", "generator-4"),
+            exerciseRequest("E012", "G004", "pilot-5", "generator-5"),
+            exerciseRequest("E012", "G005", "pilot-5", "generator-4"),
+            exerciseRequest("E013", "G005", "pilot-5", "generator-5"),
         )
 
         accepted.forEach { assertExerciseRequestValidity(it, expected = true) }
@@ -136,6 +144,15 @@ class OpenApiContractTest {
                 lexicalFacet = "meaning",
                 lexicalDirection = "da-en",
             ),
+            exerciseResponse(
+                "E011",
+                "pilot-5",
+                "generator-5",
+                lexicalFacet = "meaning",
+                lexicalDirection = "en-da",
+            ),
+            exerciseResponse("E012", "pilot-5", "generator-5", target = "G005", tileMode = "use-all"),
+            exerciseResponse("E013", "pilot-5", "generator-5", target = "G004", tileMode = "with-spares"),
         )
         val rejected = listOf(
             exerciseResponse("E009", "pilot-4", "generator-4"),
@@ -198,6 +215,16 @@ class OpenApiContractTest {
                 lexicalFacet = "singular-headword",
                 lexicalDirection = "da-en",
             ),
+            exerciseResponse(
+                "E011",
+                "pilot-5",
+                "generator-5",
+                lexicalFacet = "meaning",
+                lexicalDirection = "da-en",
+            ),
+            exerciseResponse("E012", "pilot-5", "generator-5", target = "G004", tileMode = "use-all"),
+            exerciseResponse("E012", "pilot-5", "generator-5", target = "G005", tileMode = "with-spares"),
+            exerciseResponse("E013", "pilot-5", "generator-4", target = "G004", tileMode = "with-spares"),
         )
 
         accepted.forEach { assertExerciseResponseValidity(it, expected = true) }
@@ -378,6 +405,19 @@ class OpenApiContractTest {
                 },
             )
         }
+        listOf("E011" to null, "E012" to "G005", "E013" to "G004").forEach { (format, target) ->
+            val targetJson = target?.let { ",\"targetSkillId\":\"$it\"" }.orEmpty()
+            val response = client.post("/api/v1/exercises") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                contentType(ContentType.Application.Json)
+                setBody(
+                    """{"formatId":"$format"$targetJson,"seed":47,"index":0,"contentRevision":"pilot-5","generatorRevision":"generator-5"}""",
+                )
+            }
+            validate(HttpMethod.Post, "/api/v1/exercises", response)
+        }
         val exerciseId = (wireJson.parseToJsonElement(exerciseResponse.bodyAsText()) as JsonObject)
             .getValue("id").jsonPrimitive.content
         val attemptId = UUID.randomUUID()
@@ -535,6 +575,7 @@ class OpenApiContractTest {
         lexicalDirection: String? = null,
         readingFacet: String? = null,
         passage: Boolean = false,
+        tileMode: String? = null,
     ): String {
         val targetJson = target?.let { "\"targetSkillId\":\"$it\"," }.orEmpty()
         val lexicalJson = if (lexicalFacet != null && lexicalDirection != null) {
@@ -544,8 +585,19 @@ class OpenApiContractTest {
         }
         val readingJson = readingFacet?.let { """"readingTarget":{"facet":"$it"},""" }.orEmpty()
         val passageJson = if (passage) ""","passage":["Hun læser en avis.","Han læser en bog.","Hun har et brev."]""" else ""
-        val prompt =
-            """{"before":"","after":"","choices":["a newspaper","a book","a letter"],"blocks":[],"punctuation":"","cue":"Question","cueLanguage":"en","answerLanguage":"en"$passageJson}"""
+        val prompt = when (tileMode) {
+            "use-all" -> """{"before":"","after":"","choices":[],"blocks":[{"id":"b0","text":"Hun"},{"id":"b1","text":"læser"}],"punctuation":".","cue":"She reads","cueLanguage":"en","answerLanguage":"da","tileMode":"use-all","requiredTileCount":2}"""
+            "with-spares" -> """{"before":"","after":"","choices":[],"blocks":[{"id":"b0","text":"Hun"},{"id":"b1","text":"læser"},{"id":"b2","text":"læse"}],"punctuation":".","cue":"She reads","cueLanguage":"en","answerLanguage":"da","tileMode":"with-spares","requiredTileCount":2}"""
+            else -> {
+                val choices = if (format == "E011") {
+                    "[\"en avis\",\"en bog\",\"et brev\",\"et magasin\"]"
+                } else {
+                    "[\"a newspaper\",\"a book\",\"a letter\"]"
+                }
+                val answerLanguage = if (format == "E011") "da" else "en"
+                """{"before":"","after":"","choices":$choices,"blocks":[],"punctuation":"","cue":"Question","cueLanguage":"en","answerLanguage":"$answerLanguage"$passageJson}"""
+            }
+        }
         return """{"id":"00000000-0000-0000-0000-000000000001","formatId":"$format",$targetJson$lexicalJson$readingJson"supportSkillIds":[],"contentRevision":"$content","generatorRevision":"$generator","instruction":"Instruction","context":"Context","prompt":$prompt,"introduction":[],"hint":"Hint"}"""
     }
 

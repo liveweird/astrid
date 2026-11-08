@@ -1,6 +1,6 @@
 # Astrid
 
-A Danish reading and writing engine for English-speaking beginners. The private preview offers guided practice and a standalone playground: ten exercise entries covering grammar selection/supply/order/repair, vocabulary recognition/recall, full-sentence writing and short reading comprehension, a structured 23-entry vocabulary seed, and 99 licensed sentence combinations. Content is a linguistic draft awaiting Danish teaching review.
+A Danish reading and writing engine for English-speaking beginners. The private preview offers guided practice and a standalone playground: thirteen exercise entries covering grammar selection/supply/order/repair, vocabulary recognition/recall, full-sentence writing, short reading comprehension and all/spare word tiles, a structured 24-entry vocabulary inventory (including one choice-only magazine sense), and 99 licensed sentence combinations. Content is a linguistic draft awaiting Danish teaching review.
 
 ## Run the complete app
 
@@ -47,13 +47,16 @@ Native development binds to `127.0.0.1:8088`; `ASTRID_BIND_HOST` and `ASTRID_POR
 - **Meaning recognition:** choose the English meaning of `bog`, `avis` or `brev` from related alternatives.
 - **Headword recall:** type the introduced Danish singular noun for an English cue, without its article.
 - **Sentence writing:** type a complete subject-first Danish statement from an English meaning, using introduced words. Feedback separates order, meaning, bounded language diagnosis and one-statement constraints.
+- **Danish word choice:** choose an article+noun bundle from four related meanings.
+- **All-word translation:** build a subject-first Danish sentence from an English cue using every individual word tile.
+- **Spare-word translation:** build the sentence while leaving one infinitive unused; feedback assesses the present verb separately from response shape.
 - **Short reading:** read three Danish sentences, then choose the English answer matching the asked participant and action. Related alternatives require following the stated facts.
 
 Feedback reports both the requested target and the supported linguistic judgment. An acceptable fronted statement can miss the subject-first target. Unknown writing is not automatically invalid Danish. Vocabulary feedback also separates knowing the headword from supplying the requested one-word response; `en avis` can identify the word while needing correction to the response format. Hints and retries are recorded; there is no mastery or adaptive scheduling claim.
 
 API requests have a 15-second browser deadline, including their response body. An unconfirmed submission keeps the exact attempt available through “Check the same attempt.” Keep that page open for recovery. This bounds visible waiting in an active browser; it does not establish whether a timed-out write committed or guarantee server cleanup during a database outage. See the [recovery evidence](docs/knowledge/runtime-recovery.md).
 
-Seed, index, content revision and generator revision make exercises reproducible. A seeded cycle visits every eligible sentence before repeating (99 for present/order, 92 for articles); each vocabulary direction visits its three selected senses before repeating. Sentence writing uses the 99 licensed statements; reading cycles through 24 three-fact units with seeded sentence/choice order. The two new families are initially standalone; guided practice retains its existing plans and revisions.
+Seed, index, content revision and generator revision make exercises reproducible. A seeded cycle visits every eligible sentence before repeating (99 for present/order, 92 for articles); E007/E008 retain their three selected senses, while E011 visits its four-sense choice pool before repeating. Sentence writing uses the 99 licensed statements; reading cycles through 24 three-fact units with seeded sentence/choice order. Word choice, word tiles, sentence writing and reading are standalone; guided practice retains its existing plans and revisions.
 
 The optional inspector reveals private generation details. Set `ASTRID_INSPECTOR_ENABLED=true` and a random `ASTRID_INSPECTOR_KEY` of at least 32 characters in the server environment, then enter the key in the inspector. Generate one with `openssl rand -hex 32`. The key stays out of frontend builds and browser persistent storage. Restart the server after configuration changes.
 
@@ -130,7 +133,7 @@ CI repeats the gates on pull requests and master, validates Kubernetes schemas a
 ./gradlew :engine:exportPilotReview
 ```
 
-The deterministic report is written to `engine/build/review/pilot-4.md`. It includes the 23 lexical records, sources and draft review status, all 99 sentences and reproducible exercise examples. The production engine remains free of file I/O; the export adapter runs only as a local build tool. Run `./gradlew :engine:exportLegacyPilotReview`, `:engine:exportPilotTwoReview` or `:engine:exportPilotThreeReview` for the retained `pilot-1`/`pilot-2`/`pilot-3` reports. Compatibility fixtures preserve 335 original cases, 952 revision-2 generation/evaluation cases, 978 published fingerprint cases and the frozen pilot-3 engine and wire fixtures (see `.claude/docs/compatibility.md`). Their generated origin establishes compatibility, while the independently specified worked examples and eventual Danish teaching review address linguistic correctness.
+The deterministic report is written to `engine/build/review/pilot-5.md`. It includes the 24 lexical records, sources and draft review status, all 99 sentences and reproducible exercise examples. The production engine remains free of file I/O; the export adapter runs only as a local build tool. Run `./gradlew :engine:exportLegacyPilotReview`, `:engine:exportPilotTwoReview`, `:engine:exportPilotThreeReview` or `:engine:exportPilotFourReview` for the retained `pilot-1`–`pilot-4` reports. Compatibility fixtures preserve 335 original cases, 952 revision-2 generation/evaluation cases, 978 published fingerprint cases and the frozen pilot-3 and pilot-4 engine and wire fixtures (see `.claude/docs/compatibility.md`). Their generated origin establishes compatibility, while the independently specified worked examples and eventual Danish teaching review address linguistic correctness.
 
 Vocabulary introduces a forward migration permitting a null grammar target; its separate lexical target lives in the stored presentation. After vocabulary writes, rollback requires a reader compatible with new metadata and nullable targets; a bare older image is unsafe. See the [contract](docs/knowledge/vocabulary-assessment.md).
 

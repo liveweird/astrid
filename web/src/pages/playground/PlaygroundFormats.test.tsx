@@ -257,6 +257,112 @@ async function verifyWritingAndReadingCatalog() {
   });
 }
 
+async function verifyTileSelectionRecovery() {
+  const fifthSession = {
+    ...session, contentRevision: "pilot-5", generatorRevision: "generator-5", evaluationRevision: "evaluation-5",
+  };
+  const fifthCatalog = {
+    ...catalog,
+    contentRevision: "pilot-5", generatorRevision: "generator-5", evaluationRevision: "evaluation-5",
+    formats: [{ id: "E013", title: "Choose the present form with word tiles", targetSkillId: "G004" }],
+  };
+  const tileExercise = {
+    ...exercise,
+    id: "7c24a8d9-07a5-4fa5-b464-a435145634a4",
+    formatId: "E013", targetSkillId: "G004",
+    contentRevision: "pilot-5", generatorRevision: "generator-5",
+    instruction: "Build the Danish sentence and leave the infinitive unused.",
+    context: "Choose the present verb form for an action happening now.",
+    prompt: {
+      before: "", after: "", choices: [], punctuation: ".", cue: "She reads a letter.",
+      cueLanguage: "en", answerLanguage: "da", tileMode: "with-spares", requiredTileCount: 4,
+      blocks: [
+        { id: "b0", text: "hun" }, { id: "b1", text: "læser" }, { id: "b2", text: "et" },
+        { id: "b3", text: "brev" }, { id: "b4", text: "læse" },
+      ],
+    },
+    introduction: [],
+  };
+  const attemptBodies: string[] = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json(fifthSession);
+    if (path.endsWith("catalog")) return json(fifthCatalog);
+    if (path.endsWith("exercises")) return json(tileExercise);
+    attemptBodies.push(String(init?.body));
+    if (attemptBodies.length === 1) throw new TypeError("response connection closed");
+    const submitted = JSON.parse(attemptBodies[1]!);
+    return json({
+      ...attempt,
+      attemptId: submitted.attemptId,
+      exerciseId: tileExercise.id,
+      targetSatisfaction: "unevaluable",
+      meaningSatisfaction: "unknown",
+      responseConstraintStatus: "not-met",
+      linguisticStatus: "unknown",
+      linguisticScope: "danish-sentence",
+      evaluationRevision: "evaluation-5",
+      feedback: "Build one complete proposition from the supplied tiles.",
+      completedSentence: null,
+    });
+  }));
+
+  await renderPlayground();
+  await userEvent.click(await screen.findByRole("button", { name: "hun" }));
+  const check = screen.getByRole("button", { name: "Check answer" });
+  expect(check).toBeEnabled();
+  await userEvent.click(check);
+
+  expect(await screen.findByText("The result is not confirmed")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Remove hun from position 1" })).toBeDisabled();
+  await userEvent.click(screen.getByRole("button", { name: "Check the same attempt" }));
+
+  expect(await screen.findByText("Response constraint to revisit")).toBeVisible();
+  expect(screen.queryByText("One statement required")).not.toBeInTheDocument();
+  expect(attemptBodies[1]).toBe(attemptBodies[0]);
+  expect(JSON.parse(attemptBodies[1]!)).toMatchObject({
+    exerciseId: tileExercise.id,
+    answer: { kind: "order", blockIds: ["b0"] },
+  });
+}
+
+async function verifyEnglishToDanishChoice() {
+  const fifthSession = {
+    ...session, contentRevision: "pilot-5", generatorRevision: "generator-5", evaluationRevision: "evaluation-5",
+  };
+  const fifthCatalog = {
+    ...catalog,
+    contentRevision: "pilot-5", generatorRevision: "generator-5", evaluationRevision: "evaluation-5",
+    formats: [{
+      id: "E011", title: "Choose the Danish word", targetSkillId: null,
+      lexicalTask: { facet: "meaning", direction: "en-da" },
+    }],
+  };
+  const choiceExercise = {
+    ...exercise,
+    id: "fcda0d37-8863-4508-910b-22cf381061bc",
+    formatId: "E011", targetSkillId: null,
+    contentRevision: "pilot-5", generatorRevision: "generator-5",
+    instruction: "Choose the Danish word.", context: "Choose the article and noun that match the English meaning.",
+    prompt: {
+      before: "", after: "", blocks: [], punctuation: "", cue: "magazine",
+      cueLanguage: "en", answerLanguage: "da", choices: ["en bog", "en avis", "et brev", "et magasin"],
+    },
+    lexicalTarget: { entryId: "L024", senseId: "L024-S01", facet: "meaning", direction: "en-da" },
+    introduction: [],
+  };
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json(fifthSession);
+    if (path.endsWith("catalog")) return json(fifthCatalog);
+    return json(choiceExercise);
+  }));
+
+  await renderPlayground();
+  expect(await screen.findByText("Target: Meaning · English → Danish")).toBeVisible();
+  expect(screen.getByText("magazine")).toHaveAttribute("lang", "en");
+  expect(screen.getByText("et magasin")).toHaveAttribute("lang", "da");
+  expect(screen.queryByText(/L024/)).not.toBeInTheDocument();
+}
+
 describe("Playground formats", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -268,6 +374,10 @@ describe("Playground formats", () => {
   it("renders the eight-format catalog and omits a grammar selector for vocabulary generation", verifyVocabularyCatalog);
 
   it("renders standalone writing and reading formats with distinct language semantics", verifyWritingAndReadingCatalog);
+
+  it("submits a nonempty tile subset and replays the exact pending order", verifyTileSelectionRecovery);
+
+  it("renders English-to-Danish meaning choice without exposing lexical identities", verifyEnglishToDanishChoice);
 
   it("commits the auto-highlighted exact search with Enter", () => verifyKeyboardFormatSelection(false));
 

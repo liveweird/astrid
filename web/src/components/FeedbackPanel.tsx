@@ -31,6 +31,11 @@ function lexicalLanguageLabel(attempt: Attempt) {
   if (attempt.linguisticScope === "danish-headword" && attempt.linguisticStatus === "acceptable") {
     return "Recognized Danish headword";
   }
+  if (attempt.linguisticScope === "danish-choice") {
+    return attempt.linguisticStatus === "acceptable"
+      ? "Recognized Danish choice"
+      : "Unrecognized Danish choice";
+  }
   return languageLabel(attempt.linguisticStatus);
 }
 
@@ -41,23 +46,32 @@ function feedbackTitle(goodWork: boolean, identifiedHeadword: boolean, identifie
   return "Look at the target once more";
 }
 
-function failedConstraintLabel(scope: Attempt["linguisticScope"]) {
+function failedConstraintLabel(scope: Attempt["linguisticScope"], tileResponse: boolean) {
+  if (tileResponse) return "Response constraint to revisit";
   if (scope === "danish-headword") return "One-word response required";
   if (scope === "danish-sentence") return "One statement required";
   return "Supplied choice required";
 }
 
-export default function FeedbackPanel({ attempt, focusRef, supportDescription }: {
+function metConstraintLabel(scope: Attempt["linguisticScope"], tileResponse: boolean) {
+  if (tileResponse) return "Response constraint met";
+  if (scope === "danish-sentence") return "One statement supplied";
+  return "Supplied choice used";
+}
+
+export default function FeedbackPanel({ attempt, focusRef, supportDescription, tileResponse = false }: {
   attempt: Attempt;
   focusRef?: Ref<HTMLDivElement>;
   supportDescription?: string;
+  tileResponse?: boolean;
 }) {
   const met = attempt.targetSatisfaction === "met";
   const writing = attempt.linguisticScope === "danish-sentence";
-  const constraintMet = writing
+  const requiresAllFacets = writing || attempt.linguisticScope === "danish-choice";
+  const constraintMet = requiresAllFacets
     ? attempt.responseConstraintStatus === "met"
     : attempt.responseConstraintStatus == null || attempt.responseConstraintStatus === "met";
-  const meaningMet = writing
+  const meaningMet = requiresAllFacets
     ? attempt.meaningSatisfaction === "met"
     : attempt.meaningSatisfaction == null || attempt.meaningSatisfaction === "met";
   const goodWork = attempt.linguisticScope
@@ -89,12 +103,15 @@ export default function FeedbackPanel({ attempt, focusRef, supportDescription }:
           <Badge className={classes.feedbackBadge} variant="default">
             {attempt.linguisticScope ? lexicalLanguageLabel(attempt) : languageLabel(attempt.linguisticStatus)}
           </Badge>
-          {attempt.linguisticScope === "danish-sentence" && attempt.responseConstraintStatus === "met" && (
-            <Badge className={classes.feedbackBadge} variant="default">One statement supplied</Badge>
+          {(attempt.linguisticScope === "danish-sentence" || attempt.linguisticScope === "danish-choice")
+            && attempt.responseConstraintStatus === "met" && (
+            <Badge className={classes.feedbackBadge} variant="default">
+              {metConstraintLabel(attempt.linguisticScope, tileResponse)}
+            </Badge>
           )}
           {attempt.responseConstraintStatus === "not-met" && (
             <Badge className={classes.feedbackBadge} color="orange" variant="light">
-              {failedConstraintLabel(attempt.linguisticScope)}
+              {failedConstraintLabel(attempt.linguisticScope, tileResponse)}
             </Badge>
           )}
         </Group>

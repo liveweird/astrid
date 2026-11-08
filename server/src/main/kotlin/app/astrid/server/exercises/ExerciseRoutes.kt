@@ -154,7 +154,7 @@ private suspend fun evaluateAttempt(
     createdAt: Long,
 ): AttemptResponse {
     val generated = regenerateVerified(engine, stored)
-    request.answer.validateFor(generated.formatId, generated.prompt.blocks.map { it.id }.toSet())
+    request.answer.validateFor(engine, generated)
     val evaluation = try {
         evaluator(generated, request.answer.toEngineAnswer())
     } catch (cause: CancellationException) {
@@ -212,11 +212,26 @@ private fun AttemptRequest.validated(): AttemptRequest {
     return this
 }
 
-private fun AttemptAnswerDto.validateFor(formatId: String, expectedBlocks: Set<String>) {
-    if (formatId == "E003" && this !is AttemptAnswerDto.Order) throw BadRequest("This exercise requires an order answer")
-    if (formatId != "E003" && this !is AttemptAnswerDto.Text) throw BadRequest("This exercise requires a text answer")
-    if (this is AttemptAnswerDto.Order && (blockIds.size != expectedBlocks.size || blockIds.toSet() != expectedBlocks)) {
-        throw BadRequest("The answer must contain every supplied block exactly once")
+private fun AttemptAnswerDto.validateFor(engine: PilotEngine, exercise: GeneratedExercise) {
+    val suppliedBlocks = exercise.prompt.blocks.map { it.id }.toSet()
+    when (exercise.formatId) {
+        "E003" -> {
+            val order = this as? AttemptAnswerDto.Order ?: throw BadRequest("This exercise requires an order answer")
+            if (order.blockIds.size != suppliedBlocks.size || order.blockIds.toSet() != suppliedBlocks) {
+                throw BadRequest("The answer must contain every supplied block exactly once")
+            }
+        }
+        "E012", "E013" -> {
+            val order = this as? AttemptAnswerDto.Order ?: throw BadRequest("This exercise requires an order answer")
+            if (order.blockIds.size != order.blockIds.toSet().size || !suppliedBlocks.containsAll(order.blockIds)) {
+                throw BadRequest("The answer must use distinct supplied block ids")
+            }
+        }
+        "E011" -> {
+            val text = this as? AttemptAnswerDto.Text ?: throw BadRequest("This exercise requires a text answer")
+            if (!engine.isSuppliedChoice(exercise, text.text)) throw BadRequest("The answer must be one of the supplied choices")
+        }
+        else -> if (this !is AttemptAnswerDto.Text) throw BadRequest("This exercise requires a text answer")
     }
 }
 

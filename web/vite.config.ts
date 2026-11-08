@@ -78,12 +78,12 @@ export default defineConfig({
         "src/main.tsx",
         "src/vite-env.d.ts",
       ],
-      // Full-source baseline after the pages/ split onto React Router and TanStack Query
-      // (2026-11-08): statements 94.67, branches 87.60, functions 97.57, lines 97.48. Floors sit at the
+      // Full-source baseline after word choice and sentence tiles
+      // (2026-11-08): statements 94.84, branches 88.34, functions 97.66, lines 97.56. Floors sit at the
       // integer below each result and must move upward as coverage grows.
       thresholds: {
         statements: 94,
-        branches: 87,
+        branches: 88,
         functions: 97,
         lines: 97,
       },

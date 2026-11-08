@@ -69,6 +69,32 @@ describe("FeedbackPanel", () => {
     expect(screen.queryByText(/general judgment about Danish/i)).not.toBeInTheDocument();
   });
 
+  it("requires every reported facet before accepting a Danish meaning choice", () => {
+    const choiceAttempt = {
+      ...base,
+      targetSatisfaction: "met" as const,
+      meaningSatisfaction: "met" as const,
+      linguisticStatus: "acceptable" as const,
+      linguisticScope: "danish-choice" as const,
+      responseConstraintStatus: "met" as const,
+    };
+    const { rerender } = render(
+      <MantineProvider env="test"><FeedbackPanel attempt={choiceAttempt} /></MantineProvider>,
+    );
+    expect(screen.getByText("Good work")).toBeVisible();
+    expect(screen.getByText("Meaning matched")).toBeVisible();
+    expect(screen.getByText("Recognized Danish choice")).toBeVisible();
+    expect(screen.getByText("Supplied choice used")).toBeVisible();
+
+    rerender(
+      <MantineProvider env="test">
+        <FeedbackPanel attempt={{ ...choiceAttempt, meaningSatisfaction: "not-met" }} />
+      </MantineProvider>,
+    );
+    expect(screen.queryByText("Good work")).not.toBeInTheDocument();
+    expect(screen.getByText("Meaning to revisit")).toBeVisible();
+  });
+
   it("keeps the legacy unevaluable target label", () => {
     render(
       <MantineProvider env="test">
@@ -153,6 +179,27 @@ describe("FeedbackPanel", () => {
     );
     expect(screen.getByText("Meaning matched")).toBeVisible();
     expect(screen.getByText("Good work")).toBeVisible();
+  });
+
+  it("describes a fronted tile answer with a neutral response-constraint label", () => {
+    const frontedTileAttempt = {
+      ...base,
+      targetSatisfaction: "met" as const,
+      meaningSatisfaction: "met" as const,
+      linguisticStatus: "acceptable" as const,
+      linguisticScope: "danish-sentence" as const,
+      responseConstraintStatus: "not-met" as const,
+      completedSentence: "Et brev læser hun.",
+    };
+    render(
+      <MantineProvider env="test">
+        <FeedbackPanel attempt={frontedTileAttempt} tileResponse />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("Response constraint to revisit")).toBeVisible();
+    expect(screen.queryByText("One statement required")).not.toBeInTheDocument();
+    expect(screen.getByText("Target met; adjust the rest of your answer.")).toBeVisible();
   });
 
   it("explains bounded unknown writing and labels its response shape without choice wording", () => {

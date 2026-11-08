@@ -18,7 +18,8 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-1` / `generator-1` | `evaluation-1` | E001–E003 | published, frozen |
 | `pilot-2` / `generator-2` | `evaluation-2` | + E004–E006 | published, frozen |
 | `pilot-3` / `generator-3` | `evaluation-3` | + E007–E008 (vocabulary) | published, frozen; guided practice and follow-ups stay pinned here |
-| `pilot-4` / `generator-4` | `evaluation-4` | + E009 (writing), E010 (reading) | CURRENT (catalog, new playground exercises) |
+| `pilot-4` / `generator-4` | `evaluation-4` | + E009 (writing), E010 (reading) | published, frozen |
+| `pilot-5` / `generator-5` | `evaluation-5` | + E011 (Danish word choice), E012/E013 (all/spare word tiles) | CURRENT (catalog, new playground exercises) |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1`, …) carry their own plan revisions and are
 pinned to pair three in `PracticePlanner` and `PracticeFollowUpPlanner`. A CURRENT constant must never silently upgrade them; moving them is a
@@ -45,11 +46,13 @@ new plan revision with its own validation. Gradle/npm package versions, `/api/v1
 | `engine/.../pilot-2-generator-2.tsv` (952) | `PilotTwoCompatibilityGoldenTest` | pilot-2 generation and evaluation |
 | `engine/.../pilot-3-generator-3-evaluation-3.tsv` (1,320) | `PilotThreeCompatibilityGoldenTest` (SHA-256 pinned) | pilot-3 formats, hashes, grading |
 | `server/.../pilot-3-generator-3-wire.tsv` (1,806) | `PilotThreeWireCompatibilityTest` (SHA-256 pinned) | public wire, inspector and fingerprint for pilot-3 |
+| `engine/.../pilot-4-generator-4-evaluation-4.tsv` (1,614) | `PilotFourCompatibilityGoldenTest` (SHA-256 pinned) | all ten formats, grading facets, raw/Unicode cases and boundaries |
+| `server/.../pilot-4-generator-4-wire.tsv` (2,187) | `PilotFourWireCompatibilityTest` (SHA-256 pinned) | pair-four public wire, inspector and reproduction fingerprints |
 | `server/.../published-fingerprints.tsv` (978) | `PublishedFingerprintCompatibilityTest` (SHA-256 pinned) | original reproduction fingerprints of pilot-1/2 |
 
 Plus `PracticeWireCompatibilityTest` (legacy plan payload and practice item/response stay byte-stable when new optional fields are absent).
-**pilot-4 has no golden yet**: it is covered by behavioural tests (`WritingReadingTest`, `VocabularyAssessmentTest`, …) and must be frozen
-(below) before anything about it changes.
+Pair four was frozen from unchanged baseline `e37749c` in commit `c43c8f7` before pair-five production edits.
+Pair five has behavioural tests and must itself be frozen before a future revision changes it.
 
 Rules:
 
@@ -82,8 +85,9 @@ Rules:
 
 | Task | Output |
 | --- | --- |
-| `:engine:exportPilotReview` | `engine/build/review/pilot-4.md` (current; run in CI and uploaded as `server-reports`) |
-| `:engine:exportPilotThreeReview` / `exportPilotTwoReview` / `exportLegacyPilotReview` | `pilot-3.md` / `pilot-2.md` / `pilot-1.md` |
+| `:engine:exportPilotReview` | `engine/build/review/pilot-5.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotFourReview` / `exportPilotThreeReview` / `exportPilotTwoReview` / `exportLegacyPilotReview` | `pilot-4.md` / `pilot-3.md` / `pilot-2.md` / `pilot-1.md` |
+| `:engine:exportPilotFourCompatibility` / `:server:exportPilotFourWireCompatibility` | write **new** pair-four evidence and provenance only (refuse overwrite) |
 | `:server:exportPilotThreeWireCompatibility` | writes a **new** wire fixture + provenance (refuses to overwrite) |
 
 Review exports are deterministic evidence for teaching review; they are not approval. The production engine does no file I/O.

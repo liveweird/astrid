@@ -10,6 +10,7 @@ export default function InspectorPanel({ exerciseId }: { exerciseId: string }) {
   const [loading, setLoading] = useState(false);
   const requestVersion = useRef(0);
   const details = result?.exerciseId === exerciseId ? result.details : null;
+  const tileSource = details?.tileSource;
   const error = failure?.exerciseId === exerciseId ? failure.message : "";
 
   const inspect = async () => {
@@ -62,6 +63,37 @@ export default function InspectorPanel({ exerciseId }: { exerciseId: string }) {
               <Text size="sm">Headword<br /><Code lang="da">{details.lexicalSource.headword}</Code></Text>
               <Text size="sm">Gloss<br /><Code lang="en">{details.lexicalSource.gloss}</Code></Text>
               <Text size="sm">Article<br /><Code lang="da">{details.lexicalSource.article}</Code></Text>
+            </>
+          ) : tileSource ? (
+            <>
+              <Text size="sm">Canonical sentence<br /><Code lang="da">{details.canonicalSentence}</Code></Text>
+              <Text size="sm">Identity<br /><Code>{details.canonicalSentenceId}</Code></Text>
+              <Text size="sm" style={{ gridColumn: "1 / -1" }}>
+                Tile identities<br />
+                {tileSource.tokens.map((token) => (
+                  <Code key={token.blockId} display="block">
+                    {token.blockId}: {token.lexicalId} · {token.form}
+                  </Code>
+                ))}
+              </Text>
+              <Text size="sm" style={{ gridColumn: "1 / -1" }}>
+                Licensed orders<br />
+                {tileSource.licensedOrders.map((order) => (
+                  <Code key={`${order.kind}-${order.blockIds.join("-")}`} display="block">
+                    {order.kind}: {order.blockIds.join(" → ")}
+                  </Code>
+                ))}
+              </Text>
+              {tileSource.distractors.length > 0 && (
+                <Text size="sm" style={{ gridColumn: "1 / -1" }}>
+                  Distractors<br />
+                  {tileSource.distractors.map((distractor) => (
+                    <Code key={distractor.blockId} display="block">
+                      {distractor.blockId}: {distractor.rationale}
+                    </Code>
+                  ))}
+                </Text>
+              )}
             </>
           ) : (
             <>

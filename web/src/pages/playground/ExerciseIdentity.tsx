@@ -5,6 +5,7 @@ function lexicalTargetLabel(format: Catalog["formats"][number] | undefined) {
   const task = format?.lexicalTask;
   if (!task) return null;
   if (task.facet === "meaning" && task.direction === "da-en") return "Meaning · Danish → English";
+  if (task.facet === "meaning" && task.direction === "en-da") return "Meaning · English → Danish";
   if (task.facet === "singular-headword" && task.direction === "en-da") {
     return "Singular headword · English → Danish";
   }

@@ -61,6 +61,8 @@ class VocabularyApplicationTest {
             assertFalse("cueLanguage" in prompt)
             assertFalse("answerLanguage" in prompt)
             assertFalse("passage" in prompt)
+            assertFalse("tileMode" in prompt)
+            assertFalse("requiredTileCount" in prompt)
         }
     }
 

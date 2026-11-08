@@ -66,4 +66,30 @@ describe("InspectorPanel", () => {
     expect(screen.getByText(/C002:L006:L010:L015:/)).toBeVisible();
     expect(screen.queryByText("Canonical sentence")).not.toBeInTheDocument();
   });
+
+  it("renders private tile identities, licensed orders and distractor rationale", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({
+      exercise: {}, seed: 47, index: 5,
+      canonicalSentenceId: "C001:L006:L010:L018", canonicalSentence: "Hun læser et brev.",
+      constructionId: "C001", lexicalIds: ["L006", "L010", "L018"], clauseRoles: [],
+      tileSource: {
+        tokens: [
+          { blockId: "b0", lexicalId: "L006", form: "subject" },
+          { blockId: "b1", lexicalId: "L010", form: "finite-present" },
+          { blockId: "b2", lexicalId: "L010", form: "infinitive" },
+        ],
+        licensedOrders: [{ kind: "subject-first", blockIds: ["b0", "b1"] }],
+        distractors: [{ blockId: "b2", rationale: "infinitive-spare" }],
+      },
+    })));
+    render(<MantineProvider env="test"><InspectorPanel exerciseId="exercise-tiles" /></MantineProvider>);
+    expect(screen.queryByText("Tile identities")).not.toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText("Inspector key"), "a-secure-inspector-key-with-32-chars");
+    await userEvent.click(screen.getByRole("button", { name: "Inspect this exercise" }));
+
+    expect(await screen.findByText("Hun læser et brev.")).toHaveAttribute("lang", "da");
+    expect(screen.getByText("b1: L010 · finite-present")).toBeVisible();
+    expect(screen.getByText("subject-first: b0 → b1")).toBeVisible();
+    expect(screen.getByText("b2: infinitive-spare")).toBeVisible();
+  });
 });

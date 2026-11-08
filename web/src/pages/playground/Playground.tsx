@@ -40,8 +40,21 @@ function bootstrap(queryClient: QueryClient) {
   return bootstrapPromise;
 }
 
+function tileMode(exercise: Exercise) {
+  return "tileMode" in exercise.prompt ? exercise.prompt.tileMode : undefined;
+}
+
 function answerFor(exercise: Exercise, text: string, order: string[]): AttemptAnswer {
-  return exercise.formatId === "E003" ? { kind: "order", blockIds: order } : { kind: "text", text };
+  return exercise.formatId === "E003" || tileMode(exercise)
+    ? { kind: "order", blockIds: order }
+    : { kind: "text", text };
+}
+
+function answerIsReady(exercise: Exercise | null, text: string, order: string[]) {
+  if (!exercise) return false;
+  if (exercise.formatId === "E003") return order.length === exercise.prompt.blocks.length;
+  if (tileMode(exercise)) return order.length > 0;
+  return text.trim().length > 0;
 }
 
 function messageFor(error: unknown) {
@@ -187,7 +200,7 @@ export default function Playground() {
     return <Group justify="center" mih={300}><Loader aria-label="Starting learning engine" /></Group>;
   }
   const { id: activeFormatId, format } = activeSelection(catalog, exercise, formatId);
-  const answerReady = exercise?.formatId === "E003" ? order.length === exercise.prompt.blocks.length : text.trim().length > 0;
+  const answerReady = answerIsReady(exercise, text, order);
 
   return (
     <Stack gap="lg" maw={920} className={classes.playground}>
@@ -255,7 +268,9 @@ export default function Playground() {
                 onOrder={setOrder}
               />
               {hintVisible && <Alert color="gray" icon={<IconBulb size={18} />}>{exercise.hint}</Alert>}
-              {attempt && <FeedbackPanel attempt={attempt} focusRef={feedbackRef} />}
+              {attempt && (
+                <FeedbackPanel attempt={attempt} focusRef={feedbackRef} tileResponse={tileMode(exercise) != null} />
+              )}
               <Group justify="space-between" className={classes.exerciseActions}>
                 <Button
                   variant="subtle"

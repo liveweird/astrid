@@ -2,10 +2,10 @@ package app.astrid.server.session
 
 import kotlinx.serialization.Serializable
 
-// The revision pair the development session advertises as current; the exercise fingerprints switch on the same pair.
-internal const val CURRENT_CONTENT_REVISION = "pilot-4"
-internal const val CURRENT_GENERATOR_REVISION = "generator-4"
-internal const val CURRENT_EVALUATION_REVISION = "evaluation-4"
+// The revision pair advertised for new playground work; stored fingerprint branches remain literal and immutable.
+internal const val CURRENT_CONTENT_REVISION = "pilot-5"
+internal const val CURRENT_GENERATOR_REVISION = "generator-5"
+internal const val CURRENT_EVALUATION_REVISION = "evaluation-5"
 
 @Serializable
 class DevelopmentSessionRequest

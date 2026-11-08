@@ -1,5 +1,5 @@
 openapi: 3.0.3
-info: { title: Astrid pilot API, version: 0.4.1 }
+info: { title: Astrid pilot API, version: 0.5.0 }
 servers: [{ url: 'http://localhost:8088' }]
 # Every operation needs the development session cookie except the three that declare `security: []`.
 security:
@@ -239,9 +239,9 @@ components:
       properties:
         mode: { type: string, enum: [development] }
         inspectorEnabled: { type: boolean }
-        contentRevision: { type: string, enum: [pilot-4] }
-        generatorRevision: { type: string, enum: [generator-4] }
-        evaluationRevision: { type: string, enum: [evaluation-4] }
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+        evaluationRevision: { type: string, enum: [evaluation-5] }
     Catalog:
       type: object
       additionalProperties: false
@@ -267,7 +267,7 @@ components:
       additionalProperties: false
       required: [id, title]
       properties:
-        id: { type: string, enum: [E001, E002, E003, E004, E005, E006, E007, E008, E009, E010] }
+        id: { type: string, enum: [E001, E002, E003, E004, E005, E006, E007, E008, E009, E010, E011, E012, E013] }
         title: { type: string }
         targetSkillId: { type: string, nullable: true }
         lexicalTask: { $ref: '#/components/schemas/LexicalTask' }
@@ -302,6 +302,14 @@ components:
         - { $ref: '#/components/schemas/PairFourOrderRequest' }
         - { $ref: '#/components/schemas/PairFourLexicalRequest' }
         - { $ref: '#/components/schemas/PairFourReadingRequest' }
+        - { $ref: '#/components/schemas/PairFivePresentRequest' }
+        - { $ref: '#/components/schemas/PairFiveArticleRequest' }
+        - { $ref: '#/components/schemas/PairFiveOrderRequest' }
+        - { $ref: '#/components/schemas/PairFiveLexicalRequest' }
+        - { $ref: '#/components/schemas/PairFiveWritingRequest' }
+        - { $ref: '#/components/schemas/PairFiveReadingRequest' }
+        - { $ref: '#/components/schemas/PairFiveUseAllTilesRequest' }
+        - { $ref: '#/components/schemas/PairFiveSpareTilesRequest' }
     PairOnePresentRequest:
       type: object
       additionalProperties: false
@@ -470,12 +478,103 @@ components:
         index: { type: integer, minimum: 0, maximum: 1000000 }
         contentRevision: { type: string, enum: [pilot-4] }
         generatorRevision: { type: string, enum: [generator-4] }
+    PairFivePresentRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      properties:
+        formatId: { type: string, enum: [E001, E004, E005] }
+        targetSkillId: { type: string, enum: [G004] }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+    PairFiveArticleRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      properties:
+        formatId: { type: string, enum: [E002, E006] }
+        targetSkillId: { type: string, enum: [G006] }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+    PairFiveOrderRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      properties:
+        formatId: { type: string, enum: [E003] }
+        targetSkillId: { type: string, enum: [G005] }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+    PairFiveLexicalRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, seed, index, contentRevision, generatorRevision]
+      not: { required: [targetSkillId] }
+      properties:
+        formatId: { type: string, enum: [E007, E008, E011] }
+        targetSkillId: { type: string, nullable: true, maxLength: 32 }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+    PairFiveWritingRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      properties:
+        formatId: { type: string, enum: [E009] }
+        targetSkillId: { type: string, enum: [G005] }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+    PairFiveReadingRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, seed, index, contentRevision, generatorRevision]
+      not: { required: [targetSkillId] }
+      properties:
+        formatId: { type: string, enum: [E010] }
+        targetSkillId: { type: string, nullable: true, maxLength: 32 }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+    PairFiveUseAllTilesRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      properties:
+        formatId: { type: string, enum: [E012] }
+        targetSkillId: { type: string, enum: [G005] }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+    PairFiveSpareTilesRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      properties:
+        formatId: { type: string, enum: [E013] }
+        targetSkillId: { type: string, enum: [G004] }
+        seed: { type: integer, minimum: 0 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
     Exercise:
       oneOf:
         - { $ref: '#/components/schemas/GrammarExercise' }
         - { $ref: '#/components/schemas/LexicalExercise' }
         - { $ref: '#/components/schemas/WritingExercise' }
         - { $ref: '#/components/schemas/ReadingExercise' }
+        - { $ref: '#/components/schemas/TileExercise' }
     GrammarExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairOnePresentExerciseObject' }
@@ -490,6 +589,9 @@ components:
         - { $ref: '#/components/schemas/PairFourPresentExerciseObject' }
         - { $ref: '#/components/schemas/PairFourArticleExerciseObject' }
         - { $ref: '#/components/schemas/PairFourOrderExerciseObject' }
+        - { $ref: '#/components/schemas/PairFivePresentExerciseObject' }
+        - { $ref: '#/components/schemas/PairFiveArticleExerciseObject' }
+        - { $ref: '#/components/schemas/PairFiveOrderExerciseObject' }
     PairOnePresentExerciseObject: &GrammarPresentPairOne
       type: object
       additionalProperties: false
@@ -576,12 +678,33 @@ components:
         <<: *GrammarPresentPairFourProperties
         formatId: { type: string, enum: [E003] }
         targetSkillId: { type: string, enum: [G005] }
+    PairFivePresentExerciseObject: &GrammarPresentPairFive
+      <<: *GrammarPresentPairFour
+      properties: &GrammarPresentPairFiveProperties
+        <<: *GrammarPresentPairFourProperties
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+    PairFiveArticleExerciseObject:
+      <<: *GrammarPresentPairFive
+      properties:
+        <<: *GrammarPresentPairFiveProperties
+        formatId: { type: string, enum: [E002, E006] }
+        targetSkillId: { type: string, enum: [G006] }
+    PairFiveOrderExerciseObject:
+      <<: *GrammarPresentPairFive
+      properties:
+        <<: *GrammarPresentPairFiveProperties
+        formatId: { type: string, enum: [E003] }
+        targetSkillId: { type: string, enum: [G005] }
     LexicalExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairThreeRecognitionExercise' }
         - { $ref: '#/components/schemas/PairThreeRecallExercise' }
         - { $ref: '#/components/schemas/PairFourRecognitionExercise' }
         - { $ref: '#/components/schemas/PairFourRecallExercise' }
+        - { $ref: '#/components/schemas/PairFiveRecognitionExercise' }
+        - { $ref: '#/components/schemas/PairFiveRecallExercise' }
+        - { $ref: '#/components/schemas/PairFiveDanishChoiceExercise' }
     PairThreeRecognitionExercise: &PairThreeRecognitionExercise
       type: object
       additionalProperties: false
@@ -631,7 +754,30 @@ components:
         lexicalTarget: { $ref: '#/components/schemas/RecallLexicalTarget' }
         contentRevision: { type: string, enum: [pilot-4] }
         generatorRevision: { type: string, enum: [generator-4] }
+    PairFiveRecognitionExercise: &PairFiveRecognitionExercise
+      <<: *PairThreeRecognitionExercise
+      properties: &PairFiveRecognitionProperties
+        <<: *PairThreeRecognitionProperties
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+    PairFiveRecallExercise:
+      <<: *PairFiveRecognitionExercise
+      properties:
+        <<: *PairFiveRecognitionProperties
+        formatId: { type: string, enum: [E008] }
+        lexicalTarget: { $ref: '#/components/schemas/RecallLexicalTarget' }
+    PairFiveDanishChoiceExercise:
+      <<: *PairFiveRecognitionExercise
+      properties:
+        <<: *PairFiveRecognitionProperties
+        formatId: { type: string, enum: [E011] }
+        lexicalTarget: { $ref: '#/components/schemas/DanishChoiceLexicalTarget' }
+        prompt: { $ref: '#/components/schemas/DanishChoicePrompt' }
     WritingExercise:
+      oneOf:
+        - { $ref: '#/components/schemas/PairFourWritingExercise' }
+        - { $ref: '#/components/schemas/PairFiveWritingExercise' }
+    PairFourWritingExercise: &PairFourWritingExercise
       type: object
       additionalProperties: false
       required: [id, formatId, targetSkillId, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
@@ -653,7 +799,27 @@ components:
         prompt: { $ref: '#/components/schemas/NonReadingPrompt' }
         introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
         hint: { type: string }
+    PairFiveWritingExercise:
+      <<: *PairFourWritingExercise
+      properties:
+        id: { type: string, format: uuid }
+        formatId: { type: string, enum: [E009] }
+        targetSkillId: { type: string, enum: [G005] }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        readingTarget: { $ref: '#/components/schemas/ReadingTask' }
+        supportSkillIds: { type: array, items: { type: string } }
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+        instruction: { type: string }
+        context: { type: string }
+        prompt: { $ref: '#/components/schemas/NonReadingPrompt' }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        hint: { type: string }
     ReadingExercise:
+      oneOf:
+        - { $ref: '#/components/schemas/PairFourReadingExercise' }
+        - { $ref: '#/components/schemas/PairFiveReadingExercise' }
+    PairFourReadingExercise: &PairFourReadingExercise
       type: object
       additionalProperties: false
       required: [id, formatId, readingTarget, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
@@ -675,6 +841,52 @@ components:
         prompt: { $ref: '#/components/schemas/ReadingPrompt' }
         introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
         hint: { type: string }
+    PairFiveReadingExercise:
+      <<: *PairFourReadingExercise
+      properties:
+        id: { type: string, format: uuid }
+        formatId: { type: string, enum: [E010] }
+        targetSkillId: { type: string, nullable: true }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        readingTarget: { $ref: '#/components/schemas/ReadingTask' }
+        supportSkillIds: { type: array, items: { type: string } }
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+        instruction: { type: string }
+        context: { type: string }
+        prompt: { $ref: '#/components/schemas/ReadingPrompt' }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        hint: { type: string }
+    TileExercise:
+      oneOf:
+        - { $ref: '#/components/schemas/PairFiveUseAllTilesExercise' }
+        - { $ref: '#/components/schemas/PairFiveSpareTilesExercise' }
+    PairFiveUseAllTilesExercise: &PairFiveUseAllTilesExercise
+      type: object
+      additionalProperties: false
+      required: [id, formatId, targetSkillId, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [lexicalTarget] }, { required: [readingTarget] }] }
+      properties: &PairFiveUseAllTilesProperties
+        id: { type: string, format: uuid }
+        formatId: { type: string, enum: [E012] }
+        targetSkillId: { type: string, enum: [G005] }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        readingTarget: { $ref: '#/components/schemas/ReadingTask' }
+        supportSkillIds: { type: array, items: { type: string } }
+        contentRevision: { type: string, enum: [pilot-5] }
+        generatorRevision: { type: string, enum: [generator-5] }
+        instruction: { type: string }
+        context: { type: string }
+        prompt: { $ref: '#/components/schemas/UseAllTilePrompt' }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        hint: { type: string }
+    PairFiveSpareTilesExercise:
+      <<: *PairFiveUseAllTilesExercise
+      properties:
+        <<: *PairFiveUseAllTilesProperties
+        formatId: { type: string, enum: [E013] }
+        targetSkillId: { type: string, enum: [G004] }
+        prompt: { $ref: '#/components/schemas/SpareTilePrompt' }
     LexicalTarget:
       type: object
       additionalProperties: false
@@ -701,6 +913,15 @@ components:
         entryId: { type: string }
         senseId: { type: string }
         facet: { type: string, enum: [singular-headword] }
+        direction: { type: string, enum: [en-da] }
+    DanishChoiceLexicalTarget:
+      type: object
+      additionalProperties: false
+      required: [entryId, senseId, facet, direction]
+      properties:
+        entryId: { type: string }
+        senseId: { type: string }
+        facet: { type: string, enum: [meaning] }
         direction: { type: string, enum: [en-da] }
     Prompt:
       type: object
@@ -735,6 +956,49 @@ components:
         cueLanguage: { type: string, nullable: true, enum: [da, en] }
         answerLanguage: { type: string, nullable: true, enum: [da, en] }
         passage: { type: array, minItems: 3, maxItems: 3, items: { type: string } }
+    DanishChoicePrompt:
+      type: object
+      additionalProperties: false
+      required: [before, after, choices, blocks, punctuation, cue, cueLanguage, answerLanguage]
+      properties:
+        before: { type: string }
+        after: { type: string }
+        choices: { type: array, minItems: 4, maxItems: 4, uniqueItems: true, items: { type: string } }
+        blocks: { type: array, maxItems: 0, items: { $ref: '#/components/schemas/Block' } }
+        punctuation: { type: string }
+        cue: { type: string }
+        cueLanguage: { type: string, enum: [en] }
+        answerLanguage: { type: string, enum: [da] }
+    UseAllTilePrompt:
+      type: object
+      additionalProperties: false
+      required: [before, after, choices, blocks, punctuation, cue, cueLanguage, answerLanguage, tileMode, requiredTileCount]
+      properties:
+        before: { type: string, maxLength: 0 }
+        after: { type: string, maxLength: 0 }
+        choices: { type: array, maxItems: 0, items: { type: string } }
+        blocks: { type: array, minItems: 2, maxItems: 4, items: { $ref: '#/components/schemas/Block' } }
+        punctuation: { type: string, enum: ['.'] }
+        cue: { type: string }
+        cueLanguage: { type: string, enum: [en] }
+        answerLanguage: { type: string, enum: [da] }
+        tileMode: { type: string, enum: [use-all] }
+        requiredTileCount: { type: integer, enum: [2, 4] }
+    SpareTilePrompt:
+      type: object
+      additionalProperties: false
+      required: [before, after, choices, blocks, punctuation, cue, cueLanguage, answerLanguage, tileMode, requiredTileCount]
+      properties:
+        before: { type: string, maxLength: 0 }
+        after: { type: string, maxLength: 0 }
+        choices: { type: array, maxItems: 0, items: { type: string } }
+        blocks: { type: array, minItems: 3, maxItems: 5, items: { $ref: '#/components/schemas/Block' } }
+        punctuation: { type: string, enum: ['.'] }
+        cue: { type: string }
+        cueLanguage: { type: string, enum: [en] }
+        answerLanguage: { type: string, enum: [da] }
+        tileMode: { type: string, enum: [with-spares] }
+        requiredTileCount: { type: integer, enum: [2, 4] }
     ReadingPrompt:
       type: object
       additionalProperties: false
@@ -796,7 +1060,7 @@ components:
         exerciseId: { type: string, format: uuid }
         targetSatisfaction: { type: string, enum: [met, not-met, unevaluable] }
         linguisticStatus: { type: string, enum: [acceptable, known-issue, unknown] }
-        linguisticScope: { type: string, nullable: true, enum: [english-choice, danish-headword, danish-sentence] }
+        linguisticScope: { type: string, nullable: true, enum: [english-choice, danish-choice, danish-headword, danish-sentence] }
         responseConstraintStatus: { type: string, nullable: true, enum: [met, not-met] }
         meaningSatisfaction: { type: string, nullable: true, enum: [met, not-met, unknown] }
         issues: { type: array, items: { $ref: '#/components/schemas/Issue' } }
@@ -1030,6 +1294,7 @@ components:
         canonicalSentence: { type: string, nullable: true }
         lexicalSource: { $ref: '#/components/schemas/LexicalSource' }
         readingSource: { $ref: '#/components/schemas/ReadingSource' }
+        tileSource: { $ref: '#/components/schemas/TileSource' }
     LexicalSource:
       type: object
       additionalProperties: false
@@ -1059,6 +1324,36 @@ components:
         subjectId: { type: string }
         verbId: { type: string }
         objectId: { type: string }
+    TileSource:
+      type: object
+      additionalProperties: false
+      required: [tokens, licensedOrders, distractors]
+      properties:
+        tokens: { type: array, minItems: 2, maxItems: 5, items: { $ref: '#/components/schemas/TileToken' } }
+        licensedOrders: { type: array, minItems: 1, maxItems: 2, items: { $ref: '#/components/schemas/TileLicensedOrder' } }
+        distractors: { type: array, maxItems: 1, items: { $ref: '#/components/schemas/TileDistractor' } }
+    TileToken:
+      type: object
+      additionalProperties: false
+      required: [blockId, lexicalId, form]
+      properties:
+        blockId: { type: string }
+        lexicalId: { type: string }
+        form: { type: string, enum: [subject, finite-present, infinitive, article, singular-headword] }
+    TileLicensedOrder:
+      type: object
+      additionalProperties: false
+      required: [kind, blockIds]
+      properties:
+        kind: { type: string, enum: [subject-first, fronted] }
+        blockIds: { type: array, minItems: 2, maxItems: 4, items: { type: string } }
+    TileDistractor:
+      type: object
+      additionalProperties: false
+      required: [blockId, rationale]
+      properties:
+        blockId: { type: string }
+        rationale: { type: string }
     Problem:
       type: object
       additionalProperties: false

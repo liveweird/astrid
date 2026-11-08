@@ -604,6 +604,97 @@ class PostgresRepositoryTest {
             }
         }
 
+    @Test
+    fun `pair five word choice and tile evidence persists exact answers and replays owner scoped`() =
+        withRepositories { first, second ->
+            val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+            val outsider = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+            val engine = PilotEngine()
+            val requests = listOf(
+                GenerationRequest("E011", null, 47, 0, "pilot-5", "generator-5"),
+                GenerationRequest("E012", "G005", 47, 0, "pilot-5", "generator-5"),
+                GenerationRequest("E013", "G004", 47, 0, "pilot-5", "generator-5"),
+            )
+
+            requests.forEach { generation ->
+                val generated = engine.generate(generation)
+                val exerciseId = UUID.randomUUID()
+                val stored = StoredExercise(
+                    exerciseId,
+                    owner.id,
+                    generated.formatId,
+                    generated.targetSkillId,
+                    generated.reproduction.seed,
+                    generated.reproduction.index,
+                    generated.contentRevision,
+                    generated.generatorRevision,
+                    generated.toResponse(exerciseId.toString()),
+                    generated.reproductionFingerprint(),
+                )
+                first.exercises.insertExercise(stored)
+                assertEquals(stored, second.exercises.findExercise(owner.id, exerciseId))
+                assertNull(second.exercises.findExercise(outsider.id, exerciseId))
+
+                val answer = if (generated.formatId == "E011") {
+                    val source = requireNotNull(generated.inspector.lexicalSource)
+                    AttemptAnswerDto.Text("\u00a0${source.article}\u2003${source.headword}  ")
+                } else {
+                    val order = requireNotNull(generated.inspector.tileSource).licensedOrders
+                        .single { it.kind == "subject-first" }
+                    AttemptAnswerDto.Order(order.blockIds)
+                }
+                val request = AttemptRequest(UUID.randomUUID().toString(), exerciseId.toString(), answer, false)
+                val payload = wireJson.encodeToString(request)
+                val callbackCount = AtomicInteger()
+                val created = second.exercises.writeAttempt(owner.id, request, payload) { exercise, retry, createdAt ->
+                    callbackCount.incrementAndGet()
+                    AttemptResponse(
+                        attemptId = request.attemptId,
+                        exerciseId = exercise.id.toString(),
+                        targetSatisfaction = "met",
+                        linguisticStatus = "acceptable",
+                        issues = emptyList(),
+                        feedback = "Correct",
+                        completedSentence = "",
+                        evaluationRevision = "evaluation-5",
+                        hintUsed = false,
+                        retryNumber = retry,
+                        createdAt = createdAt,
+                        linguisticScope = if (generated.formatId == "E011") "danish-choice" else "danish-sentence",
+                        responseConstraintStatus = "met",
+                        meaningSatisfaction = "met",
+                    )
+                }
+                val response = assertIs<AttemptWriteResult.Created>(created).response
+                val replay = first.exercises.writeAttempt(owner.id, request, payload) { _, _, _ ->
+                    callbackCount.incrementAndGet()
+                    error("saved pair-five attempt must replay before regeneration")
+                }
+                assertEquals(1, callbackCount.get())
+                assertEquals(response, assertIs<AttemptWriteResult.Existing>(replay).response)
+                assertStoredRawAnswer(owner.id, request, payload)
+                assertEquals(response, second.exercises.findAttempt(owner.id, UUID.fromString(request.attemptId)))
+                assertNull(second.exercises.findAttempt(outsider.id, UUID.fromString(request.attemptId)))
+            }
+        }
+
+    private fun assertStoredRawAnswer(ownerId: UUID, request: AttemptRequest, payload: String) {
+        PostgresTestDatabase.connect().use { connection ->
+            connection.prepareStatement(
+                "SELECT raw_answer, request_payload FROM attempts WHERE session_id = ? AND attempt_id = ?",
+            ).use { statement ->
+                statement.setObject(1, ownerId)
+                statement.setObject(2, UUID.fromString(request.attemptId))
+                statement.executeQuery().use { rows ->
+                    assertTrue(rows.next())
+                    assertEquals(wireJson.encodeToString(AttemptAnswerDto.serializer(), request.answer), rows.getString(1))
+                    assertEquals(payload, rows.getString(2))
+                    assertTrue(!rows.next())
+                }
+            }
+        }
+    }
+
     private suspend fun fixture(repository: PostgresStores): Fixture {
         val suffix = UUID.randomUUID().toString().replace("-", "")
         val session = repository.sessions.createSession(suffix.repeat(2), Long.MAX_VALUE)
