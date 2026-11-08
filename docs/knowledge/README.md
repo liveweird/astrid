@@ -86,3 +86,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Writing and reading implementation contract](writing-reading-contract.md): authorized standalone sentence production and short-text comprehension, bounded grading and retained revision safeguards.
 
 - [Word choice and sentence tiles](word-choice-tiles-contract.md): authorized BL-047 formats, revision-five grading/wire contract, compatibility freeze and 0.5.0 release acceptance.
+
+- [Vocabulary matching grid](vocabulary-matching-contract.md): authorized four-pair E014, per-pair evidence, whole-board retry contract and 0.6.0 release safeguards.

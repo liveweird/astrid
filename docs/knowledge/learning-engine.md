@@ -131,3 +131,10 @@ Proposed completion: both new grammar focuses can create/resume runs, report the
 ## Word choice and sentence tiles selected
 
 **8 November 2026 — User-authorized:** BL-047 adds E011 English→Danish article+noun meaning choice, E012 all-word sentence tiles and E013 tiles with one spare infinitive. The [binding contract](word-choice-tiles-contract.md) separates target, meaning, response shape and language, preserves pair four before editing, and assigns learning pair five / app 0.5.0. Only the printed-magazine sense is new language material, confined to E011; existing sentence pools and guided plans remain unchanged. Observed delivery will be recorded in that contract after verification.
+
+
+**8 November 2026 — User-authorized:** BL-048 adds E014 four-pair English–Danish matching,
+using the existing E011 senses, with per-pair server feedback and whole-board checking. The
+[matching contract](vocabulary-matching-contract.md) defines partial grading, editable supported
+retries, opaque independent shuffles and learning pair six / app 0.6.0. Pair five is frozen first;
+all historical grading and guided-plan revisions remain executable. No new vocabulary is selected.

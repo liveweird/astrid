@@ -1333,6 +1333,8 @@ components:
       properties:
         kind: { type: string, enum: [matching] }
         pairs:
+          # Each partial bijection extends a full permutation. Keep these as composed schemas:
+          # our conformance validator ignores anyOf attached directly to a typed array.
           description: A partial bijection. The list may be empty; each supplied leftId and rightId must appear at most once.
           allOf:
             - type: array

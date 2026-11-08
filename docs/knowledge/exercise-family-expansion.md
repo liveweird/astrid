@@ -77,3 +77,9 @@ For tile tasks, distinguish individual words from existing constituent blocks, p
 **8 November 2026 — Subsequent implementation selection:** the user selected BL-047 and proper versioned release. The [word-choice/tile contract](word-choice-tiles-contract.md) now governs #1 and #5/#6 only, with a bounded choice-only magazine sense and the existing 99 positive propositions. This supersedes the unselected status above for these three formats. Matching, multiple gaps, reverse sentence tiles and later grammar remain proposals.
 
 **Observed subsequent delivery:** Items 1/5/6 are delivered at [0.5.0](https://github.com/liveweird/astrid/releases/tag/v0.5.0) under the [verified contract](word-choice-tiles-contract.md#observed-delivery--8-november-2026), superseding their earlier unselected status. They remain standalone with E009/E010; guided plans stay at pair three. The table's current-coverage cells reflect this delivery. Matching, multiple gaps, reverse sentence tiles and later grammar remain proposals.
+
+
+**8 November 2026 — Matching implementation selected:** the user's acceptance selects BL-048
+for #11, English-left/Danish-right with four existing article+noun senses, partial checking and
+per-pair feedback. The [matching contract](vocabulary-matching-contract.md) supersedes its
+unselected status above. Opposite orientation, multiple gaps and further families remain proposals.

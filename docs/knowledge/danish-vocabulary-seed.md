@@ -93,3 +93,9 @@ The historical 23-entry table above remains the published pilot seed. BL-047 ass
 | ID | Lemma and English gloss | Gender | Active phrase | Reference definite singular / plural / definite plural | Scope and source |
 | --- | --- | --- | --- | --- | --- |
 | L024 | magasin, magazine (printed publication) | neuter | et magasin | magasinet / magasiner / magasinerne | E011 only; printed-periodical sense, excluding broadcast, depot/store and weapon-container senses. [DDO, sense 1](https://ordnet.dk/ddo/ordbog/magasin). |
+
+
+**8 November 2026 — Matching activation selected:** BL-048 reuses L024-S01 alongside the three
+existing reading-material senses for E014 in pair six. The [matching contract](vocabulary-matching-contract.md)
+extends its use to choice/matching only; the retained pair-five E011-only metadata above stays historical.
+No sentence allowlist or older E007/E008 pool expands, and teaching approval remains pending.
