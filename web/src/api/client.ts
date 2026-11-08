@@ -1,6 +1,10 @@
-import type { Attempt, AttemptRequest, Catalog, DevelopmentSession, Exercise, InspectorDetails } from "./models";
+import type {
+  Attempt, AttemptRequest, Catalog, DevelopmentSession, Exercise, InspectorDetails,
+  PracticeContext, PracticeProfiles, PracticeSession,
+} from "./models";
 
 const CLIENT_HEADER = { "X-Astrid-Client": "playground" };
+const REQUEST_DEADLINE_MS = 15_000;
 
 export class ApiError extends Error {
   readonly status: number;
@@ -21,32 +25,42 @@ export class UncertainResultError extends Error {
 }
 
 async function readJson<T>(path: string, init?: RequestInit): Promise<T> {
-  let response: Response;
+  const controller = new AbortController();
+  const deadline = window.setTimeout(() => controller.abort(), REQUEST_DEADLINE_MS);
   try {
-    response = await fetch(path, { credentials: "same-origin", ...init });
-  } catch (cause) {
-    throw new UncertainResultError(cause);
-  }
-  if (!response.ok) {
-    const body = (await response.json().catch(() => null)) as { message?: unknown; detail?: unknown } | null;
-    const message = typeof body?.message === "string" ? body.message :
-      typeof body?.detail === "string" ? body.detail : `Request failed (${response.status}).`;
-    throw new ApiError(response.status, message);
-  }
-  try {
-    return (await response.json()) as T;
-  } catch (cause) {
-    // A committed mutation can still lose or truncate its response body in a proxy.
-    throw new UncertainResultError(cause);
+    let response: Response;
+    try {
+      response = await fetch(path, { credentials: "same-origin", ...init, signal: controller.signal });
+    } catch (cause) {
+      throw new UncertainResultError(cause);
+    }
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as { message?: unknown; detail?: unknown } | null;
+      const message = typeof body?.message === "string" ? body.message :
+        typeof body?.detail === "string" ? body.detail : `Request failed (${response.status}).`;
+      throw new ApiError(response.status, message);
+    }
+    try {
+      return (await response.json()) as T;
+    } catch (cause) {
+      // A committed mutation can still lose or truncate its response body in a proxy.
+      throw new UncertainResultError(cause);
+    }
+  } finally {
+    window.clearTimeout(deadline);
   }
 }
 
-function jsonInit(method: "POST", body: unknown, extraHeaders?: HeadersInit): RequestInit {
+function serializedJsonInit(serializedBody: string, extraHeaders?: HeadersInit): RequestInit {
   return {
-    method,
+    method: "POST",
     headers: { "Content-Type": "application/json", ...CLIENT_HEADER, ...extraHeaders },
-    body: JSON.stringify(body),
+    body: serializedBody,
   };
+}
+
+function jsonInit(_method: "POST", body: unknown, extraHeaders?: HeadersInit): RequestInit {
+  return serializedJsonInit(JSON.stringify(body), extraHeaders);
 }
 
 export const startDevelopmentSession = () =>
@@ -55,21 +69,21 @@ export const startDevelopmentSession = () =>
 export const loadCatalog = () => readJson<Catalog>("/api/v1/catalog");
 
 export function createExercise(request: {
-  formatId: string; targetSkillId: string; seed: number; index: number;
+  formatId: string; targetSkillId?: string | null; seed: number; index: number;
   contentRevision: string; generatorRevision: string;
 }) {
   return readJson<Exercise>("/api/v1/exercises", jsonInit("POST", request));
 }
 
-export async function bootstrapPlayground(seed: number, index: number) {
+export async function bootstrapPlayground(seed: number, index: number, readCatalog = loadCatalog) {
   // Catalog is session-scoped: wait for Set-Cookie before issuing authenticated reads.
   const session = await startDevelopmentSession();
-  const catalog = await loadCatalog();
+  const catalog = await readCatalog();
   const format = catalog.formats[0];
   if (!format) throw new Error("The engine catalog has no exercise formats.");
   const exercise = await createExercise({
     formatId: format.id,
-    targetSkillId: format.targetSkillId,
+    ...(format.targetSkillId ? { targetSkillId: format.targetSkillId } : {}),
     seed,
     index,
     contentRevision: catalog.contentRevision,
@@ -89,8 +103,55 @@ export async function submitAttempt(request: AttemptRequest) {
   }
 }
 
-export const loadAttempt = (attemptId: string) =>
-  readJson<Attempt>(`/api/v1/attempts/${encodeURIComponent(attemptId)}`);
+export async function submitSerializedAttempt(serializedBody: string) {
+  try {
+    return await readJson<Attempt>("/api/v1/attempts", serializedJsonInit(serializedBody));
+  } catch (error) {
+    if (error instanceof ApiError && error.status >= 500) throw new UncertainResultError(error);
+    throw error;
+  }
+}
+
+export const loadPracticeContext = () => readJson<PracticeContext>("/api/v1/practice-context");
+
+export const loadPracticeProfiles = () => readJson<PracticeProfiles>("/api/v1/practice-profiles");
+
+export const loadPracticeSession = (practiceSessionId: string) =>
+  readJson<PracticeSession>(`/api/v1/practice-sessions/${encodeURIComponent(practiceSessionId)}`);
+
+export const createPracticeSession = (
+  ownerSessionId: string,
+  serializedBody: string,
+) => readJson<PracticeSession>("/api/v1/practice-sessions", serializedJsonInit(serializedBody, {
+  "X-Astrid-Practice-Owner": ownerSessionId,
+}));
+
+export const createPracticeFollowUp = (
+  sourcePracticeSessionId: string,
+  ownerSessionId: string,
+  serializedBody: string,
+) => readJson<PracticeSession>(
+  `/api/v1/practice-sessions/${encodeURIComponent(sourcePracticeSessionId)}/follow-ups`,
+  serializedJsonInit(serializedBody, { "X-Astrid-Practice-Owner": ownerSessionId }),
+);
+
+export const updatePracticeSupport = (
+  practiceSessionId: string,
+  ownerSessionId: string,
+  serializedBody: string,
+) => readJson<PracticeSession>(
+  `/api/v1/practice-sessions/${encodeURIComponent(practiceSessionId)}/support`,
+  serializedJsonInit(serializedBody, { "X-Astrid-Practice-Owner": ownerSessionId }),
+);
+
+export const advancePracticeSession = (
+  practiceSessionId: string,
+  ownerSessionId: string,
+  serializedBody: string,
+) => readJson<PracticeSession>(
+  `/api/v1/practice-sessions/${encodeURIComponent(practiceSessionId)}/advance`,
+  serializedJsonInit(serializedBody, { "X-Astrid-Practice-Owner": ownerSessionId }),
+);
 
 export const inspectExercise = (exerciseId: string, key: string) =>
   readJson<InspectorDetails>(`/api/v1/dev/exercises/${encodeURIComponent(exerciseId)}`, {

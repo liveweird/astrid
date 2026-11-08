@@ -1,0 +1,84 @@
+name: e2e
+
+# Nightly browser suite against master, ported from Flow's e2e.yml. Unlike Flow, Astrid ALSO runs the full suite on every
+# push and pull request (ci.yml `image`), so this workflow does not replace a PR gate. What it adds is coverage for the days
+# nobody pushes: a fresh image build from master's pinned sources, the Chromium and WebKit journeys, and a Trivy scan that
+# catches a HIGH/CRITICAL advisory published after the last merge. A red scheduled run opens (or comments on) one issue
+# through ci-alert.yml. Run it on demand from the Actions tab → "e2e" → "Run workflow".
+on:
+  schedule:
+    - cron: "41 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-24.04
+    # A cold run (deps, browsers, uncached image build, ~12 min suite, Trivy DB pull) takes roughly 20-24 minutes.
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The Docker build context includes .git (version stamp): no checkout token may be stored in its config.
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Install e2e dependencies and browsers
+        working-directory: e2e
+        run: npm ci && npx playwright install --with-deps chromium webkit
+
+      # Separate steps so the image build, the stack start-up and the specs are timed separately in the run view.
+      - name: Build the image
+        id: build
+        run: docker compose --env-file .env.example build
+
+      - name: Start the stack
+        run: docker compose --env-file .env.example up -d --wait --wait-timeout 300
+
+      - name: Run the browser journeys
+        run: npm --prefix e2e test
+
+      # Container logs make a red nightly diagnosable without reproducing it.
+      - name: Capture stack diagnostics
+        if: ${{ failure() }}
+        run: docker compose --env-file .env.example logs --no-color --tail 300
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        with:
+          name: browser-reports
+          path: |
+            e2e/playwright-report/
+            e2e/test-results/
+          retention-days: 7
+
+      # Same scanner, pin, flags and gate as ci.yml's "Scan packaged runtime" (check-toolchain.py keeps the Trivy pins equal).
+      # It runs after the suite so a red scan never hides a UI regression, or the other way round; it is skipped only when
+      # there is no image to scan.
+      - name: Scan the packaged runtime (HIGH/CRITICAL, fixable)
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            ghcr.io/aquasecurity/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969 \
+            image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress astrid:local
+
+      - name: Stop the stack
+        if: ${{ always() }}
+        run: docker compose --env-file .env.example down
+
+  # Only a red SCHEDULED run alerts; an on-demand run's author is watching. Closing the issue is manual (ci.md "Failure alerting").
+  alert:
+    needs: e2e
+    if: ${{ failure() && github.event_name == 'schedule' }}
+    permissions:
+      issues: write
+    uses: ./.github/workflows/ci-alert.yml
+    with:
+      title: Nightly e2e is failing

@@ -29,7 +29,7 @@ dependencies {
     implementation(ktorLibs.serialization.kotlinx.json)
     implementation(ktorLibs.server.bodyLimit)
     implementation(ktorLibs.server.callLogging)
-    implementation(ktorLibs.server.config.yaml)
+    implementation(ktorLibs.server.compression)
     implementation(ktorLibs.server.contentNegotiation)
     implementation(ktorLibs.server.core)
     implementation(ktorLibs.server.defaultHeaders)
@@ -56,6 +56,27 @@ dependencies {
     testImplementation(libs.testcontainers.postgresql)
 }
 
+val pilotThreeWireFixture = layout.projectDirectory.file("src/test/resources/golden/pilot-3-generator-3-wire.tsv")
+val pilotThreeWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-3-generator-3-wire.provenance")
+
+tasks.register<JavaExec>("exportPilotThreeWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-3 server public-wire compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.PilotThreeWireCompatibilityExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                pilotThreeWireFixture.asFile.absolutePath,
+                pilotThreeWireProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(pilotThreeWireFixture, pilotThreeWireProvenance)
+}
+
 tasks.test {
     useJUnit()
 }
@@ -71,7 +92,19 @@ kover {
             excludes { annotatedBy("kotlinx.serialization.Serializable") }
         }
         verify {
-            rule { minBound(80) }
+            rule {
+                // Line-coverage floor: the integer below the measured value, RAISED as coverage
+                // grows, never lowered. Re-measure with `:server:koverXmlReport` (`check` runs only
+                // koverVerify, which reports pass/fail, not the actual).
+                // 2026-11-07, scaffold alignment: actual 94.89% -> floor 94.
+                // 2026-11-08, server package split + store contract suite: actual 97.49% -> floor 97.
+                minBound(97)
+                // Branch-coverage floor, same rule.
+                // 2026-11-07, scaffold alignment: actual 72.32% -> floor 72.
+                // 2026-11-08, server package split + store contract suite: actual 76.35% -> floor 76.
+                // 2026-11-08, port config + call logging tests: actual 77.59% -> floor 77.
+                minBound(77, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
+            }
         }
     }
 }

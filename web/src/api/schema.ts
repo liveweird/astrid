@@ -100,6 +100,118 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/practice-context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getPracticeContext"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/practice-profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getPracticeProfiles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/practice-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createPracticeSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/practice-sessions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getPracticeSession"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/practice-sessions/{id}/follow-ups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createPracticeFollowUp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/practice-sessions/{id}/support": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["openPracticeSupport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/practice-sessions/{id}/advance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["advancePracticeSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dev/exercises/{id}": {
         parameters: {
             query?: never;
@@ -123,26 +235,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Live */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Health"];
-                    };
-                };
-            };
-        };
+        get: operations["getHealth"];
         put?: never;
         post?: never;
         delete?: never;
@@ -158,35 +251,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Ready */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Health"];
-                    };
-                };
-                /** @description Unavailable */
-                503: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Health"];
-                    };
-                };
-            };
-        };
+        get: operations["getReadiness"];
         put?: never;
         post?: never;
         delete?: never;
@@ -204,11 +269,11 @@ export interface components {
             mode: "development";
             inspectorEnabled: boolean;
             /** @enum {string} */
-            contentRevision: "pilot-1";
+            contentRevision: "pilot-4";
             /** @enum {string} */
-            generatorRevision: "generator-1";
+            generatorRevision: "generator-4";
             /** @enum {string} */
-            evaluationRevision: "evaluation-1";
+            evaluationRevision: "evaluation-4";
         };
         Catalog: {
             contentRevision: string;
@@ -226,40 +291,644 @@ export interface components {
             prerequisiteIds: string[];
         };
         Format: {
-            id: string;
+            /** @enum {string} */
+            id: "E001" | "E002" | "E003" | "E004" | "E005" | "E006" | "E007" | "E008" | "E009" | "E010";
             title: string;
-            targetSkillId: string;
+            targetSkillId?: string | null;
+            lexicalTask?: components["schemas"]["LexicalTask"];
+            readingTask?: components["schemas"]["ReadingTask"];
         };
-        ExerciseRequest: {
-            formatId: string;
-            targetSkillId: string;
+        LexicalTask: {
+            /** @enum {string} */
+            facet: "meaning" | "singular-headword";
+            /** @enum {string} */
+            direction: "da-en" | "en-da";
+        };
+        ReadingTask: {
+            /** @enum {string} */
+            facet: "participant-action-complement";
+        };
+        ExerciseRequest: components["schemas"]["PairOnePresentRequest"] | components["schemas"]["PairOneArticleRequest"] | components["schemas"]["PairOneOrderRequest"] | components["schemas"]["PairTwoPresentRequest"] | components["schemas"]["PairTwoArticleRequest"] | components["schemas"]["PairTwoOrderRequest"] | components["schemas"]["PairThreePresentRequest"] | components["schemas"]["PairThreeArticleRequest"] | components["schemas"]["PairThreeOrderRequest"] | components["schemas"]["PairThreeLexicalRequest"] | components["schemas"]["PairFourPresentRequest"] | components["schemas"]["PairFourArticleRequest"] | components["schemas"]["PairFourOrderRequest"] | components["schemas"]["PairFourLexicalRequest"] | components["schemas"]["PairFourReadingRequest"];
+        PairOnePresentRequest: {
+            /** @enum {string} */
+            formatId: "E001";
+            /** @enum {string} */
+            targetSkillId: "G004";
             seed: number;
             index: number;
-            contentRevision: string;
-            generatorRevision: string;
+            /** @enum {string} */
+            contentRevision: "pilot-1";
+            /** @enum {string} */
+            generatorRevision: "generator-1";
         };
-        Exercise: {
+        PairOneArticleRequest: {
+            /** @enum {string} */
+            formatId: "E002";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-1";
+            /** @enum {string} */
+            generatorRevision: "generator-1";
+        };
+        PairOneOrderRequest: {
+            /** @enum {string} */
+            formatId: "E003";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-1";
+            /** @enum {string} */
+            generatorRevision: "generator-1";
+        };
+        PairTwoPresentRequest: {
+            /** @enum {string} */
+            formatId: "E001" | "E004" | "E005";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-2";
+            /** @enum {string} */
+            generatorRevision: "generator-2";
+        };
+        PairTwoArticleRequest: {
+            /** @enum {string} */
+            formatId: "E002" | "E006";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-2";
+            /** @enum {string} */
+            generatorRevision: "generator-2";
+        };
+        PairTwoOrderRequest: {
+            /** @enum {string} */
+            formatId: "E003";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-2";
+            /** @enum {string} */
+            generatorRevision: "generator-2";
+        };
+        PairThreePresentRequest: {
+            /** @enum {string} */
+            formatId: "E001" | "E004" | "E005";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-3";
+            /** @enum {string} */
+            generatorRevision: "generator-3";
+        };
+        PairThreeArticleRequest: {
+            /** @enum {string} */
+            formatId: "E002" | "E006";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-3";
+            /** @enum {string} */
+            generatorRevision: "generator-3";
+        };
+        PairThreeOrderRequest: {
+            /** @enum {string} */
+            formatId: "E003";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-3";
+            /** @enum {string} */
+            generatorRevision: "generator-3";
+        };
+        PairThreeLexicalRequest: {
+            /** @enum {string} */
+            formatId: "E007" | "E008";
+            targetSkillId?: string | null;
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-3";
+            /** @enum {string} */
+            generatorRevision: "generator-3";
+        };
+        PairFourPresentRequest: {
+            /** @enum {string} */
+            formatId: "E001" | "E004" | "E005";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-4";
+            /** @enum {string} */
+            generatorRevision: "generator-4";
+        };
+        PairFourArticleRequest: {
+            /** @enum {string} */
+            formatId: "E002" | "E006";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-4";
+            /** @enum {string} */
+            generatorRevision: "generator-4";
+        };
+        PairFourOrderRequest: {
+            /** @enum {string} */
+            formatId: "E003" | "E009";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-4";
+            /** @enum {string} */
+            generatorRevision: "generator-4";
+        };
+        PairFourLexicalRequest: {
+            /** @enum {string} */
+            formatId: "E007" | "E008";
+            targetSkillId?: string | null;
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-4";
+            /** @enum {string} */
+            generatorRevision: "generator-4";
+        };
+        PairFourReadingRequest: {
+            /** @enum {string} */
+            formatId: "E010";
+            targetSkillId?: string | null;
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-4";
+            /** @enum {string} */
+            generatorRevision: "generator-4";
+        };
+        Exercise: components["schemas"]["GrammarExercise"] | components["schemas"]["LexicalExercise"] | components["schemas"]["WritingExercise"] | components["schemas"]["ReadingExercise"];
+        GrammarExercise: components["schemas"]["PairOnePresentExerciseObject"] | components["schemas"]["PairOneArticleExerciseObject"] | components["schemas"]["PairOneOrderExerciseObject"] | components["schemas"]["PairTwoPresentExerciseObject"] | components["schemas"]["PairTwoArticleExerciseObject"] | components["schemas"]["PairTwoOrderExerciseObject"] | components["schemas"]["PairThreePresentExerciseObject"] | components["schemas"]["PairThreeArticleExerciseObject"] | components["schemas"]["PairThreeOrderExerciseObject"] | components["schemas"]["PairFourPresentExerciseObject"] | components["schemas"]["PairFourArticleExerciseObject"] | components["schemas"]["PairFourOrderExerciseObject"];
+        PairOnePresentExerciseObject: {
             /** Format: uuid */
             id: string;
-            formatId: string;
-            targetSkillId: string;
+            /** @enum {string} */
+            formatId: "E001";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
             supportSkillIds: string[];
-            contentRevision: string;
-            generatorRevision: string;
+            /** @enum {string} */
+            contentRevision: "pilot-1";
+            /** @enum {string} */
+            generatorRevision: "generator-1";
             instruction: string;
             context: string;
-            prompt: components["schemas"]["Prompt"];
+            prompt: components["schemas"]["NonReadingPrompt"];
             introduction: components["schemas"]["Introduction"][];
             hint: string;
         };
+        PairOneArticleExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E002";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-1";
+            /** @enum {string} */
+            generatorRevision: "generator-1";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairOneOrderExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E003";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-1";
+            /** @enum {string} */
+            generatorRevision: "generator-1";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairTwoPresentExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E001" | "E004" | "E005";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-2";
+            /** @enum {string} */
+            generatorRevision: "generator-2";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairTwoArticleExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E002" | "E006";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-2";
+            /** @enum {string} */
+            generatorRevision: "generator-2";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairTwoOrderExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E003";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-2";
+            /** @enum {string} */
+            generatorRevision: "generator-2";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThreePresentExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E001" | "E004" | "E005";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-3";
+            /** @enum {string} */
+            generatorRevision: "generator-3";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThreeArticleExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E002" | "E006";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-3";
+            /** @enum {string} */
+            generatorRevision: "generator-3";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThreeOrderExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E003";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-3";
+            /** @enum {string} */
+            generatorRevision: "generator-3";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairFourPresentExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E001" | "E004" | "E005";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-4";
+            /** @enum {string} */
+            generatorRevision: "generator-4";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairFourArticleExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E002" | "E006";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-4";
+            /** @enum {string} */
+            generatorRevision: "generator-4";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairFourOrderExerciseObject: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E003";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-4";
+            /** @enum {string} */
+            generatorRevision: "generator-4";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        LexicalExercise: components["schemas"]["PairThreeRecognitionExercise"] | components["schemas"]["PairThreeRecallExercise"] | components["schemas"]["PairFourRecognitionExercise"] | components["schemas"]["PairFourRecallExercise"];
+        PairThreeRecognitionExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E007";
+            targetSkillId?: string | null;
+            lexicalTarget: components["schemas"]["RecognitionLexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-3";
+            /** @enum {string} */
+            generatorRevision: "generator-3";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThreeRecallExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E008";
+            targetSkillId?: string | null;
+            lexicalTarget: components["schemas"]["RecallLexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-3";
+            /** @enum {string} */
+            generatorRevision: "generator-3";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairFourRecognitionExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E007";
+            targetSkillId?: string | null;
+            lexicalTarget: components["schemas"]["RecognitionLexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-4";
+            /** @enum {string} */
+            generatorRevision: "generator-4";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairFourRecallExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E008";
+            targetSkillId?: string | null;
+            lexicalTarget: components["schemas"]["RecallLexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-4";
+            /** @enum {string} */
+            generatorRevision: "generator-4";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        WritingExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E009";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-4";
+            /** @enum {string} */
+            generatorRevision: "generator-4";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["NonReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        ReadingExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E010";
+            targetSkillId?: string | null;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            readingTarget: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-4";
+            /** @enum {string} */
+            generatorRevision: "generator-4";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["ReadingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        LexicalTarget: {
+            entryId: string;
+            senseId: string;
+            /** @enum {string} */
+            facet: "meaning" | "singular-headword";
+            /** @enum {string} */
+            direction: "da-en" | "en-da";
+        };
+        RecognitionLexicalTarget: {
+            entryId: string;
+            senseId: string;
+            /** @enum {string} */
+            facet: "meaning";
+            /** @enum {string} */
+            direction: "da-en";
+        };
+        RecallLexicalTarget: {
+            entryId: string;
+            senseId: string;
+            /** @enum {string} */
+            facet: "singular-headword";
+            /** @enum {string} */
+            direction: "en-da";
+        };
         Prompt: {
+            /** @description Sentence content before the answer slot. */
             before: string;
-            /** @description Includes final punctuation for text and choice exercises. */
+            /** @description Sentence content after the answer slot; includes final punctuation for text and choice exercises. */
             after: string;
             choices: string[];
             blocks: components["schemas"]["Block"][];
             /** @description Supplied separately for the ordering exercise only. */
             punctuation: string;
+            /** @description Label for the text entry field when the exercise needs one. */
+            inputLabel?: string | null;
+            /** @description Corrupted word to replace; this is context, not the answer. */
+            replacementWord?: string | null;
+            /** @description Vocabulary cue shown separately from sentence fragments. */
+            cue?: string | null;
+            /** @enum {string|null} */
+            cueLanguage?: "da" | "en" | null;
+            /** @enum {string|null} */
+            answerLanguage?: "da" | "en" | null;
+            passage?: string[];
+        };
+        NonReadingPrompt: {
+            /** @description Sentence content before the answer slot. */
+            before: string;
+            /** @description Sentence content after the answer slot; includes final punctuation for text and choice exercises. */
+            after: string;
+            choices: string[];
+            blocks: components["schemas"]["Block"][];
+            /** @description Supplied separately for the ordering exercise only. */
+            punctuation: string;
+            /** @description Label for the text entry field when the exercise needs one. */
+            inputLabel?: string | null;
+            /** @description Corrupted word to replace; this is context, not the answer. */
+            replacementWord?: string | null;
+            /** @description Vocabulary cue shown separately from sentence fragments. */
+            cue?: string | null;
+            /** @enum {string|null} */
+            cueLanguage?: "da" | "en" | null;
+            /** @enum {string|null} */
+            answerLanguage?: "da" | "en" | null;
+            passage?: string[];
+        };
+        ReadingPrompt: {
+            /** @description Sentence content before the answer slot. */
+            before: string;
+            /** @description Sentence content after the answer slot; includes final punctuation for text and choice exercises. */
+            after: string;
+            choices: string[];
+            blocks: components["schemas"]["Block"][];
+            punctuation: string;
+            /** @description Label for the text entry field when the exercise needs one. */
+            inputLabel?: string | null;
+            /** @description Corrupted word to replace; this is context, not the answer. */
+            replacementWord?: string | null;
+            /** @description English reading question shown separately from the passage. */
+            cue: string | null;
+            /** @enum {string|null} */
+            cueLanguage: "en" | null;
+            /** @enum {string|null} */
+            answerLanguage: "en" | null;
+            passage: string[];
         };
         Block: {
             id: string;
@@ -268,6 +937,8 @@ export interface components {
         Introduction: {
             title: string;
             body: string;
+            /** @enum {string} */
+            bodyLanguage?: "da" | "en";
         };
         AttemptRequest: {
             /** Format: uuid */
@@ -280,6 +951,7 @@ export interface components {
         TextAnswer: {
             /** @enum {string} */
             kind: "text";
+            /** @description Must be well-formed Unicode. The maximum length is counted in Unicode code points. */
             text: string;
         };
         OrderAnswer: {
@@ -296,6 +968,12 @@ export interface components {
             targetSatisfaction: "met" | "not-met" | "unevaluable";
             /** @enum {string} */
             linguisticStatus: "acceptable" | "known-issue" | "unknown";
+            /** @enum {string|null} */
+            linguisticScope?: "english-choice" | "danish-headword" | "danish-sentence" | null;
+            /** @enum {string|null} */
+            responseConstraintStatus?: "met" | "not-met" | null;
+            /** @enum {string|null} */
+            meaningSatisfaction?: "met" | "not-met" | "unknown" | null;
             issues: components["schemas"]["Issue"][];
             feedback: string;
             completedSentence: string;
@@ -309,22 +987,229 @@ export interface components {
             code: string;
             message: string;
         };
+        PracticeContext: {
+            /** Format: uuid */
+            ownerSessionId: string;
+            /** Format: int64 */
+            sessionExpiresAt: number;
+            /** @enum {string} */
+            focusId: "reading-basics";
+            title: string;
+            /** @enum {string} */
+            planRevision: "practice-1";
+            /** @enum {integer} */
+            itemCount: 8;
+        };
+        PracticeProfiles: {
+            /** Format: uuid */
+            ownerSessionId: string;
+            /** Format: int64 */
+            sessionExpiresAt: number;
+            profiles: components["schemas"]["PracticeProfile"][];
+        };
+        PracticeProfile: {
+            /** @enum {string} */
+            focusId: "reading-basics";
+            /** @enum {string} */
+            planRevision: "practice-1";
+            title: string;
+            description: string;
+            /** @enum {integer} */
+            itemCount: 8;
+            prerequisiteSkillIds: string[];
+        } | {
+            /** @enum {string} */
+            focusId: "present-verbs";
+            /** @enum {string} */
+            planRevision: "present-verbs-1";
+            title: string;
+            description: string;
+            /** @enum {integer} */
+            itemCount: 6;
+            prerequisiteSkillIds: string[];
+        };
+        PracticeSessionRequest: {
+            /** Format: uuid */
+            practiceSessionId: string;
+            /** @enum {string} */
+            focusId: "reading-basics";
+            /** @enum {string} */
+            planRevision: "practice-1";
+            seed: number;
+        } | {
+            /** Format: uuid */
+            practiceSessionId: string;
+            /** @enum {string} */
+            focusId: "present-verbs";
+            /** @enum {string} */
+            planRevision: "present-verbs-1";
+            seed: number;
+        };
+        PracticeSupportRequest: {
+            /** @enum {string} */
+            kind: "introduction" | "lesson" | "hint";
+            position?: number;
+        };
+        PracticeFollowUpRequest: {
+            /** Format: uuid */
+            practiceSessionId: string;
+            /** @enum {string} */
+            planRevision: "follow-up-1" | "follow-up-2";
+            seed: number;
+            targetKeys: string[];
+        };
+        PracticeAdvanceRequest: {
+            position: number;
+        };
+        PracticeSession: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            ownerSessionId: string;
+            focusId: string;
+            title: string;
+            planRevision: string;
+            seed: number;
+            contentRevision: string;
+            generatorRevision: string;
+            evaluationRevision: string;
+            /** Format: int64 */
+            sessionExpiresAt: number;
+            /** @enum {string} */
+            state: "active" | "completed";
+            cursor: number;
+            itemCount: number;
+            prerequisiteSkillIds: string[];
+            introduction: components["schemas"]["Introduction"][];
+            introductionOpened: boolean;
+            items: components["schemas"]["PracticeItem"][];
+            currentExercise?: components["schemas"]["Exercise"];
+            summary: components["schemas"]["PracticeSummary"];
+            followUp?: components["schemas"]["PracticeFollowUp"];
+            /** @enum {string} */
+            followUpPlanRevision?: "follow-up-2";
+        };
+        PracticeFollowUp: {
+            /** Format: uuid */
+            sourcePracticeSessionId: string;
+            selectedTargetKeys: string[];
+        };
+        PracticeItem: {
+            position: number;
+            /** Format: uuid */
+            exerciseId: string;
+            formatId: string;
+            targetSkillId?: string | null;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            /** @enum {string} */
+            assessmentMode?: "selection" | "recall" | "repair";
+            lessonOpened: boolean;
+            hintOpened: boolean;
+            attemptIds: string[];
+            attemptCount: number;
+            firstAttempt?: components["schemas"]["Attempt"];
+            lastAttempt?: components["schemas"]["Attempt"];
+            firstAnswer?: components["schemas"]["TextAnswer"] | components["schemas"]["OrderAnswer"];
+            lastAnswer?: components["schemas"]["TextAnswer"] | components["schemas"]["OrderAnswer"];
+            firstAttemptContext?: components["schemas"]["PracticeAttemptContext"];
+            lastAttemptContext?: components["schemas"]["PracticeAttemptContext"];
+        };
+        PracticeAttemptContext: {
+            introductionOpened: boolean;
+            lessonOpened: boolean;
+            hintOpened: boolean;
+            priorExposure: components["schemas"]["PracticePriorExposure"][];
+            sourceExposure?: components["schemas"]["PracticeCrossRunExposure"][];
+        };
+        PracticePriorExposure: {
+            position: number;
+            /** @enum {string} */
+            source: "prompt" | "lesson" | "hint" | "feedback";
+            keys: string[];
+        };
+        PracticeCrossRunExposure: {
+            /** Format: uuid */
+            practiceSessionId: string;
+            position: number;
+            /** @enum {string} */
+            source: "introduction" | "prompt" | "lesson" | "hint" | "feedback";
+            keys: string[];
+        };
+        PracticeSummary: {
+            plannedItems: number;
+            attemptedItems: number;
+            completedItems: number;
+            attemptCount: number;
+            retryCount: number;
+            introductionOpened: boolean;
+            rows: components["schemas"]["PracticeSummaryRow"][];
+        };
+        PracticeSummaryRow: {
+            label: string;
+            targetSkillId?: string | null;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            /** @enum {string} */
+            assessmentMode?: "selection" | "recall" | "repair";
+            plannedItems: number;
+            attemptedItems: number;
+            advancedItems: number;
+            attemptCount: number;
+            retryCount: number;
+            firstOutcomes: components["schemas"]["PracticeOutcomeCounts"];
+            latestOutcomes: components["schemas"]["PracticeOutcomeCounts"];
+            firstWithSupport: number;
+            firstWithPriorExposure: number;
+            lessonOpenedItems: number;
+            hintOpenedItems: number;
+        };
+        PracticeOutcomeCounts: {
+            fullyMet: number;
+            targetMet: number;
+            targetNotMet: number;
+            unevaluable: number;
+            languageUnknown: number;
+            languageKnownIssue: number;
+            responseConstraintNotMet: number;
+        };
         Inspector: {
             exercise: components["schemas"]["Exercise"];
             seed: number;
             index: number;
-            canonicalSentenceId: string;
-            constructionId: string;
+            canonicalSentenceId?: string | null;
+            constructionId?: string | null;
             lexicalIds: string[];
             clauseRoles: string[];
-            canonicalSentence: string;
+            canonicalSentence?: string | null;
+            lexicalSource?: components["schemas"]["LexicalSource"];
+            readingSource?: components["schemas"]["ReadingSource"];
+        };
+        LexicalSource: {
+            entryId: string;
+            senseId: string;
+            headword: string;
+            gloss: string;
+            article: string;
+        };
+        ReadingSource: {
+            propositions: components["schemas"]["ReadingProposition"][];
+            questionSubjectId: string;
+            questionVerbId: string;
+            answerNounId: string;
+            answer: string;
+        };
+        ReadingProposition: {
+            sentenceId: string;
+            subjectId: string;
+            verbId: string;
+            objectId: string;
         };
         Problem: {
+            /** @default about:blank */
             type: string;
             title: string;
             status: number;
             detail: string;
-            instance?: string | null;
+            instance: string;
             code: string;
         };
         Health: {
@@ -338,12 +1223,13 @@ export interface components {
                 [name: string]: unknown;
             };
             content: {
-                "application/json": components["schemas"]["Problem"];
+                "application/problem+json": components["schemas"]["Problem"];
             };
         };
     };
     parameters: {
         Client: "playground";
+        PracticeOwner: string;
         Id: string;
     };
     requestBodies: never;
@@ -379,7 +1265,9 @@ export interface operations {
             400: components["responses"]["Problem"];
             403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
+            413: components["responses"]["Problem"];
             415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     getCatalog: {
@@ -401,6 +1289,9 @@ export interface operations {
                 };
             };
             401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     createExercise: {
@@ -418,9 +1309,10 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Exercise */
+            /** @description Created exercise; `Location` points at it */
             201: {
                 headers: {
+                    Location?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -430,9 +1322,11 @@ export interface operations {
             400: components["responses"]["Problem"];
             401: components["responses"]["Problem"];
             403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
             409: components["responses"]["Problem"];
             413: components["responses"]["Problem"];
             415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     getExercise: {
@@ -457,8 +1351,10 @@ export interface operations {
             };
             400: components["responses"]["Problem"];
             401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
             409: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     submitAttempt: {
@@ -492,6 +1388,7 @@ export interface operations {
             409: components["responses"]["Problem"];
             413: components["responses"]["Problem"];
             415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
             503: components["responses"]["Problem"];
         };
     };
@@ -517,7 +1414,249 @@ export interface operations {
             };
             400: components["responses"]["Problem"];
             401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+        };
+    };
+    getPracticeContext: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Practice context */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeContext"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+        };
+    };
+    getPracticeProfiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Available practice profiles */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeProfiles"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+        };
+    };
+    createPracticeSession: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Astrid-Client": components["parameters"]["Client"];
+                "X-Astrid-Practice-Owner": components["parameters"]["PracticeOwner"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PracticeSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description Resumed practice session */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            /** @description Created practice session; `Location` points at it */
+            201: {
+                headers: {
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            413: components["responses"]["Problem"];
+            415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+        };
+    };
+    getPracticeSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Practice session */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+        };
+    };
+    createPracticeFollowUp: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Astrid-Client": components["parameters"]["Client"];
+                "X-Astrid-Practice-Owner": components["parameters"]["PracticeOwner"];
+            };
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PracticeFollowUpRequest"];
+            };
+        };
+        responses: {
+            /** @description Resumed follow-up practice */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            /** @description Created follow-up practice; `Location` points at it */
+            201: {
+                headers: {
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            413: components["responses"]["Problem"];
+            415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+        };
+    };
+    openPracticeSupport: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Astrid-Client": components["parameters"]["Client"];
+                "X-Astrid-Practice-Owner": components["parameters"]["PracticeOwner"];
+            };
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PracticeSupportRequest"];
+            };
+        };
+        responses: {
+            /** @description Practice session */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            413: components["responses"]["Problem"];
+            415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+        };
+    };
+    advancePracticeSession: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Astrid-Client": components["parameters"]["Client"];
+                "X-Astrid-Practice-Owner": components["parameters"]["PracticeOwner"];
+            };
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PracticeAdvanceRequest"];
+            };
+        };
+        responses: {
+            /** @description Practice session */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeSession"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            413: components["responses"]["Problem"];
+            415: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
         };
     };
     inspectExercise: {
@@ -547,6 +1686,52 @@ export interface operations {
             403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
             409: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+        };
+    };
+    getHealth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Live */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Health"];
+                };
+            };
+            403: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+        };
+    };
+    getReadiness: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ready */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Health"];
+                };
+            };
+            403: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+            503: components["responses"]["Problem"];
         };
     };
 }

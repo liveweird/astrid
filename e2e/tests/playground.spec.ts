@@ -1,4 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
+import { openGenerationControls, waitForGenerationControls } from "../support/generation-controls.js";
 
 function channelToLinear(value: number) {
   const normalized = value / 255;
@@ -24,10 +25,44 @@ async function openPlayground(page: Page) {
 
 async function chooseFormat(page: Page, title: string) {
   const selector = page.getByRole("combobox", { name: "Exercise type" });
-  if (!(await selector.isVisible())) await page.getByRole("button", { name: "Generation controls" }).click();
+  await openGenerationControls(page);
   await selector.click();
   await page.getByRole("option", { name: title }).click();
   await expect(selector).toHaveValue(title);
+}
+
+function nativeTabKey(page: Page) {
+  return process.platform === "darwin" && page.context().browser()?.browserType().name() === "webkit" ? "Alt+Tab" : "Tab";
+}
+
+async function tabTo(page: Page, target: Locator, reverse = false) {
+  // Safari's default macOS focus policy uses Option-Tab for all clickable controls.
+  const tab = nativeTabKey(page);
+  for (let step = 0; step < 40; step += 1) {
+    await page.keyboard.press(reverse ? `Shift+${tab}` : tab);
+    if (await target.evaluate((element) => element === document.activeElement)) return;
+  }
+  throw new Error(`Keyboard focus did not reach ${await target.getAttribute("aria-label") ?? "the expected control"}`);
+}
+
+async function enterOrderingAnswer(page: Page) {
+  const instruction = page.getByRole("heading", { name: "Arrange the blocks to make a statement beginning with the subject." });
+  await expect(instruction).toBeFocused();
+  const available = page.getByLabel("Available sentence parts");
+  const subject = available.getByRole("button", { name: "I", exact: true });
+  await tabTo(page, subject);
+  await page.keyboard.press("Enter");
+  await expect(available.getByRole("button", { name: "har", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(available.getByRole("button", { name: "en hund", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  const last = page.getByRole("button", { name: "Remove en hund from position 3" });
+  await expect(last).toBeFocused();
+  await expect(page.getByRole("button", { name: "Remove I from position 1" })).toHaveText("I");
+  await page.keyboard.press("Enter");
+  await expect(available.getByRole("button", { name: "en hund", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(last).toBeFocused();
 }
 
 test("completes each pilot exercise format", async ({ page }) => {
@@ -56,7 +91,7 @@ test("replays the exact attempt after an uncertain connection result", async ({ 
   const bodies: string[] = [];
   await page.route("**/api/v1/attempts", async (route) => {
     bodies.push(route.request().postData() ?? "");
-    if (bodies.length === 1) {
+    if (bodies.length <= 2) {
       // Let the server commit, then simulate the response connection disappearing.
       await route.fetch();
       await route.abort("connectionfailed");
@@ -65,23 +100,73 @@ test("replays the exact attempt after an uncertain connection result", async ({ 
   });
   await openPlayground(page);
   await page.getByLabel("Answer choices").getByRole("button").first().click();
-  await page.getByRole("button", { name: "Check answer" }).click();
+  const check = page.getByRole("button", { name: "Check answer" });
+  await tabTo(page, check);
+  await page.keyboard.press("Enter");
   await expect(page.getByText("The result is not confirmed")).toBeVisible();
-  await page.getByRole("button", { name: "Check the same attempt" }).click();
-  await expect(page.getByRole("status")).toBeVisible();
-  expect(bodies).toHaveLength(2);
+  await expect(page.getByLabel("Answer choices").getByRole("button").first()).toBeDisabled();
+  const uncertainAlert = page.getByRole("alert");
+  const replay = page.getByRole("button", { name: "Check the same attempt" });
+  await expect(uncertainAlert).toBeFocused();
+  await page.keyboard.press(nativeTabKey(page));
+  await expect(replay).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("The result is not confirmed")).toBeVisible();
+  await expect(uncertainAlert).toBeFocused();
+  await page.keyboard.press(nativeTabKey(page));
+  await expect(replay).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("status")).toBeFocused();
+  expect(bodies).toHaveLength(3);
   expect(bodies[1]).toBe(bodies[0]);
+  expect(bodies[2]).toBe(bodies[0]);
 });
 
-test("supports a narrow-screen keyboard ordering journey", async ({ page }) => {
+test("completes, retries and advances an ordering exercise with the keyboard", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openPlayground(page);
-  await chooseFormat(page, "Arrange a subject-first statement");
-  const firstBlock = page.getByLabel("Available sentence parts").getByRole("button").first();
-  const blockText = await firstBlock.textContent();
-  await firstBlock.focus();
+  const controls = page.getByRole("button", { name: "Generation controls" });
+  await tabTo(page, controls);
   await page.keyboard.press("Enter");
-  await expect(page.getByLabel(new RegExp(`Remove ${blockText ?? ""} from position 1`))).toBeVisible();
+  await waitForGenerationControls(page);
+  const index = page.getByRole("textbox", { name: "Next generation index" });
+  await tabTo(page, index);
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.type("16");
+  const selector = page.getByRole("combobox", { name: "Exercise type" });
+  await tabTo(page, selector, true);
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.type("Arrange a subject-first statement");
+  const orderingOption = page.getByRole("option", { name: "Arrange a subject-first statement" });
+  await expect(orderingOption).toBeVisible();
+  await page.keyboard.press("ArrowDown");
+  await expect(orderingOption).toHaveAttribute("data-combobox-selected", "true");
+  await expect(selector).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(selector).toHaveValue("Arrange a subject-first statement");
+
+  await enterOrderingAnswer(page);
+  const check = page.getByRole("button", { name: "Check answer" });
+  await tabTo(page, check);
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("status")).toBeFocused();
+
+  const retry = page.getByRole("button", { name: "Try again" });
+  await page.keyboard.press(nativeTabKey(page));
+  await expect(retry).toBeFocused();
+  await page.keyboard.press("Enter");
+  await enterOrderingAnswer(page);
+  await tabTo(page, check);
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("status")).toBeFocused();
+
+  const next = page.getByRole("button", { name: "Next exercise" });
+  await page.keyboard.press(nativeTabKey(page));
+  await expect(retry).toBeFocused();
+  await page.keyboard.press(nativeTabKey(page));
+  await expect(next).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("heading", { name: "Arrange the blocks to make a statement beginning with the subject." })).toBeFocused();
 });
 
 test("explicit light theme overrides a dark operating-system preference", async ({ page }) => {

@@ -1,6 +1,6 @@
 # Project Knowledge Base
 
-This is the repository record of the Danish learning app's requirements, design proposals, research, and unresolved questions. It captures planning and the first language-foundation drafts through 7 November 2026. The project is in the initial design pass; application implementation has not started.
+This is the repository record of the Danish learning app's requirements, design proposals, research, and unresolved questions. The private engine playground is implemented; language content remains a draft awaiting Danish teaching review. Records below distinguish delivered behavior from future proposals.
 
 ## Contents
 
@@ -30,9 +30,54 @@ The user has established continuous documentation as a standing project rule. Ca
 
 ## Current implementation
 
-The [backlog](../../BACKLOG.md) owns work status and priority. The first grammar map and construction catalogue are drafted, with a connected beginner seed and worked exercise specification. The user has now authorized the engine playground. Its scope and operational boundaries are recorded in [implementation decisions](implementation-decisions.md), with the concrete [Flow reuse manifest](flow-reuse-manifest.md). Linguistic teaching review remains separate from software validation.
+The [backlog](../../BACKLOG.md) owns work status and priority. The first grammar map and construction catalogue are drafted, with a connected beginner seed and worked exercise specification. The authorized engine playground is delivered. Its scope and operational boundaries are recorded in [implementation decisions](implementation-decisions.md), with the concrete [Flow reuse manifest](flow-reuse-manifest.md). Linguistic teaching review remains separate from software validation.
 
 The broad language map and the small validation subset serve different purposes. A complete language implementation is not a prerequisite for validating the engine.
 
 - [Playground delivery](playground-delivery.md): observed baseline implementation and validation evidence.
 - [Pilot hardening plan](pilot-hardening-plan.md): authorized overnight reliability, content-integrity and accessibility work.
+
+- [Danish resource assessment](danish-resource-assessment.md): primary evidence for morphology, sense identity, access and published reuse terms; no imported data.
+
+- [Proposed COR pilot crosswalk](cor-pilot-crosswalk.md): record-level candidate morphology identities and homograph safeguards; not an adopted import.
+- [Pilot source review](pilot-source-review.md): bounded linguistic source checks, precise locator gaps and qualifications.
+- [Hardening delivery](hardening-delivery.md): observed compatibility, transaction, accessibility and local Kubernetes evidence.
+- [Foundation source review](foundation-source-review.md): consolidated later-map corrections, coverage boundaries and source limitations.
+- [Pilot review guide](pilot-review-guide.md): a short proposed walkthrough for evaluating the engine before expanding it.
+- [Danish teaching review handoff](pilot-teaching-review.md): proposed specialist packet, full-inventory review, issue records and immutable-revision safeguards.
+- [Runtime database recovery](runtime-recovery.md): observed paused-database behavior, bounded browser waiting and exact attempt recovery.
+- [Server outage boundary](server-outage-boundary.md): proposed local/remote cleanup invariants, pinned-contract findings and future failure-matrix acceptance.
+- [Static delivery](static-delivery.md): measured uncompressed assets, Flow plugin reuse and transport/browser acceptance.
+- [Text resizing and reflow](text-resize-reflow.md): measured enlarged-text defects, corrections and regression evidence.
+- [Keyboard navigation and selection](keyboard-navigation.md): confirmed navigation/Enter defects, bounded corrections and acceptance requirements.
+- [Unicode input boundary](unicode-input-boundary.md): reproduced malformed-surrogate replay gap, transport validation and length policy.
+- [Foundation coverage crosswalk](foundation-coverage.md): proposed links for all 58 skills and 30 constructions, distinguishing pilot targets, support, later overlays and gaps.
+- [Pilot variation inventory](pilot-variation-audit.md): measured sentence, format and target distributions without changing published generation.
+- [Frequency and usage resources](frequency-and-usage-resources.md): candidate ranking/corpus evidence, edition differences and published reuse conditions.
+- [Bilingual lexical candidates](bilingual-resources.md): English-sense resources, mapping limits and data/tool licence distinctions.
+- [Exercise extension proposal](exercise-extension-proposal.md): user-selected recall and repair contract, support and compatibility boundaries; vocabulary assessment remains proposed.
+- [Beginner outcome references](beginner-outcome-reference.md): official framework reference points and proposed reading/writing evidence, without selecting a CEFR level or exam pathway.
+
+- [Recall and guided repair delivery](recall-repair-delivery.md): selected operations, compatibility safeguards and observed verification for BL-034.
+
+- [Vocabulary assessment contract](vocabulary-assessment.md): authorized recognition/headword-recall targets, feedback facets, revision and migration safeguards, and acceptance evidence.
+
+- [Vocabulary delivery](vocabulary-delivery.md): observed compatibility, migration, inspector, grading and browser verification for BL-036.
+
+- [Short practice sessions](practice-sessions.md): authorized BL-009 plan, possible-exposure evidence, owner-bound recovery and transaction acceptance.
+
+- [Guided practice delivery](practice-delivery.md): local verification, independent review corrections and rollout evidence for BL-009.
+
+- [Practice variation inventory](practice-variation-audit.md): independently checked semantic/presentation counts, finite bounds and reproducible frozen method.
+
+- [Practice continuity follow-up](practice-continuity.md): readable support, real shared-outbox scenarios and actual process-restart evidence.
+
+- [Targeted follow-up practice](targeted-follow-up.md): authorized learner selection, finite review plans, frozen source exposure and recovery acceptance.
+
+- [Application versioning](app-versioning.md): Flow-derived version stamp, lazy changelog, build identity and release conventions.
+
+- [Topic-based practice](topic-practice.md): authorized mixed/verb focus selection, operation-specific outcomes, precise exposure and saved-run continuity.
+
+- [Exercise family expansion](exercise-family-expansion.md): selected sentence writing and short reading comprehension, with error diagnosis and transformations retained as later proposals.
+
+- [Writing and reading implementation contract](writing-reading-contract.md): authorized standalone sentence production and short-text comprehension, bounded grading and retained revision safeguards.

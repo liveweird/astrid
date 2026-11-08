@@ -88,7 +88,7 @@ class PilotEvaluationTest {
 
         val pluralYou = find("E001", "G004", "I sover.")
         assertEquals("I sover.", engine.evaluate(pluralYou, Answer.Text("sover")).completedSentence)
-        assertTrue(pluralYou.inspector.canonicalSentence.startsWith("I "))
+        assertTrue(pluralYou.inspector.canonicalSentence.orEmpty().startsWith("I "))
     }
 
     @Test

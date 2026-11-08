@@ -1,4 +1,4 @@
-import { AppShell, createTheme, type MantineColorsTuple, NavLink } from "@mantine/core";
+import { AppShell, createTheme, type CSSVariablesResolver, type MantineColorsTuple, NavLink } from "@mantine/core";
 import classes from "./theme.module.css";
 
 const astrid: MantineColorsTuple = [
@@ -10,7 +10,7 @@ const font = "'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', s
 
 export const theme = createTheme({
   primaryColor: "astrid",
-  primaryShade: { light: 7, dark: 4 },
+  primaryShade: { light: 7, dark: 6 },
   autoContrast: true,
   respectReducedMotion: true,
   defaultRadius: "md",
@@ -31,4 +31,13 @@ export const theme = createTheme({
     }),
     NavLink: NavLink.extend({ classNames: { root: classes.navLink } }),
   },
+});
+
+export const cssVariablesResolver: CSSVariablesResolver = () => ({
+  variables: {},
+  light: {
+    "--mantine-color-dimmed": "#5f6b76",
+    "--mantine-color-orange-light-color": "#b9380a",
+  },
+  dark: { "--mantine-color-dimmed": "#a3a3a3" },
 });

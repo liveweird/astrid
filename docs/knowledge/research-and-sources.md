@@ -10,7 +10,7 @@ These references were consulted during the initial planning discussion. They sup
 
 Use these as reference starting points. The proposed structural inventory requires broader coverage and linguistic review.
 
-The [grammar map](danish-grammar-map.md#source-register) now records 15 grammatical reference sources, including Danish Language Council material and university research on word order and conditionals. The [construction catalogue](danish-sentence-catalogue.md#source-basis) distinguishes neutral beginner models from later spoken/register variation. Their teaching order and original examples remain drafts requiring specialist review.
+The [grammar map](danish-grammar-map.md#source-register) now records 16 grammatical reference sources, including Danish Language Council material and university research on word order and conditionals. Supplementary thesis evidence is labeled separately from normative guidance. The [construction catalogue](danish-sentence-catalogue.md#source-basis) distinguishes neutral beginner models from later spoken/register variation. Their teaching order and original examples remain drafts requiring specialist review; the [foundation source review](foundation-source-review.md) records corrections and remaining gaps.
 
 ## Vocabulary and morphology data
 
@@ -35,3 +35,9 @@ For the first [23-entry vocabulary seed](danish-vocabulary-seed.md), Den Danske 
 - Sources for English equivalents, verb constructions, and semantic compatibility.
 - Resource-specific reuse terms for any definitions, examples, or other content incorporated into the product.
 - Teacher review of explanations and examples, followed by learner trials of the proposed exercises.
+
+## Resource audit update — 7 November 2026
+
+The [Danish resource assessment](danish-resource-assessment.md) records current official COR/RO, COR.EXT, COR.SEM and DDO evidence, versions and published reuse terms. It proposes a COR-first morphology audit while preserving authored English senses and internal IDs. No resource has been imported or adopted as a runtime dependency; current-release terms and exact mappings remain open.
+
+Independent area research and lead validation extended this to [frequency/usage candidates](frequency-and-usage-resources.md) and [English–Danish lexical candidates](bilingual-resources.md). They distinguish corpus editions, morphological versus semantic assertions, data versus tool licences and conditional reuse. No publisher contact or product import was performed. The [pilot variation audit](pilot-variation-audit.md) measures the authored fixture separately from external frequency evidence.

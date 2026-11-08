@@ -1,20 +1,20 @@
 # Open Questions
 
-This register tracks open and resolved questions through the first foundation drafts on 7 November 2026. Resolved entries are marked explicitly. Remaining questions are planning work; their presence does not mean every question blocks current progress.
+This register tracks open and resolved questions through the delivered private pilot and foundation source review on 7 November 2026. Resolved entries are marked explicitly. Remaining questions are planning work; their presence does not mean every question blocks current progress.
 
 | ID | Question or open point | Related work |
 | --- | --- | --- |
 | Q01 | **Resolved:** The initial material targets English-speaking complete beginners. See [Product direction](product-direction.md). | BL-001 |
-| Q02 | **Partly resolved:** General everyday Danish is the confirmed initial priority. The [first slice](beginner-slice-spec.md) proposes observable present-statement/article/form outcomes; final learning-success measures, proficiency range, and use of CEFR remain open. | BL-001, BL-008 |
+| Q02 | **Partly resolved:** General everyday Danish is the confirmed initial priority. The [first slice](beginner-slice-spec.md) proposes observable present-statement/article/form outcomes; final learning-success measures, proficiency range, and use of CEFR remain open. The [outcome reference note](beginner-outcome-reference.md) separates official activity descriptors from Astrid's narrow pilot evidence. | BL-001, BL-008 |
 | Q03 | What does coverage of sentence variants include: register, colloquial forms, exceptional constructions, and advanced grammar? | BL-001, BL-003 |
-| Q04 | What session structure, progression, topic choice, and learner control do we want? | BL-009 |
+| Q04 | The [short-session proposal](learning-engine.md#recommended-next-milestone-short-practice-sessions) connects existing exercises through introduction, varied practice, resume and per-target summary. What size/focus choices, prerequisite/exposure rules and completion policy should the first implementation adopt? The user authorized this flow; concrete session/transaction defaults are implementation design work. Broader progression remains open. | BL-009 |
 | Q05 | The [grammar draft](danish-grammar-map.md) defines 58 skills and prerequisite relationships. How will a Danish teaching specialist validate the sequence and coverage? | BL-022 |
-| Q06 | The [pilot seed](danish-vocabulary-seed.md) defines 23 entries and licensed senses/combinations. Which broader vocabulary, frequency/usage evidence, and reusable data sources should guide expansion? | BL-004, BL-005 |
+| Q06 | The [pilot seed](danish-vocabulary-seed.md) defines 23 entries and licensed senses/combinations. Which broader vocabulary, frequency/usage evidence, and reusable data sources should guide expansion? | BL-004, BL-025 |
 | Q07 | The [pilot specification](beginner-slice-spec.md) proposes explicit grading and normalization cases. Which policies should extend to later formats and free writing, including partial correctness? | BL-007, BL-022 |
 | Q08 | **Pilot resolved:** deterministic typed constructions and explicit bounded grading rules; no runtime AI dependency. Broader generation methods remain open. | BL-010 |
 | Q09 | How should progress, mastery, review timing, and uncertainty about error causes be represented? | BL-011 |
-| Q10 | A six-skill, three-construction, 23-entry slice with three exercise formats is drafted. What specialist review, sampling, and learner evidence should establish its readiness and effectiveness? | BL-008, BL-022 |
-| Q11 | Which proposed engine principles should become agreed design rules? | BL-006, BL-007, BL-008 |
+| Q10 | A six-skill, three-construction, 23-entry slice with six exercise entries is implemented with draft language content. What specialist review, sampling, and learner evidence should establish its readiness and effectiveness? | BL-008, BL-022 |
+| Q11 | Which proposed principles should become broader-course design rules? The pilot already operationalizes the bounded [implementation decisions](implementation-decisions.md). | BL-006, BL-007, BL-008 |
 | Q12 | **Pilot resolved:** pure Kotlin engine, Ktor/Exposed R2DBC/Flyway/PostgreSQL and React/Mantine, with Compose and private Kubernetes. See [implementation decisions](implementation-decisions.md). | BL-012 |
 | Q13 | Which specific mobile distribution approach should deliver the online web interface: browser installation, a web wrapper, or another approach? | BL-013 |
 | Q14 | With Kubernetes and Docker Compose retained, which Kubernetes environment and hosting/database services should be used? What ingress/TLS, secrets, database placement, backup/restore, rollout, and availability expectations apply? | BL-012, BL-020 |
@@ -22,7 +22,12 @@ This register tracks open and resolved questions through the first foundation dr
 | Q16 | **Pilot resolved:** see the concrete [Flow reuse manifest](flow-reuse-manifest.md). Reassess when adding consumer accounts or production delivery. | BL-020 |
 | Q17 | **Pilot resolved:** revisioned reproduction inputs and presentation fingerprint, immutable session-scoped attempts and database-serialized idempotency. Long-term progress remains open; see [implementation decisions](implementation-decisions.md). | BL-007, BL-008, BL-020 |
 | Q18 | Which red palette and light/dark accent shades should Astrid use, and how should brand, incorrect-answer, destructive-action, and system-error treatments be distinguished? | BL-021 |
-| Q19 | Which unique logo direction should be developed: a Denmark-related symbol, an Astrid character portrait, or a combination? What illustration and small-icon treatment should it use? | BL-021 |
+| Q19 | **Resolved 8 November 2026:** the user chose a character portrait — a girl with plaits drawn only in shades of Danish red, light and dark variants. See [Visual identity](visual-identity.md#selected-logo--8-november-2026). | BL-021 |
+| Q20 | Which [usage](frequency-and-usage-resources.md) and [bilingual](bilingual-resources.md) candidates fit Astrid's intended data use and distribution? Which need publisher clarification, attribution/adaptation decisions or reference-only treatment before any import? | BL-025 |
+| Q21 | **Resolved for this iteration:** after positive initial review, the user authorized typed finite-present recall followed by guided single-word verb/article repair. The bounded [extension contract](exercise-extension-proposal.md) retains current grammar and vocabulary. Vocabulary assessment remains a later target expansion. | BL-034, BL-006, BL-007 |
+| Q22 | **Working decision for BL-034:** retain exact legacy generation and evaluation alongside the new revision pair; saved attempts retain exact replay. The general retirement policy for later revisions remains open. See the [revision contract](exercise-extension-proposal.md#revision-decision-before-release). | BL-034, BL-007, BL-010 |
+| Q23 | Which [server-outage policy](server-outage-boundary.md), fault model and measured budgets should bound HTTP completion, abandoned leases and shutdown while retaining uncertain-attempt replay? Browser waiting is bounded; server cleanup remains a separate open decision. | BL-032 |
+| Q24 | **Resolved for activation scope:** the user authorized vocabulary meaning recognition and introduced-headword recall for `bog/avis/brev`. The [implemented contract](vocabulary-assessment.md) resolves lexical target identity, response constraints and scoped feedback for these senses; subsequent mixed sessions remain Q04. | BL-036, BL-006, BL-007, BL-009 |
 
 ## Resolved clarifications
 

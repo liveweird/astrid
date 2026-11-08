@@ -1,25 +1,29 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
+This file is the Codex entry point and deliberately a pointer: the conventions live in one place
+(`CLAUDE.md`, `web/CLAUDE.md`, `.claude/docs/`) so they cannot drift here. Do not copy feature,
+package, command or migration summaries into this file.
 
-This directory is currently empty: no source code, tests, assets, or project configuration have been added. Establish the layout with the first implementation and document it in `README.md`. A suggested starting structure is `src/` for application code, `tests/` for automated tests, and `assets/` for static resources when needed. Organize modules by responsibility and keep related functionality together.
+## Read first
 
-## Build, Test, and Development Commands
+1. `CLAUDE.md` (repo root) — product, donors ("port, don't reinvent" from Flow, Lettuce, Toadie),
+   commands and gates, architecture and package layering, the OpenAPI contract, the working
+   agreement. Its "Cross-cutting conventions" table lists the topic docs in `.claude/docs/`; read
+   the row for the area you touch **in full** before editing it.
+2. `web/CLAUDE.md` for anything under `web/`.
+3. `api-guidelines/API-GUIDELINES.md` for any API work; cite its stable rule IDs in reviews.
+4. `docs/AGENTS.md` and `docs/knowledge/README.md` for the knowledge base and backlog rules.
 
-No build system, package manager, or development commands are configured yet. When introducing a toolchain, provide reproducible commands for dependency installation, local development, building, testing, and linting. Record the exact commands and required runtime versions in `README.md`; commit the appropriate dependency lockfile. Do not document commands as supported until they work in this repository.
+If a document and the executable configuration (code, CI, detekt/eslint/knip config, build files)
+disagree, the configuration wins; fix the document in the same change.
 
-## Coding Style & Naming Conventions
+## Codex-specific notes
 
-No language-specific style has been established. Use the selected language’s standard formatter and linter, and commit their configuration with the initial code. Use consistent indentation, descriptive names, and small modules with clear responsibilities. Follow the language’s naming conventions and avoid mixing styles within a file.
-
-## Testing Guidelines
-
-No testing framework or coverage threshold is configured. Add a framework appropriate to the chosen stack and document how to run it. Name tests after the behavior they verify and follow the framework’s file discovery conventions. Include regression tests for bug fixes and cover failure paths as well as successful behavior.
-
-## Commit & Pull Request Guidelines
-
-This directory is not yet a Git repository, so no commit-message conventions can be inferred. Once Git is initialized, use concise, imperative subjects such as `Add initial application scaffold`. Keep changes focused. Pull requests should explain the purpose, summarize changes, link relevant issues, and report checks performed. Include screenshots for visible interface changes and call out configuration changes.
-
-## Security & Configuration
-
-Keep credentials and local configuration out of version control. Provide placeholder values in an example configuration file and document required environment variables when configuration is introduced.
+- `CLAUDE.md` uses Claude's `@...` import syntax for the always-loaded docs
+  (`.claude/docs/testing.md`, `.claude/docs/compatibility.md`). Codex does not expand it — open
+  those files directly, along with the rest of the docs table.
+- The playbooks in `.claude/skills/` (`verify`, `run-stack`, `api-review`) are plain Markdown and
+  usable outside Claude.
+- Run `./scripts/check.sh` before reporting work as done; do not skip the Docker-backed tests when
+  claiming the whole suite passes.
+- Golden fixtures (`*/src/test/resources/golden/`) and applied Flyway migrations are immutable.

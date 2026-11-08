@@ -24,4 +24,46 @@ describe("InspectorPanel", () => {
     expect(screen.queryByText("Jeg sover.")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Inspector key")).toHaveValue(key);
   });
+
+  it("renders private lexical evidence without grammar-only labels", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({
+      exercise: {}, seed: 9, index: 1,
+      lexicalSource: {
+        entryId: "L018", senseId: "L018-S01", headword: "brev",
+        gloss: "letter (written message)", article: "et",
+      },
+    })));
+    render(<MantineProvider env="test"><InspectorPanel exerciseId="exercise-lexical" /></MantineProvider>);
+    await userEvent.type(screen.getByLabelText("Inspector key"), "a-secure-inspector-key-with-32-chars");
+    await userEvent.click(screen.getByRole("button", { name: "Inspect this exercise" }));
+
+    expect(await screen.findByText("L018 · L018-S01")).toBeVisible();
+    expect(screen.getByText("brev")).toHaveAttribute("lang", "da");
+    expect(screen.getByText("letter (written message)")).toHaveAttribute("lang", "en");
+    expect(screen.queryByText("Canonical sentence")).not.toBeInTheDocument();
+    expect(screen.queryByText("Construction")).not.toBeInTheDocument();
+    expect(screen.getByText("seed 9, index 1")).toBeVisible();
+  });
+
+  it("renders reading propositions only after explicit private inspection", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({
+      exercise: {}, seed: 12, index: 4, lexicalIds: ["L005", "L006", "L014", "L015", "L018"],
+      clauseRoles: [],
+      readingSource: {
+        questionSubjectId: "L006", questionVerbId: "L010", answerNounId: "L015", answer: "a newspaper",
+        propositions: [
+          { sentenceId: "C002:L006:L010:L015", subjectId: "L006", verbId: "L010", objectId: "L015" },
+          { sentenceId: "C002:L005:L010:L018", subjectId: "L005", verbId: "L010", objectId: "L018" },
+        ],
+      },
+    })));
+    render(<MantineProvider env="test"><InspectorPanel exerciseId="exercise-reading" /></MantineProvider>);
+    expect(screen.queryByText("a newspaper")).not.toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText("Inspector key"), "a-secure-inspector-key-with-32-chars");
+    await userEvent.click(screen.getByRole("button", { name: "Inspect this exercise" }));
+
+    expect(await screen.findByText("L015 · a newspaper")).toBeVisible();
+    expect(screen.getByText(/C002:L006:L010:L015:/)).toBeVisible();
+    expect(screen.queryByText("Canonical sentence")).not.toBeInTheDocument();
+  });
 });

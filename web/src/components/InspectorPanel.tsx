@@ -43,11 +43,35 @@ export default function InspectorPanel({ exerciseId }: { exerciseId: string }) {
       {error && <Alert color="red">{error}</Alert>}
       {details && (
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xs">
-          <Text size="sm">Canonical sentence<br /><Code lang="da">{details.canonicalSentence}</Code></Text>
-          <Text size="sm">Identity<br /><Code>{details.canonicalSentenceId}</Code></Text>
-          <Text size="sm">Construction<br /><Code>{details.constructionId}</Code></Text>
-          <Text size="sm">Roles<br /><Code>{details.clauseRoles.join(", ")}</Code></Text>
-          <Text size="sm">Lexical IDs<br /><Code>{details.lexicalIds.join(", ")}</Code></Text>
+          {details.readingSource ? (
+            <>
+              <Text size="sm">Question relation<br /><Code>{details.readingSource.questionSubjectId} · {details.readingSource.questionVerbId}</Code></Text>
+              <Text size="sm">Answer evidence<br /><Code>{details.readingSource.answerNounId} · {details.readingSource.answer}</Code></Text>
+              <Text size="sm" style={{ gridColumn: "1 / -1" }}>
+                Passage propositions<br />
+                {details.readingSource.propositions.map((proposition) => (
+                  <Code key={`${proposition.sentenceId}-${proposition.subjectId}-${proposition.verbId}-${proposition.objectId}`} display="block">
+                    {proposition.sentenceId}: {proposition.subjectId} · {proposition.verbId} · {proposition.objectId}
+                  </Code>
+                ))}
+              </Text>
+            </>
+          ) : details.lexicalSource ? (
+            <>
+              <Text size="sm">Entry and sense<br /><Code>{details.lexicalSource.entryId} · {details.lexicalSource.senseId}</Code></Text>
+              <Text size="sm">Headword<br /><Code lang="da">{details.lexicalSource.headword}</Code></Text>
+              <Text size="sm">Gloss<br /><Code lang="en">{details.lexicalSource.gloss}</Code></Text>
+              <Text size="sm">Article<br /><Code lang="da">{details.lexicalSource.article}</Code></Text>
+            </>
+          ) : (
+            <>
+              <Text size="sm">Canonical sentence<br /><Code lang="da">{details.canonicalSentence}</Code></Text>
+              <Text size="sm">Identity<br /><Code>{details.canonicalSentenceId}</Code></Text>
+              <Text size="sm">Construction<br /><Code>{details.constructionId}</Code></Text>
+              <Text size="sm">Roles<br /><Code>{details.clauseRoles?.join(", ")}</Code></Text>
+              <Text size="sm">Lexical IDs<br /><Code>{details.lexicalIds?.join(", ")}</Code></Text>
+            </>
+          )}
           <Text size="sm">Reproduction<br /><Code>seed {details.seed}, index {details.index}</Code></Text>
         </SimpleGrid>
       )}

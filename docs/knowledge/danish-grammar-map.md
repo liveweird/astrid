@@ -6,6 +6,8 @@ This working draft proposes a grammar sequence for English-speaking complete beg
 
 The grammatical claims below were checked against the sources listed at the end on 6 November 2026. The sequence, skill boundaries, examples, and production expectations still need review by a teacher experienced in Danish as an additional language. No such review has yet taken place. Spoken pronunciation, listening, conversation management, dialects, and detailed colloquial syntax are outside this reading-and-writing draft.
 
+A [source-backed follow-up review](foundation-source-review.md) on 7 November corrected later draft scope, case, notation and support-skill gaps. Source-backed linguistic statements and proposed curriculum dependencies remain distinct; the active beginner slice is unchanged.
+
 ## How to read a skill record
 
 Each stable `G` identifier names one assessable target. Identifiers must not be reused if a target is later retired. A complete content record derived from this map should contain:
@@ -87,13 +89,13 @@ The slice tests word boundaries, a few word classes and sentence roles, subject 
 
 ### G014 Possessive determiners and agreement
 
-**Prerequisites:** G003, G006, G009. **Objective:** use *min/mit/mine* and *din/dit/dine* before nouns, matching the possessed noun rather than the possessor: *mit hus, mine bøger*. Contrast: English `my/your` is invariant. **R/P:** select a form from explicit noun gender/number. **Later:** *sin*, third-person genitives, stressed possessives, and archaic/formal *vor*. [S5]
+**Prerequisites:** G003, G006, G009. **Objective:** use *min/mit/mine* and *din/dit/dine* before nouns, matching the possessed noun rather than the possessor: *mit hus, mine bøger*. Contrast: English `my/your` is invariant. In this ordinary preposed possessive pattern, the head noun has no definite suffix or additional article. **R/P:** select a form from explicit noun gender/number. **Later:** adjective combinations unless their G013 support is supplied, *sin*, third-person genitives, stressed possessives, and archaic/formal *vor*. [S5]
 
 ## Phase 3 Core clause operations
 
 ### G015 Genitive s and noun possessors
 
-**Prerequisites:** G008. **Objective:** recognize and produce simple possessor + `s` phrases: *Marias cykel*, *hundens mad*. The following noun is not given a separate definite article merely because the phrase is definite. Contrast: Danish writes the genitive `s` without the English apostrophe. **R/P:** use simple names and nouns. **Later:** complex possessors, names ending in sibilants, and alternative *til* phrases. [S3]
+**Prerequisites:** G008. **Objective:** recognize and produce simple possessor + `s` phrases: *Marias cykel*, *hundens mad*. In these ordinary preposed genitive patterns, the head noun has neither a separate definite article nor a definite suffix. Contrast: Danish writes the genitive `s` without the English apostrophe. **R/P:** use simple names and nouns. **Later:** complex possessors, names ending in sibilants, and alternative *til* phrases. [S3]
 
 ### G016 Time, place, and manner adverbials
 
@@ -121,7 +123,7 @@ The slice tests word boundaries, a few word classes and sentence roles, subject 
 
 ### G022 Subject predicatives and linking verbs
 
-**Prerequisites:** G005, G011, G012. **Objective:** use licensed linking verbs with a subject predicative: *Huset er stort. Hun hedder Lea.* Contrast: the complement describes or identifies the subject rather than acting as an object. **R/P:** distinguish object and predicative in reviewed frames. **Later:** bare profession nouns, complex predicatives, and agreement edge cases. [S2]
+**Prerequisites:** G005, G011, G012. **Objective:** use licensed linking verbs with a subject predicative: *Huset er stort. Hun hedder Lea.* Contrast: the complement describes or identifies the subject rather than acting as an object. In reviewed singular descriptive frames, the adjective agrees with the subject’s grammatical gender: *Bilen er stor; Huset er stort*. Subjects may be supplied; their definite forms need not be independently produced here. **R/P:** distinguish object and predicative and select a reviewed singular adjective form. **Later:** plural predicatives, bare profession nouns, complex predicatives, and agreement edge cases. [S2, S6]
 
 ## Phase 4 Verb frames and time
 
@@ -165,7 +167,7 @@ The slice tests word boundaries, a few word classes and sentence roles, subject 
 
 ### G032 Active and passive
 
-**Prerequisites:** G026, G027. **Objective:** contrast active clauses with reviewed *blive* passives and recognize morphological `-s` passives: *De maler huset; Huset bliver malet.* Contrast: Danish has both periphrastic and `-s` passive choices. **R/P:** produce a neutral *blive* passive; recognize common `-s` forms. **Later:** state/event distinctions, tense range, agents with *af*, and stylistic choice. [S4]
+**Prerequisites:** G026, G027. **Objective:** contrast active clauses with reviewed *blive* passives and recognize morphological `-s` passives: *De maler huset; Huset bliver malet.* Contrast: Danish has both periphrastic and `-s` passive choices. **R/P:** produce a neutral *blive* passive and recognize common `-s` forms in reviewed simple transitive patient-subject patterns. **Later:** impersonal and other passive argument structures, state/event distinctions, tense range, agents with *af*, and stylistic choice. [S4]
 
 ### G033 Verb particles
 
@@ -173,7 +175,7 @@ The slice tests word boundaries, a few word classes and sentence roles, subject 
 
 ### G034 Participles as verbal and adjectival forms
 
-**Prerequisites:** G011, G027. **Objective:** distinguish invariant participles after auxiliaries from agreeing adjectival participles: *De har lukket døren; den lukkede dør.* **R/P:** classify and complete reviewed forms. **Later:** lexicalized participles, passive ambiguity, and present participles in `-ende`. [S4]
+**Prerequisites:** G011, G013, G027. **Objective:** distinguish invariant verbal participles in reviewed *have*-perfect frames from inflected attributive participles in definite noun phrases: *De har lukket døren; den lukkede dør.* **R/P:** classify and complete these reviewed forms. **Later:** broader auxiliary and state/passive distinctions, lexicalized participles, and present participles in `-ende`. [S4, S6, S9]
 
 ### G035 Object pronouns
 
@@ -187,9 +189,9 @@ The slice tests word boundaries, a few word classes and sentence roles, subject 
 
 **Prerequisites:** G014, G035, G036. **Objective:** in initial standard-Danish contexts with singular *han* or *hun* as subject, choose *sin/sit/sine* for that subject’s possession and *hans/hendes* for another possessor: *Hun tager sin bog.* The forms agree with the possessed noun. With plural *de*, the core pattern uses *deres*: *De tager deres bøger.* **R/P:** resolve unambiguous contexts with one local subject. **Later:** singular uses of *de*, *man*, nonhuman subjects, hidden clauses, coordinated or plural subjects, regional variation, and reported perspective. [S5, S15]
 
-### G038 Den, det, and de as reference forms
+### G038 Den, det, de, and dem as reference forms
 
-**Prerequisites:** G003, G008, G010, G035. **Objective:** interpret and select *den/det/de* by the antecedent’s grammatical gender and number when referring to things: *Hvor er huset? Det er her.* Contrast: English largely uses singular `it`; Danish encodes noun class. **R/P:** resolve an explicit nearby antecedent. **Later:** human reference, discourse-deictic *det*, dummy subjects, and demonstrative stress. [S5]
+**Prerequisites:** G003, G008, G010, G035. **Objective:** for subject reference to things, select *den/det/de* by the antecedent’s grammatical gender and number: *Hvor er huset? Det er her.* Object and prepositional reference must also respect case: plural *dem*, following G035, as in *Jeg læser dem* referring to *bøgerne*. Singular *den/det* retain their form in these cases. Contrast: English largely uses singular `it`; Danish encodes noun class as well as the plural case distinction. **R/P:** resolve an explicit nearby antecedent. **Later:** human reference, discourse-deictic *det*, dummy subjects, and demonstrative stress. [S5]
 
 ## Phase 6 Determiners and subordinate clauses
 
@@ -233,7 +235,7 @@ The slice tests word boundaries, a few word classes and sentence roles, subject 
 
 ### G048 Indirect questions
 
-**Prerequisites:** G019, G043, G044. **Objective:** embed a wh or yes/no question with subordinate order: *Jeg ved ikke, hvor hun bor; Han spørger, om du kommer.* Contrast: English learners may wrongly retain direct-question inversion. **R/P:** convert a supplied direct question into a licensed complement. **Later:** tense perspective, politeness frames, and omitted elements. [S8, S10]
+**Prerequisites:** G019, G043, G044. **Objective:** embed a non-subject wh question or an *om* yes/no question with an explicit subject and subordinate order: *Jeg ved ikke, hvor hun bor; Han spørger, om du kommer.* Contrast: English learners may wrongly retain direct-question inversion. **R/P:** convert a supplied direct question into a licensed complement. **Later:** embedded subject questions and their *der* construction (also deferred in C021), tense perspective, politeness frames, and omitted elements. [S8, S10]
 
 ### G049 Relative clauses
 
@@ -247,7 +249,7 @@ The slice tests word boundaries, a few word classes and sentence roles, subject 
 
 **Prerequisites:** G012, G016. **Objective:** distinguish an agreeing neuter adjective from an adjective used adverbially, often with `-t`: *et roligt barn; barnet sover roligt*. The word can remain an adjective by class while functioning adverbially. **R/P:** classify and form reviewed regular cases. **Later:** optional or forbidden `-t`, lexical adverbs, and meaning changes. [S1, S7]
 
-### G052 Real and counterfactual conditions
+### G052 Open and hypothetical conditions
 
 **Prerequisites:** G026, G030, G046, G047. **Objective:** contrast an open condition with a reviewed hypothetical pattern: *Hvis det regner, bliver vi hjemme; Hvis jeg havde tid, ville jeg komme.* **R/P:** interpret both and produce scaffolded pairs. **Later:** strong counterfactual readings, mixed time reference, inversion without *hvis*, modal nuance, and pragmatic distancing. [S8, S10, S14]
 
@@ -255,7 +257,7 @@ The slice tests word boundaries, a few word classes and sentence roles, subject 
 
 ### G053 Reported statements and tense perspective
 
-**Prerequisites:** G026, G028, G037, G045. **Objective:** report a prior statement while tracking speaker, pronoun reference, and time: *Hun sagde, at hun var træt.* Contrast: Danish tense backshift is meaning-sensitive rather than a purely mechanical replacement rule. **R/P:** rewrite only contexts with explicit time and reference. **Later:** free indirect discourse, retained present, reported commands, and evidential nuance. [S2, S10]
+**Prerequisites:** G026, G028, G037, G045. **Objective:** report a prior statement while tracking speaker, pronoun reference, and time: *Hun sagde, at hun var træt.* Contrast: Danish tense backshift is meaning-sensitive rather than a purely mechanical replacement rule. **R/P:** rewrite only contexts with explicit time and reference. **Later:** free indirect discourse, retained present, reported commands, and evidential nuance. S16 supplies supplementary descriptive evidence; a stronger dedicated tense-perspective reference remains open. [S2, S10, S16]
 
 ### G054 Coordination, ellipsis, and scope
 
@@ -263,7 +265,7 @@ The slice tests word boundaries, a few word classes and sentence roles, subject 
 
 ### G055 Complex noun phrases and nominalization
 
-**Prerequisites:** G013, G015, G031, G049. **Objective:** unpack and build noun phrases with layered determiners, adjectives, genitives, prepositional modifiers, or relative clauses: *Marias nye bog om København*. Recognize common deverbal nouns as nouns rather than finite clauses. **R/P:** expand one modifier at a time and identify the head noun. **Later:** heavy prenominal compounds, apposition, abstract style, and ambiguous attachment. [S1, S3]
+**Prerequisites:** G013, G015, G031, G049. **Objective:** unpack and build noun phrases with licensed determiners or possessors, adjectives, prepositional modifiers, or relative clauses: *Marias nye bog om København*. Recognize common deverbal nouns as nouns rather than finite clauses. **R/P:** expand one modifier at a time and identify the head noun, using only variants whose support skills have been introduced. A possessive-determiner variant additionally requires G014; regular adjective agreement uses G013. **Later:** heavy prenominal compounds, apposition, abstract style, and ambiguous attachment. [S1, S3]
 
 ### G056 Compounds and written word boundaries
 
@@ -275,9 +277,11 @@ The slice tests word boundaries, a few word classes and sentence roles, subject 
 
 ### G058 Marked and advanced written word order
 
-**Prerequisites:** G021, G044, G047, G053, G055. **Objective:** recognize that neutral V2 main-clause and subordinate-clause patterns coexist with documented marked variants, including inversion in some negated conditional subordinate clauses. **R/P:** interpret annotated authentic-style examples; production is limited to rewriting them into neutral order. **Later:** a corpus-based inventory of embedded V2, extraposition, presentation, focus, and genre or register differences. [S11, S12]
+**Prerequisites:** G021, G044, G047. **Objective:** recognize documented marked variants, including negation before the subject in some *hvis* clauses: `hvis ikke S Vf`, not finite-verb–subject inversion. S11 examines TV debate and reports supplementary written-corpus occurrences. **R/P:** interpret source-annotated examples; production is limited to rewriting them into neutral order. These observations do not establish freely interchangeable neutral production patterns. **Later:** a fuller corpus-based inventory of embedded V2, extraposition, presentation, focus, and genre or register differences. G053/G055 are optional later review connections rather than hard prerequisites. [S11, S12]
 
 ## Dependency and coverage checks
+
+The [coverage crosswalk](foundation-coverage.md) links every skill to bounded construction families or an explicit authoring/coverage gap. Only G004/G005/G006 are directly assessed by current formats; G001/G002/G003 are supporting pilot knowledge. Later links do not activate a construction or override its lexical and prerequisite restrictions.
 
 The prerequisite graph runs only from lower to higher identifiers, so this draft contains no cycles. Every prerequisite named above exists. The phases preserve that partial order, although review and spaced practice should revisit earlier skills after their first introduction.
 
@@ -295,10 +299,12 @@ Coverage is intentionally broad rather than exhaustive. The map identifies the p
 - **S8 — Clauses:** [Ledsætninger, sproget.dk](https://sproget.dk/typiske-problemer/ledsaetninger/). Supports subordinate-clause status, introducers, fronting, and the diagnostic placement of *ikke*.
 - **S9 — Official orthography:** [Retskrivningsordbogen 5.1, Dansk Sprognævn](https://ro.dsn.dk/). This is the official reference for current Danish spelling, inflection, and punctuation; individual entries remain necessary when content records are authored.
 - **S10 — Clause and comma grammar:** [Kommagrammatik, sproget.dk](https://sproget.dk/typiske-problemer/komma/kommagrammatik/). Supports coordination, subordination, subordinate-clause functions, clause boundaries, and punctuation analysis.
-- **S11 — Main and subordinate topology:** [Lindegaard and Sandst, *Om omvendt ledstilling i negerede betingelsesledsætninger*, Aarhus University](https://projekter.au.dk/fileadmin/projekter/Muds.dk/rapporter/MUDS_18.pdf), especially pp. 359–361. Supports the ordinary finite-verb–subject–adverb order in relevant main-clause configurations and subject–adverb–finite-verb order in subordinate clauses, while documenting variation.
+- **S11 — Main and subordinate topology:** [Lindegaard and Sandst, *Om omvendt ledstilling i negerede betingelsesledsætninger*, Aarhus University](https://projekter.au.dk/fileadmin/projekter/Muds.dk/rapporter/MUDS_18.pdf), especially printed pp. 359–361 and 373. Supports the ordinary finite-verb–subject–adverb order in relevant main-clause configurations and subject–adverb–finite-verb order in subordinate clauses. Its marked conditional pattern places negation before the subject; the primary TV-debate analysis is supplemented by written-corpus observations, not a neutral production rule.
 - **S12 — Modern subordinate word order:** [Dalberg, *Topologiske forandringer i den danske ledsætning*, University of Copenhagen](https://nors.ku.dk/kalender/2022/gramino-3/abstracts/Dalberg_Topologiske_forandringer_i_den_danske_leds_tning_Fra_VX_til_XV_og_tilbage_igen_Gramino3.pdf). Supports subject–sentence-adverb–finite-verb as a characteristic modern Danish subordinate-clause order and provides historical context.
 - **S13 — Comma rules:** [Retskrivningsordbogen sections 45–51, Dansk Sprognævn](https://ro.dsn.dk/?sektion=45-51&type=rulesearch). Supports current rules, including the optional start comma and required clause-boundary decisions.
 - **S14 — Conditional meaning:** [Jensen, *Irrealitetsmarkører i dansk talesprog*, University of Copenhagen archive](https://lingvistkredsen.ku.dk/udgivelser/travaux/arkiv/tclc_33/), especially pp. 13 and 81–83. Supports open and hypothetical *hvis* constructions and the relationship between tense displacement and degrees of hypothetical or counterfactual interpretation.
 - **S15 — Reflexive possession:** [Hans, hendes eller sin, sproget.dk](https://sproget.dk/typiske-problemer/hans-hendes-eller-sin/). Supports the traditional standard-Danish singular-subject rule, plural *deres*, local clause boundaries, and documented exceptions and variation.
+
+- **S16 — Reported tense perspective:** [Barfod, *Talegengivelse i dansk og tysk*, RUC, 2009](https://rucforsk.ruc.dk/ws/files/57604670/Talegengivelse_i_dansk_og_tysk.pdf#page=35), printed pp. 33–36. This university-hosted master’s thesis supplies supplementary descriptive discussion and corpus observations of context-sensitive tense choices. It is not official normative guidance or specialist curriculum approval.
 
 The concise learner-facing pages from Sproget.dk are used here for the first rule map; production content should additionally verify each stored word form in the current Retskrivningsordbogen and record the exact entry or rule section.

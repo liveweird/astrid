@@ -2,7 +2,7 @@
 
 ## Scope and review status
 
-This is a proposed 23-entry seed for the [beginner engine slice](beginner-slice-spec.md), not the final teaching vocabulary. It supports G001–G006 in the [grammar map](danish-grammar-map.md) and C001–C003 in the [sentence catalogue](danish-sentence-catalogue.md). The initial learner is an English-speaking complete beginner; contexts are general everyday Danish.
+This is the 23-entry draft seed implemented in the private [beginner engine slice](beginner-slice-spec.md), not the final teaching vocabulary. It supports G001–G006 in the [grammar map](danish-grammar-map.md) and C001–C003 in the [sentence catalogue](danish-sentence-catalogue.md). The initial learner is an English-speaking complete beginner; contexts are general everyday Danish.
 
 The seed balances four common-gender and four neuter count nouns to exercise article selection, plus five verbs, eight pronoun uses, and two article entries. This balance is an engineering fixture choice, not a frequency claim or a course syllabus. Selection is based on useful combinations and contrasting forms; no corpus frequency ranking has been performed.
 
@@ -26,10 +26,12 @@ Active forms are those the pilot may generate. Reference forms help future data 
 | L006 | I | you, multiple addressees | Uppercase `I` is part of this pronoun's spelling; subject in C001/C002. |
 | L007 | de | they, plural | Plural people established in context. Formal `De` and other uses are outside the pilot. |
 | L008 | det | it/that in an identifying statement | Fixed subject of C003, `Det er …`; do not substitute it into C001/C002 or treat this as a general rule for pronoun reference. |
-| L022 | en | a/an, common-gender singular | Unstressed indefinite article before a licensed common-gender count noun. Numeral `én` is a different use. |
-| L023 | et | a/an, neuter singular | Unstressed indefinite article before a licensed neuter count noun. Numeral `ét` is a different use. |
+| L022 | en | a/an, common-gender singular | Unstressed indefinite article before a licensed common-gender count noun. Numeral `en/én` is a different use; its accent is optional. |
+| L023 | et | a/an, neuter singular | Unstressed indefinite article before a licensed neuter count noun. Numeral `et/ét` is a different use; its accent is optional. |
 
 The subject-pronoun inventory is supported by [Sproget.dk on pronouns](https://sproget.dk/typiske-problemer/pronomener-stedord/). The special spelling of `I` and lowercase `jer`/`jeres` is discussed in [Sproget.dk's capitalization answer](https://sproget.dk/sprogviden/spoergsmaal-og-svar/den-danske-ordbog/jer-og-jeres-stort-eller-lille-begyndelsesbogstav/). The common/neuter distinction and limits of gender prediction are described by [Dansk Sprognævn](https://sproget.dk/sprogviden/spoergsmaal-og-svar/dansk-sprognaevn/sv00000096/).
+
+Claim-specific orthographic references are [RO §13(1) on uppercase pronouns](https://ro.dsn.dk/?paragraf=13&type=rulesearch) and [RO §5(1) on optional numeral accents](https://ro.dsn.dk/?paragraf=5&type=rulesearch). The [pilot source review](pilot-source-review.md) records bounded meaning locators and remaining provenance work.
 
 ## Verbs and selected meanings
 

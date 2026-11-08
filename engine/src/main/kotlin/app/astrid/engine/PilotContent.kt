@@ -21,6 +21,16 @@ internal data class NounEntry(
 internal object PilotContent {
     const val CONTENT_REVISION = "pilot-1"
     const val GENERATOR_REVISION = "generator-1"
+    const val RETAINED_CONTENT_REVISION = "pilot-2"
+    const val RETAINED_GENERATOR_REVISION = "generator-2"
+    const val RETAINED_THREE_CONTENT_REVISION = "pilot-3"
+    const val RETAINED_THREE_GENERATOR_REVISION = "generator-3"
+    const val CURRENT_CONTENT_REVISION = "pilot-4"
+    const val CURRENT_GENERATOR_REVISION = "generator-4"
+    const val LEGACY_EVALUATION_REVISION = "evaluation-1"
+    const val RETAINED_EVALUATION_REVISION = "evaluation-2"
+    const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-4"
 
     val humanPronouns =
         listOf(
@@ -40,6 +50,7 @@ internal object PilotContent {
     val read = Verb("L011", "læse", "læser", "read")
     val eat = Verb("L012", "spise", "spiser", "eat")
     val sleep = Verb("L013", "sove", "sover", "sleep")
+    val verbs = listOf(have, be, read, eat, sleep)
 
     val nouns =
         listOf(
@@ -51,6 +62,13 @@ internal object PilotContent {
             NounEntry("L019", "hus", "house", NounGender.NEUTER),
             NounEntry("L020", "bord", "table", NounGender.NEUTER),
             NounEntry("L021", "æble", "apple", NounGender.NEUTER),
+        )
+
+    val vocabularySenses =
+        listOf(
+            LexicalSense("L014", "L014-S01", "bog", "book", "en"),
+            LexicalSense("L015", "L015-S01", "avis", "newspaper", "en"),
+            LexicalSense("L018", "L018-S01", "brev", "letter (written message)", "et"),
         )
 
     val sentences: List<Sentence> = buildSentences()
@@ -102,8 +120,98 @@ internal object PilotContent {
             ExerciseFormat("E003", "Arrange a subject-first statement", "G005"),
         )
 
+    val currentFormats =
+        formats +
+            listOf(
+                ExerciseFormat("E004", "Supply the present form", "G004"),
+                ExerciseFormat("E005", "Repair the verb form", "G004"),
+                ExerciseFormat("E006", "Repair the indefinite article", "G006"),
+            )
+
+    val vocabularyFormats =
+        currentFormats +
+            listOf(
+                ExerciseFormat("E007", "Recognize the meaning", null, LexicalTask("meaning", "da-en")),
+                ExerciseFormat("E008", "Recall the Danish headword", null, LexicalTask("singular-headword", "en-da")),
+            )
+
+    val writingReadingFormats =
+        vocabularyFormats +
+            listOf(
+                ExerciseFormat("E009", "Write a Danish sentence", "G005"),
+                ExerciseFormat(
+                    "E010",
+                    "Read a short text",
+                    null,
+                    readingTask = ReadingTask("participant-action-complement"),
+                ),
+            )
+
+    val snapshot =
+        PilotContentSnapshot(
+            contentRevision = CONTENT_REVISION,
+            generatorRevision = GENERATOR_REVISION,
+            skills = skills,
+            formats = formats,
+            humanPronouns = humanPronouns,
+            identifyingPronoun = identifyingPronoun,
+            verbs = verbs,
+            nouns = nouns,
+            sentences = sentences,
+            lexicalReview = PilotReviewMetadata.records(humanPronouns, identifyingPronoun, verbs, nouns),
+            vocabularySenses = emptyList(),
+        )
+
+    val pilotTwoSnapshot =
+        PilotContentSnapshot(
+            contentRevision = RETAINED_CONTENT_REVISION,
+            generatorRevision = RETAINED_GENERATOR_REVISION,
+            skills = skills,
+            formats = currentFormats,
+            humanPronouns = humanPronouns,
+            identifyingPronoun = identifyingPronoun,
+            verbs = verbs,
+            nouns = nouns,
+            sentences = sentences,
+            lexicalReview = PilotReviewMetadata.records(humanPronouns, identifyingPronoun, verbs, nouns),
+            vocabularySenses = emptyList(),
+        )
+
+    val pilotThreeSnapshot =
+        PilotContentSnapshot(
+            contentRevision = RETAINED_THREE_CONTENT_REVISION,
+            generatorRevision = RETAINED_THREE_GENERATOR_REVISION,
+            skills = skills,
+            formats = vocabularyFormats,
+            humanPronouns = humanPronouns,
+            identifyingPronoun = identifyingPronoun,
+            verbs = verbs,
+            nouns = nouns,
+            sentences = sentences,
+            lexicalReview = PilotReviewMetadata.records(humanPronouns, identifyingPronoun, verbs, nouns),
+            vocabularySenses = vocabularySenses,
+        )
+
+    val currentSnapshot =
+        PilotContentSnapshot(
+            contentRevision = CURRENT_CONTENT_REVISION,
+            generatorRevision = CURRENT_GENERATOR_REVISION,
+            skills = skills,
+            formats = writingReadingFormats,
+            humanPronouns = humanPronouns,
+            identifyingPronoun = identifyingPronoun,
+            verbs = verbs,
+            nouns = nouns,
+            sentences = sentences,
+            lexicalReview = PilotReviewMetadata.records(humanPronouns, identifyingPronoun, verbs, nouns),
+            vocabularySenses = vocabularySenses,
+        )
+
     init {
-        validateContent()
+        PilotContentValidator.requireValid(snapshot)
+        PilotContentValidator.requireValid(pilotTwoSnapshot)
+        PilotContentValidator.requireValid(pilotThreeSnapshot)
+        PilotContentValidator.requireValid(currentSnapshot)
     }
 
     private fun buildSentences(): List<Sentence> {
@@ -147,71 +255,4 @@ internal object PilotContent {
         )
     }
 
-    private fun validateContent() {
-        requireUniqueNonEmpty(skills.map { it.id }, "skill")
-        requireUniqueNonEmpty(formats.map { it.id }, "format")
-        requireUniqueNonEmpty(sentences.map { it.id }, "sentence")
-        val skillIds = skills.map { it.id }.toSet()
-        val lexicalDefinitions =
-            humanPronouns.map { it.id } + identifyingPronoun.id +
-                listOf(have, be, read, eat, sleep).map { it.lexicalId } +
-                nouns.map { it.id } + NounGender.entries.map { it.articleId }
-        requireUniqueNonEmpty(lexicalDefinitions, "lexical")
-        require(skills.flatMap { it.prerequisiteIds }.all(skillIds::contains)) { "Unknown skill prerequisite" }
-        require(formats.all { it.targetSkillId in skillIds }) { "Unknown format target" }
-        require(formats.associate { it.id to it.targetSkillId } ==
-            mapOf("E001" to "G004", "E002" to "G006", "E003" to "G005")) {
-            "Pilot format target mapping changed"
-        }
-        requireAcyclicPrerequisites()
-
-        val lexicalIds =
-            sentences.flatMap { sentence ->
-                sentence.subject.lexicalIds + sentence.verb.lexicalId + sentence.complement?.lexicalIds.orEmpty()
-            }.toSet()
-        require(lexicalIds == (1..23).map { "L%03d".format(it) }.toSet()) { "Pilot lexical references are incomplete" }
-        require(sentences.all(::isLicensedSentence)) { "Unlicensed sentence in pilot catalogue" }
-    }
-
-    private fun isLicensedSentence(sentence: Sentence): Boolean {
-        val subjectId = sentence.subject.lexicalIds.singleOrNull()
-        val complementId = sentence.complement?.lexicalIds?.lastOrNull()
-        val humanSubjectIds = humanPronouns.map { it.id }.toSet()
-        return when (sentence.constructionId) {
-            "C001" -> subjectId in humanSubjectIds && sentence.verb == sleep && complementId == null
-            "C002" ->
-                subjectId in humanSubjectIds &&
-                    when (sentence.verb) {
-                        have -> complementId in nouns.map { it.id }.toSet()
-                        read -> complementId in setOf("L014", "L015", "L018")
-                        eat -> complementId == "L021"
-                        else -> false
-                    }
-            "C003" -> subjectId == identifyingPronoun.id && sentence.verb == be && complementId in nouns.map { it.id }.toSet()
-            else -> false
-        }
-    }
-
-    private fun requireAcyclicPrerequisites() {
-        val prerequisites = skills.associate { it.id to it.prerequisiteIds }
-        val visiting = mutableSetOf<String>()
-        val visited = mutableSetOf<String>()
-
-        fun visit(skillId: String) {
-            require(skillId !in visiting) { "Cyclic skill prerequisite at $skillId" }
-            if (!visited.add(skillId)) return
-            visiting += skillId
-            prerequisites.getValue(skillId).forEach(::visit)
-            visiting -= skillId
-        }
-        prerequisites.keys.forEach(::visit)
-    }
-
-    private fun requireUniqueNonEmpty(
-        ids: List<String>,
-        kind: String,
-    ) {
-        require(ids.all(String::isNotBlank)) { "Blank $kind ID" }
-        require(ids.size == ids.toSet().size) { "Duplicate $kind ID" }
-    }
 }

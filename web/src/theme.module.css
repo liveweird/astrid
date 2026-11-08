@@ -22,3 +22,140 @@
 .brandText {
   letter-spacing: -0.02em;
 }
+
+.versionStamp {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.playground {
+  container-name: playground;
+  container-type: inline-size;
+  --mantine-spacing-md: min(1rem, 16px);
+}
+
+.exerciseCard {
+  padding: min(1rem, 16px);
+}
+
+.repairSentence {
+  font-size: var(--mantine-font-size-lg);
+  line-height: 1.7;
+}
+
+.replacementWord {
+  background: light-dark(#fff3bf, #665200);
+  border-block-end: 2px solid currentColor;
+  border-radius: var(--mantine-radius-xs);
+  color: light-dark(#3b2f00, #fff3bf);
+  padding-inline: 0.2em;
+  text-decoration: line-through 2px;
+  text-decoration-skip-ink: none;
+}
+
+.feedbackAlert,
+.feedbackAlert :global(.mantine-Alert-wrapper),
+.feedbackAlert :global(.mantine-Alert-body),
+.feedbackAlert :global(.mantine-Alert-message),
+.feedbackBadges {
+  min-width: 0;
+}
+
+
+@container playground (min-width: 48rem) {
+  .exerciseCard {
+    padding: var(--mantine-spacing-xl);
+  }
+}
+
+@media (max-width: 47.99em) {
+  .appNavbar:not([data-mobile-opened]) {
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 30em) {
+  .appMain {
+    --app-shell-padding: min(1rem, 16px);
+  }
+
+  .narrowBrandLabel {
+    display: none;
+  }
+}
+
+@container playground (max-width: 30rem) {
+  .feedbackBadge {
+    border-radius: var(--mantine-radius-sm);
+  }
+
+  .playground :global(.mantine-Button-root) {
+    height: auto;
+    min-height: var(--button-height);
+    max-width: 100%;
+  }
+
+  .playground :global(.mantine-Button-label) {
+    height: auto;
+    line-height: 1.4;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    overflow: visible;
+  }
+
+  .playground :global(.mantine-Badge-root) {
+    height: auto;
+    min-height: var(--badge-height);
+    max-width: 100%;
+  }
+
+  .playground :global(.mantine-Badge-label),
+  .playground :global(.mantine-Accordion-label) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .exerciseActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .exercisePrimaryActions {
+    width: 100%;
+  }
+
+  .exercisePrimaryActions > :global(.mantine-Button-root) {
+    flex: 1 1 100%;
+  }
+}
+
+@container playground (max-width: 20rem) {
+  .feedbackAlert :global(.mantine-Alert-wrapper) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .feedbackAlert :global(.mantine-Alert-icon) {
+    align-self: flex-start;
+    margin-block-end: var(--mantine-spacing-xs);
+    margin-inline-end: 0;
+  }
+
+  .feedbackAlert :global(.mantine-Alert-body),
+  .feedbackAlert :global(.mantine-Alert-message),
+  .feedbackBadges {
+    width: 100%;
+  }
+}
+
+.practice :global([tabindex="-1"]),
+.practice :global([data-practice-focus]) {
+  scroll-margin-block-start: calc(var(--app-shell-header-height, 3rem) + var(--mantine-spacing-md));
+}
+
+.practice .exercisePrimaryActions :global(.mantine-Button-inner) {
+  transition: none;
+}

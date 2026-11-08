@@ -31,10 +31,14 @@ for path in (root / ".github/workflows").glob("*.yml"):
     for line in path.read_text().splitlines():
         if "uses:" in line and not "uses: ./" in line:
             assert re.search(r"@[0-9a-f]{40}(?:\s|$)", line), f"Unpinned action: {line}"
+trivy_pins = set()
+for path in (root / ".github/workflows").glob("*.yml"):
+    trivy_pins.update(re.findall(r"aquasecurity/trivy:[\w.-]+@sha256:[0-9a-f]{64}", path.read_text()))
+assert len(trivy_pins) == 1, f"Workflows must share one pinned Trivy image, found {sorted(trivy_pins)}"
 postgres_paths = (
-    "compose.yaml",
+    "docker-compose.yaml",
     "k8s/postgres.yaml",
-    "server/src/test/kotlin/app/astrid/server/PostgresRepositoryTest.kt",
+    "server/src/test/kotlin/app/astrid/server/PostgresTestDatabase.kt",
 )
 postgres_pins = []
 for name in postgres_paths:

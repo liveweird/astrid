@@ -1,0 +1,9 @@
+baselineCommit=86a9e07
+publishedImplementationCommit=79c7c51
+captureDate=2026-11-07
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=952
+fixtureSha256=7f70cc10a075df85d3bc759a9241be0bb93a48f251b178161205ebb87d9ed635
+engineArtifactSha256=7c4d326d19fe96601720ca7ad06ef32adc22cf20a11911b5c0e1ef00d8a98173
+serverArtifactSha256=7f4a62ce948fb73caa5e36b873806f5bf04c297c17907e701aa5358237482f31
+description=Six complete generation cycles, boundary inputs, typed grading samples and ordering permutations; SHA-256 over length-prefixed UTF-16-length fields.

@@ -1,0 +1,12 @@
+export const PILOT_FORMAT_TITLES = [
+  "Choose the present form",
+  "Supply the indefinite article",
+  "Arrange a subject-first statement",
+  "Supply the present form",
+  "Repair the verb form",
+  "Repair the indefinite article",
+  "Recognize the meaning",
+  "Recall the Danish headword",
+  "Write a Danish sentence",
+  "Read a short text",
+] as const;

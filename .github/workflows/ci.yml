@@ -15,13 +15,16 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: 21.0.12
           cache: gradle
       - run: python3 scripts/check-toolchain.py
-      - run: ./gradlew check :engine:koverVerify :server:koverVerify :server:installDist --dependency-verification strict --no-daemon
+      - run: python3 -m unittest discover -s scripts/tests -p 'test_*.py'
+      - run: python3 scripts/check-knowledge.py
+      - run: python3 scripts/check-startup-budget.py
+      - run: ./gradlew check :engine:exportPilotReview :engine:koverVerify :server:koverVerify :server:installDist --dependency-verification strict --no-daemon
       - name: Dependency state stays unchanged
         run: git diff --exit-code -- gradle/verification-metadata.xml '*gradle.lockfile'
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -30,6 +33,7 @@ jobs:
           name: server-reports
           path: |
             engine/build/reports/
+            engine/build/review/
             server/build/reports/
           retention-days: 7
   web:
@@ -44,8 +48,10 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - run: npm ci --legacy-peer-deps
         working-directory: web
-      - run: npm run check:api && npm run lint && npm run test:coverage && npm run build
+      - run: npm run lint:api && npm run check:api && npm run lint && npm run knip && npm run test:coverage && npm run build
         working-directory: web
+        env:
+          GIT_SHA: ${{ github.sha }}
       - run: npm audit --audit-level=high
         working-directory: web
   dependency-scan:
@@ -91,7 +97,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: e2e/package-lock.json
-      - run: npm ci && npm run typecheck && npm audit --audit-level=high && npx playwright install --with-deps chromium
+      - run: npm ci && npm run lint && npm run knip && npm run typecheck && npm run check:scenarios && npm run test:scripts && npm audit --audit-level=high && npx playwright install --with-deps chromium webkit
         working-directory: e2e
       - name: Run the packaged browser journeys
         run: |

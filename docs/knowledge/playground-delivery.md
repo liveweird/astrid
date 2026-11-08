@@ -32,3 +32,7 @@ Native Firefox additionally verified rendering and a correct present-form submis
 These are software checks, not Danish teaching approval or evidence of learning effectiveness. The content remains draft; no mastery projection, consumer account system, audio, public hosting or final artwork is claimed. Keep production and linguistic review work visible in the [backlog](../../BACKLOG.md).
 
 The user authorized continued hardening through at least 08:00 Europe/Warsaw. The [hardening plan](pilot-hardening-plan.md) focuses on compatibility fixtures, negative content validation, transaction failure/replay evidence and measured accessibility. Git delivery and remote CI outcomes are recorded after observing them.
+
+## Git delivery
+
+The six baseline commits were fast-forwarded from `feat/engine-playground` into `master` and pushed to GitHub at `3b462a9a3920958d46e77890aadabfc76a88dd20`. `git ls-remote origin refs/heads/master` confirmed the same object. The first remote run exposed a platform-dependent test assumption about whether collapsed content stays mounted. Commit `a724372` checks the intended accessibility behavior instead; [all baseline CI jobs passed](https://github.com/liveweird/astrid/actions/runs/42316209265). Subsequent overnight work uses `feat/pilot-hardening`; its separate results are in the [hardening delivery record](hardening-delivery.md).

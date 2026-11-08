@@ -16,7 +16,7 @@ The sibling apps commonly use red for blocking errors. Astrid needs an explicit 
 
 ## Confirmed logo brief
 
-Astrid must have a unique logo connected to Denmark or a Danish girl representing Astrid. The user explicitly links the character option to Astrid being a female name. Neither a final concept nor an asset has been selected.
+Astrid must have a unique logo connected to Denmark or a Danish girl representing Astrid. The user explicitly links the character option to Astrid being a female name.
 
 Candidate directions for later exploration:
 
@@ -25,6 +25,21 @@ Candidate directions for later exploration:
 - A combined character and geometric Danish motif, if it remains readable at small sizes.
 
 These are proposals within the user's brief. No particular age, appearance, illustration style, or mascot behavior is implied by the character option. A portrait should carry its Danish connection through an intentional visual cue rather than an assumed appearance.
+
+## Selected logo — 8 November 2026
+
+**User-confirmed:** of three assistant-drawn concepts (A: a girl with a Dannebrog painted on her cheek, on a red disc;
+B: a girl drawn only in shades of red, no disc; C: B plus a Dannebrog hair clip), the user chose **B** and asked for it
+to be wired in. The Danish connection is carried by the red palette alone; no flag motif appears in the mark.
+
+The asset is a 48×48 vector: dark plaits with tied ends, a fringe, a pale pink face, two eyes, a smile and blush, every
+fill a shade of red. `web/public/logo-light.svg` uses deep reds for the hair; `logo-dark.svg` lifts the hair to lighter
+reds so it stays visible on the dark shell, with the same face. `favicon.svg` copies the light variant as the fallback
+for browsers that ignore `media` on `rel="icon"`; `index.html` serves the two variants by `prefers-color-scheme`, and
+`BrandMark` follows the in-app colour scheme, as Flow does. Change the light and dark files together.
+
+Still open under BL-021: a monochrome version, an app-icon (maskable/PNG) treatment if a mobile or installable shell
+needs one, and the final palette and feedback semantics (Q18).
 
 ## Proposed asset and validation criteria
 
@@ -40,4 +55,4 @@ Read-only inspection of `web/src/theme.ts` in the sibling checkouts confirmed cu
 
 Sources are the local repositories under `~/Sources/{lettuce,toadie,covenant,astrolabe,flow}`. This was a source/configuration inspection, not a rendered visual comparison or a change to those projects.
 
-Palette and logo questions are tracked as Q18 and Q19 in [Open questions](open-questions.md); planning is tracked as BL-021 in the [backlog](../../BACKLOG.md).
+Palette and logo questions are tracked as Q18 and Q19 (Q19 resolved by the selected logo above) in [Open questions](open-questions.md); planning is tracked as BL-021 in the [backlog](../../BACKLOG.md).
