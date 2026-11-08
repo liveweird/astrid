@@ -106,8 +106,8 @@
 .gapSlot,
 .gapSlot > * {
   min-width: 0;
+  overflow-wrap: anywhere;
 }
-
 
 @container playground (min-width: 48rem) {
   .exerciseCard {
@@ -132,6 +132,10 @@
 }
 
 @container playground (max-width: 30rem) {
+  .gapGrid.gapGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .matchingPair {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   }

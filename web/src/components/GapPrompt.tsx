@@ -40,7 +40,7 @@ export default function GapPrompt({ prompt, selections, disabled, focusRef, onSe
         <Text component="span" fw={650}>{selectedText(prompt, selections, "g1") ?? "…"}</Text>
         <Text component="span">{prompt.segments[2]}</Text>
       </Paper>
-      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+      <SimpleGrid className={classes.gapGrid} cols={{ base: 1, sm: 2 }} spacing="md">
         {prompt.slots.map((slot) => {
           const selected = selections.find((candidate) => candidate.slotId === slot.id);
           const roleLabel = slotRoleLabel(slot.assessmentRole);

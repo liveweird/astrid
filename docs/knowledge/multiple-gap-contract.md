@@ -192,3 +192,12 @@ release/tag readback, app-only promotion, actual backup restore, live smoke and 
 remain release gates. The backup will be restored only into a newly created database on the
 owned QA PostgreSQL container, compared against immutable main-preview records, and removed
 before promotion. Main PostgreSQL is neither restored nor restarted.
+
+The first clean candidate, `371939f`, exposed a real layout regression in the complete native
+matrix: 282 journeys passed, but both browsers measured 862px document width in an 844×390
+window at 32px text when reopening the E015 chooser. Its dropdown stayed inside the viewport;
+the underlying gap grid still used two columns because its breakpoint followed window width,
+while enlarged navigation left only 264px of content. The correction uses the existing playground
+container query to stack gap cards at 30rem of available content and permits long role labels
+to wrap. It preserves desktop columns and does not conceal overflow. Recheck the unchanged
+landscape regression and complete matrix before release; do not publish this first candidate.
