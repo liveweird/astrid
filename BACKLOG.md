@@ -33,7 +33,7 @@ assistant's design proposals.
 
 ## Brand
 
-- [todo] **BL-021 — Specify Astrid branding within the shared UI family.** Preserve the sibling style/layout and theme/shell conventions. Develop the preferred red palette and distinct feedback semantics; explore a unique Denmark-related or Danish Astrid character logo. Complete when the palette, logo concept, asset requirements, and validation criteria are recorded (Q18, Q19). The [visual identity brief](docs/knowledge/visual-identity.md) is recorded; production assets remain in the later media phase.
+- [todo] **BL-021 — Specify Astrid branding within the shared UI family.** Preserve the sibling style/layout and theme/shell conventions. Develop the preferred red palette and distinct feedback semantics; finish the logo with a monochrome version and, if an installable or mobile shell needs one, an app-icon treatment. Complete when the palette, remaining logo assets and validation criteria are recorded (Q18). The logo itself is chosen and shipped (Q19, [visual identity](docs/knowledge/visual-identity.md#selected-logo--8-november-2026)); production media remain in the later media phase.
 
 ## Later phases
 

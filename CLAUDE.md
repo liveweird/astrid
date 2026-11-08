@@ -14,8 +14,8 @@ from seed, index and revision. All Danish content is a linguistic **draft awaiti
 passing test never makes content teacher-approved. Current app version: `web/src/changelog/version.ts`.
 Next work: `BACKLOG.md`. Product scope and decisions: `docs/knowledge/product-direction.md`.
 
-Brand: Danish red accent with separately labelled learning-feedback colours (`web/src/theme.ts`); the mark in
-`web/public/astrid-mark.svg` is provisional (BL-021).
+Brand: Danish red accent with separately labelled learning-feedback colours (`web/src/theme.ts`); the logo (a girl
+with plaits in shades of red) is `web/public/logo-{light,dark}.svg` plus the `favicon.svg` fallback; palette work remains BL-021.
 
 ## Donors
 

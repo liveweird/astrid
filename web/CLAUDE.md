@@ -71,7 +71,9 @@ bundled Inter (`@fontsource-variable/inter`, same-origin for the CSP), a reduced
   teal (`goodWork`, `IconCircleCheck`) and orange (needs another look, `IconAlertTriangle`) with explicit wording and icons, never red, and never colour alone (`docs/knowledge/visual-identity.md`).
   New states go through that vocabulary: red = failure, orange = revisit/unconfirmed, teal = success, gray = neutral/support, `astrid` = identity/target badges.
 - Prefer theme `extend`s and `theme.module.css` over per-component CSS. Scheme-dependent colours are `--astrid-*` tokens defined for light, dark and the first-paint `prefers-color-scheme` case in `index.css`; consume the token, don't re-derive hexes in components.
-- Brand mark: `components/BrandMark.tsx` (`public/astrid-mark.svg`, decorative `alt=""`).
+- Brand mark: `components/BrandMark.tsx` picks `public/logo-light.svg` or `logo-dark.svg` from the computed colour scheme
+  (decorative `alt=""`; the wordmark names the brand). `index.html` serves the same files as media-matched favicons, with
+  `favicon.svg` (a copy of the light logo) as the scheme-agnostic fallback. Edit the light and dark logos together.
 
 ## Language, accessibility, keyboard
 

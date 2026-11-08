@@ -10,6 +10,13 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.4.1",
+    date: "2026-11-08",
+    body: `**A new Astrid logo.**
+
+- Astrid's mark is now a girl with plaited hair, drawn in shades of Danish red. It appears in the navigation and as the browser tab icon, with a lighter variant for the dark theme.`,
+  },
+  {
     version: "0.4.0",
     date: "2026-11-07",
     body: `**Sentence writing and short reading tasks.**
