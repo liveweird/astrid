@@ -15,7 +15,7 @@ RUN GIT_SHA="${GIT_SHA:-$(git rev-parse --short HEAD)}" \
     GIT_COMMIT_TIME="${GIT_COMMIT_TIME:-$(git log -1 --format=%cI)}" \
     npm run build
 
-FROM eclipse-temurin:21.0.12.1_1-jdk-noble@sha256:9bd188045f522a296ad4fbce642b85524da59ac7c1f2c9a17ea9785b00d5a433 AS server
+FROM eclipse-temurin:21.0.13_9-jdk-noble@sha256:114cabb73033ca4ce7ceec3deb62396bc1b716282bae051ed3c1d82e38fcab2d AS server
 WORKDIR /src
 COPY gradlew settings.gradle.kts build.gradle.kts gradle.properties *gradle.lockfile ./
 COPY gradle/ gradle/
@@ -24,7 +24,7 @@ COPY engine/ engine/
 COPY server/ server/
 RUN ./gradlew :server:installDist --no-daemon --dependency-verification strict
 
-FROM eclipse-temurin:21.0.12.1_1-jre-noble@sha256:435763596c3be2b929e8bb4282520849804715c3483cfffaa323a7433f2caf71 AS runtime
+FROM eclipse-temurin:21.0.13_9-jre-noble@sha256:0eda5830ed7b669abc246a8dc520ea8a23cab06f9a8d4b6964109e2f2394e46f AS runtime
 RUN apt-get update && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/* \
