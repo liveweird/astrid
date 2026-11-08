@@ -101,6 +101,28 @@ tasks.register<JavaExec>("exportPilotFiveCompatibility") {
     outputs.files(pilotFiveCompatibilityFixture, pilotFiveCompatibilityProvenance)
 }
 
+val pilotSixCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-6-generator-6-evaluation-6.tsv")
+val pilotSixCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-6-generator-6-evaluation-6.provenance")
+
+tasks.register<JavaExec>("exportPilotSixCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-6 engine generation and evaluation compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PilotSixCompatibilityGoldenExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                pilotSixCompatibilityFixture.asFile.absolutePath,
+                pilotSixCompatibilityProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(pilotSixCompatibilityFixture, pilotSixCompatibilityProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

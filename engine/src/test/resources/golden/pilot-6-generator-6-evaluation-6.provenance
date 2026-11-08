@@ -1,0 +1,10 @@
+baselineCommit=6d1c0fe2f957490216fda50e4a67a216c3b784ed
+captureDate=2026-11-09
+reviewState=compatibility-only-not-linguistic-approval
+contentRevision=pilot-6
+generatorRevision=generator-6
+evaluationRevision=evaluation-6
+rowCount=2365
+fixtureSha256=c027bf9d370a0e2974f02120cca98e953820daf9b8c8e5699bc29c563b8636f8
+reviewSha256=f6e95d88a629b162745e93b4952f87baca43624a82f12efca407d3ec0c61bab7
+description=All thirteen inherited complete cycles and boundaries plus bounded E014 generation, all 209 valid partial bijections, reordered raw pairs, malformed selections, wrong answer kinds, matching facets, and framed hashes.

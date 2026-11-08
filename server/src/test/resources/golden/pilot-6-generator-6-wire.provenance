@@ -1,0 +1,9 @@
+baselineCommit=6d1c0fe2f957490216fda50e4a67a216c3b784ed
+captureDate=2026-11-09
+contentRevision=pilot-6
+generatorRevision=generator-6
+evaluationRevision=evaluation-6
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=2852
+fixtureSha256=8cc606452d0eea26d39476a6b58d04b7c7aaef4b65fe16292583cea5a0ab59df
+description=All thirteen inherited format cycles for seeds 0, 47, and Int.MAX_VALUE, plus bounded E014 independently shuffled columns at indices 0-31 and seed/index boundaries; SHA-256 over public ExerciseResponse, private inspector, and reproduction fingerprint.
