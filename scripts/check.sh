@@ -17,5 +17,7 @@ npm --prefix web run build
 npm --prefix e2e run lint
 npm --prefix e2e run knip
 npm --prefix e2e run typecheck
+npm --prefix e2e run check:scenarios
+npm --prefix e2e run test:scripts
 docker compose --env-file .env.example config --quiet
 kubectl kustomize k8s > /dev/null

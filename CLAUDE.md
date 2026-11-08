@@ -34,7 +34,7 @@ Docker (Testcontainers); on OrbStack `export DOCKER_HOST=unix://$HOME/.orbstack/
 
 - **All local gates:** `./scripts/check.sh` — toolchain/knowledge/startup-budget checks, strict Gradle
   `check` (tests, detekt, Kover floors) + `installDist`, web `lint:api`/`check:api`/`lint`/`knip`/
-  `test:coverage`/`build`, e2e `lint`/`knip`/`typecheck`, Compose and kustomize rendering. Run it before
+  `test:coverage`/`build`, e2e `lint`/`knip`/`typecheck`/`check:scenarios`/`test:scripts`, Compose and kustomize rendering. Run it before
   every commit; CI (`.github/workflows/ci.yml`) repeats it plus image scan and the browser suite.
 - Server: `./gradlew :server:run` (port 8088), `./gradlew :server:test`, one test:
   `./gradlew :server:test --tests "app.astrid.server.ApplicationTest"`.
@@ -44,7 +44,9 @@ Docker (Testcontainers); on OrbStack `export DOCKER_HOST=unix://$HOME/.orbstack/
 - Package: `./gradlew :server:installDist`. Never a fat JAR (Flyway service discovery).
 - Web: `cd web && npm ci --legacy-peer-deps`, then `npm run dev|build|lint|knip|test|test:coverage`;
   API contract: `npm run lint:api` (Spectral, `api-guidelines/`) and `npm run gen:api` / `check:api`.
-- E2E: `cd e2e && npm ci && npx playwright install chromium webkit && npm test` against the full stack.
+- E2E: `cd e2e && npm ci && npx playwright install chromium webkit && npm test` against the full stack. Each spec has a
+  scenario file in `e2e/scenarios/`, updated in the same commit; `npm run check:scenarios` checks the parity. A nightly
+  workflow (`.github/workflows/e2e.yml`) re-runs the suite and the image scan on `master` and opens an issue when it fails.
 - Knowledge base: `python3 scripts/check-knowledge.py` (IDs, prerequisites, crosswalk, local links).
 
 ## Running the full stack

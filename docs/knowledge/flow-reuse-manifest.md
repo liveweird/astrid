@@ -14,6 +14,7 @@
 | App version, version stamp, lazy changelog and seen-state patterns | Adapt Flow's English release content, build metadata and navigation to Astrid | [User-authorized versioning port](app-versioning.md); keep learning revisions separate |
 | OpenAPI, generated client types, validation and test approach | Adapt for the smaller contract | Detect API drift and test real persistence |
 | Docker image, Compose, Kubernetes, CI | Adapt private single-app deployment; retain digest/action pins | User explicitly retained both deployment options |
+| E2E scenario files, their parity check, nightly e2e and failure-alert issue | Port; scenario headings keep template-literal placeholders instead of Flow's registered skips; the nightly repeats the per-push suite rather than replacing it | Reviewable test intent and quiet-day coverage (image CVEs, drift); see `.claude/docs/ci.md` |
 | Flow authentication, ingestion, telemetry, admin tools and domain model | Omit | Unrelated to validating Danish learning |
 | i18next EN/PL localization | Omit | Single-language learning UI; Danish is content, not chrome |
 | JVM tuning and class-data archive | Omit for this milestone | Measure Astrid before adding optimization (BL-044) |

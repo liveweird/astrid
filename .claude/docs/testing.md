@@ -63,8 +63,15 @@ Playwright (`@playwright/test` 1.64) against the assembled compose stack, **Chro
 UI state needs a scan. `e2e/support/` holds shared page helpers; `recovery.spec.ts` simulates lost/slow responses by mocking
 `application/problem+json` and aborted fetches. Setup: `npm --prefix /Users/sebastian/Sources/astrid/e2e ci && npx playwright install chromium webkit`
 (from `e2e/`), stack up with `docker compose --env-file .env.example up -d --wait`, run `npm --prefix …/e2e test`. Gates without a
-stack: `npm run lint`, `npm run knip`, `npm run typecheck`. Unlike Flow, Astrid has no scenario files or coverage map: the spec titles
-are the record, so keep them descriptive and add the journey in the same commit as the behaviour.
+stack: `npm run lint`, `npm run knip`, `npm run typecheck`, `npm run check:scenarios`.
+
+**Scenario files** (`e2e/scenarios/`, format in its `README.md`; ported from Flow): every `tests/<name>.spec.ts` has a `scenarios/<name>.md`
+with one `## Scenario:` heading per `test(` call, equal to the title's source text, and a new or behaviourally changed test lands with its
+scenario in the **same commit**. `npm run check:scenarios` enforces the parity in both directions (missing file, title without heading,
+heading without title, orphan file) and runs in `scripts/check.sh`. Template-literal titles (the per-theme, per-viewport and
+committed/uncommitted loops) keep their `${...}` placeholders verbatim in the heading, with no skip list; give a `test(` a literal title or
+a template, never a variable. There is no coverage map: the scenario files are the record. The checker's extractor has a tiny
+`node --test` suite (`npm run test:scripts`).
 
 ## Coverage floors and the ratchet
 

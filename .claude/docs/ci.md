@@ -16,7 +16,7 @@ Runs from any directory, needs Docker (Testcontainers) and `kubectl`. Steps, in 
 6. `./gradlew check :engine:koverVerify :server:koverVerify :server:installDist --dependency-verification strict --no-daemon` — engine and
    server tests (incl. Arabic-locale engine run), detekt, Kover floors, packaging, strict checksum verification.
 7. `npm --prefix web run lint:api` (Spectral), `check:api` (generated types in sync), `lint`, `knip`, `test:coverage`, `build`.
-8. `npm --prefix e2e run lint`, `knip`, `typecheck`.
+8. `npm --prefix e2e run lint`, `knip`, `typecheck`, `check:scenarios` (spec ↔ scenario parity, `testing.md`), `test:scripts` (the checker's own tests).
 9. `docker compose --env-file .env.example config --quiet` and `kubectl kustomize k8s > /dev/null` — manifests render.
 
 It does **not** run the Playwright suite (needs a stack), `npm audit`, Trivy or kubeconform (live databases / downloaded tools: CI only).
@@ -33,10 +33,26 @@ Triggers: push to `master`, pull requests, manual dispatch; `permissions: conten
 | `web` | `npm ci --legacy-peer-deps`; `lint:api && check:api && lint && knip && test:coverage && build` with `GIT_SHA`; `npm audit --audit-level=high`. |
 | `dependency-scan` | Trivy filesystem scan (HIGH/CRITICAL, dev deps included) over all Gradle lockfiles. |
 | `kubernetes` | kubeconform (checksum-verified binary, k8s 1.33.0 schemas pinned by commit) over the manifests and over `kubectl kustomize k8s`. |
-| `image` | `docker compose config`; `docker build -t astrid:local .`; e2e `npm ci && lint && knip && typecheck && audit`; `playwright install --with-deps chromium webkit`; `docker compose --env-file .env.example up -d --wait` then `npm --prefix e2e test`; logs on failure; uploads `browser-reports`; Trivy scan of the packaged image (HIGH/CRITICAL, `--ignore-unfixed`); `compose down` (never `-v`). |
+| `image` | `docker compose config`; `docker build -t astrid:local .`; e2e `npm ci && lint && knip && typecheck && check:scenarios && test:scripts && audit`; `playwright install --with-deps chromium webkit`; `docker compose --env-file .env.example up -d --wait` then `npm --prefix e2e test`; logs on failure; uploads `browser-reports`; Trivy scan of the packaged image (HIGH/CRITICAL, `--ignore-unfixed`); `compose down` (never `-v`). |
 
-Unlike Flow there is no path filter (`changes` job), no nightly e2e or failure-alert issue: browser journeys run on every PR inside `image`.
+Unlike Flow there is no path filter (`changes` job): browser journeys run on every push and PR inside `image`, and the nightly below repeats them.
 A new gate lands in `scripts/check.sh` **and** the matching job in the same commit; the two lists above must stay equal.
+
+## Nightly e2e (`.github/workflows/e2e.yml`)
+
+Ported from Flow. Runs at 03:41 UTC against `master` and on demand (Actions → "e2e" → "Run workflow"). It builds the image with
+`docker compose build`, starts the stack (`up -d --wait --wait-timeout 300`), runs `npm --prefix e2e test` (Chromium and WebKit), uploads
+`browser-reports`, and Trivy-scans `astrid:local` with the same pin and flags as `image` (`check-toolchain.py` fails if the workflows' Trivy pins
+differ). The scan runs after the suite even when it fails, so neither result hides the other. Because Astrid's PR gate already runs the suite, the
+nightly is there for quiet days: a fixable HIGH/CRITICAL advisory published after the last merge, or drift in base images or runners, shows up within
+a day instead of at the next push. Keep its steps in step with `image` when either changes.
+
+## Failure alerting (`.github/workflows/ci-alert.yml`)
+
+A reusable workflow, ported from Flow. When a **scheduled** nightly fails, `e2e.yml`'s `alert` job calls it with `issues: write`. It opens an issue
+titled "Nightly e2e is failing" labelled `ci-failure`, or comments on the open one with that title, giving the run URL, attempt, date, SHA and trigger.
+Manual runs never alert. Nothing closes the issue automatically: close it by hand once the cause is understood. `ci.yml` does not alert, because a red
+push or PR is already in front of its author.
 
 ## Dependabot and pins
 
