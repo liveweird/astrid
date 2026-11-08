@@ -1,0 +1,10 @@
+baselineCommit=06dc71457cae8e0739290f72be857b5e2fdcbd48
+captureDate=2026-11-08
+reviewState=compatibility-only-not-linguistic-approval
+contentRevision=pilot-5
+generatorRevision=generator-5
+evaluationRevision=evaluation-5
+rowCount=2074
+fixtureSha256=5744d86f11d4226e6e6b3c429c541ad464169d00d7b02662dec35f0582a2c20b
+reviewSha256=0e47dcf606922fbf20a7d2354e50caa3800f6a4c35459c548196bb899b6060e0
+description=All thirteen complete format cycles, boundaries, raw and Unicode grading, writing and tile facets, choice constraints, and framed hashes.
