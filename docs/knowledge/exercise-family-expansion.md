@@ -45,12 +45,12 @@ The selected first batch is governed by the [writing/reading implementation cont
 
 | No. | Proposed exercise | Current coverage |
 | --- | --- | --- |
-| 1 | English word → Danish, four choices | Not implemented. E007 runs in the other direction. |
+| 1 | English word → Danish, four choices | E011, four related article+noun bundles in selected reading-material senses. |
 | 2 | English word → typed Danish word | E008, introduced singular headword recall for `bog`, `avis`, `brev`. |
 | 3 | Danish word → English, four choices | E007 implements the operation with **three**, not four, English choices. |
 | 4 | English sentence → typed Danish sentence | E009, bounded introduced meanings and subject-first statements; not unrestricted translation. |
-| 5 | English sentence → Danish, all tiles used | Not implemented as translation. E003 supplies Danish constituent blocks without a full English sentence cue. |
-| 6 | English sentence → Danish, spare tiles | Not implemented. |
+| 5 | English sentence → Danish, all tiles used | E012, individual word tiles with English cue; all required, subject-first target. |
+| 6 | English sentence → Danish, spare tiles | E013, one spare infinitive; finite-present target with separate response-order constraint. |
 | 7 | Danish sentence → English, all tiles used | Not implemented. |
 | 8 | Danish sentence → English, spare tiles | Not implemented; direction confirmed by the user. |
 | 9 | One Danish sentence gap, choose the word | E001, finite present versus infinitive of the same verb; two choices. Other word classes are not implemented as choice gaps. |
@@ -75,3 +75,5 @@ Keep direction, response interaction, grammar/vocabulary target and difficulty s
 For tile tasks, distinguish individual words from existing constituent blocks, preserve repeated-word identity, accept licensed equivalent orders and avoid capitalization/punctuation revealing the order. Spare tiles should probe the selected target rather than add arbitrary noise. Multiple gaps need explicit target and feedback per slot. Matching halves (14) needs enough context for fair logical matches; accept all licensed combinations or construct an unambiguous set. Questions (12) need an intended question type or highlighted answer information because one answer can satisfy many questions. New tenses (15), questions (12), and richer continuation structures require reviewed content/grammar activation, beyond adding a widget.
 
 **8 November 2026 — Subsequent implementation selection:** the user selected BL-047 and proper versioned release. The [word-choice/tile contract](word-choice-tiles-contract.md) now governs #1 and #5/#6 only, with a bounded choice-only magazine sense and the existing 99 positive propositions. This supersedes the unselected status above for these three formats. Matching, multiple gaps, reverse sentence tiles and later grammar remain proposals.
+
+**Observed subsequent delivery:** Items 1/5/6 are delivered at [0.5.0](https://github.com/liveweird/astrid/releases/tag/v0.5.0) under the [verified contract](word-choice-tiles-contract.md#observed-delivery--8-november-2026), superseding their earlier unselected status. They remain standalone with E009/E010; guided plans stay at pair three. The table's current-coverage cells reflect this delivery. Matching, multiple gaps, reverse sentence tiles and later grammar remain proposals.

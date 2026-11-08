@@ -120,11 +120,43 @@ WebKit journeys pass without retries, including Axe, keyboard, supported exact r
 additional E011-success captures complete the visual evidence. The isolated old→new upgrade
 preserves exact old wire/history and all four evaluators, including old practice/review runs.
 
-Final clean-commit image, complete 226-journey matrix, exact-master CI, tag/release publication,
-backed-up private-preview promotion and ownership-scoped cleanup remain release steps; their
-observed results will be recorded below after execution. Private logs and artifacts are ignored
+Final clean-commit image, complete browser matrix, exact-master CI, tag/release publication,
+backed-up private-preview promotion and ownership-scoped cleanup are recorded below. The final
+matrix has 250 individually bounded journeys. Private logs and artifacts are ignored
 under `.local/word-choice-tiles/`.
 
 The first complete native browser run exposed sixteen strict-locator failures in existing accessibility/layout sweeps: the E001 title is a prefix of E013. Exact accessible-title matching corrects the tests without changing app behavior. The shared format inventory now includes all thirteen entries, extending short-window and enlarged-list navigation coverage to the additions. This test-only correction keeps app 0.5.0 and learning pair five unchanged; a fresh clean-commit candidate and full matrix are required before publication.
 
 Corrected-title CI at `197374b` passed 225 journeys and hit the 30-second cumulative test budget in WebKit’s single enlarged-list sweep. Split that sweep into thirteen independently bounded format cases, preserving every viewport, selected/active identity, option bounds, full keyboard cycle, scroll, Axe and Escape assertion. The default timeout remains unchanged; the complete matrix becomes 250 journeys. No app or learning behavior changes. Publication remains gated on the corrected exact-master matrix.
+
+## Observed delivery — 8 November 2026
+
+Released **[0.5.0](https://github.com/liveweird/astrid/releases/tag/v0.5.0)**, tagged at source `b8ff9f9`, after all five
+[exact-master CI jobs](https://github.com/liveweird/astrid/actions/runs/42523608309) passed. All **250 Linux browser journeys** passed without
+retries or flaky results; the exact local image passed **250 native Chromium/WebKit journeys**
+without retries. The 26 independently bounded Linux format-list cases also passed. No timeout,
+assertion, coverage, dependency or security gate was relaxed. The release tag is annotated, and
+remote tag/source plus the authored release body were read back and verified.
+
+The private preview serves the tested image `sha256:0484bdabaca3b443d98bbdda173097ed64876b7af2ff21336d8f38c22d4dc03e` with source `b8ff9f9`.
+E011 adds four related Danish article+noun choices, while E012/E013 supply all/spare individual
+word tiles over the unchanged 99 propositions. The printed-magazine sense is choice-only;
+existing three-sense pools, all previous graders and guided plans remain executable unchanged.
+Actual QA process restart preserved exact reads, saved grades/replay and fresh grading for the
+new families, all four retained pairs and old completed/active practice and source-linked reviews.
+Fourteen final-image light/dark desktop/enlarged captures support the visual review; source-stamped
+success and constrained feedback remain readable.
+
+Before app-only promotion, a **3,040,489-byte** custom PostgreSQL archive was created
+with mode `0600` and verified readable. Promotion preserved immutable evidence for
+**15,787 exercises, 6,929 attempts, 1,608 practice sessions,
+11,064 items and 4,834 attempt contexts**. PostgreSQL retained its exact
+container/process/mounts, and Flyway remains at versions 1/2/3. All **40 live-preview browser
+checks** passed without retries; retained main-preview exercises, practice and reviews replayed
+exactly. Ownership-checked cleanup removed only the temporary QA stack and left the main app
+and database processes healthy and unchanged. The private backup and evidence remain ignored
+under `.local/word-choice-tiles/`.
+
+BL-047 is complete. This completion record is a documentation-only follow-up to the tagged
+release source. User review (BL-035), Danish teaching review (BL-022), course integration,
+reverse sentence translation and further exercise families remain separate work.

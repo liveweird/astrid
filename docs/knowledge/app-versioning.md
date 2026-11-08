@@ -47,3 +47,7 @@ Private build hashes, screenshots, HTTP probes, archive and verification logs re
 
 
 **Subsequent release:** BL-043 advances the private preview to `0.4.0` for standalone sentence writing and short reading comprehension. Its [delivery record](writing-reading-contract.md#observed-delivery--7-november-2026) supersedes the running-version statement for `0.3.0`; published `0.1.0`–`0.3.0` release notes remain unchanged. Learning revisions advance separately to pair four while existing guided plans retain pair three.
+
+## First tag and GitHub Release — 8 November 2026
+
+The user's explicit instruction to version and release BL-047 properly authorized the first annotated tag and [GitHub Release, v0.5.0](https://github.com/liveweird/astrid/releases/tag/v0.5.0). Tag source `b8ff9f9` matched verified master, all five [CI jobs](https://github.com/liveweird/astrid/actions/runs/42523608309) and 250 Linux browser journeys passed without retries/flakies, and remote annotated-tag/source and authored notes were read back. Earlier application entries remain unchanged changelog history; no retroactive tags were invented. App-only private-preview promotion followed a readable backup and preserved history. The [delivery record](word-choice-tiles-contract.md#observed-delivery--8-november-2026) supersedes the earlier running-version statements; learning pair five remains distinct from app 0.5.0.
