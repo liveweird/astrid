@@ -12,7 +12,8 @@ import kotlin.test.assertTrue
  * `practice`: `session` references neither of the others, and `exercises` never references `practice` (the attempt write
  * reaches practice state only through `exercises/AttemptPracticeHook`, implemented in `practice/`). The composition root
  * (`app.astrid.server` itself: `Application.kt`, `Main.kt`, `Stores.kt`, `PostgresStores.kt`) wires everything and is
- * referenced by nothing. The engine never references the server.
+ * referenced by nothing, whatever it declares (any qualified `app.astrid.server.<name>` that is not a known
+ * sub-package). The engine never references the server.
  *
  * A plain source scan (no Docker, no classpath tricks): any non-comment line of a file declaring the lower package that names
  * a forbidden package by its qualified name (an import, a wildcard import or an inline reference) is a violation. Kotlin has
@@ -89,23 +90,51 @@ class PackageBoundaryTest {
         assertEquals(emptyList(), violations(setOf("app.astrid.server.exercises"), listOf("practice")))
     }
 
+    /**
+     * A reference to anything directly under `app.astrid.server` that is not one of the known sub-packages, i.e. a
+     * composition-root declaration of any kind (`class`, `data class`, `internal fun`, `const val`, `typealias`, an
+     * extension...), found by the qualified name rather than by guessing the declaration keyword.
+     */
+    private val rootReference = Regex("""\bapp\.astrid\.server\.(?!(?:infra|plugins|authz|session|exercises|practice)\b)[A-Za-z]""")
+
     @Test
     fun `nothing outside the composition root references it`() {
-        // The root package's own top-level names (Stores, PostgresStores, astridModule, main): a sub-package naming one would
-        // close a cycle through the wiring.
         val rootFiles = mainSources.filter { packageOf(it.readText()) == "app.astrid.server" }
         assertTrue(rootFiles.size >= 4, "the scan saw only ${rootFiles.size} composition-root sources")
-        val rootNames = rootFiles.flatMap { file ->
-            Regex("""^(?:fun|class|interface|object|val)\s+(?:Application\.)?(\w+)""", RegexOption.MULTILINE)
-                .findAll(file.readText()).map { it.groupValues[1] }.toList()
-        }.toSet()
-        assertTrue("Stores" in rootNames && "astridModule" in rootNames, "composition-root names not found: $rootNames")
-        val pattern = Regex("""\bapp\.astrid\.server\.(${rootNames.joinToString("|")})\b""")
         val violations = mainSources.flatMap { file ->
             val text = file.readText()
-            if (packageOf(text) == "app.astrid.server") emptyList() else matchingLines(text, pattern).map { "${file.name} $it" }
+            if (packageOf(text) == "app.astrid.server") emptyList() else matchingLines(text, rootReference).map { "${file.name} $it" }
         }
         assertEquals(emptyList(), violations)
+    }
+
+    @Test
+    fun `the root scan flags any declaration kind but not sub-packages or comments`() {
+        val source = """
+            package app.astrid.server.session
+
+            import app.astrid.server.Stores
+            import app.astrid.server.RootDataClass
+            import app.astrid.server.sealedThing
+            import app.astrid.server.internalFun
+            import app.astrid.server.practices.Lookalike
+            val x = app.astrid.server.CONSTANT
+            // import app.astrid.server.InComment
+            import app.astrid.server.session.Fine
+            import app.astrid.server.exercises.Fine
+            import app.astrid.server.infra.config.Fine
+        """.trimIndent()
+        assertEquals(
+            listOf(
+                "3: import app.astrid.server.Stores",
+                "4: import app.astrid.server.RootDataClass",
+                "5: import app.astrid.server.sealedThing",
+                "6: import app.astrid.server.internalFun",
+                "7: import app.astrid.server.practices.Lookalike",
+                "8: val x = app.astrid.server.CONSTANT",
+            ),
+            matchingLines(source, rootReference),
+        )
     }
 
     @Test

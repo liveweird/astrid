@@ -16,7 +16,8 @@
 | Docker image, Compose, Kubernetes, CI | Adapt private single-app deployment; retain digest/action pins | User explicitly retained both deployment options |
 | Flow authentication, ingestion, telemetry, admin tools and domain model | Omit | Unrelated to validating Danish learning |
 | i18next EN/PL localization | Omit | Single-language learning UI; Danish is content, not chrome |
-| JVM tuning and class-data archive | Omit for this milestone | Measure Astrid before adding optimization |
+| JVM tuning and class-data archive | Omit for this milestone | Measure Astrid before adding optimization (BL-044) |
+| Ktor `application.yaml` / `EngineMain` configuration | Omit | `embeddedServer` + explicit wiring; no `application.yaml`. `Main.kt` builds `ServerConfig` from the environment and passes stores and clock as explicit parameters, so tests inject fakes directly; the unused `ktor-server-config-yaml` dependency was removed |
 | Lesson generation and assessment | New pure Kotlin module | Astrid-specific typed language model and deterministic rules |
 
 ## Reproducibility and conventions

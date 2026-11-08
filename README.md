@@ -36,7 +36,7 @@ npm run dev
 
 Open **http://localhost:5180**; Vite proxies API calls to port 8088. The narrow peer-dependency exception supports openapi-typescript's TypeScript 5 declaration alongside Flow's tested TypeScript 6 toolchain. It does not replace type checks or dependency audit.
 
-Native development binds to `127.0.0.1`; `ASTRID_BIND_HOST` overrides it. The container explicitly binds its internal interface, with Compose publishing only loopback ports. Default database URLs use `localhost:5438/astrid`. Override `POSTGRES_JDBC_URL`, `POSTGRES_R2DBC_URL`, `POSTGRES_USER` and `POSTGRES_PASSWORD` together when using another database. Do not commit `.env` or credentials. OrbStack users may need `export DOCKER_HOST=unix://$HOME/.orbstack/run/docker.sock` for Testcontainers.
+Native development binds to `127.0.0.1:8088`; `ASTRID_BIND_HOST` and `ASTRID_PORT` (1-65535) override them, and a non-default port moves the default allowed hosts and origins with it (the Vite proxy and the container stay on 8088). The container explicitly binds its internal interface, with Compose publishing only loopback ports. Default database URLs use `localhost:5438/astrid`. Override `POSTGRES_JDBC_URL`, `POSTGRES_R2DBC_URL`, `POSTGRES_USER` and `POSTGRES_PASSWORD` together when using another database. Do not commit `.env` or credentials. OrbStack users may need `export DOCKER_HOST=unix://$HOME/.orbstack/run/docker.sock` for Testcontainers.
 
 ## Use the playground
 
@@ -152,4 +152,4 @@ No ingress or public service is installed. The database needs a default storage 
 
 ## Project records
 
-Start with the [knowledge index](docs/knowledge/README.md), [implementation decisions](docs/knowledge/implementation-decisions.md), [Flow reuse manifest](docs/knowledge/flow-reuse-manifest.md), and [backlog](BACKLOG.md). The root `AGENTS.md` is preserved from repository initialization; its empty-repository description is historical. Reused Flow tooling/patterns retain their [MIT notice](THIRD_PARTY_NOTICES.md).
+Start with the [knowledge index](docs/knowledge/README.md), [implementation decisions](docs/knowledge/implementation-decisions.md), [Flow reuse manifest](docs/knowledge/flow-reuse-manifest.md), and [backlog](BACKLOG.md). The root `AGENTS.md` is preserved from repository initialization; its empty-repository description is historical. Astrid is MIT-licensed ([LICENSE](LICENSE)); reused Flow tooling/patterns retain their [MIT notice](THIRD_PARTY_NOTICES.md).

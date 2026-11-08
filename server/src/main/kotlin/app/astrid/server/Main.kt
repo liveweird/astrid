@@ -12,8 +12,7 @@ fun main() {
     migrate(config)
     val stores = PostgresStores(Database.connect(config), wireJson)
     Runtime.getRuntime().addShutdownHook(Thread(stores::close))
-    val bindHost = System.getenv("ASTRID_BIND_HOST") ?: "127.0.0.1"
-    embeddedServer(Netty, host = bindHost, port = 8088) {
+    embeddedServer(Netty, host = config.bindHost, port = config.port) {
         astridModule(config, stores)
     }.start(wait = true)
 }

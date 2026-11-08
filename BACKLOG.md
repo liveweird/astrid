@@ -29,6 +29,7 @@ assistant's design proposals.
 ## Operations
 
 - [new] **BL-032 — Define bounded server-outage work.** Follow-up to the [observed lifecycle limitation](docs/knowledge/server-outage-boundary.md): choose a fault model and evidence-based request/cleanup/shutdown budgets, then prove lease fencing, eventual remote cleanup, bounded retained work and exact replay before adopting a policy. No server deadline or production SLO is selected.
+- [new] **BL-044 — Measure Astrid's memory use under the e2e load, then port Flow's JVM flags.** Flow's `server/build.gradle.kts` sets `applicationDefaultJvmArgs` (a `-Xmx256m` heap cap, C1-only compilation, a class-data archive); none is ported because [Astrid's reuse manifest](docs/knowledge/flow-reuse-manifest.md) says to measure first and the k8s memory limit is 768Mi. Complete with measured RSS and startup under the full `npm --prefix e2e test` run, and either ported flags with the numbers that justify them or a recorded decision to omit.
 
 ## Brand
 

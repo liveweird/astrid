@@ -18,8 +18,13 @@ data class ServerConfig(
     val postgresPassword: String,
     val poolMaxSize: Int,
     val connectRetries: Int = 10,
+    val bindHost: String = DEFAULT_BIND_HOST,
+    val port: Int = DEFAULT_PORT,
 ) {
     companion object {
+        const val DEFAULT_BIND_HOST = "127.0.0.1"
+        const val DEFAULT_PORT = 8088
+
         fun fromEnvironment(env: Map<String, String> = System.getenv()): ServerConfig {
             fun flag(name: String, default: Boolean = false) = env[name]?.equals("true", ignoreCase = true) ?: default
             fun list(name: String, defaults: Set<String>) = env[name]
@@ -31,6 +36,8 @@ data class ServerConfig(
                 requireNotNull(raw.toIntOrNull()) { "POSTGRES_CONNECT_RETRIES must be an integer" }
             } ?: 10
             require(connectRetries in 0..15) { "POSTGRES_CONNECT_RETRIES must be between 0 and 15" }
+            val bindHost = bindHost(env)
+            val port = port(env)
             return ServerConfig(
                 developmentMode = flag("ASTRID_DEVELOPMENT_MODE"),
                 inspectorEnabled = flag("ASTRID_INSPECTOR_ENABLED") && key != null,
@@ -40,15 +47,15 @@ data class ServerConfig(
                 allowedOrigins = list(
                     "ASTRID_ALLOWED_ORIGINS",
                     setOf(
-                        "http://localhost:8088",
-                        "http://127.0.0.1:8088",
+                        "http://localhost:$port",
+                        "http://127.0.0.1:$port",
                         "http://localhost:5180",
                         "http://127.0.0.1:5180",
                     ),
                 ),
                 allowedHosts = list(
                     "ASTRID_ALLOWED_HOSTS",
-                    setOf("localhost:8088", "127.0.0.1:8088", "localhost:5180", "127.0.0.1:5180"),
+                    setOf("localhost:$port", "127.0.0.1:$port", "localhost:5180", "127.0.0.1:5180"),
                 ),
                 sessionTtlMillis = 24L * 60 * 60 * 1000,
                 webStaticDir = env["WEB_STATIC_DIR"],
@@ -58,7 +65,23 @@ data class ServerConfig(
                 postgresPassword = env["POSTGRES_PASSWORD"] ?: "astrid",
                 poolMaxSize = poolSize,
                 connectRetries = connectRetries,
+                bindHost = bindHost,
+                port = port,
             )
+        }
+
+        private fun bindHost(env: Map<String, String>): String {
+            val host = env["ASTRID_BIND_HOST"]?.trim() ?: DEFAULT_BIND_HOST
+            require(host.isNotEmpty()) { "ASTRID_BIND_HOST must not be blank" }
+            return host
+        }
+
+        private fun port(env: Map<String, String>): Int {
+            val port = env["ASTRID_PORT"]?.let { raw ->
+                requireNotNull(raw.trim().toIntOrNull()) { "ASTRID_PORT must be an integer" }
+            } ?: DEFAULT_PORT
+            require(port in 1..65535) { "ASTRID_PORT must be between 1 and 65535" }
+            return port
         }
     }
 }

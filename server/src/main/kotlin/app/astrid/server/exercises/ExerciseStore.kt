@@ -70,8 +70,8 @@ sealed interface PracticeBinding {
  *
  * Both calls run INSIDE the attempt write's transaction (the same coroutine, so the same `suspendTransaction`, after the
  * session row lock): [bind] after the exercise is found and before the retry count, [record] right after the attempt row is
- * inserted. An implementation must never open a transaction of its own, or the attempt and its practice context could
- * commit separately.
+ * inserted. The rule: an implementation must not open a transaction of its own; it runs in the caller's transaction, so
+ * the attempt and its practice context commit or roll back together.
  */
 interface AttemptPracticeHook {
     suspend fun bind(sessionId: UUID, exerciseId: UUID): PracticeBinding

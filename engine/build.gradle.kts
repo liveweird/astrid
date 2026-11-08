@@ -12,66 +12,41 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-val pilotReviewOutput = layout.buildDirectory.file("review/pilot-4.md")
+/** One deterministic content-review export: task name, report file, `PilotReviewExportMain` flag (none = current pilot). */
+data class PilotReview(val task: String, val report: String, val flag: String?, val description: String)
 
-tasks.register<JavaExec>("exportPilotReview") {
-    group = "verification"
-    description = "Writes the deterministic current pilot content review to engine/build/review/pilot-4.md"
-    dependsOn(tasks.testClasses)
-    classpath = sourceSets.test.get().runtimeClasspath
-    mainClass.set("app.astrid.engine.PilotReviewExportMain")
-    argumentProviders.add(
-        org.gradle.process.CommandLineArgumentProvider { listOf(pilotReviewOutput.get().asFile.absolutePath) },
-    )
-    outputs.file(pilotReviewOutput)
-}
-
-val pilotThreeReviewOutput = layout.buildDirectory.file("review/pilot-3.md")
-
-tasks.register<JavaExec>("exportPilotThreeReview") {
-    group = "verification"
-    description = "Writes the retained pilot-3 content review to engine/build/review/pilot-3.md"
-    dependsOn(tasks.testClasses)
-    classpath = sourceSets.test.get().runtimeClasspath
-    mainClass.set("app.astrid.engine.PilotReviewExportMain")
-    argumentProviders.add(
-        org.gradle.process.CommandLineArgumentProvider {
-            listOf("--pilot-three", pilotThreeReviewOutput.get().asFile.absolutePath)
-        },
-    )
-    outputs.file(pilotThreeReviewOutput)
-}
-
-val pilotTwoReviewOutput = layout.buildDirectory.file("review/pilot-2.md")
-
-tasks.register<JavaExec>("exportPilotTwoReview") {
-    group = "verification"
-    description = "Writes the retained pilot-2 content review to engine/build/review/pilot-2.md"
-    dependsOn(tasks.testClasses)
-    classpath = sourceSets.test.get().runtimeClasspath
-    mainClass.set("app.astrid.engine.PilotReviewExportMain")
-    argumentProviders.add(
-        org.gradle.process.CommandLineArgumentProvider {
-            listOf("--pilot-two", pilotTwoReviewOutput.get().asFile.absolutePath)
-        },
-    )
-    outputs.file(pilotTwoReviewOutput)
-}
-
-val legacyPilotReviewOutput = layout.buildDirectory.file("review/pilot-1.md")
-
-tasks.register<JavaExec>("exportLegacyPilotReview") {
-    group = "verification"
-    description = "Writes the deterministic legacy pilot content review to engine/build/review/pilot-1.md"
-    dependsOn(tasks.testClasses)
-    classpath = sourceSets.test.get().runtimeClasspath
-    mainClass.set("app.astrid.engine.PilotReviewExportMain")
-    argumentProviders.add(
-        org.gradle.process.CommandLineArgumentProvider {
-            listOf("--legacy", legacyPilotReviewOutput.get().asFile.absolutePath)
-        },
-    )
-    outputs.file(legacyPilotReviewOutput)
+listOf(
+    PilotReview(
+        "exportPilotReview", "pilot-4.md", null,
+        "Writes the deterministic current pilot content review to engine/build/review/pilot-4.md",
+    ),
+    PilotReview(
+        "exportPilotThreeReview", "pilot-3.md", "--pilot-three",
+        "Writes the retained pilot-3 content review to engine/build/review/pilot-3.md",
+    ),
+    PilotReview(
+        "exportPilotTwoReview", "pilot-2.md", "--pilot-two",
+        "Writes the retained pilot-2 content review to engine/build/review/pilot-2.md",
+    ),
+    PilotReview(
+        "exportLegacyPilotReview", "pilot-1.md", "--legacy",
+        "Writes the deterministic legacy pilot content review to engine/build/review/pilot-1.md",
+    ),
+).forEach { review ->
+    val output = layout.buildDirectory.file("review/${review.report}")
+    tasks.register<JavaExec>(review.task) {
+        group = "verification"
+        description = review.description
+        dependsOn(tasks.testClasses)
+        classpath = sourceSets.test.get().runtimeClasspath
+        mainClass.set("app.astrid.engine.PilotReviewExportMain")
+        argumentProviders.add(
+            org.gradle.process.CommandLineArgumentProvider {
+                listOfNotNull(review.flag, output.get().asFile.absolutePath)
+            },
+        )
+        outputs.file(output)
+    }
 }
 
 tasks.test {

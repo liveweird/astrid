@@ -30,7 +30,6 @@ dependencies {
     implementation(ktorLibs.server.bodyLimit)
     implementation(ktorLibs.server.callLogging)
     implementation(ktorLibs.server.compression)
-    implementation(ktorLibs.server.config.yaml)
     implementation(ktorLibs.server.contentNegotiation)
     implementation(ktorLibs.server.core)
     implementation(ktorLibs.server.defaultHeaders)
@@ -103,7 +102,8 @@ kover {
                 // Branch-coverage floor, same rule.
                 // 2026-11-07, scaffold alignment: actual 72.32% -> floor 72.
                 // 2026-11-08, server package split + store contract suite: actual 76.35% -> floor 76.
-                minBound(76, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
+                // 2026-11-08, port config + call logging tests: actual 77.59% -> floor 77.
+                minBound(77, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
             }
         }
     }

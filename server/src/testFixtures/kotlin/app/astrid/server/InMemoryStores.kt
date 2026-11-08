@@ -82,7 +82,9 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
             if (practice != null && practiceItem!!.position != practice.cursor) {
                 return@withLock AttemptWriteResult.PracticePositionConflict
             }
-            val retry = attempts.values.count { (_, response) -> response.exerciseId == request.exerciseId } + 1
+            val retry = attempts.entries.count { (attemptKey, stored) ->
+                attemptKey.first == sessionId && UUID.fromString(stored.second.exerciseId) == exerciseId
+            } + 1
             val source = practice?.let { current ->
                 PracticeAttemptSource(
                     current.focusId,

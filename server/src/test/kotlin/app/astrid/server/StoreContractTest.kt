@@ -97,6 +97,20 @@ abstract class StoreContractTest {
     }
 
     @Test
+    fun `retries are counted per owner and exercise whatever the id's letter case`() = withStores { stores ->
+        val owner = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
+        val exercise = playgroundExercise(owner.id).also { stores.exercises.insertExercise(it) }
+        val retries = listOf(exercise.id.toString(), exercise.id.toString().uppercase(), exercise.id.toString()).map { id ->
+            val request = attempt(exercise.id).copy(exerciseId = id)
+            val created = stores.exercises.writeAttempt(owner.id, request, payload(request)) { stored, retry, now ->
+                response(request, stored, retry, now)
+            }
+            assertIs<AttemptWriteResult.Created>(created).response.retryNumber
+        }
+        assertEquals(listOf(1, 2, 3), retries)
+    }
+
+    @Test
     fun `an attempt on an unknown or foreign exercise is missing`() = withStores { stores ->
         val owner = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
         val outsider = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)

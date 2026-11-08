@@ -6,7 +6,7 @@
 
 ## Established boundaries
 
-The repository uses separate transactions for session authentication and attempt writing. A transaction timeout alone would therefore not cover an entire HTTP request. Attempt writes serialize on the owning session, deduplicate identity/payload and persist consecutive retries atomically; existing attempts replay before current evaluation/revision checks. Preserve these properties under any new policy.
+The stores use separate transactions for session authentication and attempt writing. A transaction timeout alone would therefore not cover an entire HTTP request. Attempt writes serialize on the owning session, deduplicate identity/payload and persist consecutive retries atomically; existing attempts replay before current evaluation/revision checks. Preserve these properties under any new policy.
 
 Pinned binary inspection with `javap -p -c` found:
 

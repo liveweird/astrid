@@ -32,7 +32,7 @@ for path in (root / ".github/workflows").glob("*.yml"):
         if "uses:" in line and not "uses: ./" in line:
             assert re.search(r"@[0-9a-f]{40}(?:\s|$)", line), f"Unpinned action: {line}"
 postgres_paths = (
-    "compose.yaml",
+    "docker-compose.yaml",
     "k8s/postgres.yaml",
     "server/src/test/kotlin/app/astrid/server/PostgresTestDatabase.kt",
 )
