@@ -85,3 +85,11 @@ The tables contain compact factual forms and original teaching notes. No diction
 ## Expansion work
 
 After the pilot, add vocabulary to support questions, negation, locations, daily routines, food, people, time, plural/definite nouns, and adjective agreement. Select actual entries from the curriculum and construction needs, with usage/frequency evidence. Add mass nouns and other determiner patterns deliberately, rather than applying the count-noun article rule universally.
+
+## Pair-five addition
+
+The historical 23-entry table above remains the published pilot seed. BL-047 assigns **L024 / L024-S01** to `et magasin`, selected printed-publication sense, for the new four-choice E011 pool only. Its reference forms are `magasinet / magasiner / magasinerne`; source and excluded senses are in the [Module 1 packet](module-one-language-pack.md#new-authoring-packets). It is not added to the 99 sentence allowlists or old three-sense assessment pools. The [pair-five contract](word-choice-tiles-contract.md) governs activation and review status; teaching review is still pending.
+
+| ID | Lemma and English gloss | Gender | Active phrase | Reference definite singular / plural / definite plural | Scope and source |
+| --- | --- | --- | --- | --- | --- |
+| L024 | magasin, magazine (printed publication) | neuter | et magasin | magasinet / magasiner / magasinerne | E011 only; printed-periodical sense, excluding broadcast, depot/store and weapon-container senses. [DDO, sense 1](https://ordnet.dk/ddo/ordbog/magasin). |

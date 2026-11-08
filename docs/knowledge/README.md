@@ -84,3 +84,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Exercise family expansion](exercise-family-expansion.md): selected sentence writing and short reading comprehension, with error diagnosis and transformations retained as later proposals.
 
 - [Writing and reading implementation contract](writing-reading-contract.md): authorized standalone sentence production and short-text comprehension, bounded grading and retained revision safeguards.
+
+- [Word choice and sentence tiles](word-choice-tiles-contract.md): authorized BL-047 formats, revision-five grading/wire contract, compatibility freeze and 0.5.0 release acceptance.
