@@ -164,3 +164,15 @@ restart preserved all six revisions; only owned QA resources were removed. The
 [contract and evidence](vocabulary-matching-contract.md#observed-delivery--8-november-2026)
 close BL-048. This is the documentation-only follow-up; teaching review, further families
 and course activation remain separate.
+
+
+## Multiple-gap milestone and overnight cutoff
+
+**9 November 2026 — Confirmed:** “Go for it” selects the proposed 0.7.0 multiple-gap milestone
+(two gaps, explicit grammar focus, related choices, per-gap feedback and safe editable retries)
+using existing language in the standalone playground. The [contract](multiple-gap-contract.md)
+records implementation defaults and evidence. Standing verified commit/merge/push, versioned
+release and backed-up private-preview promotion apply. The user requests continued work with
+**07:30 Warsaw** as the stop time before their **08:00 laptop shutdown**; finish safely or record
+pending work by that cutoff. This authorizes related verification/hardening, not another feature
+or automatic OS shutdown. Guided integration remains a separate proposed milestone.

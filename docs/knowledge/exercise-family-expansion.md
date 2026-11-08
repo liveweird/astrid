@@ -89,3 +89,10 @@ unselected status above. Opposite orientation, multiple gaps and further familie
 [verified matching contract](vocabulary-matching-contract.md#observed-delivery--8-november-2026),
 superseding its earlier proposed status. It remains standalone; multiple gaps, reversed
 orientation and guided integration remain separate decisions.
+
+
+**9 November 2026 — Multiple gaps selected:** “Go for it” selects BL-049 / app 0.7.0. The
+[multiple-gap contract](multiple-gap-contract.md) defines one licensed Danish sentence with a
+primary G004 finite-present gap and explicitly assessed G006 supporting-article gap, separate
+feedback, partial answers and safe editable retry. This supersedes the unselected status above
+for #10 only; guided integration, reverse translation and further grammar remain proposals.

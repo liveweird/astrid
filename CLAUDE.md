@@ -8,8 +8,8 @@ Codex reads `AGENTS.md`, which points here.
 Astrid is a Danish reading and writing engine for English-speaking complete beginners. Today it is a
 **private development preview**: a standalone engine playground (`/`) and short guided practice sessions
 (`/practice`) over a connected beginner slice — 24 vocabulary entries (the magazine sense is choice/matching-only), 99 licensed sentence combinations and
-fourteen exercise entries (grammar selection/supply/order/repair, vocabulary recognition/recall, constrained
-sentence writing, short reading comprehension, English→Danish word choice and all/spare word tiles and bilingual word matching). Generation and grading are deterministic and reproducible
+fifteen exercise entries (grammar selection/supply/order/repair, vocabulary recognition/recall, constrained
+sentence writing, short reading comprehension, English→Danish word choice and all/spare word tiles, bilingual word matching and a two-gap verb/article task). Generation and grading are deterministic and reproducible
 from seed, index and revision. All Danish content is a linguistic **draft awaiting teaching review**; a
 passing test never makes content teacher-approved. Current app version: `web/src/changelog/version.ts`.
 Next work: `BACKLOG.md`. Product scope and decisions: `docs/knowledge/product-direction.md`.

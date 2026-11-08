@@ -88,3 +88,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Word choice and sentence tiles](word-choice-tiles-contract.md): authorized BL-047 formats, revision-five grading/wire contract, compatibility freeze and 0.5.0 release acceptance.
 
 - [Vocabulary matching grid](vocabulary-matching-contract.md): delivered four-pair E014, per-pair evidence, whole-board retry contract and verified 0.6.0 release.
+
+- [Multiple-gap exercises](multiple-gap-contract.md): authorized two-gap 0.7.0 milestone, primary/supporting grammar evidence, compatibility safeguards and overnight cutoff.

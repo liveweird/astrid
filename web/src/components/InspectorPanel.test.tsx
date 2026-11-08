@@ -115,4 +115,25 @@ describe("InspectorPanel", () => {
     expect(screen.getByText("en bog")).toHaveAttribute("lang", "da");
     expect(screen.getByText("book")).toHaveAttribute("lang", "en");
   });
+
+  it("renders private gap answer provenance only after inspection", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({
+      exercise: {}, seed: 21, index: 8, lexicalIds: ["L001", "L009", "L014"], clauseRoles: [],
+      gapSource: {
+        slots: [
+          { slotId: "g0", expectedChoiceId: "c1", lexicalId: "L009", expectedForm: "har", alternativeForm: "have" },
+          { slotId: "g1", expectedChoiceId: "c0", lexicalId: "L014", expectedForm: "en", alternativeForm: "et" },
+        ],
+      },
+    })));
+    render(<MantineProvider env="test"><InspectorPanel exerciseId="exercise-gaps" /></MantineProvider>);
+    expect(screen.queryByText("Correct gap evidence")).not.toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText("Inspector key"), "a-secure-inspector-key-with-32-chars");
+    await userEvent.click(screen.getByRole("button", { name: "Inspect this exercise" }));
+
+    expect(await screen.findByText("Correct gap evidence")).toBeVisible();
+    expect(screen.getByText(/g0: c1 · L009/)).toBeVisible();
+    expect(screen.getByText("har")).toHaveAttribute("lang", "da");
+    expect(screen.getByText("et")).toHaveAttribute("lang", "da");
+  });
 });

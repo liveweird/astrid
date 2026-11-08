@@ -10,7 +10,7 @@ function orderedBlockText(value: string, index: number) {
 }
 
 export default function SentenceOrderPrompt({ prompt, order, disabled, tileMode, onOrder }: {
-  prompt: Exclude<Exercise, { formatId: "E014" }>["prompt"];
+  prompt: Exclude<Exercise, { formatId: "E014" | "E015" }>["prompt"];
   order: string[];
   disabled: boolean;
   tileMode?: TileMode;

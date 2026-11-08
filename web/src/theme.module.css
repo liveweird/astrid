@@ -97,6 +97,17 @@
   min-width: 0;
 }
 
+.gapSentence {
+  font-size: var(--mantine-font-size-lg);
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.gapSlot,
+.gapSlot > * {
+  min-width: 0;
+}
+
 
 @container playground (min-width: 48rem) {
   .exerciseCard {

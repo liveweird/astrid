@@ -42,7 +42,7 @@ Guard tests that must stay green and are never loosened to fit a change:
   revision pair). A new operation lands with its statuses exercised here.
 - `MigrationChecksumTest` — Flyway CRC32 of every `V*.sql`; the file set must equal the pinned map (`persistence.md`).
 - `PackageBoundaryTest` — layering (`conventions.md`); includes self-tests of its own regex scan.
-- `PilotThreeWireCompatibilityTest`, `PilotFourWireCompatibilityTest`, `PilotFiveWireCompatibilityTest`, `PublishedFingerprintCompatibilityTest`, `PracticeWireCompatibilityTest` — frozen wire and
+- `PilotThreeWireCompatibilityTest`, `PilotFourWireCompatibilityTest`, `PilotFiveWireCompatibilityTest`, `PilotSixWireCompatibilityTest`, `PublishedFingerprintCompatibilityTest`, `PracticeWireCompatibilityTest` — frozen wire and
   fingerprint evidence (`compatibility.md`).
 - `ServerConfigTest`, `DatabaseBootstrapTest` — env validation, bounded migration connect/login deadlines.
 
@@ -81,7 +81,7 @@ A floor is the **integer below the measured value**, written with a dated commen
 | Gate | Where | Floor (2026-11-08) |
 | --- | --- | --- |
 | engine Kover | `engine/build.gradle.kts` | line 98, branch 84 |
-| server Kover (`@Serializable` classes excluded) | `server/build.gradle.kts` | line 97, branch 79 |
+| server Kover (`@Serializable` classes excluded) | `server/build.gradle.kts` | line 98, branch 80 |
 | web vitest v8 | `web/vite.config.ts` `test.coverage.thresholds` | statements 94, branches 88, functions 97, lines 97 |
 
 Re-measure: `./gradlew :engine:koverXmlReport :server:koverXmlReport` (`check` only runs `koverVerify`, which reports pass/fail, not the

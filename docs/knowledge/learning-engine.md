@@ -144,3 +144,10 @@ all historical grading and guided-plan revisions remain executable. No new vocab
 0.6.0, with four supplied meanings and separately stored per-pair outcomes. The
 [verified delivery](vocabulary-matching-contract.md#observed-delivery--8-november-2026)
 closes BL-048 without activating new language, multiple gaps or guided-plan changes.
+
+
+**9 November 2026 — Multiple gaps authorized:** BL-049 adds E015 with one primary verb and one
+explicit supporting article, using the same 92 complemented clauses. The
+[contract](multiple-gap-contract.md) separates each slot's evidence from whole-primary success,
+omits meaning assessment, preserves exact answer order/replay and retains all six older pairs.
+Learning pair seven and app 0.7.0 advance separately; guided plans stay at pair three.

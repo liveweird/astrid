@@ -1,9 +1,10 @@
 import { Button, Group, Paper, Stack, Text, Textarea, TextInput, VisuallyHidden } from "@mantine/core";
 import { useLayoutEffect, useRef, useState, type Ref, type RefObject } from "react";
-import type { Exercise, MatchingPair } from "../api/models";
+import type { Exercise, GapSelection, MatchingPair } from "../api/models";
 import classes from "../theme.module.css";
 import SentenceOrderPrompt from "./SentenceOrderPrompt";
 import MatchingPrompt from "./MatchingPrompt";
+import GapPrompt from "./GapPrompt";
 
 type Props = {
   exercise: Exercise;
@@ -15,6 +16,9 @@ type Props = {
   matchingPairs?: MatchingPair[];
   matchingFocusRef?: Ref<HTMLDivElement>;
   onMatchingPairs?: (value: MatchingPair[]) => void;
+  gapSelections?: GapSelection[];
+  gapFocusRef?: Ref<HTMLDivElement>;
+  onGapSelections?: (value: GapSelection[]) => void;
 };
 
 const DANISH_CHARACTERS = ["æ", "ø", "å"] as const;
@@ -129,6 +133,7 @@ function DanishSentenceInput({ text, disabled, onText, label }: {
 export default function ExercisePrompt({
   exercise, text, order, disabled, onText, onOrder,
   matchingPairs = [], matchingFocusRef, onMatchingPairs = () => undefined,
+  gapSelections = [], gapFocusRef, onGapSelections = () => undefined,
 }: Props) {
   if (exercise.formatId === "E014") {
     return (
@@ -139,6 +144,18 @@ export default function ExercisePrompt({
         disabled={disabled}
         focusRef={matchingFocusRef}
         onPairs={onMatchingPairs}
+      />
+    );
+  }
+  if (exercise.formatId === "E015") {
+    return (
+      <GapPrompt
+        key={exercise.id}
+        prompt={exercise.prompt.gapPrompt}
+        selections={gapSelections}
+        disabled={disabled}
+        focusRef={gapFocusRef}
+        onSelections={onGapSelections}
       />
     );
   }

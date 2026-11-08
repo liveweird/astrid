@@ -3,6 +3,70 @@ import { useRef, useState } from "react";
 import { inspectExercise } from "../api/client";
 import type { InspectorDetails } from "../api/models";
 
+function InspectorEvidence({ details }: { details: InspectorDetails }) {
+  if (details.gapSource) {
+    return <Text size="sm" style={{ gridColumn: "1 / -1" }}>Correct gap evidence<br />
+      {details.gapSource.slots.map((slot) => <Code key={slot.slotId} display="block">
+        {slot.slotId}: {slot.expectedChoiceId} · {slot.lexicalId} · <span lang="da">{slot.expectedForm}</span> / <span lang="da">{slot.alternativeForm}</span>
+      </Code>)}
+    </Text>;
+  }
+  if (details.matchingSource) {
+    return <Text size="sm" style={{ gridColumn: "1 / -1" }}>Correct matching evidence<br />
+      {details.matchingSource.pairs.map((pair) => <Code key={pair.leftId} display="block">
+        {pair.leftId} → {pair.rightId}: {pair.lexicalSource.entryId} · {pair.lexicalSource.senseId} · <span lang="da">{pair.lexicalSource.article} {pair.lexicalSource.headword}</span> · <span lang="en">{pair.lexicalSource.gloss}</span>
+      </Code>)}
+    </Text>;
+  }
+  if (details.readingSource) {
+    return <>
+      <Text size="sm">Question relation<br /><Code>{details.readingSource.questionSubjectId} · {details.readingSource.questionVerbId}</Code></Text>
+      <Text size="sm">Answer evidence<br /><Code>{details.readingSource.answerNounId} · {details.readingSource.answer}</Code></Text>
+      <Text size="sm" style={{ gridColumn: "1 / -1" }}>Passage propositions<br />
+        {details.readingSource.propositions.map((proposition) => <Code key={`${proposition.sentenceId}-${proposition.subjectId}-${proposition.verbId}-${proposition.objectId}`} display="block">
+          {proposition.sentenceId}: {proposition.subjectId} · {proposition.verbId} · {proposition.objectId}
+        </Code>)}
+      </Text>
+    </>;
+  }
+  if (details.lexicalSource) {
+    return <>
+      <Text size="sm">Entry and sense<br /><Code>{details.lexicalSource.entryId} · {details.lexicalSource.senseId}</Code></Text>
+      <Text size="sm">Headword<br /><Code lang="da">{details.lexicalSource.headword}</Code></Text>
+      <Text size="sm">Gloss<br /><Code lang="en">{details.lexicalSource.gloss}</Code></Text>
+      <Text size="sm">Article<br /><Code lang="da">{details.lexicalSource.article}</Code></Text>
+    </>;
+  }
+  if (details.tileSource) {
+    return <>
+      <Text size="sm">Canonical sentence<br /><Code lang="da">{details.canonicalSentence}</Code></Text>
+      <Text size="sm">Identity<br /><Code>{details.canonicalSentenceId}</Code></Text>
+      <Text size="sm" style={{ gridColumn: "1 / -1" }}>Tile identities<br />
+        {details.tileSource.tokens.map((token) => <Code key={token.blockId} display="block">
+          {token.blockId}: {token.lexicalId} · {token.form}
+        </Code>)}
+      </Text>
+      <Text size="sm" style={{ gridColumn: "1 / -1" }}>Licensed orders<br />
+        {details.tileSource.licensedOrders.map((order) => <Code key={`${order.kind}-${order.blockIds.join("-")}`} display="block">
+          {order.kind}: {order.blockIds.join(" → ")}
+        </Code>)}
+      </Text>
+      {details.tileSource.distractors.length > 0 && <Text size="sm" style={{ gridColumn: "1 / -1" }}>Distractors<br />
+        {details.tileSource.distractors.map((distractor) => <Code key={distractor.blockId} display="block">
+          {distractor.blockId}: {distractor.rationale}
+        </Code>)}
+      </Text>}
+    </>;
+  }
+  return <>
+    <Text size="sm">Canonical sentence<br /><Code lang="da">{details.canonicalSentence}</Code></Text>
+    <Text size="sm">Identity<br /><Code>{details.canonicalSentenceId}</Code></Text>
+    <Text size="sm">Construction<br /><Code>{details.constructionId}</Code></Text>
+    <Text size="sm">Roles<br /><Code>{details.clauseRoles?.join(", ")}</Code></Text>
+    <Text size="sm">Lexical IDs<br /><Code>{details.lexicalIds?.join(", ")}</Code></Text>
+  </>;
+}
+
 export default function InspectorPanel({ exerciseId }: { exerciseId: string }) {
   const [key, setKey] = useState("");
   const [result, setResult] = useState<{ exerciseId: string; details: InspectorDetails } | null>(null);
@@ -10,8 +74,6 @@ export default function InspectorPanel({ exerciseId }: { exerciseId: string }) {
   const [loading, setLoading] = useState(false);
   const requestVersion = useRef(0);
   const details = result?.exerciseId === exerciseId ? result.details : null;
-  const tileSource = details?.tileSource;
-  const matchingSource = details?.matchingSource;
   const error = failure?.exerciseId === exerciseId ? failure.message : "";
 
   const inspect = async () => {
@@ -45,75 +107,7 @@ export default function InspectorPanel({ exerciseId }: { exerciseId: string }) {
       {error && <Alert color="red">{error}</Alert>}
       {details && (
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xs">
-          {matchingSource ? (
-            <Text size="sm" style={{ gridColumn: "1 / -1" }}>
-              Correct matching evidence<br />
-              {matchingSource.pairs.map((pair) => (
-                <Code key={pair.leftId} display="block">
-                  {pair.leftId} → {pair.rightId}: {pair.lexicalSource.entryId} · {pair.lexicalSource.senseId} · <span lang="da">{pair.lexicalSource.article} {pair.lexicalSource.headword}</span> · <span lang="en">{pair.lexicalSource.gloss}</span>
-                </Code>
-              ))}
-            </Text>
-          ) : details.readingSource ? (
-            <>
-              <Text size="sm">Question relation<br /><Code>{details.readingSource.questionSubjectId} · {details.readingSource.questionVerbId}</Code></Text>
-              <Text size="sm">Answer evidence<br /><Code>{details.readingSource.answerNounId} · {details.readingSource.answer}</Code></Text>
-              <Text size="sm" style={{ gridColumn: "1 / -1" }}>
-                Passage propositions<br />
-                {details.readingSource.propositions.map((proposition) => (
-                  <Code key={`${proposition.sentenceId}-${proposition.subjectId}-${proposition.verbId}-${proposition.objectId}`} display="block">
-                    {proposition.sentenceId}: {proposition.subjectId} · {proposition.verbId} · {proposition.objectId}
-                  </Code>
-                ))}
-              </Text>
-            </>
-          ) : details.lexicalSource ? (
-            <>
-              <Text size="sm">Entry and sense<br /><Code>{details.lexicalSource.entryId} · {details.lexicalSource.senseId}</Code></Text>
-              <Text size="sm">Headword<br /><Code lang="da">{details.lexicalSource.headword}</Code></Text>
-              <Text size="sm">Gloss<br /><Code lang="en">{details.lexicalSource.gloss}</Code></Text>
-              <Text size="sm">Article<br /><Code lang="da">{details.lexicalSource.article}</Code></Text>
-            </>
-          ) : tileSource ? (
-            <>
-              <Text size="sm">Canonical sentence<br /><Code lang="da">{details.canonicalSentence}</Code></Text>
-              <Text size="sm">Identity<br /><Code>{details.canonicalSentenceId}</Code></Text>
-              <Text size="sm" style={{ gridColumn: "1 / -1" }}>
-                Tile identities<br />
-                {tileSource.tokens.map((token) => (
-                  <Code key={token.blockId} display="block">
-                    {token.blockId}: {token.lexicalId} · {token.form}
-                  </Code>
-                ))}
-              </Text>
-              <Text size="sm" style={{ gridColumn: "1 / -1" }}>
-                Licensed orders<br />
-                {tileSource.licensedOrders.map((order) => (
-                  <Code key={`${order.kind}-${order.blockIds.join("-")}`} display="block">
-                    {order.kind}: {order.blockIds.join(" → ")}
-                  </Code>
-                ))}
-              </Text>
-              {tileSource.distractors.length > 0 && (
-                <Text size="sm" style={{ gridColumn: "1 / -1" }}>
-                  Distractors<br />
-                  {tileSource.distractors.map((distractor) => (
-                    <Code key={distractor.blockId} display="block">
-                      {distractor.blockId}: {distractor.rationale}
-                    </Code>
-                  ))}
-                </Text>
-              )}
-            </>
-          ) : (
-            <>
-              <Text size="sm">Canonical sentence<br /><Code lang="da">{details.canonicalSentence}</Code></Text>
-              <Text size="sm">Identity<br /><Code>{details.canonicalSentenceId}</Code></Text>
-              <Text size="sm">Construction<br /><Code>{details.constructionId}</Code></Text>
-              <Text size="sm">Roles<br /><Code>{details.clauseRoles?.join(", ")}</Code></Text>
-              <Text size="sm">Lexical IDs<br /><Code>{details.lexicalIds?.join(", ")}</Code></Text>
-            </>
-          )}
+          <InspectorEvidence details={details} />
           <Text size="sm">Reproduction<br /><Code>seed {details.seed}, index {details.index}</Code></Text>
         </SimpleGrid>
       )}

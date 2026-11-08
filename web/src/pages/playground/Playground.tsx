@@ -8,7 +8,9 @@ import { useEffect, useState } from "react";
 import {
   ApiError, bootstrapPlayground, createExercise, submitSerializedAttempt, UncertainResultError,
 } from "../../api/client";
-import type { Attempt, AttemptAnswer, AttemptRequest, Catalog, DevelopmentSession, Exercise, MatchingPair } from "../../api/models";
+import type {
+  Attempt, AttemptAnswer, AttemptRequest, Catalog, DevelopmentSession, Exercise, GapSelection, MatchingPair,
+} from "../../api/models";
 import ExercisePrompt from "../../components/ExercisePrompt";
 import FeedbackPanel from "../../components/FeedbackPanel";
 import FormatSelect from "../../components/FormatSelect";
@@ -48,16 +50,26 @@ function isMatching(exercise: Exercise) {
   return exercise.formatId === "E014";
 }
 
-function answerFor(exercise: Exercise, text: string, order: string[], matchingPairs: MatchingPair[]): AttemptAnswer {
+function isGaps(exercise: Exercise) {
+  return exercise.formatId === "E015";
+}
+
+function answerFor(
+  exercise: Exercise, text: string, order: string[], matchingPairs: MatchingPair[], gapSelections: GapSelection[],
+): AttemptAnswer {
   if (isMatching(exercise)) return { kind: "matching", pairs: matchingPairs };
+  if (isGaps(exercise)) return { kind: "gaps", selections: gapSelections };
   return exercise.formatId === "E003" || tileMode(exercise)
     ? { kind: "order", blockIds: order }
     : { kind: "text", text };
 }
 
-function answerIsReady(exercise: Exercise | null, text: string, order: string[], matchingPairs: MatchingPair[]) {
+function answerIsReady(
+  exercise: Exercise | null, text: string, order: string[], matchingPairs: MatchingPair[], gapSelections: GapSelection[],
+) {
   if (!exercise) return false;
   if (isMatching(exercise)) return matchingPairs.length > 0;
+  if (isGaps(exercise)) return gapSelections.length > 0;
   if (exercise.formatId === "E003") return order.length === exercise.prompt.blocks.length;
   if (tileMode(exercise)) return order.length > 0;
   return text.trim().length > 0;
@@ -88,25 +100,20 @@ export default function Playground() {
   const { data: catalog = null } = useCatalogQuery(session !== null);
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [formatId, setFormatId] = useState("");
-  const [seed, setSeed] = useState(INITIAL_SEED);
-  const [index, setIndex] = useState(INITIAL_INDEX);
+  const [seed, setSeed] = useState(INITIAL_SEED); const [index, setIndex] = useState(INITIAL_INDEX);
   const [activeReproduction, setActiveReproduction] = useState({ seed: INITIAL_SEED, index: INITIAL_INDEX });
-  const [text, setText] = useState("");
-  const [order, setOrder] = useState<string[]>([]);
-  const [matchingPairs, setMatchingPairs] = useState<MatchingPair[]>([]);
-  const [hintUsed, setHintUsed] = useState(false);
-  const [hintVisible, setHintVisible] = useState(false);
+  const [text, setText] = useState(""); const [order, setOrder] = useState<string[]>([]);
+  const [matchingPairs, setMatchingPairs] = useState<MatchingPair[]>([]); const [gapSelections, setGapSelections] = useState<GapSelection[]>([]);
+  const [hintUsed, setHintUsed] = useState(false); const [hintVisible, setHintVisible] = useState(false);
   const [attempt, setAttempt] = useState<Attempt | null>(null);
-  const [pending, setPending] = useState<string | null>(null);
-  const [uncertain, setUncertain] = useState(false);
-  const [busy, setBusy] = useState(true);
-  const [error, setError] = useState("");
+  const [pending, setPending] = useState<string | null>(null); const [uncertain, setUncertain] = useState(false);
+  const [busy, setBusy] = useState(true); const [error, setError] = useState("");
   const [recoveryRequired, setRecoveryRequired] = useState<RecoveryRequired>(null);
   const [exerciseHeadingRef, requestExerciseFocus] = useExerciseFocus(attempt, exercise);
   const [errorAlertRef, requestErrorFocus] = useRequestedFocus<HTMLDivElement>();
   const [uncertainAlertRef, requestUncertainFocus] = useRequestedFocus<HTMLDivElement>();
   const [feedbackRef, requestFeedbackFocus] = useRequestedFocus<HTMLDivElement>();
-  const [matchingRef, requestMatchingFocus] = useRequestedFocus<HTMLDivElement>();
+  const [matchingRef, requestMatchingFocus] = useRequestedFocus<HTMLDivElement>(); const [gapRef, requestGapFocus] = useRequestedFocus<HTMLDivElement>();
   const generate = async (nextFormat: string, nextSeed: number, nextIndex: number, knownCatalog = catalog) => {
     if (!knownCatalog) return;
     const format = knownCatalog.formats.find((candidate) => candidate.id === nextFormat);
@@ -127,6 +134,7 @@ export default function Playground() {
       setText("");
       setOrder([]);
       setMatchingPairs([]);
+      setGapSelections([]);
       setHintUsed(false);
       setHintVisible(false);
       setAttempt(null);
@@ -187,16 +195,17 @@ export default function Playground() {
     const request: AttemptRequest = {
       attemptId: crypto.randomUUID(),
       exerciseId: exercise.id,
-      answer: answerFor(exercise, text, order, matchingPairs),
+      answer: answerFor(exercise, text, order, matchingPairs, gapSelections),
       hintUsed,
     };
     void deliverAttempt(JSON.stringify(request));
   };
   const retryKnownAttempt = () => {
     if (exercise && isMatching(exercise)) requestMatchingFocus();
+    else if (exercise && isGaps(exercise)) requestGapFocus();
     else requestExerciseFocus();
     setAttempt(null);
-    if (!exercise || !isMatching(exercise)) {
+    if (!exercise || (!isMatching(exercise) && !isGaps(exercise))) {
       setText("");
       setOrder([]);
     }
@@ -208,7 +217,7 @@ export default function Playground() {
     return <Group justify="center" mih={300}><Loader aria-label="Starting learning engine" /></Group>;
   }
   const { id: activeFormatId, format } = activeSelection(catalog, exercise, formatId);
-  const answerReady = answerIsReady(exercise, text, order, matchingPairs);
+  const answerReady = answerIsReady(exercise, text, order, matchingPairs, gapSelections);
 
   return (
     <Stack gap="lg" maw={920} className={classes.playground}>
@@ -277,6 +286,9 @@ export default function Playground() {
                 matchingPairs={matchingPairs}
                 matchingFocusRef={matchingRef}
                 onMatchingPairs={setMatchingPairs}
+                gapSelections={gapSelections}
+                gapFocusRef={gapRef}
+                onGapSelections={setGapSelections}
               />
               {hintVisible && <Alert color="gray" icon={<IconBulb size={18} />}>{exercise.hint}</Alert>}
               {attempt && (
@@ -305,7 +317,7 @@ export default function Playground() {
                     </Button>
                   ) : (
                     <Button loading={busy} disabled={!answerReady || uncertain} onClick={checkAnswer}>
-                      {isMatching(exercise) ? "Check matches" : "Check answer"}
+                      {isMatching(exercise) ? "Check matches" : isGaps(exercise) ? "Check gaps" : "Check answer"}
                     </Button>
                   )}
                 </Group>
