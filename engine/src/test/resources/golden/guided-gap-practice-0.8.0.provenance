@@ -1,0 +1,13 @@
+baselineCommit=0dfc00afdc2bd21f5f06899ff47554689f0ae0c9
+releaseSourceCommit=cdb6e066288550fb958efab1e103f538c03824a5
+releaseVersion=0.8.0
+captureDate=2026-11-09
+planRevision=verb-article-gaps-1
+followUpRevision=follow-up-3
+contentRevision=pilot-7
+generatorRevision=generator-7
+evaluationRevision=evaluation-7
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=21
+fixtureSha256=471d452c76084975ea2d8345c7a27a75198b4467ce5e5d14b53fefc4af0e50da
+description=Published 0.8.0 guided-gap plans and follow-ups at seed boundaries, all nine slot states, conditional feedback exposure, and first/latest unknown summary behavior.

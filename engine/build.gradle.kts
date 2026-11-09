@@ -149,6 +149,28 @@ tasks.register<JavaExec>("exportPilotSevenCompatibility") {
     outputs.files(pilotSevenCompatibilityFixture, pilotSevenCompatibilityProvenance)
 }
 
+val guidedGapPracticeCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/guided-gap-practice-0.8.0.tsv")
+val guidedGapPracticeCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/guided-gap-practice-0.8.0.provenance")
+
+tasks.register<JavaExec>("exportGuidedGapPracticeCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.8.0 guided-gap practice compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.GuidedGapPracticeCompatibilityExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                guidedGapPracticeCompatibilityFixture.asFile.absolutePath,
+                guidedGapPracticeCompatibilityProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(guidedGapPracticeCompatibilityFixture, guidedGapPracticeCompatibilityProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

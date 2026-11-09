@@ -44,6 +44,9 @@ Guard tests that must stay green and are never loosened to fit a change:
 - `PackageBoundaryTest` — layering (`conventions.md`); includes self-tests of its own regex scan.
 - `PilotThreeWireCompatibilityTest`, `PilotFourWireCompatibilityTest`, `PilotFiveWireCompatibilityTest`, `PilotSixWireCompatibilityTest`, `PilotSevenWireCompatibilityTest`, `PublishedFingerprintCompatibilityTest`, `PracticeWireCompatibilityTest` — frozen wire and
   fingerprint evidence (`compatibility.md`).
+- `GuidedGapPracticeCompatibilityTest` (engine) and `GuidedGapPracticeWireCompatibilityTest`
+  (server) — published 0.8.0 guided plan, summary, exposure, request and recursive-review evidence;
+  intentionally preserve existing profiles while allowing additive catalogue entries.
 - `ServerConfigTest`, `DatabaseBootstrapTest` — env validation, bounded migration connect/login deadlines.
 
 ## Web (`web/`)

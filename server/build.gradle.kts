@@ -71,6 +71,10 @@ val pilotSixWireProvenance =
 val pilotSevenWireFixture = layout.projectDirectory.file("src/test/resources/golden/pilot-7-generator-7-wire.tsv")
 val pilotSevenWireProvenance =
     layout.projectDirectory.file("src/test/resources/golden/pilot-7-generator-7-wire.provenance")
+val guidedGapPracticeWireFixture =
+    layout.projectDirectory.file("src/test/resources/golden/guided-gap-practice-0.8.0-wire.tsv")
+val guidedGapPracticeWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/guided-gap-practice-0.8.0-wire.provenance")
 
 tasks.register<JavaExec>("exportPilotThreeWireCompatibility") {
     group = "verification"
@@ -155,6 +159,23 @@ tasks.register<JavaExec>("exportPilotSevenWireCompatibility") {
         },
     )
     outputs.files(pilotSevenWireFixture, pilotSevenWireProvenance)
+}
+
+tasks.register<JavaExec>("exportGuidedGapPracticeWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.8.0 guided-gap practice public and private wire fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.GuidedGapPracticeWireCompatibilityExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                guidedGapPracticeWireFixture.asFile.absolutePath,
+                guidedGapPracticeWireProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(guidedGapPracticeWireFixture, guidedGapPracticeWireProvenance)
 }
 
 tasks.test {

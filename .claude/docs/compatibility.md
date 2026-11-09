@@ -57,6 +57,8 @@ Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 | `server/.../pilot-6-generator-6-wire.tsv` (2,852) | `PilotSixWireCompatibilityTest` (SHA-256 pinned) | pair-six public wire, private source and reproduction fingerprints |
 | `engine/.../pilot-7-generator-7-evaluation-7.tsv` (3,675) | `PilotSevenCompatibilityGoldenTest` (SHA-256 pinned) | inherited formats and all 92 gap clauses with nine semantic states, thirteen ordered arrays, malformed/raw input and byte-exact review |
 | `server/.../pilot-7-generator-7-wire.tsv` (3,134) | `PilotSevenWireCompatibilityTest` (SHA-256 pinned) | pair-seven public/private gap wire, attempt results and reproduction fingerprints |
+| `engine/.../guided-gap-practice-0.8.0.tsv` (21) | `GuidedGapPracticeCompatibilityTest` (SHA-256 pinned) | published guided-gap plans, seed boundaries, slot outcomes/exposure, first/latest unknowns and recursive reviews |
+| `server/.../guided-gap-practice-0.8.0-wire.tsv` (22) | `GuidedGapPracticeWireCompatibilityTest` (SHA-256 pinned) | initial/supported/attempted/completed guided wire, private plans, existing profile, request serialization and recursive review lineage |
 | `server/.../published-fingerprints.tsv` (978) | `PublishedFingerprintCompatibilityTest` (SHA-256 pinned) | original reproduction fingerprints of pilot-1/2 |
 
 Plus `PracticeWireCompatibilityTest` (legacy plan payload and practice item/response stay byte-stable when new optional fields are absent).
@@ -65,6 +67,10 @@ Pair five was frozen from unchanged baseline `06dc714` in commit `ac2ed71` befor
 Pair six was frozen from unchanged baseline `6d1c0fe` in commit `889a9b4` before pair-seven production edits.
 Pair seven was frozen from unchanged baseline `8138855` before guided multiple-gap production edits;
 it remains CURRENT with unchanged generation and grading. New practice plans carry separate revisions.
+Published 0.8.0 guided practice was additionally frozen from unchanged baseline `0dfc00a`
+before the selected first-steps implementation changed shared target/support/completion models.
+Its canonical projection lists legacy fields explicitly; adding omitted defaults must not change
+an archive through a data class's object representation.
 
 Rules:
 
@@ -103,6 +109,7 @@ Rules:
 | `:engine:exportPilotFiveCompatibility` / `:server:exportPilotFiveWireCompatibility` | write **new** pair-five evidence and provenance only (refuse overwrite) |
 | `:engine:exportPilotSixCompatibility` / `:server:exportPilotSixWireCompatibility` | write **new** pair-six evidence and provenance only (refuse overwrite) |
 | `:engine:exportPilotSevenCompatibility` / `:server:exportPilotSevenWireCompatibility` | write **new** pair-seven evidence and provenance only (refuse overwrite) |
+| `:engine:exportGuidedGapPracticeCompatibility` / `:server:exportGuidedGapPracticeWireCompatibility` | add the published 0.8.0 practice archive and provenance only (refuse overwrite; existing files are immutable) |
 | `:server:exportPilotThreeWireCompatibility` | writes a **new** wire fixture + provenance (refuses to overwrite) |
 
 Review exports are deterministic evidence for teaching review; they are not approval. The production engine does no file I/O.

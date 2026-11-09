@@ -217,3 +217,12 @@ design defaults; the separately proposed implementation is not activated by this
 selection. Existing preview content and teaching-review status remain unchanged. Standing
 independent review, repository checks and focused commit/merge/push apply to this document
 delivery; documentation alone does not bump the app version or trigger preview promotion.
+
+**9 November 2026 — First three runtime sessions authorized:** the user's subsequent
+“go forth” selects BL-052 implementation of the [activation contract](module-one-activation.md),
+including new bounded pronoun selection/recall, stored `er` practice, required teaching/reentry,
+scoped summaries, completion eligibility and preservation of old runs. Deliver reviewed,
+verified focused commits merged/pushed, app 0.9.0 with changelog, an annotated tag/GitHub
+Release at the verified source, and backed-up app-only private-preview promotion. Full course
+progression, further module content, new targeted reviews and Danish teaching approval remain
+separate. No new overnight cutoff or OS power-management action is implied.

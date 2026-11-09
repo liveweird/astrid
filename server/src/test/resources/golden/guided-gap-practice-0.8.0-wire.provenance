@@ -1,0 +1,13 @@
+baselineCommit=0dfc00afdc2bd21f5f06899ff47554689f0ae0c9
+releaseSourceCommit=cdb6e066288550fb958efab1e103f538c03824a5
+releaseVersion=0.8.0
+captureDate=2026-11-09
+planRevision=verb-article-gaps-1
+followUpRevision=follow-up-3
+contentRevision=pilot-7
+generatorRevision=generator-7
+evaluationRevision=evaluation-7
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=22
+fixtureSha256=ac9d48dfebfd3cd240688dad34fc544847720b8fbf106bfd198680ac6fd69674
+description=Published 0.8.0 guided-gap profile, creation/support serialization, private plan payloads, supported/attempted/completed public wire, and initial/recursive follow-up-3 payloads before new fields.

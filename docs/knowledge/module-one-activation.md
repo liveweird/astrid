@@ -2,11 +2,17 @@
 
 ## Authorization and status
 
+**9 November 2026 — Runtime implementation authorized (BL-052):** the user's subsequent
+“go forth” selects implementation of this bounded three-session contract and the standing
+verified 0.9.0 commit/merge/push, tag/GitHub Release and backed-up private-preview delivery.
+The planning-only boundary below is historical; runtime work is now in progress. Wider
+Module 1 content, targeted-review expansion and teaching approval remain outside this selection.
+
 **9 November 2026 — User-authorized planning milestone (BL-051):** “go-go” selects the
 recommended activation contract for the first three authored sessions: singular human
 subjects, group human subjects and stored present `være → er`. Deliver concrete teaching,
 answer and compatibility requirements before implementation. The proposed runtime milestone
-is **0.9.0**; it remains a separate selection. This document adds no running course content,
+was **0.9.0**; it was a separate selection, now authorized above. The planning document added no running course content,
 published identifiers, API fields or release tag.
 
 This narrows the [Module 1 authoring packet](module-one-course-slice.md), rather than activating
@@ -14,6 +20,33 @@ all 21 sessions. The three-session boundary is user-selected; six assessed items
 the names below and technical identifiers are assistant design defaults for implementation
 review. Language remains a source-checked draft awaiting [Danish teaching review](pilot-teaching-review.md).
 No duration, mastery threshold or learning-effectiveness claim is established.
+
+### Runtime implementation decisions
+
+The following are bounded implementation choices for the selected milestone, not claims of
+new user requirements or already delivered behavior:
+
+- Publish `pilot-8/generator-8/evaluation-8`. Keep all old E001–E015 paths and shared pools
+  unchanged; add E016/E017 for subject-pronoun selection/recall and E018/E019 for bounded
+  `er` selection/recall, reusing the existing choice/text answer transports.
+- Pin six-item profiles `module-one-singular/module-one-singular-1`,
+  `module-one-groups/module-one-groups-1`, and `module-one-er/module-one-er-1` literally to
+  pair eight. English titles are “Talking about one person”, “Talking to and about groups”,
+  and “Using the verb to be”. The chooser groups them under “Module 1: First steps”.
+- Derive each exercise's `targetScopeId` from its authored task/index; do not add a client
+  scope-selection axis to generation requests. New scope metadata is carried in exercise,
+  frozen practice and summary descriptors; absent values preserve old serialization/keys.
+- Persist `introductionRequired`, `completionRuleId=module-one-known-outcome-1` and
+  `exposurePolicyId=module-one-exposure-1` on new plans, with omitted legacy defaults.
+  Reuse the existing introduction support mutation; under the owner lock, require its sticky
+  saved state before grading a new bound attempt. Stored-attempt replay still returns first.
+  A new-plan-only public `canAdvance` projection lets the UI render the server's decision.
+- Keep introduction sections in English explanation or Danish form/example blocks using
+  their explicit language tags. Supply fictional names without independently assessing them;
+  allocate `L025/L025-S01` to the teacher noun only after confirming that identity is unused.
+
+The complete published values, content counts and exposure keys will be recorded with
+implementation evidence. No targeted follow-up fallback is added for these profiles.
 
 ## Learner flow and completion
 
@@ -282,5 +315,23 @@ and 63 Markdown files. No browser journey or preview promotion is claimed for th
 milestone.
 
 BL-051 is complete. [BL-052](../../BACKLOG.md) captures the separately proposed runtime
-implementation. The app remains 0.8.0: no runtime source, public API, golden fixture, applied
+implementation, subsequently selected above. At planning delivery the app remained 0.8.0: no runtime source, public API, golden fixture, applied
 migration, dependency, app version or changelog changed, and no new release tag is warranted.
+
+## Runtime compatibility baseline — 9 November 2026
+
+Before production edits, captured the published 0.8.0 guided practice from unchanged source
+`0dfc00afdc2bd21f5f06899ff47554689f0ae0c9` (release source `cdb6e06`). New immutable archives:
+
+- Engine: 21 rows, SHA-256 `471d452c76084975ea2d8345c7a27a75198b4467ce5e5d14b53fefc4af0e50da`.
+- Server: 22 rows, SHA-256 `ac9d48dfebfd3cd240688dad34fc544847720b8fbf106bfd198680ac6fd69674`.
+
+They cover seed boundaries, exact guided profile/request/private payloads, initial/supported/
+attempted/completed public wire, all nine slot states, first/latest unknown outcomes, actual
+feedback exposure and reachable recursive reviews. Explicit primitive/list projections avoid
+object-representation drift when absent defaults are added; the existing-profile projection
+allows additive catalogue entries. Independent review corrections are resolved; fresh-JVM
+replay and all retained compatibility guards passed. The coordinator's full
+`./scripts/check.sh` passed, including Docker-backed PostgreSQL tests. Earlier fixtures and
+migrations are unchanged. This capture is compatibility evidence, not teaching approval or
+delivery of the new runtime sessions.
