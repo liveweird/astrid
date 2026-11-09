@@ -204,3 +204,16 @@ The [contract and evidence](guided-gap-practice.md#observed-delivery--9-november
 Old pair-three runs remain unchanged; the new four-item profile/reviews use unchanged pair seven.
 Full Module 1 activation remains an unselected next-step proposal, alongside open learner and
 Danish teaching review. This completion record changes documentation only.
+
+## First beginner-session activation planning
+
+**9 November 2026 — Confirmed:** after the recommendation to turn authored S01–S03 into
+the first beginner sequence, the user's “go-go” selects the immediate BL-051 deliverable:
+a concrete [activation contract](module-one-activation.md) with session sequence, licensed
+language, support/exposure, worked grading cases, revision boundaries and acceptance checks.
+The sequence covers singular human subjects, group human subjects and stored `være → er`.
+Six items per session, scoped target identities and a proposed 0.9.0 runtime release are
+design defaults; the separately proposed implementation is not activated by this planning
+selection. Existing preview content and teaching-review status remain unchanged. Standing
+independent review, repository checks and focused commit/merge/push apply to this document
+delivery; documentation alone does not bump the app version or trigger preview promotion.

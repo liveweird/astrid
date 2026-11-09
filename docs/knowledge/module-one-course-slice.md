@@ -78,6 +78,12 @@ Q27 (typed noun-only versus bundled recall) and Q28 (vocabulary budget granulari
 
 ## Engine gaps and dependency order
 
+**Current planning boundary, 9 November 2026:** the historical gap table below describes its
+inspected baseline. Word choice/tiles, matching, multiple gaps and guided-gap practice have
+since shipped through 0.8.0. The [first-three-session activation contract](module-one-activation.md)
+now supplies the selected BL-051 planning deliverable and current runtime gap/revision
+analysis. It does not activate the full module or change the remaining session sequence.
+
 Read against the inspected baseline `88c44cd`; paths refer to the reorganized codebase. This is an implementation proposal, not completed software.
 
 | Area | Reusable today | Required work |
