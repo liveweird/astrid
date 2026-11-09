@@ -173,3 +173,34 @@ These are working-candidate checks, not release/teaching approval. Final full re
 clean committed-image full browser matrix, exact-master CI, runtime/scan/restart proof, tag and
 GitHub Release, actual backup restore, app-only promotion, live smoke and owned cleanup remain
 delivery gates. Record their observed results below only after execution.
+
+## Observed delivery — 9 November 2026
+
+Released app [0.8.0](https://github.com/liveweird/astrid/releases/tag/v0.8.0) at annotated tag `v0.8.0`, source `cdb6e06`, after all five
+[exact-master CI jobs](https://github.com/liveweird/astrid/actions/runs/42698896226) and all 312 Linux browser journeys passed without retries or
+flakies. All 312 native Chromium/WebKit journeys passed against the clean committed image,
+as did 28 additional pinned-Linux guided journeys. The final image passed the vulnerability
+policy and non-root/read-only/no-Git runtime checks. Independent engine, API and UI findings
+are resolved; final rendered review sampled 15 of 36 exact-image captures with no actionable
+visual findings. These are software checks, not Danish teaching approval.
+
+The private preview serves image `sha256:c511ad31920086e4682cb8fd86a072995e38bb96410d7e564be2e252f91fd4f8`. Actual owned app restart preserved exact
+new guided summaries, source-linked reviews, active partial answers, support/context snapshots,
+creation/attempt replay and fresh grading. All seven exercise evaluators and old mixed/verb
+practice, operation summaries and both legacy follow-up revisions retain their exact saved wire.
+Existing pair-three plans remain unchanged; new plans pin pair seven without changing its
+published generation, grading or review bytes. No SQL migration was added.
+
+Before app-only promotion, a 3,159,259-byte mode-0600 private backup was listed and
+actually restored into a new scratch database on the owned QA PostgreSQL container. Every
+immutable row inventory and Flyway versions 1/2/3 matched; the scratch database was removed.
+Promotion preserved 16,297 exercises, 7,294 attempts, 1,631 practice sessions, 11,200 practice items, 4,900 practice attempt contexts,
+the same main PostgreSQL process/mounts and schema history. Main-preview old-pair
+reads/results/replay/fresh grading and all 102 live smoke journeys passed without retries.
+Ownership-guarded cleanup removed only QA containers, volume and network, leaving main app
+and database processes/mounts unchanged.
+
+BL-050 is complete. This is the documentation-only completion follow-up; the running build/tag
+identify the verified release source. Private snapshots, backup, hashes, images and logs remain
+ignored under `.local/guided-gaps/`. Learner review, Danish teaching approval and first Module 1
+activation remain separate. No further backlog feature is activated by this delivery.

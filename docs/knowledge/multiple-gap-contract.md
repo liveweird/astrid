@@ -234,3 +234,8 @@ tag identify the verified release source. Private backup, images, traces, hashes
 remain ignored under `.local/multiple-gaps/`. Preview promotion and owned QA cleanup completed at
 01:21 Europe/Warsaw, before the agreed 07:30 cutoff; no OS shutdown was initiated.
 Learner review, Danish teaching approval, guided integration and broader content remain separate.
+
+**Subsequent milestone:** [guided-gap practice](guided-gap-practice.md#observed-delivery--9-november-2026)
+is delivered at app 0.8.0 after a separate user selection. Its explicit pair-seven plans preserve
+this standalone generator/grader unchanged; the earlier statement that guided activation was
+unselected describes the 0.7.0 delivery boundary.

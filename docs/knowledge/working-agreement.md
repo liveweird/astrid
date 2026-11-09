@@ -194,3 +194,13 @@ independent review and the standing verified, versioned commit/merge/push/releas
 workflow. The [contract](guided-gap-practice.md) records implementation defaults. Full Module 1
 activation and other backlog features remain separate. The completed 0.7.0 overnight cutoff
 does not imply another overnight work period for this selection.
+
+**9 November 2026 — Guided-gap delivery observed:** app [0.8.0](https://github.com/liveweird/astrid/releases/tag/v0.8.0), source `cdb6e06`, passed independent
+engine/API/UI review and all five [release CI jobs](https://github.com/liveweird/astrid/actions/runs/42698896226), with 312 native and 312 Linux
+browser journeys without retries/flakies. Actual QA restart/replay and isolated backup restore
+passed; backed-up app-only promotion preserved immutable histories, PostgreSQL process/mounts
+and schema 1/2/3. All 102 live smoke journeys passed and only owned QA resources were removed.
+The [contract and evidence](guided-gap-practice.md#observed-delivery--9-november-2026) close BL-050.
+Old pair-three runs remain unchanged; the new four-item profile/reviews use unchanged pair seven.
+Full Module 1 activation remains an unselected next-step proposal, alongside open learner and
+Danish teaching review. This completion record changes documentation only.

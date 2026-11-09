@@ -66,3 +66,11 @@ passed without retries/flakies. The [multiple-gap delivery record](multiple-gap-
 isolated backup restore, app-only promotion, 74 live smoke checks and owned cleanup.
 Published older entries/tags stay unchanged; learning pair seven and app 0.7.0 are distinct,
 and guided plans retain pair three.
+
+**Subsequent release — 9 November 2026:** app [0.8.0](https://github.com/liveweird/astrid/releases/tag/v0.8.0), source `cdb6e06`, is the current private
+preview after all five [exact-master CI jobs](https://github.com/liveweird/astrid/actions/runs/42698896226), 312 Linux and 312 native browser journeys
+passed without retries/flakies. The [guided-gap delivery](guided-gap-practice.md#observed-delivery--9-november-2026)
+records independent reviews, actual restart, isolated backup restore, app-only promotion,
+102 live checks and owned cleanup. This supersedes the historical running-version statement
+for 0.7.0. Published notes/tags remain immutable; pair seven stays unchanged, new practice plans
+pin it explicitly, and old plans/reviews retain pair three.

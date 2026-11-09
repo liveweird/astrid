@@ -161,4 +161,9 @@ exact editable retry and all six retained pairs. No new language or guided plan 
 [contract](guided-gap-practice.md) freezes per-slot assessments, explicit introduction exposure,
 independent summaries and article selection-to-written-recall transitions. Older mixed/verb
 plans and reviews retain pair three; the standalone catalog and all seven graders are unchanged.
-Full Module 1 activation remains separate. Release verification is pending.
+Full Module 1 activation remains separate. Delivery evidence follows below.
+
+**Observed guided-gap delivery:** [0.8.0](https://github.com/liveweird/astrid/releases/tag/v0.8.0) adds the separately selected four-item profile,
+per-slot evidence/summaries and selected-only verb/article reviews. The [verified delivery](guided-gap-practice.md#observed-delivery--9-november-2026)
+closes BL-050 without changing the fifteen-format catalog, published pair-seven grading,
+legacy pair-three plans or language inventory. Broader course activation remains separate.
