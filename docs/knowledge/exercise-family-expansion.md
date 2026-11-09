@@ -54,7 +54,7 @@ The selected first batch is governed by the [writing/reading implementation cont
 | 7 | Danish sentence → English, all tiles used | Not implemented. |
 | 8 | Danish sentence → English, spare tiles | Not implemented; direction confirmed by the user. |
 | 9 | One Danish sentence gap, choose the word | E001, finite present versus infinitive of the same verb; two choices. Other word classes are not implemented as choice gaps. |
-| 10 | Several Danish sentence gaps, choose words | Not implemented. |
+| 10 | Several Danish sentence gaps, choose words | E015, two gaps in one licensed sentence: primary finite-present verb and explicitly assessed supporting indefinite article, with related choices and per-gap feedback. |
 | 11 | English–Danish word matching grid, either orientation | E014, four article+noun pairs with English left and Danish right, per-pair feedback and partial checking. Reverse orientation remains unimplemented. |
 | 12 | Produce a question for an answer, typed or tiles | Not implemented; requires question grammar and a constrained intended question. |
 | 13 | Reorder a scrambled Danish sentence | E003, all supplied blocks used; article+noun stay together, and the task requests subject-first order. |
@@ -96,3 +96,7 @@ orientation and guided integration remain separate decisions.
 primary G004 finite-present gap and explicitly assessed G006 supporting-article gap, separate
 feedback, partial answers and safe editable retry. This supersedes the unselected status above
 for #10 only; guided integration, reverse translation and further grammar remain proposals.
+
+**Observed multiple-gap delivery:** item 10 is delivered at [0.7.0](https://github.com/liveweird/astrid/releases/tag/v0.7.0) under the
+[verified contract](multiple-gap-contract.md#observed-delivery--9-november-2026), superseding its earlier unimplemented/proposed status.
+It remains standalone; reversed translation, later grammar and guided integration are proposals.

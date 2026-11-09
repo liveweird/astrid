@@ -151,3 +151,7 @@ explicit supporting article, using the same 92 complemented clauses. The
 [contract](multiple-gap-contract.md) separates each slot's evidence from whole-primary success,
 omits meaning assessment, preserves exact answer order/replay and retains all six older pairs.
 Learning pair seven and app 0.7.0 advance separately; guided plans stay at pair three.
+
+**Observed multiple-gap delivery:** E015 is available in the fifteen-entry standalone catalog
+at [0.7.0](https://github.com/liveweird/astrid/releases/tag/v0.7.0). The [verified delivery](multiple-gap-contract.md#observed-delivery--9-november-2026) closes BL-049 with separate primary/support outcomes,
+exact editable retry and all six retained pairs. No new language or guided plan was activated.

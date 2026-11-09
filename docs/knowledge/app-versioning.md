@@ -59,3 +59,10 @@ next annotated tag/GitHub Release and the current preview. All five [exact-maste
 preceded app-only promotion. The [matching delivery record](vocabulary-matching-contract.md#observed-delivery--8-november-2026)
 supersedes the earlier running-version statement. Published older entries and tags remain unchanged;
 learning pair six is separate from app 0.6.0 and guided plans remain at pair three.
+
+**Subsequent release — 9 November 2026:** app [0.7.0](https://github.com/liveweird/astrid/releases/tag/v0.7.0), source `e56ac87`, is the current private
+preview. All five [exact-master CI jobs](https://github.com/liveweird/astrid/actions/runs/42537494010), 284 Linux and 284 native browser journeys
+passed without retries/flakies. The [multiple-gap delivery record](multiple-gap-contract.md#observed-delivery--9-november-2026) records the actual
+isolated backup restore, app-only promotion, 74 live smoke checks and owned cleanup.
+Published older entries/tags stay unchanged; learning pair seven and app 0.7.0 are distinct,
+and guided plans retain pair three.

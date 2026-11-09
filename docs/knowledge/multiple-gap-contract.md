@@ -201,3 +201,36 @@ while enlarged navigation left only 264px of content. The correction uses the ex
 container query to stack gap cards at 30rem of available content and permits long role labels
 to wrap. It preserves desktop columns and does not conceal overflow. Recheck the unchanged
 landscape regression and complete matrix before release; do not publish this first candidate.
+
+## Observed delivery — 9 November 2026
+
+Released app [0.7.0](https://github.com/liveweird/astrid/releases/tag/v0.7.0) at annotated tag `v0.7.0`, source `e56ac87`, after all five
+[exact-master CI jobs](https://github.com/liveweird/astrid/actions/runs/42537494010) and all 284 Linux browser journeys passed without retries or
+flaky results. The corrected exact image also passed all 284 native Chromium/WebKit journeys,
+the two focused native and two pinned-Linux landscape regressions, vulnerability policy and
+runtime isolation checks. The failed first candidate was never published or promoted.
+
+Independent engine, API and UI review findings are resolved. Thirty-four final image captures
+cover light/dark desktop, 320px/200% empty/partial/mixed/complete states and both landscape
+choosers. The unchanged full landscape assertions pass after the container-based correction.
+Local checks retain the counts and raised server coverage floors recorded above. All six older
+golden/wire/review guards and applied migration bytes remain unchanged.
+
+The private preview serves immutable image `sha256:48e9b3d58176854cb8ad04ecda6bb9fed622c7eaece6c901b6954a5ddc837d77`. Actual QA app restart preserved
+exact saved reads/results/replay and fresh grading for evaluators one through seven, original
+practice wire, an active verb run and source-linked follow-up. Guided plans stay at pair three.
+
+Before app-only promotion, a 3,108,420-byte mode-0600 private backup was listed and
+actually restored into a new database on the owned QA PostgreSQL container. All five immutable
+row inventories and Flyway versions 1/2/3 matched; the scratch database was removed. Promotion
+preserved 16,087 exercises, 7,138 attempts, 1,622 practice sessions, 11,148 practice items and
+4,874 practice attempt contexts, the same main PostgreSQL process/mounts and unchanged schema history.
+Main-preview retained-pair reads/replay/fresh grading and all 74 live smoke journeys
+passed without retries. Ownership-guarded cleanup removed only the QA containers, volume and
+network, leaving the main processes/mounts unchanged.
+
+BL-049 is complete. This is the documentation-only completion follow-up; the running build and
+tag identify the verified release source. Private backup, images, traces, hashes and HTTP proofs
+remain ignored under `.local/multiple-gaps/`. Preview promotion and owned QA cleanup completed at
+01:21 Europe/Warsaw, before the agreed 07:30 cutoff; no OS shutdown was initiated.
+Learner review, Danish teaching approval, guided integration and broader content remain separate.

@@ -176,3 +176,11 @@ release and backed-up private-preview promotion apply. The user requests continu
 **07:30 Warsaw** as the stop time before their **08:00 laptop shutdown**; finish safely or record
 pending work by that cutoff. This authorizes related verification/hardening, not another feature
 or automatic OS shutdown. Guided integration remains a separate proposed milestone.
+
+**9 November 2026 — Multiple-gap delivery observed:** app [0.7.0](https://github.com/liveweird/astrid/releases/tag/v0.7.0), tagged source `e56ac87`,
+passed all five [release CI jobs](https://github.com/liveweird/astrid/actions/runs/42537494010), 284 Linux and 284 native browser journeys without
+retries/flakies, plus 74 live smoke checks. A private backup was actually restored and
+compared in owned QA before app-only promotion. All immutable histories, retained evaluators,
+PostgreSQL process/mounts and schema 1/2/3 were preserved; only owned QA resources were removed.
+The [contract and delivery](multiple-gap-contract.md#observed-delivery--9-november-2026) close BL-049 before the 07:30 Warsaw cutoff.
+Guided integration is a proposal; no further feature is activated by this completion record.
