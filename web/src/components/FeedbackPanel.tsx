@@ -41,16 +41,24 @@ function lexicalLanguageLabel(attempt: Attempt) {
   }
   if (scope === "danish-matching") return "Supplied Danish noun phrases";
   if (scope === "danish-gaps") return "Danish gap selections";
+  if (scope === "danish-word-form") {
+    return attempt.linguisticStatus === "acceptable" ? "Recognized Danish word form" : languageLabel(attempt.linguisticStatus);
+  }
   return languageLabel(attempt.linguisticStatus);
 }
 
 function feedbackTitle(
-  goodWork: boolean, identifiedHeadword: boolean, identifiedWritingTarget: boolean, gapSupportNeedsReview: boolean,
+  goodWork: boolean,
+  identifiedHeadword: boolean,
+  identifiedWritingTarget: boolean,
+  gapSupportNeedsReview: boolean,
+  wordFormTitle: string | null,
 ) {
   if (goodWork) return "Good work";
   if (identifiedHeadword) return "Headword identified; adjust your answer.";
   if (identifiedWritingTarget) return "Target met; adjust the rest of your answer.";
   if (gapSupportNeedsReview) return "Verb target met; review the article.";
+  if (wordFormTitle) return wordFormTitle;
   return "Look at the target once more";
 }
 
@@ -59,6 +67,7 @@ function failedConstraintLabel(scope: string | null | undefined, tileResponse: b
   if (scope === "danish-gaps") return "Complete both gaps";
   if (tileResponse) return "Response constraint to revisit";
   if (scope === "danish-headword") return "One-word response required";
+  if (scope === "danish-word-form") return "One-word form required";
   if (scope === "danish-sentence") return "One statement required";
   return "Supplied choice required";
 }
@@ -68,6 +77,7 @@ function metConstraintLabel(scope: string | null | undefined, tileResponse: bool
   if (scope === "danish-gaps") return "Both gaps supplied";
   if (tileResponse) return "Response constraint met";
   if (scope === "danish-sentence") return "One statement supplied";
+  if (scope === "danish-word-form") return "One-word form supplied";
   return "Supplied choice used";
 }
 
@@ -136,7 +146,18 @@ function GapFeedback({ results, prompt }: { results: GapResult[]; prompt: GapPro
 
 function showDanishUnknownDisclaimer(attempt: Attempt) {
   return attempt.linguisticStatus === "unknown"
-    && (attempt.linguisticScope == null || attempt.linguisticScope === "danish-sentence");
+    && (attempt.linguisticScope == null
+      || attempt.linguisticScope === "danish-sentence"
+      || attempt.linguisticScope === "danish-word-form");
+}
+
+function wordFormFeedbackTitle(attempt: Attempt, targetMet: boolean, goodWork: boolean) {
+  if (attempt.linguisticScope !== "danish-word-form") return null;
+  if (targetMet && !goodWork) return "Word identified; use the taught spelling.";
+  if (attempt.linguisticStatus === "known-issue" && attempt.responseConstraintStatus === "not-met") {
+    return "Review the written form.";
+  }
+  return null;
 }
 
 export default function FeedbackPanel({ attempt, exercise, focusRef, supportDescription, tileResponse = false }: {
@@ -165,6 +186,7 @@ export default function FeedbackPanel({ attempt, exercise, focusRef, supportDesc
   const identifiedHeadword = scope === "danish-headword" && met && !goodWork;
   const identifiedWritingTarget = scope === "danish-sentence" && met && !goodWork;
   const gapSupportNeedsReview = gaps && met && !goodWork;
+  const wordFormTitle = wordFormFeedbackTitle(attempt, met, goodWork);
   const matchingDetails = matchingEvidence(attempt, exercise);
   const gapDetails = gapEvidence(attempt, exercise);
   return (
@@ -176,7 +198,10 @@ export default function FeedbackPanel({ attempt, exercise, focusRef, supportDesc
       variant="light"
       icon={goodWork ? <IconCircleCheck size={20} /> : <IconAlertTriangle size={20} />}
       title={<Text c="var(--mantine-color-text)" fw={650}>
-        {feedbackTitle(goodWork, identifiedHeadword, identifiedWritingTarget, gapSupportNeedsReview)}
+        {feedbackTitle(
+          goodWork, identifiedHeadword, identifiedWritingTarget, gapSupportNeedsReview,
+          wordFormTitle,
+        )}
       </Text>}
       role="status"
     >
@@ -193,7 +218,7 @@ export default function FeedbackPanel({ attempt, exercise, focusRef, supportDesc
           <Badge className={classes.feedbackBadge} variant="default">
             {attempt.linguisticScope ? lexicalLanguageLabel(attempt) : languageLabel(attempt.linguisticStatus)}
           </Badge>
-          {(["danish-sentence", "danish-choice"].includes(scope ?? "") || matching || gaps)
+          {(["danish-sentence", "danish-choice", "danish-word-form"].includes(scope ?? "") || matching || gaps)
             && attempt.responseConstraintStatus === "met" && (
             <Badge className={classes.feedbackBadge} variant="default">
               {metConstraintLabel(scope, tileResponse)}

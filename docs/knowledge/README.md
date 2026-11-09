@@ -20,7 +20,7 @@ This is the repository record of the Danish learning app's requirements, design 
 - [Module 1 course slice](module-one-course-slice.md): authorized short-session authoring plan, prerequisite reconciliation, learning evidence and dependency-ordered engine gaps; [language pack](module-one-language-pack.md) and [worked exercises](module-one-worked-exercises.md) supply bounded source-checked material and grading cases.
 - [First Module 1 activation contract](module-one-activation.md): selected implementation of three six-item beginner sessions, explicit teaching/reference exposure, scoped pronoun/present-form evidence and compatibility acceptance; runtime delivery is in progress.
 - [Danish sentence catalogue](danish-sentence-catalogue.md): 30 phrase/clause constructions and generation constraints.
-- [Danish vocabulary seed](danish-vocabulary-seed.md): the published 23-entry seed plus the choice-only pair-five addition, grammatical forms, senses, and combination allowlists.
+- [Danish vocabulary seed](danish-vocabulary-seed.md): the original 23-entry seed, choice-only magazine and supplied first-step teacher additions, grammatical forms, senses, and revision-specific allowlists.
 - [Beginner slice specification](beginner-slice-spec.md): connected targets, three exercise formats, grading examples, variation rules, and content/API responsibilities.
 - [Project backlog](../../BACKLOG.md): separate work plan using `[next]`, `[todo]`, `[new]`, `[parked]`, and `[blocked]`.
 

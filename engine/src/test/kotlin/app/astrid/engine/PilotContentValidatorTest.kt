@@ -15,6 +15,8 @@ class PilotContentValidatorTest {
         assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotThreeSnapshot))
         assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotFourSnapshot))
         assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotFiveSnapshot))
+        assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotSixSnapshot))
+        assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.pilotSevenSnapshot))
         assertEquals(emptyList(), PilotContentValidator.validate(PilotContent.currentSnapshot))
     }
 
@@ -148,6 +150,55 @@ class PilotContentValidatorTest {
         val snapshot = valid.copy(sentences = valid.sentences.replace(reading, malformed))
 
         assertIssue(snapshot, malformed.id, "unlicensed construction or lexical combination")
+    }
+
+    @Test
+    fun `pair eight extension nouns cannot enter inherited C002 or C003 frames`() {
+        val current = PilotContent.currentSnapshot
+        val haveBook = current.sentences.single { it.id == "C002-L001-L009-L014" }
+        val magazine = PilotContent.magazine
+        val haveMagazine = haveBook.copy(
+            id = "C002-L001-L009-L024",
+            complement = Constituent(
+                listOf(magazine.gender.articleId, magazine.id),
+                "${magazine.gender.article} ${magazine.text}",
+                "OBJECT",
+            ),
+        )
+        assertIssue(
+            current.copy(sentences = current.sentences.replace(haveBook, haveMagazine)),
+            haveMagazine.id,
+            "unlicensed construction or lexical combination",
+        )
+
+        val identifyingBook = current.sentences.single { it.id == "C003-L008-L010-L014" }
+        val teacher = PilotContent.teacher
+        val identifyingTeacher = identifyingBook.copy(
+            id = "C003-L008-L010-L025",
+            complement = Constituent(
+                listOf(teacher.gender.articleId, teacher.id),
+                "${teacher.gender.article} ${teacher.text}",
+                "PREDICATIVE",
+            ),
+        )
+        assertIssue(
+            current.copy(sentences = current.sentences.replace(identifyingBook, identifyingTeacher)),
+            identifyingTeacher.id,
+            "unlicensed construction or lexical combination",
+        )
+    }
+
+    @Test
+    fun `pair eight review metadata extends only the bounded C004 records`() {
+        val retainedVerb = PilotContent.pilotSevenSnapshot.lexicalReview.single { it.id == "L010" }
+        val currentVerb = PilotContent.currentSnapshot.lexicalReview.single { it.id == "L010" }
+        assertEquals("C003 fixed Det er … only; other copular and auxiliary uses excluded.", retainedVerb.constraints)
+        assertTrue("ten enumerated C004 name and occupation clauses" in currentVerb.constraints)
+        assertTrue(
+            "bounded C004 name and occupation subjects" in
+                PilotContent.currentSnapshot.lexicalReview.single { it.id == "L001" }.constraints,
+        )
+        assertTrue("C004" !in PilotContent.pilotSevenSnapshot.lexicalReview.single { it.id == "L001" }.constraints)
     }
 
     @Test

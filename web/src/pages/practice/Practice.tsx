@@ -13,7 +13,8 @@ import {
   practiceError, reconcileOutbox,
 } from "./practiceOperations";
 import {
-  followUpRevisionFor, prepareFollowUpCreation, preparePracticeCreation, validateProfiles,
+  followUpRevisionFor, moduleOneProfileKey, nextModuleOneProfile, prepareFollowUpCreation, preparePracticeCreation,
+  profileKey, validateProfiles,
 } from "./practiceProfiles";
 import {
   type PracticeOutboxEntry, type PracticeRunRecovery, saveOutboxEntry, saveRunWithCreation,
@@ -61,7 +62,7 @@ export default function Practice() {
   const [error, setError] = useState("");
   const [recoveryUnavailable, setRecoveryUnavailable] = useState(false), [selectedTargets, setSelectedTargets] = useState<Set<string>>(() => new Set());
   const [chooserOpen, setChooserOpen] = useState(false), [selectedProfile, setSelectedProfile] = useState<string | null>(null);
-  const { errorRef, feedbackRef, gapFocusRef, hintRef, introductionContentRef, itemHeadingRef,
+  const { errorRef, feedbackRef, gapFocusRef, hintRef, introductionContentRef, introductionControlRef, itemHeadingRef,
     lessonContentRef, requestFocus, summaryHeadingRef } = usePracticeFocusQueue(error);
   const generationRef = useRef(0), chooserReturnErrorRef = useRef(""); useEffect(() => () => { generationRef.current += 1; }, []);
 
@@ -76,7 +77,7 @@ export default function Practice() {
 
   useInitialPracticeRecovery(boundId, {
     applyState, bindUrl, setBusy, setError, setGapSelections, setOrder, setPendingEntry, setRecoveryUnavailable,
-    setRun, setText, setUncertain,
+    setRun, setText, setUncertain, requestFocus,
     showFreshChooser: (_catalog, message = "") => {
       setSelectedProfile(null);
       setChooserOpen(true);
@@ -120,12 +121,12 @@ export default function Practice() {
     }
   };
 
-  const openPracticeChooser = () => {
+  const openPracticeChooser = (preselected: string | null = null) => {
     const generation = generationRef.current + 1;
     generationRef.current = generation;
     chooserReturnErrorRef.current = error;
     setChooserOpen(true);
-    setSelectedProfile(null);
+    setSelectedProfile(preselected);
     setError("");
     if (!run) return;
     void loadPracticeProfiles().then((catalog) => {
@@ -141,6 +142,7 @@ export default function Practice() {
     setChooserOpen(false);
     setSelectedProfile(null);
     setError(chooserReturnErrorRef.current);
+    if (session?.state === "completed") requestFocus("summary");
   };
 
   const startNewPractice = async () => {
@@ -253,10 +255,12 @@ export default function Practice() {
     const completing = session.cursor + 1 === session.itemCount;
     void perform(outboxEntry(run, "advance", `${run.practiceSessionId}-${item.position}`, { position: item.position }), completing ? "summary" : "item");
   };
+  const nextProfile = nextModuleOneProfile(session);
+  const nextProfileKey = nextProfile ? profileKey(nextProfile) : null;
 
   return (
     <Stack gap="lg" maw={920} className={`${classes.playground} ${classes.practice}`}>
-      <PracticeHeading session={session} busy={busy} onStartNew={openPracticeChooser} />
+      <PracticeHeading session={session} busy={busy} onStartNew={() => openPracticeChooser()} />
       <Box>
         <Group justify="space-between" mb={6}><Text size="sm" fw={650}>{session.state === "completed" ? "Complete" : `Part ${session.cursor + 1} of ${session.itemCount}`}</Text><Text size="sm" c="dimmed">{session.cursor}/{session.itemCount} continued</Text></Group>
         <Progress value={progress} aria-label={`${session.cursor} of ${session.itemCount} practice items continued`} />
@@ -285,10 +289,17 @@ export default function Practice() {
           return next;
         })}
         onStartReview={() => void startFollowUp()}
+        onRepeat={() => {
+          const key = moduleOneProfileKey(session);
+          if (key) openPracticeChooser(key);
+        }}
+        nextProfile={nextProfile && nextProfileKey
+          ? { title: nextProfile.title, onChoose: () => openPracticeChooser(nextProfileKey) }
+          : undefined}
       /> : <ActivePractice
         session={session} blocked={blocked} busy={busy} text={text} order={order}
         gapSelections={gapSelections} attempt={attempt} feedbackRef={feedbackRef} gapFocusRef={gapFocusRef}
-        hintRef={hintRef} introductionRef={introductionContentRef} itemRef={itemHeadingRef} lessonRef={lessonContentRef}
+        hintRef={hintRef} introductionRef={introductionContentRef} introductionControlRef={introductionControlRef} itemRef={itemHeadingRef} lessonRef={lessonContentRef}
         onText={setText} onOrder={setOrder} onGapSelections={setGapSelections} onSupport={support}
         onSubmit={submit} onAdvance={advance}
         onRetry={() => {

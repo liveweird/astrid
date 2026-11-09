@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, Divider, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { Box, Button, Checkbox, Divider, Group, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import type { RefObject } from "react";
 import type { PracticeSession, PracticeSummaryRow } from "../api/models";
 
@@ -27,8 +27,9 @@ function OutcomeSummary({ row, kind }: { row: PracticeSummaryRow; kind: "firstOu
 
 function practiceTargetKey(row: PracticeSummaryRow) {
   if (row.targetSkillId) {
+    const scope = row.targetScopeId ? `${row.targetScopeId}:` : "";
     return row.assessmentMode
-      ? `grammar:${row.targetSkillId}:${row.assessmentMode}`
+      ? `grammar:${row.targetSkillId}:${scope}${row.assessmentMode}`
       : `grammar:${row.targetSkillId}`;
   }
   const target = row.lexicalTarget;
@@ -36,7 +37,18 @@ function practiceTargetKey(row: PracticeSummaryRow) {
   return `lexical:${target.entryId}:${target.senseId}:${target.facet}:${target.direction}`;
 }
 
+const SCOPED_TARGET_KINDS: Record<string, string> = {
+  "human-singular:selection": "One-person subject word selection",
+  "human-singular:recall": "One-person subject word recall",
+  "human-group:selection": "Group subject word selection",
+  "human-group:recall": "Group subject word recall",
+  "vaere-present:selection": "Present er selection",
+  "vaere-present:recall": "Present er recall",
+};
+
 function targetKind(row: PracticeSummaryRow) {
+  const scoped = SCOPED_TARGET_KINDS[`${row.targetScopeId ?? ""}:${row.assessmentMode ?? ""}`];
+  if (scoped) return scoped;
   if (row.targetSkillId === "G004" && row.assessmentMode === "selection") return "Form selection";
   if (row.targetSkillId === "G004" && row.assessmentMode === "recall") return "Written form recall";
   if (row.targetSkillId === "G004" && row.assessmentMode === "repair") return "Form repair";
@@ -46,14 +58,19 @@ function targetKind(row: PracticeSummaryRow) {
   return row.lexicalTarget?.direction === "da-en" ? "Meaning recognition" : "Written headword recall";
 }
 
-export default function PracticeSummary({ session, headingRef, selectedTargets, busy, onToggleTarget, onStartReview }: {
+export default function PracticeSummary({
+  session, headingRef, selectedTargets, busy, onToggleTarget, onStartReview, onRepeat, nextProfile,
+}: {
   session: PracticeSession;
   headingRef: RefObject<HTMLHeadingElement | null>;
   selectedTargets: Set<string>;
   busy: boolean;
   onToggleTarget: (targetKey: string, selected: boolean) => void;
   onStartReview: () => void;
+  onRepeat?: () => void;
+  nextProfile?: { title: string; onChoose: () => void };
 }) {
+  const moduleOne = session.introductionRequired === true;
   return (
     <Stack gap="lg">
       <Box>
@@ -73,7 +90,7 @@ export default function PracticeSummary({ session, headingRef, selectedTargets, 
           <Paper
             component="article"
             aria-label={row.label}
-            key={`${row.targetSkillId ?? "lexical"}-${row.assessmentMode ?? ""}-${row.assessmentRole ?? ""}-${row.lexicalTarget?.entryId ?? ""}-${row.lexicalTarget?.senseId ?? ""}-${row.lexicalTarget?.facet ?? ""}-${row.lexicalTarget?.direction ?? ""}`}
+            key={`${row.targetSkillId ?? "lexical"}-${row.targetScopeId ?? ""}-${row.assessmentMode ?? ""}-${row.assessmentRole ?? ""}-${row.lexicalTarget?.entryId ?? ""}-${row.lexicalTarget?.senseId ?? ""}-${row.lexicalTarget?.facet ?? ""}-${row.lexicalTarget?.direction ?? ""}`}
             withBorder
             p="lg"
           >
@@ -93,18 +110,31 @@ export default function PracticeSummary({ session, headingRef, selectedTargets, 
                 <OutcomeSummary row={row} kind="firstOutcomes" />
                 <OutcomeSummary row={row} kind="latestOutcomes" />
               </SimpleGrid>
-              <Text size="sm" c="dimmed">{row.firstWithSupport} first with support · {row.firstWithPriorExposure} with possible earlier exposure</Text>
-              <Checkbox
-                label={`Review ${row.label}`}
-                checked={selectedTargets.has(practiceTargetKey(row))}
-                disabled={busy}
-                onChange={(event) => onToggleTarget(practiceTargetKey(row), event.currentTarget.checked)}
-              />
+              <Text size="sm" c="dimmed">
+                {row.firstWithSupport} first with support · {row.firstWithPriorExposure} {moduleOne
+                  ? "after teaching or earlier exposure in this run"
+                  : "with possible earlier exposure"}
+              </Text>
+              {!moduleOne && <Checkbox
+                  label={`Review ${row.label}`}
+                  checked={selectedTargets.has(practiceTargetKey(row))}
+                  disabled={busy}
+                  onChange={(event) => onToggleTarget(practiceTargetKey(row), event.currentTarget.checked)}
+                />}
             </Stack>
           </Paper>
         ))}
       </SimpleGrid>
-      <Box>
+      {moduleOne && (
+        <Stack gap="xs">
+          <Text size="sm" c="dimmed">These activities followed this session’s teaching. Experience from other practice runs is unknown.</Text>
+          <Group align="flex-start">
+            <Button variant="default" disabled={busy} onClick={onRepeat}>Repeat this session</Button>
+            {nextProfile && <Button disabled={busy} onClick={nextProfile.onChoose}>Next: {nextProfile.title}</Button>}
+          </Group>
+        </Stack>
+      )}
+      {!moduleOne && <Box>
         <Button disabled={selectedTargets.size === 0 || busy} loading={busy} onClick={onStartReview}>
           Start selected review
         </Button>
@@ -114,7 +144,7 @@ export default function PracticeSummary({ session, headingRef, selectedTargets, 
         {selectedTargets.has("grammar:G006:selection") && (
           <Text size="sm" fw={650} mt="xs">Articles will be supplied in writing</Text>
         )}
-      </Box>
+      </Box>}
     </Stack>
   );
 }

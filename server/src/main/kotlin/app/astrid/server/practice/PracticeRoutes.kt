@@ -145,7 +145,10 @@ private fun PracticeSessionRequest.validated(): PracticeSessionRequest {
     val supported =
         (focusId == PRACTICE_FOCUS && planRevision == PRACTICE_REVISION) ||
             (focusId == PRESENT_VERBS_FOCUS && planRevision == PRESENT_VERBS_REVISION) ||
-            (focusId == GUIDED_GAPS_FOCUS && planRevision == GUIDED_GAPS_REVISION)
+            (focusId == GUIDED_GAPS_FOCUS && planRevision == GUIDED_GAPS_REVISION) ||
+            (focusId == MODULE_ONE_SINGULAR_FOCUS && planRevision == MODULE_ONE_SINGULAR_REVISION) ||
+            (focusId == MODULE_ONE_GROUPS_FOCUS && planRevision == MODULE_ONE_GROUPS_REVISION) ||
+            (focusId == MODULE_ONE_ER_FOCUS && planRevision == MODULE_ONE_ER_REVISION)
     if (!supported) throw Conflict("Unsupported practice plan")
     if (seed < 0) throw BadRequest("Invalid practice seed")
     return this

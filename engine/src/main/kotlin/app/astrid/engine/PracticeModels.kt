@@ -12,6 +12,9 @@ data class PracticePlan(
     val generatorRevision: String,
     val evaluationRevision: String,
     val introductionExposureKeys: List<String>? = null,
+    val introductionRequired: Boolean = false,
+    val completionRuleId: String? = null,
+    val exposurePolicyId: String? = null,
 )
 
 data class PracticeProfile(
@@ -46,6 +49,7 @@ data class PracticeTargetDescriptor(
     val targetSkillId: String?,
     val lexicalTarget: LexicalTarget?,
     val assessmentMode: String? = null,
+    val targetScopeId: String? = null,
 )
 
 data class PracticeAssessment(
@@ -60,6 +64,7 @@ object PracticeTargetKeys {
         targetSkillId: String?,
         lexicalTarget: LexicalTarget?,
         assessmentMode: String? = null,
+        targetScopeId: String? = null,
     ): String {
         require((targetSkillId == null) != (lexicalTarget == null)) {
             "A practice target must identify exactly one grammar or lexical target"
@@ -67,8 +72,14 @@ object PracticeTargetKeys {
         require(assessmentMode == null || assessmentMode in ASSESSMENT_MODES_BY_SKILL[targetSkillId].orEmpty()) {
             "Unsupported assessment mode for $targetSkillId: $assessmentMode"
         }
+        require(
+            targetScopeId == null ||
+                ScopedAssessment(targetSkillId, targetScopeId, assessmentMode) in SCOPED_ASSESSMENTS,
+        ) {
+            "Unsupported scoped assessment for $targetSkillId/$targetScopeId/$assessmentMode"
+        }
         return targetSkillId?.let { skillId ->
-            if (assessmentMode == null) "grammar:$skillId" else "grammar:$skillId:$assessmentMode"
+            listOfNotNull("grammar", skillId, targetScopeId, assessmentMode).joinToString(":")
         } ?: requireNotNull(lexicalTarget).run {
             require(assessmentMode == null) { "Lexical practice targets do not support assessment modes" }
             listOf("lexical", entryId, senseId, facet, direction).joinToString(":")
@@ -76,12 +87,29 @@ object PracticeTargetKeys {
     }
 
     private val ASSESSMENT_MODES_BY_SKILL = mapOf(
+        "G003" to setOf("selection", "recall"),
         "G004" to setOf("selection", "recall", "repair"),
         "G006" to setOf("selection", "recall"),
     )
+
+    private data class ScopedAssessment(
+        val skillId: String?,
+        val scopeId: String,
+        val mode: String?,
+    )
+
+    private val SCOPED_ASSESSMENTS = setOf(
+        ScopedAssessment("G003", "human-singular", "selection"),
+        ScopedAssessment("G003", "human-singular", "recall"),
+        ScopedAssessment("G003", "human-group", "selection"),
+        ScopedAssessment("G003", "human-group", "recall"),
+        ScopedAssessment("G004", "vaere-present", "selection"),
+        ScopedAssessment("G004", "vaere-present", "recall"),
+    )
 }
 
-fun PracticeTargetDescriptor.targetKey(): String = PracticeTargetKeys.key(targetSkillId, lexicalTarget, assessmentMode)
+fun PracticeTargetDescriptor.targetKey(): String =
+    PracticeTargetKeys.key(targetSkillId, lexicalTarget, assessmentMode, targetScopeId)
 
 data class PracticePlanItem(
     override val position: Int,
@@ -186,6 +214,7 @@ data class PracticeTargetSummary(
     val hintOpenedItems: Int,
     val assessmentMode: String? = null,
     val assessmentRole: String? = null,
+    val targetScopeId: String? = null,
 )
 
 data class PracticeFollowUpSourceItem(
@@ -197,6 +226,9 @@ data class PracticeFollowUpSourceItem(
 data class PracticeFeedbackAttemptObservation(
     val targetStatus: TargetStatus,
     val gapResults: List<GapResult> = emptyList(),
+    val linguisticStatus: LinguisticStatus? = null,
+    val responseConstraintStatus: ResponseConstraintStatus? = null,
+    val issueCodes: List<String> = emptyList(),
 )
 
 data class PracticeOutcomeCounts(

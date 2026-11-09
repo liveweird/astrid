@@ -87,6 +87,10 @@ data class PracticeItemDto(
     val assessmentMode: String? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val assessments: List<PracticeAssessmentDto> = emptyList(),
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val targetScopeId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val canAdvance: Boolean? = null,
 )
 
 @Serializable
@@ -97,6 +101,8 @@ data class PracticeAssessmentDto(
     val targetSkillId: String,
     val assessmentMode: String,
     val assessmentRole: String,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val targetScopeId: String? = null,
 )
 
 @Serializable
@@ -130,6 +136,8 @@ data class PracticeSummaryRowDto(
     val assessmentMode: String? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val assessmentRole: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val targetScopeId: String? = null,
 )
 
 @Serializable
@@ -168,4 +176,6 @@ data class PracticeSessionResponse(
     val followUp: PracticeFollowUpDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val followUpPlanRevision: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val introductionRequired: Boolean = false,
 )

@@ -87,7 +87,8 @@ jobs:
           "$RUNNER_TEMP/kubeconform" -strict -summary -kubernetes-version 1.33.0 -schema-location "$KUBECONFORM_SCHEMAS" "$RUNNER_TEMP/astrid-rendered.yaml"
   image:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    # 0.8.0 already used 24m36s on run 42709008358; first-step journeys add work.
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: docker compose --env-file .env.example config --quiet

@@ -374,7 +374,7 @@ internal object PilotSixCompatibilityGolden {
             is AnswerKey.Matching -> Answer.Matching(
                 requireNotNull(exercise.inspector.matchingSource).pairs.map { MatchingPair(it.leftId, it.rightId) },
             )
-            is AnswerKey.Gaps -> error("Gap key is unreachable in pilot six")
+            is AnswerKey.Gaps, is AnswerKey.ModuleOneForm -> error("Newer key is unreachable in pilot six")
         }
     }
 
@@ -417,7 +417,8 @@ internal object PilotSixCompatibilityGolden {
             Answer.Text(key.expected.uppercase(Locale.ROOT)), Answer.Text("e\u0301t magasin"), Answer.Order(emptyList()),
         )
         is AnswerKey.TileOrder -> tileAnswers(exercise, key)
-        is AnswerKey.Matching, is AnswerKey.Gaps -> error("Newer key is covered separately or unreachable in pilot six")
+        is AnswerKey.Matching, is AnswerKey.Gaps, is AnswerKey.ModuleOneForm ->
+            error("Newer key is covered separately or unreachable in pilot six")
     }
 
     private fun specialExercise(format: FormatSpec): GeneratedExercise {

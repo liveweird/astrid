@@ -249,4 +249,46 @@ describe("FeedbackPanel", () => {
     expect(screen.getByText("Target met; adjust the rest of your answer.")).toBeVisible();
   });
 
+  it("uses bounded word-form labels for a typed capitalization failure", () => {
+    render(
+      <MantineProvider env="test">
+        <FeedbackPanel attempt={{
+          ...base,
+          targetSatisfaction: "unevaluable",
+          linguisticStatus: "known-issue",
+          linguisticScope: "danish-word-form",
+          responseConstraintStatus: "not-met",
+          completedSentence: "I",
+          issues: [{ code: "STANDALONE_PRONOUN_CASE_REQUIRED", message: "Use capital I for several people." }],
+        }} />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("Known language issue")).toBeVisible();
+    expect(screen.getByText("Review the written form.")).toBeVisible();
+    expect(screen.getByText("One-word form required")).toBeVisible();
+    expect(screen.getByText("I")).toHaveAttribute("lang", "da");
+    expect(screen.queryByText("Supplied choice required")).not.toBeInTheDocument();
+    expect(screen.queryByText("One statement required")).not.toBeInTheDocument();
+  });
+
+  it("does not describe a known case-only word form as the wrong target", () => {
+    render(
+      <MantineProvider env="test">
+        <FeedbackPanel attempt={{
+          ...base,
+          targetSatisfaction: "met",
+          linguisticStatus: "known-issue",
+          linguisticScope: "danish-word-form",
+          responseConstraintStatus: "not-met",
+          completedSentence: "jeg",
+          issues: [{ code: "STANDALONE_PRONOUN_CASE_REQUIRED", message: "Use lowercase jeg here." }],
+        }} />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("Word identified; use the taught spelling.")).toBeVisible();
+    expect(screen.queryByText("Look at the target once more")).not.toBeInTheDocument();
+  });
+
 });

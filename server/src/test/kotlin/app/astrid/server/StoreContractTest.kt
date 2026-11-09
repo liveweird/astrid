@@ -218,6 +218,65 @@ abstract class StoreContractTest {
     }
 
     @Test
+    fun `required introduction blocks a new bound attempt until it is persistently opened`() = withStores { stores ->
+        val owner = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
+        val request = practiceRequest()
+        val practice = assertIs<PracticeCreateResult.Created>(
+            stores.practice.createPracticeSession(owner, request, wireJson.encodeToString(request)) {
+                plan(owner, request).copy(introductionRequired = true)
+            },
+        ).session
+        val attempt = attempt(practice.items.first().exercise.id)
+        assertIs<AttemptWriteResult.PracticeIntroductionRequired>(
+            stores.exercises.writeAttemptWithPractice(owner.id, attempt, payload(attempt)) { _, _, _, _ ->
+                error("a required introduction must block evaluation")
+            },
+        )
+        val opened = assertIs<PracticeMutationResult.Success>(
+            stores.practice.openPracticeSupport(owner.id, practice.id, PracticeSupportRequest("introduction")),
+        )
+        assertTrue(opened.session.introductionOpened)
+        assertIs<AttemptWriteResult.Created>(
+            stores.exercises.writeAttemptWithPractice(owner.id, attempt, payload(attempt)) { stored, retry, now, source ->
+                assertTrue(assertNotNull(source).introductionOpened)
+                CreatedAttempt(response(attempt, stored, retry, now), context().copy(introductionOpened = true))
+            },
+        )
+    }
+
+    @Test
+    fun `latest saved outcome controls policy completion without falling back to an eligible attempt`() = withStores { stores ->
+        val owner = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
+        val request = practiceRequest()
+        val practice = assertIs<PracticeCreateResult.Created>(
+            stores.practice.createPracticeSession(owner, request, wireJson.encodeToString(request)) {
+                plan(owner, request).copy(completionRuleId = "module-one-known-outcome-1")
+            },
+        ).session
+        val exercise = practice.items.first().exercise
+        val eligible = attempt(exercise.id)
+        assertIs<AttemptWriteResult.Created>(
+            stores.exercises.writeAttemptWithPractice(owner.id, eligible, payload(eligible)) { stored, retry, now, _ ->
+                CreatedAttempt(response(eligible, stored, retry, now), context())
+            },
+        )
+        val unknown = attempt(exercise.id)
+        assertIs<AttemptWriteResult.Created>(
+            stores.exercises.writeAttemptWithPractice(owner.id, unknown, payload(unknown)) { stored, retry, now, _ ->
+                CreatedAttempt(
+                    response(unknown, stored, retry, now).copy(
+                        targetSatisfaction = "unevaluable",
+                        linguisticStatus = "unknown",
+                        responseConstraintStatus = null,
+                    ),
+                    context(),
+                )
+            },
+        )
+        assertIs<PracticeMutationResult.Conflict>(stores.practice.advancePracticeSession(owner.id, practice.id, 0))
+    }
+
+    @Test
     fun `support opens reached items only and unknown runs are missing`() = withStores { stores ->
         val owner = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
         val practice = createPractice(stores, owner)
@@ -323,11 +382,16 @@ abstract class StoreContractTest {
                             requireNotNull(assessment.targetDescriptor.assessmentMode),
                             assessment.assessmentRole,
                             assessment.answerExposureKeys,
+                            assessment.targetDescriptor.targetScopeId,
                         )
                     },
+                    item.targetDescriptor.targetScopeId,
                 )
             },
             introductionExposureKeys = plan.introductionExposureKeys,
+            introductionRequired = plan.introductionRequired,
+            completionRuleId = plan.completionRuleId,
+            exposurePolicyId = plan.exposurePolicyId,
         )
     }
 

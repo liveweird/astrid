@@ -143,6 +143,8 @@ data class ExerciseResponse(
     val readingTarget: ReadingTaskDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val lexicalTargets: List<LexicalTargetDto>? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val targetScopeId: String? = null,
 )
 
 @Serializable
@@ -307,6 +309,21 @@ data class GapSlotSourceDto(
 data class GapSourceDto(val slots: List<GapSlotSourceDto>)
 
 @Serializable
+data class ModuleOneChoiceRationaleDto(val choice: String, val rationale: String)
+
+@Serializable
+data class ModuleOneSourceDetailsDto(
+    val taskId: String,
+    val targetLexicalId: String,
+    val expectedForm: String,
+    val knownAlternativeForms: List<String>,
+    val referenceRole: String? = null,
+    val frameVariantId: String? = null,
+    val casePolicy: String,
+    val choiceRationales: List<ModuleOneChoiceRationaleDto>,
+)
+
+@Serializable
 data class ExerciseInspectorDto(
     val exercise: ExerciseResponse,
     val seed: Int,
@@ -325,4 +342,6 @@ data class ExerciseInspectorDto(
     val matchingSource: MatchingSourceDetailsDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val gapSource: GapSourceDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val moduleOneSource: ModuleOneSourceDetailsDto? = null,
 )

@@ -21,13 +21,15 @@ internal object PilotReviewMetadata {
         verbs: List<Verb>,
         nouns: List<NounEntry>,
         matching: Boolean = false,
+        moduleOne: Boolean = false,
     ): List<LexicalReviewRecord> =
-        pronounRecords(pronouns, identifyingPronoun) +
-            verbRecords(verbs) + nounRecords(nouns, matching) + articleRecords()
+        pronounRecords(pronouns, identifyingPronoun, moduleOne) +
+            verbRecords(verbs, moduleOne) + nounRecords(nouns, matching) + articleRecords()
 
     private fun pronounRecords(
         pronouns: List<PronounEntry>,
         identifyingPronoun: PronounEntry,
+        moduleOne: Boolean,
     ): List<LexicalReviewRecord> {
         val pronounDetails =
             mapOf(
@@ -39,10 +41,18 @@ internal object PilotReviewMetadata {
                 "L006" to ("multiple addressees" to "Uppercase I is lexical; C001/C002 subject only."),
                 "L007" to ("established plural human subject" to "Plural human reference; formal De is excluded."),
             )
+        val moduleOneConstraints =
+            mapOf(
+                "L001" to " Pair eight also licenses bounded C004 name and occupation subjects.",
+                "L002" to " Pair eight also licenses bounded C004 name and occupation subjects.",
+                "L003" to " Pair eight also licenses the bounded C004 occupation subject.",
+                "L004" to " Pair eight also licenses bounded C004 name and occupation subjects.",
+            )
         val records = pronouns.map { entry ->
             val detail = pronounDetails.getValue(entry.id)
+            val constraints = detail.second + if (moduleOne) moduleOneConstraints[entry.id].orEmpty() else ""
             record(
-                entry.id, entry.text, detail.first, mapOf("subject" to entry.text), detail.second, PRONOUN_SOURCE,
+                entry.id, entry.text, detail.first, mapOf("subject" to entry.text), constraints, PRONOUN_SOURCE,
                 additionalSources = if (entry.id == "L006") listOf(UPPERCASE_PRONOUN_SOURCE) else emptyList(),
             )
         }
@@ -58,7 +68,7 @@ internal object PilotReviewMetadata {
         return records + identifying
     }
 
-    private fun verbRecords(verbs: List<Verb>): List<LexicalReviewRecord> {
+    private fun verbRecords(verbs: List<Verb>, moduleOne: Boolean): List<LexicalReviewRecord> {
         val details =
             mapOf(
                 "L009" to ("possess or have available" to "C002 with a human subject and licensed count noun; auxiliary uses excluded."),
@@ -69,12 +79,19 @@ internal object PilotReviewMetadata {
             )
         return verbs.map { verb ->
             val detail = details.getValue(verb.lexicalId)
+            val constraints = if (moduleOne && verb.lexicalId == "L010") {
+                detail.second.removeSuffix(" only; other copular and auxiliary uses excluded.") +
+                    "; pair eight additionally licenses the ten enumerated C004 name and occupation clauses. " +
+                    "Other copular and auxiliary uses remain excluded."
+            } else {
+                detail.second
+            }
             record(
                 verb.lexicalId,
                 verb.lemma,
                 detail.first,
                 mapOf("infinitive" to verb.lemma, "finite-present" to verb.present),
-                detail.second,
+                constraints,
                 VERB_SOURCES.getValue(verb.lexicalId),
             )
         }
@@ -96,6 +113,7 @@ internal object PilotReviewMetadata {
                 } else {
                     "Printed periodical count noun for E011 only; store, depot, broadcast and weapon-container senses excluded."
                 }),
+                "L025" to ("teacher" to "Supplied common-gender noun and bare occupational complement in the bounded C004 frame only."),
             )
         return nouns.map { noun ->
             val detail = details.getValue(noun.id)
@@ -167,5 +185,6 @@ internal object PilotReviewMetadata {
             "L020" to "https://ordnet.dk/ddo/ordbog/bord",
             "L021" to "https://ordnet.dk/ddo/ordbog/%C3%A6ble",
             "L024" to "https://ordnet.dk/ddo/ordbog/magasin",
+            "L025" to "https://ordnet.dk/ddo/ordbog/l%C3%A6rer",
         )
 }

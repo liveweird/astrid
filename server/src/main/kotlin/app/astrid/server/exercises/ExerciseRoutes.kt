@@ -121,6 +121,7 @@ private fun Route.attemptRoutes(
             AttemptWriteResult.PayloadConflict -> throw Conflict("Attempt id was already used with a different payload")
             AttemptWriteResult.ExerciseMissing -> throw NotFound("Exercise not found")
             AttemptWriteResult.PracticePositionConflict -> throw Conflict("Practice item is no longer current")
+            AttemptWriteResult.PracticeIntroductionRequired -> throw Conflict("Open the practice introduction before attempting this item")
         }
     }
     get("/attempts/{id}") {
@@ -245,7 +246,7 @@ private fun AttemptAnswerDto.validateFor(engine: PilotEngine, exercise: Generate
     when (exercise.formatId) {
         "E003" -> validateCompleteOrderAnswer(this, suppliedBlocks)
         "E012", "E013" -> validateTileOrderAnswer(this, suppliedBlocks)
-        "E011" -> validateSuppliedChoiceAnswer(this, engine, exercise)
+        "E011", "E016", "E018" -> validateSuppliedChoiceAnswer(this, engine, exercise)
         "E014" -> validateMatchingAnswer(this, exercise)
         "E015" -> validateGapAnswer(this, exercise)
         else -> validateTextAnswer(this)

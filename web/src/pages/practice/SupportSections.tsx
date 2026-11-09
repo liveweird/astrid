@@ -9,11 +9,13 @@ type SupportSectionsProps = {
   session: PracticeSession;
   disabled: boolean;
   introductionContentRef: React.RefObject<HTMLParagraphElement | null>;
+  introductionControlRef: React.RefObject<HTMLButtonElement | null>;
   lessonContentRef: React.RefObject<HTMLParagraphElement | null>;
   onSupport: (kind: PracticeSupportKind, position?: number) => void;
+  introductionOnly?: boolean;
 };
 
-export default function SupportSections({ session, disabled, introductionContentRef, lessonContentRef, onSupport }: SupportSectionsProps) {
+export default function SupportSections({ session, disabled, introductionContentRef, introductionControlRef, lessonContentRef, onSupport, introductionOnly = false }: SupportSectionsProps) {
   const exercise = session.currentExercise;
   const item = session.items.find((candidate) => candidate.position === session.cursor);
   const [introductionDisclosure, setIntroductionDisclosure] = useState({
@@ -43,7 +45,7 @@ export default function SupportSections({ session, disabled, introductionContent
           }}
         >
           <Accordion.Item value="introduction">
-            <Accordion.Control disabled={disabled} icon={<IconBook2 size={18} />}>Session introduction</Accordion.Control>
+            <Accordion.Control ref={introductionControlRef} disabled={disabled} icon={<IconBook2 size={18} />}>Session introduction</Accordion.Control>
             <Accordion.Panel>
               {session.introductionOpened ? (
                 <SimpleGrid minColWidth="min(100%, 18rem)">
@@ -66,7 +68,7 @@ export default function SupportSections({ session, disabled, introductionContent
           </Accordion.Item>
         </Accordion>
       )}
-      {exercise && exercise.introduction.length > 0 && item && (
+      {!introductionOnly && exercise && exercise.introduction.length > 0 && item && (
         <Accordion
           variant="contained"
           transitionDuration={0}

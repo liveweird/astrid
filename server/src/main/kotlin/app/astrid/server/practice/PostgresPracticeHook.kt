@@ -33,8 +33,11 @@ class PostgresPracticeHook(private val json: Json) : AttemptPracticeHook {
             (PracticeSessions.ownerSessionId eq sessionId) and
                 (PracticeSessions.practiceSessionId eq practiceId)
         }.toList().single()
+        val payload: PracticePlanPayload = json.decodeFromString(practice[PracticeSessions.planPayload])
         return if (practiceItem[PracticeItems.position] != practice[PracticeSessions.cursor]) {
             PracticeBinding.PositionConflict
+        } else if (payload.introductionRequired && !practice[PracticeSessions.introductionOpened]) {
+            PracticeBinding.IntroductionRequired
         } else {
             PracticeBinding.Bound(
                 sessionId,
@@ -105,6 +108,7 @@ class PostgresPracticeHook(private val json: Json) : AttemptPracticeHook {
                             assessment -> assessment.toEngineAssessment()
                         },
                         attemptsByPosition[it[PracticeItems.position]].orEmpty(),
+                        payload.exposurePolicyId,
                     ),
                     it[PracticeItems.lessonOpened],
                     it[PracticeItems.hintOpened],
@@ -112,6 +116,8 @@ class PostgresPracticeHook(private val json: Json) : AttemptPracticeHook {
                 )
             },
             payload.sourceExposure,
+            payload.introductionExposureKeys,
+            payload.exposurePolicyId,
         )
     }
 }

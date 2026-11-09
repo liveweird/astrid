@@ -60,7 +60,7 @@ class PilotSevenCompatibilityGoldenTest {
 
     @Test
     fun `pilot seven teaching review remains byte exact`() {
-        val bytes = PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
+        val bytes = PilotReview.renderPilotSevenMarkdown().toByteArray(Charsets.UTF_8)
         assertEquals(REVIEW_SHA256, bytes.sha256(), "The frozen pilot-seven review renderer must remain exact")
     }
 

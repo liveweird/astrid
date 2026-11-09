@@ -5,6 +5,8 @@ import app.astrid.engine.LinguisticStatus
 import app.astrid.engine.PilotEngine
 import app.astrid.engine.PracticeAttemptContext
 import app.astrid.engine.PracticeAssessment
+import app.astrid.engine.PracticeCompletionAttemptObservation
+import app.astrid.engine.PracticeCompletionPolicy
 import app.astrid.engine.PracticeExposureSource
 import app.astrid.engine.PracticeFollowUpPlanner
 import app.astrid.engine.PracticeFollowUpSourceItem
@@ -17,6 +19,7 @@ import app.astrid.engine.ResponseConstraintStatus
 import app.astrid.engine.TargetStatus
 import app.astrid.server.authz.Conflict
 import app.astrid.server.authz.NotFound
+import app.astrid.server.exercises.AttemptResponse
 import app.astrid.server.exercises.IntroductionDto
 import app.astrid.server.exercises.LexicalTargetDto
 import app.astrid.server.exercises.PracticeAttemptContextDto
@@ -38,6 +41,12 @@ internal const val PRESENT_VERBS_FOLLOW_UP_REVISION = "follow-up-2"
 internal const val GUIDED_GAPS_FOCUS = "verb-article-gaps"
 internal const val GUIDED_GAPS_REVISION = "verb-article-gaps-1"
 internal const val GUIDED_GAPS_FOLLOW_UP_REVISION = "follow-up-3"
+internal const val MODULE_ONE_SINGULAR_FOCUS = "module-one-singular"
+internal const val MODULE_ONE_SINGULAR_REVISION = "module-one-singular-1"
+internal const val MODULE_ONE_GROUPS_FOCUS = "module-one-groups"
+internal const val MODULE_ONE_GROUPS_REVISION = "module-one-groups-1"
+internal const val MODULE_ONE_ER_FOCUS = "module-one-er"
+internal const val MODULE_ONE_ER_REVISION = "module-one-er-1"
 private const val TARGETED_REVIEW_FOCUS = "targeted-review"
 private const val INTRODUCTION_POSITION = -1
 
@@ -61,9 +70,13 @@ internal fun app.astrid.engine.PracticePlan.toNewPracticeSession(ownerId: UUID) 
             item.feedbackExposureKeys,
             item.targetDescriptor.assessmentMode,
             item.assessments.map { it.toPayload() },
+            item.targetDescriptor.targetScopeId,
         )
     },
     introductionExposureKeys = introductionExposureKeys,
+    introductionRequired = introductionRequired,
+    completionRuleId = completionRuleId,
+    exposurePolicyId = exposurePolicyId,
 )
 
 internal fun StoredPracticeSession.toFollowUp(
@@ -82,6 +95,7 @@ internal fun StoredPracticeSession.toFollowUp(
                     app.astrid.engine.LexicalTarget(it.entryId, it.senseId, it.facet, it.direction)
                 },
                 item.assessmentMode,
+                item.targetScopeId,
             ),
             item.assessments.map { it.toEngineAssessment() },
         )
@@ -89,12 +103,10 @@ internal fun StoredPracticeSession.toFollowUp(
     val plan = try {
         val planner = PracticeFollowUpPlanner(engine)
         when (request.planRevision) {
-            FOLLOW_UP_REVISION -> planner.plan(
-                request.planRevision,
-                request.seed,
-                request.targetKeys,
-                sourceItems.map { it.exercise },
-            )
+            FOLLOW_UP_REVISION -> {
+                requireLegacyFollowUpSource()
+                planner.plan(request.planRevision, request.seed, request.targetKeys, sourceItems.map { it.exercise })
+            }
             PRESENT_VERBS_FOLLOW_UP_REVISION -> {
                 requirePresentVerbFollowUpSource()
                 planner.planPresentVerbs(request.planRevision, request.seed, request.targetKeys, sourceItems)
@@ -127,12 +139,23 @@ internal fun StoredPracticeSession.toFollowUp(
                 item.feedbackExposureKeys,
                 item.targetDescriptor.assessmentMode,
                 item.assessments.map { it.toPayload() },
+                item.targetDescriptor.targetScopeId,
             )
         },
         PracticeFollowUpLineage(sourceId, request.targetKeys),
         sourceExposureSnapshot(),
         plan.introductionExposureKeys,
+        plan.introductionRequired,
+        plan.completionRuleId,
+        plan.exposurePolicyId,
     )
+}
+
+private fun StoredPracticeSession.requireLegacyFollowUpSource() {
+    val eligible =
+        (focusId == PRACTICE_FOCUS && planRevision == PRACTICE_REVISION) ||
+            (focusId == TARGETED_REVIEW_FOCUS && planRevision == FOLLOW_UP_REVISION)
+    require(eligible && items.all { it.targetScopeId == null }) { "Follow-up-1 requires a legacy mixed-practice source" }
 }
 
 private fun StoredPracticeSession.requirePresentVerbFollowUpSource() {
@@ -186,6 +209,7 @@ internal fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
                         app.astrid.engine.LexicalTarget(it.entryId, it.senseId, it.facet, it.direction)
                     },
                     stored.assessmentMode,
+                    stored.targetScopeId,
                 ),
                 advanced = stored.position < cursor,
                 lessonOpened = stored.lessonOpened,
@@ -209,10 +233,11 @@ internal fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
         contentRevision, generatorRevision, evaluationRevision, sessionExpiresAt,
         if (cursor == items.size) "completed" else "active", cursor, items.size,
         prerequisiteSkillIds, introduction, introductionOpened,
-        items.map { it.toDto() }, items.singleOrNull { it.position == cursor }?.exercise?.presentation,
+        items.map { item -> itemToDto(item) }, items.singleOrNull { it.position == cursor }?.exercise?.presentation,
         summary.toDto(includeRows = cursor == items.size),
         followUp?.let { PracticeFollowUpDto(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },
         followUpPlanRevision(),
+        introductionRequired,
     )
 }
 
@@ -227,26 +252,42 @@ private fun StoredPracticeSession.followUpPlanRevision(): String? =
         else -> null
     }
 
-private fun StoredPracticeItem.toDto(): PracticeItemDto = PracticeItemDto(
-    position,
-    exercise.id.toString(),
-    exercise.formatId,
-    exercise.targetSkillId,
-    exercise.presentation.lexicalTarget,
-    lessonOpened,
-    hintOpened,
-    attempts.map { it.response.attemptId },
-    attempts.size,
-    attempts.firstOrNull()?.response,
-    attempts.lastOrNull()?.response,
-    attempts.firstOrNull()?.answer,
-    attempts.lastOrNull()?.answer,
-    attempts.firstOrNull()?.context,
-    attempts.lastOrNull()?.context,
-    assessmentMode,
-    assessments.map { PracticeAssessmentDto(it.slotId, it.label, it.targetSkillId, it.assessmentMode, it.assessmentRole) },
+private fun StoredPracticeSession.itemToDto(item: StoredPracticeItem): PracticeItemDto = PracticeItemDto(
+    item.position,
+    item.exercise.id.toString(),
+    item.exercise.formatId,
+    item.exercise.targetSkillId,
+    item.exercise.presentation.lexicalTarget,
+    item.lessonOpened,
+    item.hintOpened,
+    item.attempts.map { it.response.attemptId },
+    item.attempts.size,
+    item.attempts.firstOrNull()?.response,
+    item.attempts.lastOrNull()?.response,
+    item.attempts.firstOrNull()?.answer,
+    item.attempts.lastOrNull()?.answer,
+    item.attempts.firstOrNull()?.context,
+    item.attempts.lastOrNull()?.context,
+    item.assessmentMode,
+    item.assessments.map {
+        PracticeAssessmentDto(it.slotId, it.label, it.targetSkillId, it.assessmentMode, it.assessmentRole, it.targetScopeId)
+    },
+    item.targetScopeId,
+    completionRuleId?.let { rule ->
+        if (item.position == cursor) {
+            PracticeCompletionPolicy.canAdvance(rule, item.attempts.lastOrNull()?.response?.completionObservation())
+        } else {
+            null
+        }
+    },
 )
 
+private fun AttemptResponse.completionObservation() = PracticeCompletionAttemptObservation(
+    enumByWire(targetSatisfaction),
+    enumByWire(linguisticStatus),
+    responseConstraintStatus?.let { enumByWire(it) },
+    issues.map { it.code },
+)
 private fun PracticeAttemptContextDto.toEngine() = PracticeAttemptContext(
     introductionOpened,
     lessonOpened,
@@ -295,6 +336,7 @@ private fun StoredPracticeSession.sourceExposureSnapshot(): List<PracticeCrossRu
                             item.feedbackExposureKeys,
                             item.assessments.map { it.toEngineAssessment() },
                             item.attempts.map { it.response },
+                            exposurePolicyId,
                         ),
                     ),
                 )
@@ -328,6 +370,7 @@ private fun app.astrid.engine.PracticeSummary.toDto(includeRows: Boolean) = Prac
             row.hintOpenedItems,
             row.assessmentMode,
             row.assessmentRole,
+            row.targetScopeId,
         )
     },
 )
@@ -352,6 +395,7 @@ private fun PracticeAssessment.toPayload() = PracticeAssessmentPayload(
     requireNotNull(targetDescriptor.assessmentMode),
     assessmentRole,
     answerExposureKeys,
+    targetDescriptor.targetScopeId,
 )
 
 private fun app.astrid.server.exercises.GapResultDto.toEngine() = app.astrid.engine.GapResult(

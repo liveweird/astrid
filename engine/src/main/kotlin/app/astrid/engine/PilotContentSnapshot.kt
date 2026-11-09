@@ -55,38 +55,44 @@ internal object PilotContentValidator {
         identityIssues("sentence", snapshot.sentences.map { it.id })
         identityIssues("review", snapshot.lexicalReview.map { it.id })
         requireIds("skill", snapshot.skills.map { it.id }, EXPECTED_SKILL_IDS)
-        val expectedFormats = when (snapshot.contentRevision) {
+        val expectedFormats = expectedFormatIds(snapshot.contentRevision)
+        requireIds("format", snapshot.formats.map { it.id }, expectedFormats)
+        val lexicalIds =
+            snapshot.humanPronouns.map { it.id } + snapshot.identifyingPronoun.id +
+                snapshot.verbs.map { it.lexicalId } + snapshot.nouns.map { it.id } +
+                NounGender.entries.map { it.articleId }
+        requireIds("lexical", lexicalIds, expectedLexicalIds(snapshot.contentRevision))
+        requireIds("review", snapshot.lexicalReview.map { it.id }, lexicalIds.toSet())
+        val expectedSentenceCount =
+            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) CURRENT_SENTENCE_COUNT else RETAINED_SENTENCE_COUNT
+        if (snapshot.sentences.size != expectedSentenceCount) {
+            add(issue("snapshot", "expected $expectedSentenceCount sentences, found ${snapshot.sentences.size}"))
+        }
+    }
+
+    private fun expectedFormatIds(contentRevision: String): Set<String> =
+        when (contentRevision) {
             PilotContent.CONTENT_REVISION -> setOf("E001", "E002", "E003")
             PilotContent.RETAINED_CONTENT_REVISION -> setOf("E001", "E002", "E003", "E004", "E005", "E006")
             PilotContent.RETAINED_THREE_CONTENT_REVISION -> EXPECTED_PILOT_THREE_FORMAT_IDS
             PilotContent.RETAINED_FOUR_CONTENT_REVISION -> EXPECTED_PILOT_FOUR_FORMAT_IDS
             PilotContent.RETAINED_FIVE_CONTENT_REVISION -> EXPECTED_PILOT_FIVE_FORMAT_IDS
             PilotContent.RETAINED_SIX_CONTENT_REVISION -> EXPECTED_PILOT_SIX_FORMAT_IDS
+            PilotContent.RETAINED_SEVEN_CONTENT_REVISION -> EXPECTED_PILOT_SEVEN_FORMAT_IDS
             PilotContent.CURRENT_CONTENT_REVISION -> EXPECTED_CURRENT_FORMAT_IDS
             else -> emptySet()
         }
-        requireIds("format", snapshot.formats.map { it.id }, expectedFormats)
-        val lexicalIds =
-            snapshot.humanPronouns.map { it.id } + snapshot.identifyingPronoun.id +
-                snapshot.verbs.map { it.lexicalId } + snapshot.nouns.map { it.id } +
-                NounGender.entries.map { it.articleId }
-        val expectedLexicalIds =
-            if (snapshot.contentRevision in setOf(
+
+    private fun expectedLexicalIds(contentRevision: String): Set<String> =
+        when {
+            contentRevision in setOf(
                     PilotContent.RETAINED_FIVE_CONTENT_REVISION,
                     PilotContent.RETAINED_SIX_CONTENT_REVISION,
-                    PilotContent.CURRENT_CONTENT_REVISION,
-                )
-            ) {
-                EXPECTED_CURRENT_LEXICAL_IDS
-            } else {
-                EXPECTED_RETAINED_LEXICAL_IDS
-            }
-        requireIds("lexical", lexicalIds, expectedLexicalIds)
-        requireIds("review", snapshot.lexicalReview.map { it.id }, lexicalIds.toSet())
-        if (snapshot.sentences.size != EXPECTED_SENTENCE_COUNT) {
-            add(issue("snapshot", "expected $EXPECTED_SENTENCE_COUNT sentences, found ${snapshot.sentences.size}"))
+                    PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
+                ) -> EXPECTED_PILOT_SEVEN_LEXICAL_IDS
+            contentRevision == PilotContent.CURRENT_CONTENT_REVISION -> EXPECTED_CURRENT_LEXICAL_IDS
+            else -> EXPECTED_RETAINED_LEXICAL_IDS
         }
-    }
 
     private fun MutableList<ContentValidationIssue>.validateReferences(snapshot: PilotContentSnapshot) {
         val skillIds = snapshot.skills.map { it.id }.toSet()
@@ -134,6 +140,10 @@ internal object PilotContentValidator {
                 "E012" to "G005",
                 "E013" to "G004",
                 "E015" to "G004",
+                "E016" to "G003",
+                "E017" to "G003",
+                "E018" to "G004",
+                "E019" to "G004",
             )
         snapshot.formats.forEach { format ->
             expectedTargets[format.id]?.let { expected ->
@@ -195,7 +205,9 @@ internal object PilotContentValidator {
             val subjectId = sentence.subject.lexicalIds.singleOrNull()
             val nounId = sentence.complement?.lexicalIds?.lastOrNull()
             val expectedId = listOfNotNull(sentence.constructionId, subjectId, sentence.verb.lexicalId, nounId).joinToString("-")
-            if (sentence.id != expectedId) add(issue(sentence.id, "canonical ID must be $expectedId"))
+            if (sentence.constructionId != "C004" && sentence.id != expectedId) {
+                add(issue(sentence.id, "canonical ID must be $expectedId"))
+            }
             if (sentence.subject.role != ROLE_SUBJECT) add(issue(sentence.id, "invalid subject role ${sentence.subject.role}"))
             pronounById[subjectId]?.let { definition ->
                 if (sentence.subject.text != definition.text) {
@@ -210,8 +222,8 @@ internal object PilotContentValidator {
             verbById[sentence.verb.lexicalId]?.let { definition ->
                 if (sentence.verb != definition) add(issue(sentence.id, "verb data differs from ${definition.lexicalId}"))
             }
-            validateNounPhrase(sentence, nounById[nounId])
-            if (!isLicensed(sentence, subjectId, nounId, humanIds, nounById.keys, snapshot.identifyingPronoun.id)) {
+            if (sentence.constructionId != "C004") validateNounPhrase(sentence, nounById[nounId])
+            if (!isLicensed(sentence, subjectId, nounId, humanIds, snapshot.identifyingPronoun.id)) {
                 add(issue(sentence.id, "unlicensed construction or lexical combination"))
             }
         }
@@ -243,6 +255,7 @@ internal object PilotContentValidator {
                 -> setOf("L014-S01", "L015-S01", "L018-S01")
                 PilotContent.RETAINED_FIVE_CONTENT_REVISION,
                 PilotContent.RETAINED_SIX_CONTENT_REVISION,
+                PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
                 ->
                     setOf("L014-S01", "L015-S01", "L018-S01", "L024-S01")
@@ -298,28 +311,38 @@ internal object PilotContentValidator {
         subjectId: String?,
         nounId: String?,
         humanIds: Set<String>,
-        nounIds: Set<String>,
         identifyingPronounId: String,
-    ): Boolean =
-        when (sentence.constructionId) {
+    ): Boolean = when (sentence.constructionId) {
             "C001" ->
                 subjectId in humanIds && sentence.verb.lexicalId == "L013" && sentence.complement == null
             "C002" ->
                 subjectId in humanIds && sentence.complement?.role == ROLE_OBJECT &&
-                    nounLicensedForVerb(sentence.verb.lexicalId, nounId, nounIds)
+                    nounLicensedForVerb(sentence.verb.lexicalId, nounId)
             "C003" ->
                 subjectId == identifyingPronounId && sentence.verb.lexicalId == "L010" &&
-                    nounId in nounIds && sentence.complement?.role == ROLE_PREDICATIVE
+                    nounId in BASE_SENTENCE_NOUN_IDS && sentence.complement?.role == ROLE_PREDICATIVE
+            "C004" -> isLicensedModuleOneCopula(sentence, subjectId)
             else -> false
         }
+
+    private fun isLicensedModuleOneCopula(sentence: Sentence, subjectId: String?): Boolean {
+        val complement = sentence.complement
+        val namedIdentity =
+            subjectId in setOf("L001", "L002", "L004") && complement?.lexicalIds?.isEmpty() == true &&
+                complement.text in setOf("Anna", "Nora")
+        val occupation =
+            subjectId in setOf("L001", "L002", "L003", "L004") && complement?.lexicalIds == listOf("L025") &&
+                complement.text == "lærer"
+        return sentence.verb.lexicalId == "L010" && complement?.role == ROLE_PREDICATIVE &&
+            (namedIdentity || occupation)
+    }
 
     private fun nounLicensedForVerb(
         verbId: String,
         nounId: String?,
-        nounIds: Set<String>,
     ): Boolean =
         when (verbId) {
-            "L009" -> nounId in nounIds
+            "L009" -> nounId in BASE_SENTENCE_NOUN_IDS
             "L011" -> nounId in setOf("L014", "L015", "L018")
             "L012" -> nounId == "L021"
             else -> false
@@ -365,15 +388,19 @@ internal object PilotContentValidator {
 
     private fun issue(recordId: String, message: String) = ContentValidationIssue(recordId, message)
 
-    private const val EXPECTED_SENTENCE_COUNT = 99
+    private const val RETAINED_SENTENCE_COUNT = 99
+    private const val CURRENT_SENTENCE_COUNT = 109
     private const val LAST_SKILL_NUMBER = 6
     private const val LAST_RETAINED_LEXICAL_NUMBER = 23
-    private const val LAST_CURRENT_LEXICAL_NUMBER = 24
+    private const val LAST_PILOT_SEVEN_LEXICAL_NUMBER = 24
+    private const val LAST_CURRENT_LEXICAL_NUMBER = 25
     private const val ID_NUMBER_WIDTH = 3
     private val EXPECTED_SKILL_IDS =
         (1..LAST_SKILL_NUMBER).map { "G${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_RETAINED_LEXICAL_IDS =
         (1..LAST_RETAINED_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
+    private val EXPECTED_PILOT_SEVEN_LEXICAL_IDS =
+        (1..LAST_PILOT_SEVEN_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_CURRENT_LEXICAL_IDS =
         (1..LAST_CURRENT_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_CURRENT_FORMAT_IDS =
@@ -407,13 +434,23 @@ internal object PilotContentValidator {
             "https://ordnet.dk/ddo/ordbog/bord",
             "https://ordnet.dk/ddo/ordbog/%C3%A6ble",
             "https://ordnet.dk/ddo/ordbog/magasin",
+            "https://ordnet.dk/ddo/ordbog/l%C3%A6rer",
         )
     private const val ROLE_SUBJECT = "SUBJECT"
     private const val ROLE_OBJECT = "OBJECT"
     private const val ROLE_PREDICATIVE = "PREDICATIVE"
+    private const val FIRST_BASE_NOUN_NUMBER = 14
+    private const val LAST_BASE_NOUN_NUMBER = 21
+    private val BASE_SENTENCE_NOUN_IDS =
+        (FIRST_BASE_NOUN_NUMBER..LAST_BASE_NOUN_NUMBER)
+            .map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }
+            .toSet()
     private const val LAST_PILOT_THREE_FORMAT_NUMBER = 8
     private const val LAST_PILOT_FOUR_FORMAT_NUMBER = 10
     private const val LAST_PILOT_FIVE_FORMAT_NUMBER = 13
     private const val LAST_PILOT_SIX_FORMAT_NUMBER = 14
-    private const val LAST_CURRENT_FORMAT_NUMBER = 15
+    private const val LAST_PILOT_SEVEN_FORMAT_NUMBER = 15
+    private val EXPECTED_PILOT_SEVEN_FORMAT_IDS =
+        (1..LAST_PILOT_SEVEN_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
+    private const val LAST_CURRENT_FORMAT_NUMBER = 19
 }

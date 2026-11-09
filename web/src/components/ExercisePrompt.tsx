@@ -25,6 +25,14 @@ const DANISH_CHARACTERS = ["æ", "ø", "å"] as const;
 
 type DanishInputElement = HTMLInputElement | HTMLTextAreaElement;
 
+function hasReadingTarget(exercise: Exercise) {
+  return "readingTarget" in exercise && Boolean(exercise.readingTarget);
+}
+
+function hasLexicalTarget(exercise: Exercise) {
+  return "lexicalTarget" in exercise && Boolean(exercise.lexicalTarget);
+}
+
 function DanishCharacterButtons({ disabled, insertCharacter }: {
   disabled: boolean;
   insertCharacter: (character: string) => void;
@@ -95,6 +103,7 @@ function DanishTextInput({
         disabled={disabled}
         onChange={(event) => onText(event.currentTarget.value)}
         autoComplete="off"
+        autoCapitalize="none"
         lang="da"
         maw={220}
       />
@@ -164,7 +173,7 @@ export default function ExercisePrompt({
   const replacementWord = "replacementWord" in prompt ? prompt.replacementWord : undefined;
   const passage = "passage" in prompt ? prompt.passage : undefined;
   const tileMode = "tileMode" in prompt ? prompt.tileMode : undefined;
-  if (exercise.readingTarget) {
+  if (hasReadingTarget(exercise)) {
     return (
       <Stack gap="md">
         <Stack gap="xs" role="group" aria-label="Reading passage" lang="da">
@@ -202,7 +211,7 @@ export default function ExercisePrompt({
     );
   }
 
-  if (exercise.lexicalTarget) {
+  if (hasLexicalTarget(exercise)) {
     return (
       <Stack gap="sm">
         {prompt.cue && <Text lang={prompt.cueLanguage ?? undefined} size="xl" fw={650}>{prompt.cue}</Text>}
@@ -240,23 +249,26 @@ export default function ExercisePrompt({
 
   if (prompt.choices.length > 0) {
     return (
-      <Group gap="sm" aria-label="Danish sentence with answer choices" lang="da">
-        {prompt.before && <Text>{prompt.before}</Text>}
-        <Group gap="xs" aria-label="Answer choices">
-          {prompt.choices.map((choice) => (
-            <Button
-              key={choice}
-              variant={text === choice ? "filled" : "default"}
-              disabled={disabled}
-              onClick={() => onText(choice)}
-              aria-pressed={text === choice}
-            >
-              {choice}
-            </Button>
-          ))}
+      <Stack gap="sm">
+        {prompt.cue && <Text lang={prompt.cueLanguage ?? "en"} size="lg" fw={650}>{prompt.cue}</Text>}
+        <Group gap="sm" aria-label="Danish sentence with answer choices" lang="da">
+          {prompt.before && <Text>{prompt.before}</Text>}
+          <Group gap="xs" aria-label="Answer choices">
+            {prompt.choices.map((choice) => (
+              <Button
+                key={choice}
+                variant={text === choice ? "filled" : "default"}
+                disabled={disabled}
+                onClick={() => onText(choice)}
+                aria-pressed={text === choice}
+              >
+                <span lang={prompt.answerLanguage ?? "da"}>{choice}</span>
+              </Button>
+            ))}
+          </Group>
+          {prompt.after && <Text>{prompt.after}</Text>}
         </Group>
-        {prompt.after && <Text>{prompt.after}</Text>}
-      </Group>
+      </Stack>
     );
   }
 
@@ -275,16 +287,19 @@ export default function ExercisePrompt({
   }
 
   return (
-    <Group gap="xs" align="end" wrap="wrap" aria-label="Danish sentence cloze">
-      {prompt.before && <Text lang="da" pb={9}>{prompt.before}</Text>}
-      <DanishTextInput
-        label={inputLabel ?? "Missing word"}
-        text={text}
-        disabled={disabled}
-        onText={onText}
-      />
-      {prompt.after && <Text lang="da" pb={9}>{prompt.after}</Text>}
-    </Group>
+    <Stack gap="sm">
+      {prompt.cue && <Text lang={prompt.cueLanguage ?? "en"} size="lg" fw={650}>{prompt.cue}</Text>}
+      <Group gap="xs" align="end" wrap="wrap" aria-label="Danish sentence cloze">
+        {prompt.before && <Text lang="da" pb={9}>{prompt.before}</Text>}
+        <DanishTextInput
+          label={inputLabel ?? "Missing word"}
+          text={text}
+          disabled={disabled}
+          onText={onText}
+        />
+        {prompt.after && <Text lang="da" pb={9}>{prompt.after}</Text>}
+      </Group>
+    </Stack>
   );
 }
 

@@ -8,7 +8,22 @@ import type { PracticeRunRecovery } from "./practiceRecovery";
 
 let profileBootstrap: Promise<PracticeProfiles> | null = null;
 
-export const PRESENTATION_PROFILES = [
+const PRESENTATION_PROFILES = [
+  {
+    focusId: "module-one-singular", planRevision: "module-one-singular-1", title: "Talking about one person",
+    description: "Choose and type Danish subject words for one speaker, addressee or person.",
+    itemCount: 6, prerequisiteSkillIds: ["G001", "G002"],
+  },
+  {
+    focusId: "module-one-groups", planRevision: "module-one-groups-1", title: "Talking to and about groups",
+    description: "Choose and type Danish subject words for speakers, addressees and groups.",
+    itemCount: 6, prerequisiteSkillIds: ["G001", "G002", "G003"],
+  },
+  {
+    focusId: "module-one-er", planRevision: "module-one-er-1", title: "Using the verb to be",
+    description: "Choose and type the Danish present form er in supplied statements.",
+    itemCount: 6, prerequisiteSkillIds: ["G001", "G002", "G003"],
+  },
   {
     focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
     description: "Practise familiar words, sentence order and articles in eight varied parts.",
@@ -25,6 +40,9 @@ export const PRESENTATION_PROFILES = [
     itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G005"],
   },
 ] satisfies PracticeProfile[];
+
+export const MODULE_ONE_PROFILES = PRESENTATION_PROFILES.slice(0, 3);
+export const EXISTING_PRACTICE_PROFILES = PRESENTATION_PROFILES.slice(3);
 
 export function profileKey(profile: Pick<PracticeProfile, "focusId" | "planRevision">) {
   return `${profile.focusId}/${profile.planRevision}`;
@@ -86,12 +104,30 @@ export async function preparePracticeCreation(chosenKey: string) {
     request = { practiceSessionId, focusId: "present-verbs", planRevision: "present-verbs-1", seed };
   } else if (profile.focusId === "verb-article-gaps" && profile.planRevision === "verb-article-gaps-1") {
     request = { practiceSessionId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed };
+  } else if (profile.focusId === "module-one-singular" && profile.planRevision === "module-one-singular-1") {
+    request = { practiceSessionId, focusId: "module-one-singular", planRevision: "module-one-singular-1", seed };
+  } else if (profile.focusId === "module-one-groups" && profile.planRevision === "module-one-groups-1") {
+    request = { practiceSessionId, focusId: "module-one-groups", planRevision: "module-one-groups-1", seed };
+  } else if (profile.focusId === "module-one-er" && profile.planRevision === "module-one-er-1") {
+    request = { practiceSessionId, focusId: "module-one-er", planRevision: "module-one-er-1", seed };
   } else {
     throw new PracticeCatalogError("The selected practice profile has an unsupported revision.");
   }
   const recovery: PracticeRunRecovery = { ownerSessionId: catalog.ownerSessionId, ...request };
   const creation = outboxEntry(recovery, "creation", request.practiceSessionId, request);
   return { recovery, creation };
+}
+
+export function moduleOneProfileKey(session: Pick<PracticeSession, "focusId" | "planRevision">) {
+  const profile = MODULE_ONE_PROFILES.find((candidate) =>
+    candidate.focusId === session.focusId && candidate.planRevision === session.planRevision);
+  return profile ? profileKey(profile) : null;
+}
+
+export function nextModuleOneProfile(session: Pick<PracticeSession, "focusId" | "planRevision">) {
+  const currentKey = moduleOneProfileKey(session);
+  const index = MODULE_ONE_PROFILES.findIndex((profile) => profileKey(profile) === currentKey);
+  return index >= 0 ? MODULE_ONE_PROFILES[index + 1] ?? null : null;
 }
 
 export function followUpRevisionFor(session: PracticeSession) {

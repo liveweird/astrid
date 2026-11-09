@@ -1,0 +1,349 @@
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test, type Page } from "@playwright/test";
+import { choosePractice, ownerHeaders, readPractice, type PracticeState } from "../support/practice.js";
+
+type CourseExercise = {
+  id: string; formatId: string; targetScopeId: string;
+  prompt: { cue?: string; choices: string[] };
+};
+type CourseItem = PracticeState["items"][number] & { canAdvance?: boolean; targetScopeId: string; assessmentMode: string };
+type CourseState = Omit<PracticeState, "items" | "currentExercise"> & {
+  focusId: string; planRevision: string; contentRevision: string; generatorRevision: string;
+  introductionOpened: boolean; introductionRequired: boolean;
+  currentExercise: CourseExercise | null; items: CourseItem[];
+};
+const PROFILES = [
+  { focus: "module-one-singular", title: "Talking about one person", scope: "human-singular", badge: "One-person subject words", selection: 4, recall: 2 },
+  { focus: "module-one-groups", title: "Talking to and about groups", scope: "human-group", badge: "Group subject words", selection: 3, recall: 3 },
+  { focus: "module-one-er", title: "Using the verb to be", scope: "vaere-present", badge: "Present verb form", selection: 2, recall: 4 },
+] as const;
+const SUBJECTS: Record<string, string> = {
+  I: "jeg", "you (one person)": "du", he: "han", she: "hun", we: "vi",
+  "you (several people)": "I", "they (several people)": "de",
+};
+async function stateFor(page: Page) {
+  return await readPractice(page.request, new URL(page.url()).searchParams.get("session")!) as unknown as CourseState;
+}
+function answerFor(exercise: CourseExercise) {
+  if (exercise.targetScopeId === "vaere-present") return "er";
+  const answer = SUBJECTS[exercise.prompt.cue!];
+  expect(answer, "The literal authored English cue has an independent Danish-form oracle").toBeDefined();
+  return answer!;
+}
+async function openCourse(page: Page, title: string, enlarged = false) {
+  await page.goto("/practice");
+  await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
+  if (enlarged) await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+  await choosePractice(page, title);
+  await expect(page.getByRole("button", { name: "Session introduction", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Session introduction", exact: true })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeHidden();
+  return await stateFor(page);
+}
+async function beginCourse(page: Page) {
+  await page.getByRole("button", { name: "Session introduction", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeVisible();
+  const state = await stateFor(page);
+  expect(state.introductionOpened).toBe(true);
+  return state;
+}
+async function submit(page: Page, exercise: CourseExercise, text = answerFor(exercise)) {
+  if (exercise.prompt.choices.length) await page.getByLabel("Answer choices").getByRole("button", { name: text, exact: true }).click();
+  else await page.getByRole("textbox").fill(text);
+  await page.getByRole("button", { name: "Check answer", exact: true }).click();
+  await expect(page.getByRole("status")).toBeFocused();
+}
+async function next(page: Page, previous: CourseState) {
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  if (previous.cursor === 5) await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeFocused();
+  else await expect(page.getByText(`Part ${previous.cursor + 2} of 6`, { exact: true })).toBeVisible();
+  return await stateFor(page);
+}
+async function finishByApi(page: Page, state: CourseState) {
+  while (state.state !== "completed") {
+    const exercise = state.currentExercise!;
+    const saved = await page.request.post("/api/v1/attempts", {
+      headers: { "X-Astrid-Client": "playground" },
+      data: { attemptId: crypto.randomUUID(), exerciseId: exercise.id, answer: { kind: "text", text: answerFor(exercise) }, hintUsed: false },
+    });
+    expect(saved.status()).toBe(200);
+    const result = await page.request.post(`/api/v1/practice-sessions/${state.id}/advance`, {
+      headers: ownerHeaders(state.ownerSessionId), data: { position: state.cursor },
+    });
+    expect(result.status()).toBe(200);
+    state = await result.json() as CourseState;
+  }
+  return state;
+}
+async function reachRecall(page: Page, wanted?: string) {
+  let state = await stateFor(page);
+  while (state.currentExercise!.prompt.choices.length || (wanted !== undefined && answerFor(state.currentExercise!) !== wanted)) {
+    await submit(page, state.currentExercise!);
+    state = await next(page, await stateFor(page));
+    expect(state.state).toBe("active");
+  }
+  return state;
+}
+type SavedGrade = {
+  attemptId: string; targetSatisfaction: string; linguisticStatus: string;
+  responseConstraintStatus: string; completedSentence: string | null; issues: { code: string }[];
+};
+function latest(state: CourseState) {
+  return state.items[state.cursor]!.lastAttempt as SavedGrade;
+}
+async function scan(page: Page) {
+  const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
+  expect(result.violations.map(({ id, nodes }) => ({ id, targets: nodes.map((node) => node.target) }))).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  const overflow = await page.locator("#main-content p, #main-content h2, #main-content h3, #main-content h4").evaluateAll((elements) => elements.flatMap((element) => {
+    const bounds = element.getBoundingClientRect();
+    if (!bounds.width || !bounds.height) return [];
+    const range = document.createRange(); range.selectNodeContents(element);
+    return [...range.getClientRects()].some((rect) => rect.width > 0 &&
+      (rect.left < bounds.left - 1 || rect.right > bounds.right + 1)) ? [element.textContent] : [];
+  }));
+  expect(overflow, "Teaching and summary text stays inside its own column").toEqual([]);
+}
+
+for (const profile of PROFILES) {
+  test(`first steps teach before assessment and retain scoped outcomes for ${profile.focus}`, async ({ page }) => {
+    let state = await openCourse(page, profile.title);
+    expect(state).toMatchObject({ focusId: profile.focus, planRevision: `${profile.focus}-1`, contentRevision: "pilot-8", generatorRevision: "generator-8", introductionRequired: true, introductionOpened: false, itemCount: 6 });
+    expect(state.items.every((item) => item.targetScopeId === profile.scope)).toBe(true);
+    expect(state.items[state.cursor]!.canAdvance).toBe(false);
+    expect(state.items.filter((item) => item.position !== state.cursor).every((item) => item.canAdvance == null)).toBe(true);
+    const early = await page.request.post("/api/v1/attempts", {
+      headers: { "X-Astrid-Client": "playground" },
+      data: { attemptId: crypto.randomUUID(), exerciseId: state.currentExercise!.id, answer: { kind: "text", text: answerFor(state.currentExercise!) }, hintUsed: false },
+    });
+    expect(early.status()).toBe(409);
+    expect((await stateFor(page)).summary.attemptCount).toBe(0);
+    state = await beginCourse(page);
+    const introduction = page.getByRole("region", { name: "Session introduction", exact: true });
+    await expect(introduction.getByRole("heading", { name: "Danish letters", exact: true })).toBeVisible();
+    await expect(introduction.getByText("æ · ø · å", { exact: true })).toHaveAttribute("lang", "da");
+    await expect(introduction.getByText("Jeg er Anna.", { exact: true })).toHaveAttribute("lang", "da");
+    await expect(introduction.getByText(/first word is a pronoun functioning as the subject/)).toBeVisible();
+    await expect(page.getByText(profile.badge, { exact: true }).and(page.locator("span"))).toBeVisible();
+    await expect(page.getByText(/^G00[34]$/)).toHaveCount(0);
+    const typed: string[] = [];
+    while (state.state !== "completed") {
+      const exercise = state.currentExercise!;
+      if (!exercise.prompt.choices.length) typed.push(answerFor(exercise));
+      await submit(page, exercise);
+      await expect(page.getByRole("status").getByText("Good work", { exact: true })).toBeVisible();
+      const saved = await stateFor(page);
+      expect(saved.items[saved.cursor]!.canAdvance).toBe(true);
+      expect(saved.items[saved.cursor]!.lastAttemptContext!.introductionOpened).toBe(true);
+      expect(saved.items[saved.cursor]!.lastAttemptContext!.priorExposure.some((event) => event.source === "introduction")).toBe(true);
+      state = await next(page, saved);
+    }
+    expect(state.summary).toMatchObject({ completedItems: 6, attemptedItems: 6, attemptCount: 6, retryCount: 0 });
+    expect(state.summary.rows).toHaveLength(2);
+    expect(state.summary.rows).toEqual(expect.arrayContaining([
+      expect.objectContaining({ targetScopeId: profile.scope, assessmentMode: "selection", plannedItems: profile.selection, firstOutcomes: expect.objectContaining({ fullyMet: profile.selection }) }),
+      expect.objectContaining({ targetScopeId: profile.scope, assessmentMode: "recall", plannedItems: profile.recall, firstOutcomes: expect.objectContaining({ fullyMet: profile.recall }) }),
+    ]));
+    if (profile.scope !== "vaere-present") expect(new Set(typed).size).toBe(profile.recall);
+    await expect(page.getByRole("checkbox")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Start selected review", exact: true })).toHaveCount(0);
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+    expect((await stateFor(page)).summary).toEqual(state.summary);
+    let unexpectedCreations = 0;
+    await page.route("**/api/v1/practice-sessions", async (route) => { unexpectedCreations += 1; await route.continue(); });
+    await page.getByRole("button", { name: "Repeat this session", exact: true }).click();
+    await expect(page.getByRole("radio", { name: profile.title, exact: true })).toBeFocused();
+    await expect(page.getByRole("radio", { name: profile.title, exact: true })).toBeChecked();
+    expect(unexpectedCreations).toBe(0);
+    await page.getByRole("button", { name: "Cancel", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+    const nextProfile = PROFILES[PROFILES.findIndex((candidate) => candidate.focus === profile.focus) + 1];
+    if (nextProfile) {
+      await page.getByRole("button", { name: `Next: ${nextProfile.title}`, exact: true }).click();
+      await expect(page.getByRole("radio", { name: nextProfile.title, exact: true })).toBeFocused();
+      await expect(page.getByRole("radio", { name: nextProfile.title, exact: true })).toBeChecked();
+      expect(unexpectedCreations).toBe(0);
+      await page.getByRole("button", { name: "Cancel", exact: true }).click();
+      await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+    }
+    expect((await stateFor(page)).id).toBe(state.id);
+  });
+}
+
+for (const profile of PROFILES) {
+  for (const theme of ["light", "dark"] as const) {
+    for (const viewport of [{ width: 320, height: 844 }, { width: 844, height: 390 }]) {
+      test(`first steps reflow teaching and scoped summaries for ${profile.focus} in ${theme} at ${viewport.width}`, async ({ page }) => {
+        await page.emulateMedia({ colorScheme: theme }); await page.setViewportSize(viewport);
+        await openCourse(page, profile.title, true);
+        await scan(page);
+        const state = await beginCourse(page); await scan(page);
+        const sections = page.locator("[data-practice-focus=introduction]");
+        await expect(sections).toBeVisible();
+        await submit(page, state.currentExercise!); await scan(page);
+        const saved = await stateFor(page);
+        await next(page, saved);
+        await finishByApi(page, await stateFor(page)); await page.reload();
+        await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+        await page.addStyleTag({ content: "html { font-size: 200% !important; }" }); await scan(page);
+      });
+    }
+  }
+}
+
+
+for (const correction of [{ expected: "I", raw: "i" }, { expected: "de", raw: "De" }]) {
+  test(`first steps preserve ambiguous ${correction.raw} casing without a wrong-person diagnosis`, async ({ page }) => {
+    await openCourse(page, PROFILES[1].title); await beginCourse(page);
+    const state = await reachRecall(page, correction.expected);
+    await submit(page, state.currentExercise!, correction.raw);
+    const saved = await stateFor(page);
+    expect(latest(saved)).toMatchObject({ targetSatisfaction: "unevaluable", responseConstraintStatus: "not-met", issues: expect.arrayContaining([expect.objectContaining({ code: "STANDALONE_PRONOUN_CASE_REQUIRED" })]) });
+    expect(saved.items[saved.cursor]!.lastAnswer).toMatchObject({ kind: "text", text: correction.raw });
+    expect(saved.items[saved.cursor]!.canAdvance).toBe(true);
+    await expect(page.getByRole("status").getByText("Good work", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("status").getByText(correction.expected, { exact: true })).toHaveAttribute("lang", "da");
+    await next(page, saved);
+  });
+}
+
+test("first steps let the latest unknown block advance while preserving earlier and shape outcomes", async ({ page }) => {
+  await openCourse(page, PROFILES[0].title); await beginCourse(page);
+  const state = await reachRecall(page);
+  await submit(page, state.currentExercise!);
+  expect((await stateFor(page)).items[state.cursor]!.canAdvance).toBe(true);
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await submit(page, state.currentExercise!, "unfamiliar");
+  const unknown = await stateFor(page);
+  expect(latest(unknown)).toMatchObject({ targetSatisfaction: "unevaluable", linguisticStatus: "unknown", responseConstraintStatus: "met" });
+  expect((latest(unknown).completedSentence ?? "").trim()).toBe("");
+  expect(unknown.items[unknown.cursor]!.canAdvance).toBe(false);
+  await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeDisabled();
+  const blocked = await page.request.post(`/api/v1/practice-sessions/${state.id}/advance`, { headers: ownerHeaders(state.ownerSessionId), data: { position: state.cursor } });
+  expect(blocked.status()).toBe(409);
+  const unknownRaw = await (await page.request.get(`/api/v1/attempts/${latest(unknown).attemptId}`)).text();
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await submit(page, state.currentExercise!, "vi sover");
+  const shaped = await stateFor(page);
+  expect(latest(shaped)).toMatchObject({ targetSatisfaction: "unevaluable", responseConstraintStatus: "not-met", issues: expect.arrayContaining([expect.objectContaining({ code: "ONE_WORD_RESPONSE_REQUIRED" })]) });
+  expect(shaped.items[shaped.cursor]!.canAdvance).toBe(true);
+  await next(page, shaped);
+  const completed = await finishByApi(page, await stateFor(page));
+  expect(completed.summary).toMatchObject({ completedItems: 6, attemptCount: 8, retryCount: 2 });
+  expect(completed.summary.rows).toEqual(expect.arrayContaining([expect.objectContaining({
+    targetScopeId: "human-singular", assessmentMode: "recall", plannedItems: 2,
+    firstOutcomes: expect.objectContaining({ fullyMet: 2 }),
+    latestOutcomes: expect.objectContaining({ fullyMet: 1, unevaluable: 1, responseConstraintNotMet: 1 }),
+  })]));
+  expect(await (await page.request.get(`/api/v1/attempts/${latest(unknown).attemptId}`)).text()).toBe(unknownRaw);
+});
+
+for (const committed of [false, true]) {
+  test(`first steps confirm required teaching only after ${committed ? "committed" : "uncommitted"} support replay`, async ({ page }) => {
+    const state = await openCourse(page, PROFILES[0].title);
+    const bodies: string[] = [];
+    await page.route("**/api/v1/practice-sessions/*/support", async (route) => {
+      bodies.push(route.request().postData()!);
+      if (bodies.length === 1) {
+        if (committed) {
+          await route.fetch();
+        }
+        await route.abort("connectionfailed");
+      } else {
+        await route.continue();
+      }
+    });
+    await page.getByRole("button", { name: "Session introduction", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Retry saved operation", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeHidden();
+    await expect(page.locator("[data-practice-focus=introduction]")).toBeHidden();
+    await page.reload();
+    await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeVisible();
+    expect(bodies).toHaveLength(2); expect(bodies[1]).toBe(bodies[0]);
+    const recovered = await stateFor(page);
+    expect(recovered).toMatchObject({ id: state.id, introductionOpened: true, summary: { attemptCount: 0 } });
+    expect(recovered.currentExercise!.id).toBe(state.currentExercise!.id);
+    await submit(page, recovered.currentExercise!);
+    expect((await stateFor(page)).items[0]!.attemptCount).toBe(1);
+  });
+
+  test(`first steps replay the exact typed form after ${committed ? "committed" : "uncommitted"} answer loss`, async ({ page }) => {
+    await openCourse(page, PROFILES[0].title); await beginCourse(page);
+    const state = await reachRecall(page), raw = `  ${answerFor(state.currentExercise!)}  `;
+    const bodies: string[] = [];
+    await page.route("**/api/v1/attempts", async (route) => {
+      bodies.push(route.request().postData()!);
+      if (bodies.length === 1) {
+        if (committed) {
+          await route.fetch();
+        }
+        await route.abort("connectionfailed");
+      } else {
+        await route.continue();
+      }
+    });
+    await page.getByRole("textbox").fill(raw);
+    await page.getByRole("button", { name: "Check answer", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Retry saved operation", exact: true })).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole("status").getByText("Good work", { exact: true })).toBeVisible();
+    expect(bodies).toHaveLength(2); expect(bodies[1]).toBe(bodies[0]);
+    expect(JSON.parse(bodies[0]!) as unknown).toMatchObject({ exerciseId: state.currentExercise!.id, answer: { kind: "text", text: raw } });
+    const recovered = await stateFor(page);
+    expect(recovered.items[recovered.cursor]!).toMatchObject({ attemptCount: 1, lastAnswer: { kind: "text", text: raw }, canAdvance: true });
+  });
+
+  test(`first steps retain creation identity through ${committed ? "committed" : "uncommitted"} response loss`, async ({ page }) => {
+    const bodies: string[] = [];
+    await page.route("**/api/v1/practice-sessions", async (route) => {
+      bodies.push(route.request().postData()!);
+      if (bodies.length === 1) {
+        if (committed) {
+          await route.fetch();
+        }
+        await route.abort("connectionfailed");
+      } else {
+        await route.continue();
+      }
+    });
+    await page.goto("/practice"); await choosePractice(page, PROFILES[2].title);
+    await expect(page.getByRole("button", { name: "Retry saved operation", exact: true })).toBeVisible();
+    const id = new URL(page.url()).searchParams.get("session");
+    await page.reload();
+    await expect(page.getByRole("button", { name: "Session introduction", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeHidden();
+    expect(bodies).toHaveLength(2); expect(bodies[1]).toBe(bodies[0]);
+    expect(await stateFor(page)).toMatchObject({ id, focusId: "module-one-er", introductionOpened: false, summary: { attemptCount: 0 } });
+  });
+}
+
+test("first steps keep an unfinished typed form while lesson and hint support are saved", async ({ page }) => {
+  await openCourse(page, PROFILES[0].title); await beginCourse(page);
+  const state = await reachRecall(page), draft = answerFor(state.currentExercise!).slice(0, 1);
+  await page.getByRole("textbox").fill(draft);
+  await page.getByRole("button", { name: "Learn this first", exact: true }).click();
+  await expect(page.getByRole("textbox")).toHaveValue(draft);
+  await page.getByRole("button", { name: "Show hint", exact: true }).click();
+  await expect(page.getByRole("textbox")).toHaveValue(draft);
+  await submit(page, state.currentExercise!);
+  expect((await stateFor(page)).items[state.cursor]!.lastAttemptContext).toMatchObject({ lessonOpened: true, hintOpened: true });
+});
+
+
+for (const theme of ["light", "dark"] as const) {
+  for (const viewport of [{ width: 320, height: 844 }, { width: 844, height: 390 }]) {
+    test(`first-step chooser keeps all profiles keyboard-accessible in ${theme} at ${viewport.width}`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: theme }); await page.setViewportSize(viewport);
+      await page.goto("/practice");
+      await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
+      await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+      await expect(page.getByRole("radio")).toHaveCount(6);
+      await scan(page);
+      const groupSession = page.getByRole("radio", { name: PROFILES[1].title, exact: true });
+      await groupSession.focus(); await page.keyboard.press("Space");
+      await expect(groupSession).toBeChecked();
+      await expect(page.getByRole("button", { name: "Start practice", exact: true })).toBeEnabled();
+    });
+  }
+}

@@ -31,15 +31,18 @@ internal object PilotContent {
     const val RETAINED_FIVE_GENERATOR_REVISION = "generator-5"
     const val RETAINED_SIX_CONTENT_REVISION = "pilot-6"
     const val RETAINED_SIX_GENERATOR_REVISION = "generator-6"
-    const val CURRENT_CONTENT_REVISION = "pilot-7"
-    const val CURRENT_GENERATOR_REVISION = "generator-7"
+    const val RETAINED_SEVEN_CONTENT_REVISION = "pilot-7"
+    const val RETAINED_SEVEN_GENERATOR_REVISION = "generator-7"
+    const val CURRENT_CONTENT_REVISION = "pilot-8"
+    const val CURRENT_GENERATOR_REVISION = "generator-8"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
     const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
     const val RETAINED_FOUR_EVALUATION_REVISION = "evaluation-4"
     const val RETAINED_FIVE_EVALUATION_REVISION = "evaluation-5"
     const val RETAINED_SIX_EVALUATION_REVISION = "evaluation-6"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-7"
+    const val RETAINED_SEVEN_EVALUATION_REVISION = "evaluation-7"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-8"
 
     val humanPronouns =
         listOf(
@@ -75,6 +78,8 @@ internal object PilotContent {
 
     val magazine = NounEntry("L024", "magasin", "magazine (printed publication)", NounGender.NEUTER)
     val currentNouns = nouns + magazine
+    val teacher = NounEntry("L025", "lærer", "teacher", NounGender.COMMON)
+    val moduleOneNouns = currentNouns + teacher
 
     val vocabularySenses =
         listOf(
@@ -85,6 +90,7 @@ internal object PilotContent {
 
     val wordChoiceSenses =
         vocabularySenses + LexicalSense("L024", "L024-S01", "magasin", "magazine (printed publication)", "et")
+    val teacherSense = LexicalSense("L025", "L025-S01", "lærer", "teacher", "en")
 
     val sentences: List<Sentence> = buildSentences()
 
@@ -174,6 +180,15 @@ internal object PilotContent {
         tileFormats + ExerciseFormat("E014", "Match English and Danish words", null, LexicalTask("meaning", "en-da"))
 
     val gapFormats = matchingFormats + ExerciseFormat("E015", "Choose a present verb and article", "G004")
+
+    val moduleOneFormats =
+        gapFormats +
+            listOf(
+                ExerciseFormat("E016", "Choose a Danish subject word", "G003"),
+                ExerciseFormat("E017", "Recall a Danish subject word", "G003"),
+                ExerciseFormat("E018", "Choose the present form of være", "G004"),
+                ExerciseFormat("E019", "Recall the present form of være", "G004"),
+            )
 
     val snapshot =
         PilotContentSnapshot(
@@ -271,11 +286,30 @@ internal object PilotContent {
             vocabularySenses = wordChoiceSenses,
         )
 
-    val currentSnapshot =
+    val pilotSevenSnapshot =
         pilotSixSnapshot.copy(
+            contentRevision = RETAINED_SEVEN_CONTENT_REVISION,
+            generatorRevision = RETAINED_SEVEN_GENERATOR_REVISION,
+            formats = gapFormats,
+        )
+
+    val moduleOneSentences: List<Sentence> = buildModuleOneSentences()
+
+    val currentSnapshot =
+        pilotSevenSnapshot.copy(
             contentRevision = CURRENT_CONTENT_REVISION,
             generatorRevision = CURRENT_GENERATOR_REVISION,
-            formats = gapFormats,
+            formats = moduleOneFormats,
+            nouns = moduleOneNouns,
+            sentences = sentences + moduleOneSentences,
+            lexicalReview = PilotReviewMetadata.records(
+                humanPronouns,
+                identifyingPronoun,
+                verbs,
+                moduleOneNouns,
+                matching = true,
+                moduleOne = true,
+            ),
         )
 
     init {
@@ -285,6 +319,7 @@ internal object PilotContent {
         PilotContentValidator.requireValid(pilotFourSnapshot)
         PilotContentValidator.requireValid(pilotFiveSnapshot)
         PilotContentValidator.requireValid(pilotSixSnapshot)
+        PilotContentValidator.requireValid(pilotSevenSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 
@@ -328,5 +363,33 @@ internal object PilotContent {
             complement = complement,
         )
     }
+
+    private fun buildModuleOneSentences(): List<Sentence> =
+        buildList {
+            humanPronouns.filter { it.id in setOf("L001", "L002", "L004") }.forEach { subject ->
+                listOf("Anna", "Nora").forEach { name ->
+                    add(
+                        Sentence(
+                            id = "C004-${subject.id}-L010-name-${name.lowercase()}",
+                            constructionId = "C004",
+                            subject = Constituent(listOf(subject.id), subject.text, "SUBJECT"),
+                            verb = be,
+                            complement = Constituent(emptyList(), name, "PREDICATIVE"),
+                        ),
+                    )
+                }
+            }
+            humanPronouns.filter { it.id in setOf("L001", "L002", "L003", "L004") }.forEach { subject ->
+                add(
+                    Sentence(
+                        id = "C004-${subject.id}-L010-L025",
+                        constructionId = "C004",
+                        subject = Constituent(listOf(subject.id), subject.text, "SUBJECT"),
+                        verb = be,
+                        complement = Constituent(listOf("L025"), "lærer", "PREDICATIVE"),
+                    ),
+                )
+            }
+        }.also { check(it.size == 10) }
 
 }

@@ -30,6 +30,8 @@ data class PracticeAttemptSource(
     val introductionOpened: Boolean,
     val items: List<PracticeExposureState>,
     val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
+    val introductionExposureKeys: List<String>? = null,
+    val exposurePolicyId: String? = null,
 )
 
 data class PracticeExposureState(
@@ -48,6 +50,7 @@ internal fun frozenFeedbackExposureKeys(
     candidateKeys: List<String>,
     assessments: List<PracticeAssessment>,
     attempts: List<AttemptResponse>,
+    exposurePolicyId: String? = null,
 ): List<String> = PracticeFeedbackExposureCalculator.releasedKeys(
     candidateKeys,
     assessments,
@@ -55,8 +58,12 @@ internal fun frozenFeedbackExposureKeys(
         PracticeFeedbackAttemptObservation(
             enumByWire(response.targetSatisfaction),
             response.gapResults.orEmpty().map { it.toEngine() },
+            enumByWire(response.linguisticStatus),
+            response.responseConstraintStatus?.let { enumByWire(it) },
+            response.issues.map { it.code },
         )
     },
+    exposurePolicyId,
 )
 
 private fun GapResultDto.toEngine() = GapResult(
@@ -138,6 +145,7 @@ internal fun PracticeAttemptSource.toAttemptContext(): PracticeAttemptContextDto
                 exposure.keys,
             )
         },
+        introductionExposureKeys,
     )
     return PracticeAttemptContextDto(
         calculated.introductionOpened,

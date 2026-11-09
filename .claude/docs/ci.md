@@ -35,6 +35,13 @@ Triggers: push to `master`, pull requests, manual dispatch; `permissions: conten
 | `kubernetes` | kubeconform (checksum-verified binary, k8s 1.33.0 schemas pinned by commit) over the manifests and over `kubectl kustomize k8s`. |
 | `image` | `docker compose config`; `docker build -t astrid:local .`; e2e `npm ci && lint && knip && typecheck && check:scenarios && test:scripts && audit`; `playwright install --with-deps chromium webkit`; `docker compose --env-file .env.example up -d --wait` then `npm --prefix e2e test`; logs on failure; uploads `browser-reports`; Trivy scan of the packaged image (HIGH/CRITICAL, `--ignore-unfixed`); `compose down` (never `-v`). |
 
+The image job has a **35-minute** outer budget. Its unchanged 0.8.0 baseline on run
+`42709008358` took 1,476 seconds, including 1,205 seconds in the browser/startup step
+(312 journeys, no retries/flakies), leaving only 24 seconds under the former 25-minute budget.
+The selected first-step sessions add browser cases. The larger outer budget accommodates that
+work; browser timeouts, workers, retry settings, complete suite, scans and all quality floors
+are unchanged. The nightly already has a separate 40-minute budget.
+
 Unlike Flow there is no path filter (`changes` job): browser journeys run on every push and PR inside `image`, and the nightly below repeats them.
 A new gate lands in `scripts/check.sh` **and** the matching job in the same commit; the two lists above must stay equal.
 

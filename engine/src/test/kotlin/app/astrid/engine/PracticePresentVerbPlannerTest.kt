@@ -16,12 +16,22 @@ class PracticePresentVerbPlannerTest {
                 "reading-basics/practice-1",
                 "present-verbs/present-verbs-1",
                 "verb-article-gaps/verb-article-gaps-1",
+                "module-one-singular/module-one-singular-1",
+                "module-one-groups/module-one-groups-1",
+                "module-one-er/module-one-er-1",
             ),
             planner.profiles().map { "${it.focusId}/${it.planRevision}" },
         )
-        assertEquals(listOf("Mixed practice", "Present verb forms", "Verbs and articles together"),
+        assertEquals(listOf(
+            "Mixed practice",
+            "Present verb forms",
+            "Verbs and articles together",
+            "Talking about one person",
+            "Talking to and about groups",
+            "Using the verb to be",
+        ),
             planner.profiles().map { it.title })
-        assertEquals(listOf(8, 6, 4), planner.profiles().map { it.itemCount })
+        assertEquals(listOf(8, 6, 4, 6, 6, 6), planner.profiles().map { it.itemCount })
         assertEquals("Words and simple statements", planner.plan("reading-basics", "practice-1", 0).title)
     }
 

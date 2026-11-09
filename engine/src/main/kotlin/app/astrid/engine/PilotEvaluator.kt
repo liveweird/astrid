@@ -7,6 +7,7 @@ internal object PilotEvaluator {
         exercise: GeneratedExercise,
         answer: Answer,
     ): Evaluation = when (exercise.formatId) {
+        "E016", "E017", "E018", "E019" -> ModuleOneExerciseEvaluator.evaluate(exercise, answer)
         "E015" -> MultipleGapExerciseEvaluator.evaluate(
             exercise,
             answer,
@@ -44,7 +45,9 @@ internal object PilotEvaluator {
             is AnswerKey.SubjectFirstOrder -> evaluateOrder(exercise, answer, key)
             is AnswerKey.MeaningChoice -> evaluateMeaning(answer, key)
             is AnswerKey.Headword -> evaluateHeadword(answer, key)
-            is AnswerKey.SuppliedChoice, is AnswerKey.TileOrder, is AnswerKey.Matching, is AnswerKey.Gaps ->
+            is AnswerKey.SuppliedChoice, is AnswerKey.TileOrder, is AnswerKey.Matching, is AnswerKey.Gaps,
+            is AnswerKey.ModuleOneForm,
+            ->
                 error("New answer key reached retained evaluator")
         }
 

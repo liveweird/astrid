@@ -47,6 +47,56 @@ function renderPrompt(formatId: Exercise["formatId"], onText = vi.fn(), onOrder 
 }
 
 describe("ExercisePrompt", () => {
+  it("shows the English situation above Danish Module 1 choices", async () => {
+    const onText = vi.fn();
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E016" as Exercise["formatId"], {
+              before: "", after: "", punctuation: "", cue: "You are talking to one person.",
+              cueLanguage: "en", answerLanguage: "da", choices: ["jeg", "du", "han", "hun"],
+            }),
+            targetSkillId: "G003", targetScopeId: "human-singular",
+          } as Exercise}
+          text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("You are talking to one person.")).toHaveAttribute("lang", "en");
+    for (const choice of ["jeg", "du", "han", "hun"]) {
+      expect(screen.getByText(choice)).toHaveAttribute("lang", "da");
+    }
+    await userEvent.click(screen.getByRole("button", { name: "du" }));
+    expect(onText).toHaveBeenCalledWith("du");
+  });
+
+  it.each([
+    ["E017", "Danish subject word", "Several people are being addressed."],
+    ["E019", "Present verb form", "Complete the Danish statement meaning ‘It is a letter.’"],
+  ] as const)("uses the standalone %s label and casing boundary", (formatId, label, cue) => {
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise(formatId as Exercise["formatId"], {
+              before: "", after: "", punctuation: "", cue,
+              cueLanguage: "en", answerLanguage: "da", choices: [], inputLabel: label,
+            }),
+            targetSkillId: formatId === "E017" ? "G003" : "G004",
+            targetScopeId: formatId === "E017" ? "human-group" : "vaere-present",
+          } as Exercise}
+          text="" order={[]} disabled={false} onText={vi.fn()} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText(cue)).toHaveAttribute("lang", "en");
+    expect(screen.getByRole("textbox", { name: label })).toHaveAttribute("autocapitalize", "none");
+    expect(screen.getByRole("textbox", { name: label })).toHaveAttribute("lang", "da");
+  });
+
   it("renders a full-sentence English cue with a Danish writing area and caret-aware character help", async () => {
     function WritingHarness() {
       const [text, setText] = useState("Hun lser en avis.");

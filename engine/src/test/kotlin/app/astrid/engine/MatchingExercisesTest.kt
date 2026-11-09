@@ -15,16 +15,16 @@ class MatchingExercisesTest {
     fun `revision seven retains matching while appending multiple gaps`() {
         val catalog = engine.catalog()
 
-        assertEquals("pilot-7", catalog.contentRevision)
-        assertEquals("generator-7", catalog.generatorRevision)
+        assertEquals("pilot-8", catalog.contentRevision)
+        assertEquals("generator-8", catalog.generatorRevision)
         assertEquals("evaluation-6", engine.evaluationRevision("pilot-6", "generator-6"))
         assertEquals("evaluation-5", engine.evaluationRevision("pilot-5", "generator-5"))
-        assertEquals((1..15).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
+        assertEquals((1..19).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
         assertEquals(
             ExerciseFormat("E014", "Match English and Danish words", null, LexicalTask("meaning", "en-da")),
             catalog.formats.single { it.id == "E014" },
         )
-        assertEquals(99, catalog.sentenceCount)
+        assertEquals(109, catalog.sentenceCount)
         assertEquals(13, PilotContent.pilotFiveSnapshot.formats.size)
         assertEquals(24, PilotContent.pilotFiveSnapshot.lexicalReview.size)
         assertEquals(4, PilotContent.pilotFiveSnapshot.vocabularySenses.size)

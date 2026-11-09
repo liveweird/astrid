@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { PracticeSession } from "../../api/models";
 import type { PracticeOutboxEntry } from "./practiceRecovery";
 
-export type PracticeFocusTarget = "item" | "feedback" | "summary" | "error" | "introduction" | "lesson" | "hint" | "gaps";
+export type PracticeFocusTarget = "item" | "feedback" | "summary" | "error" | "introductionControl" | "introduction" | "lesson" | "hint" | "gaps";
 
 export function pendingFocus(entry: PracticeOutboxEntry, session: PracticeSession): PracticeFocusTarget {
   if (entry.kind === "attempt") return "feedback";
@@ -17,7 +17,18 @@ export function pendingFocus(entry: PracticeOutboxEntry, session: PracticeSessio
 export function reconciledFocus(previousCursor: number | undefined, next: PracticeSession | null, requested: PracticeFocusTarget) {
   if (!next) return "error";
   if (next.state === "completed") return "summary";
+  if (next.introductionRequired && !next.introductionOpened) return "introductionControl";
   return next.cursor !== previousCursor ? "item" : requested;
+}
+
+export function recoveredFocus(session: PracticeSession, pending?: PracticeOutboxEntry) {
+  if (session.state === "completed") return "summary";
+  if (session.introductionRequired && !session.introductionOpened) return "introductionControl";
+  if (pending?.kind === "support") return pendingFocus(pending, session);
+  if (pending?.kind === "attempt") return "feedback";
+  if (pending) return "item";
+  const item = session.items.find((candidate) => candidate.position === session.cursor);
+  return item?.lastAttempt ? "feedback" : "item";
 }
 
 export function usePracticeFocusQueue(error: string) {
@@ -26,6 +37,7 @@ export function usePracticeFocusQueue(error: string) {
   const errorRef = useRef<HTMLDivElement>(null);
   const summaryHeadingRef = useRef<HTMLHeadingElement>(null);
   const introductionContentRef = useRef<HTMLParagraphElement>(null);
+  const introductionControlRef = useRef<HTMLButtonElement>(null);
   const lessonContentRef = useRef<HTMLParagraphElement>(null);
   const hintRef = useRef<HTMLDivElement>(null);
   const gapFocusRef = useRef<HTMLDivElement>(null);
@@ -39,14 +51,15 @@ export function usePracticeFocusQueue(error: string) {
     if (!error && request.sequence === 0) return;
     const refs = {
       item: itemHeadingRef, feedback: feedbackRef, summary: summaryHeadingRef, error: errorRef,
-      introduction: introductionContentRef, lesson: lessonContentRef, hint: hintRef, gaps: gapFocusRef,
+      introductionControl: introductionControlRef, introduction: introductionContentRef,
+      lesson: lessonContentRef, hint: hintRef, gaps: gapFocusRef,
     };
     const target = refs[error ? "error" : request.target].current;
     target?.focus({ preventScroll: true });
     target?.scrollIntoView({ block: "start", inline: "nearest" });
   }, [error, request]);
   return {
-    errorRef, feedbackRef, gapFocusRef, hintRef, introductionContentRef, itemHeadingRef,
+    errorRef, feedbackRef, gapFocusRef, hintRef, introductionContentRef, introductionControlRef, itemHeadingRef,
     lessonContentRef, requestFocus, summaryHeadingRef,
   };
 }

@@ -98,6 +98,7 @@ object PracticeSummaryCalculator {
             hintOpenedItems = items.count { it.hintOpened },
             assessmentMode = representative.targetDescriptor.assessmentMode,
             assessmentRole = representative.assessmentRole,
+            targetScopeId = representative.targetDescriptor.targetScopeId,
         )
     }
 

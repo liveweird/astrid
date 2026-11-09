@@ -47,7 +47,7 @@ class WritingReadingApplicationTest {
             trustedHost()
             cookie(SESSION_COOKIE, owner)
         }.json()
-        assertEquals("pilot-7", catalog.getValue("contentRevision").jsonPrimitive.content)
+        assertEquals("pilot-8", catalog.getValue("contentRevision").jsonPrimitive.content)
         val formats = catalog.getValue("formats") as JsonArray
         val writingFormat = formats.single { it.jsonObject.getValue("id").jsonPrimitive.content == "E009" }.jsonObject
         assertEquals("G005", writingFormat.getValue("targetSkillId").jsonPrimitive.content)

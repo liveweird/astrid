@@ -25,6 +25,9 @@ data class NewPracticeSession(
     val followUp: PracticeFollowUpLineage? = null,
     val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
     val introductionExposureKeys: List<String>? = null,
+    val introductionRequired: Boolean = false,
+    val completionRuleId: String? = null,
+    val exposurePolicyId: String? = null,
 )
 
 data class PracticeFollowUpLineage(
@@ -43,6 +46,7 @@ data class NewPracticeItem(
     val feedbackExposureKeys: List<String>,
     val assessmentMode: String? = null,
     val assessments: List<PracticeAssessmentPayload> = emptyList(),
+    val targetScopeId: String? = null,
 )
 
 data class StoredPracticeSession(
@@ -64,6 +68,9 @@ data class StoredPracticeSession(
     val followUp: PracticeFollowUpLineage? = null,
     val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
     val introductionExposureKeys: List<String>? = null,
+    val introductionRequired: Boolean = false,
+    val completionRuleId: String? = null,
+    val exposurePolicyId: String? = null,
 )
 
 data class StoredPracticeItem(
@@ -80,6 +87,7 @@ data class StoredPracticeItem(
     val attempts: List<StoredPracticeAttempt>,
     val assessmentMode: String? = null,
     val assessments: List<PracticeAssessmentPayload> = emptyList(),
+    val targetScopeId: String? = null,
 )
 
 data class StoredPracticeAttempt(
@@ -103,6 +111,12 @@ data class PracticePlanPayload(
     val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val introductionExposureKeys: List<String>? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val introductionRequired: Boolean = false,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val completionRuleId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val exposurePolicyId: String? = null,
 )
 
 @Serializable
@@ -124,6 +138,8 @@ data class PracticeItemPayload(
     val assessmentMode: String? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val assessments: List<PracticeAssessmentPayload> = emptyList(),
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val targetScopeId: String? = null,
 )
 
 @Serializable
@@ -135,6 +151,8 @@ data class PracticeAssessmentPayload(
     val assessmentMode: String,
     val assessmentRole: String,
     val answerExposureKeys: List<String>,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val targetScopeId: String? = null,
 )
 
 fun NewPracticeSession.toPayload() = PracticePlanPayload(
@@ -155,16 +173,20 @@ fun NewPracticeSession.toPayload() = PracticePlanPayload(
             it.feedbackExposureKeys,
             it.assessmentMode,
             it.assessments,
+            it.targetScopeId,
         )
     },
     followUp?.let { PracticeFollowUpPayload(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },
     sourceExposure,
     introductionExposureKeys,
+    introductionRequired,
+    completionRuleId,
+    exposurePolicyId,
 )
 
 internal fun PracticeAssessmentPayload.toEngineAssessment() = PracticeAssessment(
     slotId,
-    PracticeTargetDescriptor(label, targetSkillId, null, assessmentMode),
+    PracticeTargetDescriptor(label, targetSkillId, null, assessmentMode, targetScopeId),
     assessmentRole,
     answerExposureKeys,
 )

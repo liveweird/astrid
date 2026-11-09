@@ -1,5 +1,10 @@
 package app.astrid.server.practice
 
+import app.astrid.engine.LinguisticStatus
+import app.astrid.engine.PracticeCompletionAttemptObservation
+import app.astrid.engine.PracticeCompletionPolicy
+import app.astrid.engine.ResponseConstraintStatus
+import app.astrid.engine.TargetStatus
 import app.astrid.server.authz.SessionPrincipal
 import app.astrid.server.exercises.AttemptRequest
 import app.astrid.server.exercises.Attempts
@@ -174,18 +179,25 @@ class PostgresPracticeStore(
         val practice = findPracticeRow(ownerSessionId, practiceSessionId)
             ?: return@suspendTransaction PracticeMutationResult.Missing
         val cursor = practice[PracticeSessions.cursor]
-        val itemCount = json.decodeFromString<PracticePlanPayload>(practice[PracticeSessions.planPayload]).items.size
+        val payload = json.decodeFromString<PracticePlanPayload>(practice[PracticeSessions.planPayload])
+        val itemCount = payload.items.size
         when {
             position !in 0 until itemCount -> PracticeMutationResult.Conflict
             position < cursor -> PracticeMutationResult.Success(loadPracticeSession(ownerSessionId, practiceSessionId))
             position > cursor -> PracticeMutationResult.Conflict
             else -> {
-                val attempted = PracticeAttemptContexts.select(PracticeAttemptContexts.attemptId).where {
-                    (PracticeAttemptContexts.ownerSessionId eq ownerSessionId) and
-                        (PracticeAttemptContexts.practiceSessionId eq practiceSessionId) and
-                        (PracticeAttemptContexts.position eq position)
-                }.limit(1).toList().isNotEmpty()
-                if (!attempted) return@suspendTransaction PracticeMutationResult.Conflict
+                val current = loadPracticeSession(ownerSessionId, practiceSessionId).items.single { it.position == position }
+                val latest = current.attempts.lastOrNull()?.response?.let { response ->
+                    PracticeCompletionAttemptObservation(
+                        enumByWire(response.targetSatisfaction),
+                        enumByWire(response.linguisticStatus),
+                        response.responseConstraintStatus?.let { enumByWire(it) },
+                        response.issues.map { it.code },
+                    )
+                }
+                if (!PracticeCompletionPolicy.canAdvance(payload.completionRuleId, latest)) {
+                    return@suspendTransaction PracticeMutationResult.Conflict
+                }
                 PracticeSessions.update({
                     (PracticeSessions.ownerSessionId eq ownerSessionId) and
                         (PracticeSessions.practiceSessionId eq practiceSessionId)
@@ -248,6 +260,7 @@ class PostgresPracticeStore(
                 attempts,
                 itemPayload.assessmentMode,
                 itemPayload.assessments,
+                itemPayload.targetScopeId,
             )
         }
         return StoredPracticeSession(
@@ -271,6 +284,9 @@ class PostgresPracticeStore(
             },
             payload.sourceExposure,
             payload.introductionExposureKeys,
+            payload.introductionRequired,
+            payload.completionRuleId,
+            payload.exposurePolicyId,
         )
     }
 
@@ -315,4 +331,13 @@ class PostgresPracticeStore(
         const val MAX_PRACTICE_ITEMS = 8
         const val TARGETED_REVIEW_FOCUS = "targeted-review"
     }
+}
+
+private inline fun <reified T : Enum<T>> enumByWire(value: String): T = enumValues<T>().single { entry ->
+    when (entry) {
+        is TargetStatus -> entry.wireValue
+        is LinguisticStatus -> entry.wireValue
+        is ResponseConstraintStatus -> entry.wireValue
+        else -> error("Unsupported wire enum")
+    } == value
 }

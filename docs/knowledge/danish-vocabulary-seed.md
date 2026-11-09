@@ -99,3 +99,24 @@ The historical 23-entry table above remains the published pilot seed. BL-047 ass
 existing reading-material senses for E014 in pair six. The [matching contract](vocabulary-matching-contract.md)
 extends its use to choice/matching only; the retained pair-five E011-only metadata above stays historical.
 No sentence allowlist or older E007/E008 pool expands, and teaching approval remains pending.
+
+## Pair-eight first-step addition
+
+**9 November 2026 — Selected implementation, verification in progress:** BL-052 assigns
+**L025 / L025-S01** to the teacher noun in the [first-step contract](module-one-activation.md).
+It is introduced with its article and supplied in the narrowly licensed occupational frame;
+neither article nor noun recall is assessed by these verb tasks.
+
+| ID | Lemma and English gloss | Gender | Teaching bundle | Reference definite singular / plural / definite plural | Scope and source |
+| --- | --- | --- | --- | --- | --- |
+| L025 | lærer, teacher | common | en lærer | læreren / lærere / lærerne | Supplied teacher sense in singular C004 `jeg/du/han/hun + er lærer`; exclude the homographic verb and unrelated noun senses. [DDO noun entry](https://ordnet.dk/ddo/ordbog/l%C3%A6rer). |
+
+Pair eight additionally licenses six human identity combinations (`jeg/du/hun` × supplied
+`Anna/Nora`) and four singular teacher combinations. Its inventory is 109 licensed complete
+clauses: the original 99 plus these ten C004 variants. The new E016–E019 task pools are
+separate; existing formats and retained snapshots keep their original generation/parser pools.
+The selected senses, private provenance and frame allowlists are versioned; no old L010
+permission, E007/E008 pool or published C001–C003 combination is silently broadened.
+Names remain supplied literals rather than independently assessed lexical entries. Reference
+plural/definite forms above are not activated by the S03 teacher frame. Teaching review remains
+open; the source supports compact linguistic facts, not a claim of learner effectiveness.

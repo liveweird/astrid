@@ -1,5 +1,10 @@
 package app.astrid.server
 
+import app.astrid.engine.LinguisticStatus
+import app.astrid.engine.PracticeCompletionAttemptObservation
+import app.astrid.engine.PracticeCompletionPolicy
+import app.astrid.engine.ResponseConstraintStatus
+import app.astrid.engine.TargetStatus
 import app.astrid.server.authz.SessionPrincipal
 import app.astrid.server.exercises.AttemptRequest
 import app.astrid.server.exercises.AttemptResponse
@@ -83,6 +88,9 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
             if (practice != null && practiceItem!!.position != practice.cursor) {
                 return@withLock AttemptWriteResult.PracticePositionConflict
             }
+            if (practice != null && practice.introductionRequired && !practice.introductionOpened) {
+                return@withLock AttemptWriteResult.PracticeIntroductionRequired
+            }
             val retry = attempts.entries.count { (attemptKey, stored) ->
                 attemptKey.first == sessionId && UUID.fromString(stored.second.exerciseId) == exerciseId
             } + 1
@@ -104,6 +112,7 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                                 it.feedbackExposureKeys,
                                 it.assessments.map { assessment -> assessment.toEngineAssessment() },
                                 it.attempts.map { attempt -> attempt.response },
+                                current.exposurePolicyId,
                             ),
                             it.lessonOpened,
                             it.hintOpened,
@@ -111,6 +120,8 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                         )
                     },
                     current.sourceExposure,
+                    current.introductionExposureKeys,
+                    current.exposurePolicyId,
                 )
             }
             val created = create(exercise, retry, clock(), source)
@@ -163,6 +174,9 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                 introduction = plan.introduction.toList(),
                 items = plan.items.sortedBy { it.position }.map { MemoryPracticeItem(it) }.toMutableList(),
                 introductionExposureKeys = plan.introductionExposureKeys?.toList(),
+                introductionRequired = plan.introductionRequired,
+                completionRuleId = plan.completionRuleId,
+                exposurePolicyId = plan.exposurePolicyId,
             )
             plan.items.forEach { exerciseRecords[ownerSession.id to it.exercise.id] = it.exercise }
             practiceRequests[key] = requestPayload
@@ -210,6 +224,9 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                 followUp = plan.followUp,
                 sourceExposure = plan.sourceExposure.toList(),
                 introductionExposureKeys = plan.introductionExposureKeys?.toList(),
+                introductionRequired = plan.introductionRequired,
+                completionRuleId = plan.completionRuleId,
+                exposurePolicyId = plan.exposurePolicyId,
             )
             plan.items.forEach { exerciseRecords[ownerSession.id to it.exercise.id] = it.exercise }
             practiceRequests[key] = requestPayload
@@ -257,7 +274,17 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                 position !in stored.items.indices -> PracticeMutationResult.Conflict
                 position < stored.cursor -> PracticeMutationResult.Success(stored.snapshot())
                 position > stored.cursor -> PracticeMutationResult.Conflict
-                stored.items.single { it.position == position }.attempts.isEmpty() -> PracticeMutationResult.Conflict
+                !PracticeCompletionPolicy.canAdvance(
+                    stored.completionRuleId,
+                    stored.items.single { it.position == position }.attempts.lastOrNull()?.response?.let { response ->
+                        PracticeCompletionAttemptObservation(
+                            enumByWire(response.targetSatisfaction),
+                            enumByWire(response.linguisticStatus),
+                            response.responseConstraintStatus?.let { enumByWire(it) },
+                            response.issues.map { it.code },
+                        )
+                    },
+                ) -> PracticeMutationResult.Conflict
                 else -> {
                     stored.cursor += 1
                     PracticeMutationResult.Success(stored.snapshot())
@@ -300,6 +327,9 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
         val followUp: PracticeFollowUpLineage? = null,
         val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
         val introductionExposureKeys: List<String>? = null,
+        val introductionRequired: Boolean = false,
+        val completionRuleId: String? = null,
+        val exposurePolicyId: String? = null,
     ) {
         fun snapshot() = StoredPracticeSession(
             id, ownerSessionId, sessionExpiresAt, focusId, title, planRevision, seed,
@@ -307,6 +337,7 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
             prerequisiteSkillIds.toList(), introduction.toList(), items.map(MemoryPracticeItem::snapshot),
             followUp, sourceExposure.toList(),
             introductionExposureKeys?.toList(),
+            introductionRequired, completionRuleId, exposurePolicyId,
         )
     }
 
@@ -321,6 +352,7 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
         val feedbackExposureKeys = item.feedbackExposureKeys.toList()
         val assessmentMode = item.assessmentMode
         val assessments = item.assessments.toList()
+        val targetScopeId = item.targetScopeId
         var lessonOpened = false
         var hintOpened = false
         var attempts = mutableListOf<StoredPracticeAttempt>()
@@ -330,6 +362,16 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
             feedbackExposureKeys, lessonOpened, hintOpened, attempts.toList(),
             assessmentMode,
             assessments,
+            targetScopeId,
         )
     }
+}
+
+private inline fun <reified T : Enum<T>> enumByWire(value: String): T = enumValues<T>().single { entry ->
+    when (entry) {
+        is TargetStatus -> entry.wireValue
+        is LinguisticStatus -> entry.wireValue
+        is ResponseConstraintStatus -> entry.wireValue
+        else -> error("Unsupported wire enum")
+    } == value
 }

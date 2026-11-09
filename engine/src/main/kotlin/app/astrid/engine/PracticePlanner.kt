@@ -27,7 +27,16 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
                 itemCount = PracticeGapPlanner.ITEM_COUNT,
                 prerequisiteSkillIds = listOf("G001", "G002", "G003", "G005"),
             ),
-        )
+        ) + ModuleOnePracticePlanner.SPECIFICATIONS.map { specification ->
+            PracticeProfile(
+                focusId = specification.focusId,
+                planRevision = specification.planRevision,
+                title = specification.title,
+                description = specification.description,
+                itemCount = ModuleOnePracticePlanner.ITEM_COUNT,
+                prerequisiteSkillIds = specification.prerequisites,
+            )
+        }
 
     fun plan(
         focusId: String,
@@ -39,6 +48,10 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
             READING_FOCUS_ID to READING_PLAN_REVISION -> readingPlan(focusId, planRevision, seed)
             PRESENT_VERBS_FOCUS_ID to PRESENT_VERBS_PLAN_REVISION -> presentVerbsPlan(focusId, planRevision, seed)
             PracticeGapPlanner.FOCUS_ID to PracticeGapPlanner.PLAN_REVISION -> PracticeGapPlanner(engine).plan(seed)
+            ModuleOnePracticePlanner.SINGULAR_FOCUS_ID to ModuleOnePracticePlanner.SINGULAR_PLAN_REVISION,
+            ModuleOnePracticePlanner.GROUP_FOCUS_ID to ModuleOnePracticePlanner.GROUP_PLAN_REVISION,
+            ModuleOnePracticePlanner.ER_FOCUS_ID to ModuleOnePracticePlanner.ER_PLAN_REVISION,
+            -> ModuleOnePracticePlanner(engine).plan(focusId, planRevision, seed)
             else -> throw IllegalArgumentException("Unsupported practice profile: $focusId/$planRevision")
         }
     }

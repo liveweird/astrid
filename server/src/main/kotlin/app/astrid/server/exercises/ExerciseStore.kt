@@ -21,6 +21,7 @@ sealed interface AttemptWriteResult {
     data object PayloadConflict : AttemptWriteResult
     data object ExerciseMissing : AttemptWriteResult
     data object PracticePositionConflict : AttemptWriteResult
+    data object PracticeIntroductionRequired : AttemptWriteResult
 }
 
 data class CreatedAttempt(
@@ -55,6 +56,9 @@ sealed interface PracticeBinding {
 
     /** A practice item that is no longer (or not yet) the run's current position. */
     data object PositionConflict : PracticeBinding
+
+    /** The current practice item cannot be attempted until its required introduction has been persistently opened. */
+    data object IntroductionRequired : PracticeBinding
 
     /** The run's current item, with the exposure state the attempt context is calculated from. */
     data class Bound(

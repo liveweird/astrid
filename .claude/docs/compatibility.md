@@ -21,11 +21,15 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-4` / `generator-4` | `evaluation-4` | + E009 (writing), E010 (reading) | published, frozen |
 | `pilot-5` / `generator-5` | `evaluation-5` | + E011 (Danish word choice), E012/E013 (all/spare word tiles) | published, frozen |
 | `pilot-6` / `generator-6` | `evaluation-6` | + E014 (four-pair vocabulary matching) | published, frozen |
-| `pilot-7` / `generator-7` | `evaluation-7` | + E015 (primary present-verb/supporting-article gaps) | CURRENT (catalog, new playground exercises) |
+| `pilot-7` / `generator-7` | `evaluation-7` | + E015 (primary present-verb/supporting-article gaps) | published, frozen; guided-gap plans stay pinned here |
+| `pilot-8` / `generator-8` | `evaluation-8` | + E016–E019 (scoped subject-word and stored-present selection/recall) | CURRENT (catalog, new playground exercises); three first-step plans pin this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
 A CURRENT constant must never silently upgrade a plan; moving it requires a new plan revision with its own validation.
+The three `module-one-singular-1`, `module-one-groups-1` and `module-one-er-1` plans pin pair
+eight, with explicit required-teaching, completion and exposure policy metadata. Their scoped
+targets do not enter an older follow-up planner.
 Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 
 ## What is stored, and what that implies
@@ -66,7 +70,7 @@ Pair four was frozen from unchanged baseline `e37749c` in commit `c43c8f7` befor
 Pair five was frozen from unchanged baseline `06dc714` in commit `ac2ed71` before pair-six production edits.
 Pair six was frozen from unchanged baseline `6d1c0fe` in commit `889a9b4` before pair-seven production edits.
 Pair seven was frozen from unchanged baseline `8138855` before guided multiple-gap production edits;
-it remains CURRENT with unchanged generation and grading. New practice plans carry separate revisions.
+it remained CURRENT through 0.8.0 with unchanged generation and grading. New practice plans carry separate revisions.
 Published 0.8.0 guided practice was additionally frozen from unchanged baseline `0dfc00a`
 before the selected first-steps implementation changed shared target/support/completion models.
 Its canonical projection lists legacy fields explicitly; adding omitted defaults must not change
@@ -103,8 +107,8 @@ Rules:
 
 | Task | Output |
 | --- | --- |
-| `:engine:exportPilotReview` | `engine/build/review/pilot-7.md` (current; run in CI and uploaded as `server-reports`) |
-| `:engine:exportPilotSixReview` / `exportPilotFiveReview` / `exportPilotFourReview` / `exportPilotThreeReview` / `exportPilotTwoReview` / `exportLegacyPilotReview` | `pilot-6.md` / `pilot-5.md` / `pilot-4.md` / `pilot-3.md` / `pilot-2.md` / `pilot-1.md` |
+| `:engine:exportPilotReview` | `engine/build/review/pilot-8.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotSevenReview` / `exportPilotSixReview` / `exportPilotFiveReview` / `exportPilotFourReview` / `exportPilotThreeReview` / `exportPilotTwoReview` / `exportLegacyPilotReview` | `pilot-7.md` / `pilot-6.md` / `pilot-5.md` / `pilot-4.md` / `pilot-3.md` / `pilot-2.md` / `pilot-1.md` |
 | `:engine:exportPilotFourCompatibility` / `:server:exportPilotFourWireCompatibility` | write **new** pair-four evidence and provenance only (refuse overwrite) |
 | `:engine:exportPilotFiveCompatibility` / `:server:exportPilotFiveWireCompatibility` | write **new** pair-five evidence and provenance only (refuse overwrite) |
 | `:engine:exportPilotSixCompatibility` / `:server:exportPilotSixWireCompatibility` | write **new** pair-six evidence and provenance only (refuse overwrite) |

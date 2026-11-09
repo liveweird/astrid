@@ -9,9 +9,17 @@ object PilotReviewExportMain {
         require(
             args.size == 1 ||
                 (args.size == 2 && args.first() in
-                    setOf("--legacy", "--pilot-two", "--pilot-three", "--pilot-four", "--pilot-five", "--pilot-six")),
+                    setOf(
+                        "--legacy",
+                        "--pilot-two",
+                        "--pilot-three",
+                        "--pilot-four",
+                        "--pilot-five",
+                        "--pilot-six",
+                        "--pilot-seven",
+                    )),
         ) {
-            "Expected an output path, optionally preceded by a retained-pilot flag from --legacy through --pilot-six"
+            "Expected an output path, optionally preceded by a retained-pilot flag from --legacy through --pilot-seven"
         }
         val output = Path.of(args.last())
         Files.createDirectories(output.parent)
@@ -22,6 +30,7 @@ object PilotReviewExportMain {
             "--pilot-four" -> PilotReview.renderPilotFourMarkdown()
             "--pilot-five" -> PilotReview.renderPilotFiveMarkdown()
             "--pilot-six" -> PilotReview.renderPilotSixMarkdown()
+            "--pilot-seven" -> PilotReview.renderPilotSevenMarkdown()
             else -> PilotReview.renderMarkdown()
         }
         Files.writeString(output, markdown)

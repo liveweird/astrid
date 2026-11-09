@@ -68,6 +68,7 @@ class GeneratedExercise internal constructor(
     val readingTarget: ReadingTask? = null,
     val lexicalTargets: List<LexicalTarget>? = null,
 ) {
+    val targetScopeId: String? get() = (source as? ModuleOneExerciseSource)?.task?.targetScopeId
     val instruction: String get() = presentation.instruction
     val context: String get() = presentation.context
     val prompt: ExercisePrompt get() = presentation.prompt
@@ -156,6 +157,23 @@ data class ExerciseInspector(
     val tileSource: TileSourceDetails? = null,
     val matchingSource: MatchingSourceDetails? = null,
     val gapSource: GapSourceDetails? = null,
+    val moduleOneSource: ModuleOneSourceDetails? = null,
+)
+
+data class ModuleOneSourceDetails(
+    val taskId: String,
+    val targetLexicalId: String,
+    val expectedForm: String,
+    val knownAlternativeForms: List<String>,
+    val referenceRole: String?,
+    val frameVariantId: String?,
+    val casePolicy: String,
+    val choiceRationales: List<ModuleOneChoiceRationale>,
+)
+
+data class ModuleOneChoiceRationale(
+    val choice: String,
+    val rationale: String,
 )
 
 data class GapSourceDetails(val slots: List<GapSlotSourceDetails>)
@@ -302,6 +320,7 @@ enum class LinguisticScope(val wireValue: String) {
     DANISH_SENTENCE("danish-sentence"),
     DANISH_MATCHING("danish-matching"),
     DANISH_GAPS("danish-gaps"),
+    DANISH_WORD_FORM("danish-word-form"),
 }
 
 enum class MeaningSatisfaction(val wireValue: String) {
@@ -354,6 +373,12 @@ internal data class MatchingExerciseSource(
 
 internal data class MultipleGapExerciseSource(
     val sentence: Sentence,
+    override val answerKey: AnswerKey,
+    override val blockRoles: Map<String, String> = emptyMap(),
+) : ExerciseSource
+
+internal data class ModuleOneExerciseSource(
+    val task: ModuleOneTask,
     override val answerKey: AnswerKey,
     override val blockRoles: Map<String, String> = emptyMap(),
 ) : ExerciseSource
@@ -416,6 +441,12 @@ internal sealed interface AnswerKey {
     data class Matching(val expectedByLeftId: Map<String, String>) : AnswerKey
 
     data class Gaps(val expectedBySlotId: Map<String, String>) : AnswerKey
+
+    data class ModuleOneForm(
+        val expected: String,
+        val knownAlternatives: Set<String>,
+        val selection: Boolean,
+    ) : AnswerKey
 
 }
 

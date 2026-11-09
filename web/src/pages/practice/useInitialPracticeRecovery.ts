@@ -4,6 +4,7 @@ import { ApiError, loadPracticeContext } from "../../api/client";
 import type { AttemptRequest, GapSelection, PracticeProfiles, PracticeSession } from "../../api/models";
 import { answerValues, attemptFromEntry, practiceError, reconcileOutbox } from "./practiceOperations";
 import { practiceProfilesQuery } from "./practiceProfiles";
+import { recoveredFocus, type PracticeFocusTarget } from "./usePracticeFocusQueue";
 import {
   latestRunRecovery, listOutbox, loadRunRecovery, type PracticeOutboxEntry, type PracticeRunRecovery,
 } from "./practiceRecovery";
@@ -21,6 +22,7 @@ export type InitialRecoveryHandlers = {
   showFreshChooser: (catalog: PracticeProfiles | null, message?: string) => void;
   setText: (value: string) => void;
   setUncertain: (value: AttemptRequest | null) => void;
+  requestFocus: (target: PracticeFocusTarget) => void;
 };
 
 function restorePendingAttempt(entry: PracticeOutboxEntry | undefined, handlers: InitialRecoveryHandlers) {
@@ -73,7 +75,8 @@ export function useInitialPracticeRecovery(boundId: string | null, handlers: Ini
           }
           return;
         }
-        restorePendingAttempt(listOutbox(recovery.practiceSessionId)[0], handlers);
+        const pending = listOutbox(recovery.practiceSessionId)[0];
+        restorePendingAttempt(pending, handlers);
         const next = await reconcileOutbox(recovery, {
           unavailable: (message) => {
             if (active) { handlers.setRecoveryUnavailable(true); handlers.setError(message); }
@@ -97,6 +100,7 @@ export function useInitialPracticeRecovery(boundId: string | null, handlers: Ini
         if (active && next.session) {
           handlers.applyState(next.session);
           restorePendingAttempt(next.pending ?? undefined, handlers);
+          if (next.session.introductionRequired) handlers.requestFocus(recoveredFocus(next.session, pending));
         }
       } catch (caught) {
         if (active) {

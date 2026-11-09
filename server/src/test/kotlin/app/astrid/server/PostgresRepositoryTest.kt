@@ -34,6 +34,7 @@ import app.astrid.server.practice.PracticeFollowUpLineage
 import app.astrid.server.practice.PracticeFollowUpRequest
 import app.astrid.server.practice.PracticeMutationResult
 import app.astrid.server.practice.PracticeSessionRequest
+import app.astrid.server.practice.PracticeSupportRequest
 import app.astrid.server.practice.StoredPracticeSession
 import java.sql.DriverManager
 import java.util.UUID
@@ -59,6 +60,48 @@ import kotlinx.serialization.encodeToString
 import org.flywaydb.core.Flyway
 
 class PostgresRepositoryTest {
+    @Test
+    fun `required introduction is locked before a new attempt while exact replay remains first`() = withRepositories { first, second ->
+        val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        val practiceId = UUID.randomUUID()
+        val request = PracticeSessionRequest(practiceId.toString(), "module-one-singular", "module-one-singular-1", 7)
+        val practice = assertIs<PracticeCreateResult.Created>(
+            first.practice.createPracticeSession(owner, request, wireJson.encodeToString(request)) {
+                practiceFixture(owner, request)
+            },
+        ).session
+        val attempt = practiceAttempt(practice.items.first().exercise.id)
+        assertIs<AttemptWriteResult.PracticeIntroductionRequired>(
+            second.exercises.writeAttemptWithPractice(owner.id, attempt, attemptPayload(attempt)) { _, _, _, _ ->
+                error("required introduction must prevent evaluation")
+            },
+        )
+        assertIs<PracticeMutationResult.Success>(
+            first.practice.openPracticeSupport(owner.id, practiceId, PracticeSupportRequest("introduction")),
+        )
+        val created = second.exercises.writeAttemptWithPractice(owner.id, attempt, attemptPayload(attempt)) {
+                stored, retry, now, _ ->
+            CreatedAttempt(
+                attemptResponse(attempt.attemptId, stored, retry, now),
+                PracticeAttemptContextDto(true, false, false, emptyList()),
+            )
+        }
+        val response = assertIs<AttemptWriteResult.Created>(created).response
+        PostgresTestDatabase.connect().use { connection ->
+            connection.prepareStatement(
+                "UPDATE practice_sessions SET introduction_opened = false WHERE owner_session_id = ? AND practice_session_id = ?",
+            ).use { statement ->
+                statement.setObject(1, owner.id)
+                statement.setObject(2, practiceId)
+                assertEquals(1, statement.executeUpdate())
+            }
+        }
+        val replay = first.exercises.writeAttemptWithPractice(owner.id, attempt, attemptPayload(attempt)) { _, _, _, _ ->
+            error("stored replay must precede the introduction guard")
+        }
+        assertEquals(response, assertIs<AttemptWriteResult.Existing>(replay).response)
+    }
+
     @Test
     fun `guided gap feedback exposure is frozen per saved slot result in postgres`() = withRepositories { first, second ->
         val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
@@ -977,11 +1020,16 @@ class PostgresRepositoryTest {
                             requireNotNull(assessment.targetDescriptor.assessmentMode),
                             assessment.assessmentRole,
                             assessment.answerExposureKeys,
+                            assessment.targetDescriptor.targetScopeId,
                         )
                     },
+                    item.targetDescriptor.targetScopeId,
                 )
             },
             introductionExposureKeys = plan.introductionExposureKeys,
+            introductionRequired = plan.introductionRequired,
+            completionRuleId = plan.completionRuleId,
+            exposurePolicyId = plan.exposurePolicyId,
         )
     }
 
@@ -1006,6 +1054,7 @@ class PostgresRepositoryTest {
             sourceItem.feedbackExposureKeys,
             sourceItem.assessmentMode,
             sourceItem.assessments,
+            sourceItem.targetScopeId,
         )
         val ancestry = source.sourceExposure.ifEmpty {
             listOf(PracticeCrossRunExposureDto(sourceId.toString(), -1, "introduction", listOf("grammar:G005")))
@@ -1021,6 +1070,9 @@ class PostgresRepositoryTest {
             PracticeFollowUpLineage(sourceId, request.targetKeys),
             ancestry,
             source.introductionExposureKeys,
+            source.introductionRequired,
+            source.completionRuleId,
+            source.exposurePolicyId,
         )
     }
 

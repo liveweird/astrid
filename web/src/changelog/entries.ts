@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.9.0",
+    date: "2026-11-10",
+    body: `**Take your first steps in Danish.**
+
+- **Module 1: First steps** offers three short sessions: talking about one person, talking to and about groups, and using the present form of to be.
+- Read each session's introduction before six practice activities. Choose introduced subject words and verb forms, then supply them in writing with vocabulary support.
+- See separate recognition and written-recall results. Unknown answers stay open for support or retry; confirmed mistakes and clear written-form corrections can continue.
+- Repeat a session or choose the suggested next one. Earlier exercises, practice runs and saved answers keep their original behavior.
+- The beginner material remains a draft awaiting Danish teaching review. These results describe practice after teaching and support.`,
+  },
+  {
     version: "0.8.0",
     date: "2026-11-09",
     body: `**Practise verbs and articles together.**

@@ -6,6 +6,7 @@ object PracticeAttemptContextCalculator {
         introductionOpened: Boolean,
         observations: List<PracticeItemExposureObservation>,
         sourceExposure: List<PracticeCrossRunExposure> = emptyList(),
+        introductionExposureKeys: List<String>? = null,
     ): PracticeAttemptContext {
         require(observations.map { it.item.position }.toSet().size == observations.size) {
             "Practice exposure observations must have unique positions"
@@ -16,9 +17,17 @@ object PracticeAttemptContextCalculator {
             "Current practice item does not match its exposure observation"
         }
         val answerKeys = currentItem.answerExposureKeys.toSet()
-        val exposure = observations
+        val exposure = buildList {
+            if (introductionOpened && introductionExposureKeys != null) {
+                val relevantKeys = introductionExposureKeys.filter { it in answerKeys }.distinct()
+                if (relevantKeys.isNotEmpty()) {
+                    add(PracticePriorExposure(-1, PracticeExposureSource.INTRODUCTION, relevantKeys))
+                }
+            }
+            addAll(observations
             .sortedBy { it.item.position }
-            .flatMap { observation -> exposureFor(observation, currentItem.position, answerKeys) }
+            .flatMap { observation -> exposureFor(observation, currentItem.position, answerKeys) })
+        }
         val relevantSourceExposure = sourceExposure.mapNotNull { exposure ->
             val relevantKeys = exposure.keys.filter { it in answerKeys }.distinct()
             exposure.copy(keys = relevantKeys).takeIf { relevantKeys.isNotEmpty() }

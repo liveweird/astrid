@@ -75,9 +75,9 @@ class MultipleGapApplicationTest {
         application { astridModule(config(), InMemoryStores()) }
         val owner = createSession()
         val catalog = client.get("/api/v1/catalog") { trustedHost(); cookie(SESSION_COOKIE, owner) }.json()
-        assertEquals("pilot-7", catalog.string("contentRevision"))
-        assertEquals("generator-7", catalog.string("generatorRevision"))
-        assertEquals("evaluation-7", catalog.string("evaluationRevision"))
+        assertEquals("pilot-8", catalog.string("contentRevision"))
+        assertEquals("generator-8", catalog.string("generatorRevision"))
+        assertEquals("evaluation-8", catalog.string("evaluationRevision"))
         assertTrue(catalog.getValue("formats").jsonArray.any { it.jsonObject.string("id") == "E015" })
 
         val exercise = createExercise(owner).json()

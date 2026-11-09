@@ -42,10 +42,10 @@ class PilotGenerationTest {
         val catalog = engine.catalog()
 
         assertEquals((1..6).map { "G${it.toString().padStart(3, '0')}" }, catalog.skills.map { it.id })
-        assertEquals((1..15).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
-        assertEquals(99, catalog.sentenceCount)
-        assertEquals("pilot-7", catalog.contentRevision)
-        assertEquals("generator-7", catalog.generatorRevision)
+        assertEquals((1..19).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
+        assertEquals(109, catalog.sentenceCount)
+        assertEquals("pilot-8", catalog.contentRevision)
+        assertEquals("generator-8", catalog.generatorRevision)
     }
 
     @Test

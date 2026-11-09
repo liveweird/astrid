@@ -280,7 +280,8 @@ internal object PilotFiveCompatibilityGolden {
             is AnswerKey.Headword -> Answer.Text(key.expected.headword)
             is AnswerKey.SuppliedChoice -> Answer.Text(key.expected)
             is AnswerKey.TileOrder -> Answer.Order(idsFor(key.canonical, exercise))
-            is AnswerKey.Matching, is AnswerKey.Gaps -> error("Newer key is unreachable in pilot five")
+            is AnswerKey.Matching, is AnswerKey.Gaps, is AnswerKey.ModuleOneForm ->
+                error("Newer key is unreachable in pilot five")
         }
     }
 
@@ -340,7 +341,8 @@ internal object PilotFiveCompatibilityGolden {
                     Answer.Order(emptyList()),
                 )
             is AnswerKey.TileOrder -> tileAnswers(exercise, key)
-            is AnswerKey.Matching, is AnswerKey.Gaps -> error("Newer key is unreachable in pilot five")
+            is AnswerKey.Matching, is AnswerKey.Gaps, is AnswerKey.ModuleOneForm ->
+                error("Newer key is unreachable in pilot five")
         }
 
     private fun specialExercise(format: FormatSpec): GeneratedExercise {

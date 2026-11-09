@@ -3,6 +3,8 @@ package app.astrid.engine
 object PilotReview {
     fun renderMarkdown(): String = renderSnapshot(PilotContent.currentSnapshot)
 
+    fun renderPilotSevenMarkdown(): String = renderSnapshot(PilotContent.pilotSevenSnapshot)
+
     fun renderPilotSixMarkdown(): String = renderSnapshot(PilotContent.pilotSixSnapshot)
 
     fun renderPilotFiveMarkdown(): String = renderSnapshot(PilotContent.pilotFiveSnapshot)
@@ -33,6 +35,7 @@ object PilotReview {
                     PilotContent.RETAINED_FOUR_CONTENT_REVISION,
                     PilotContent.RETAINED_FIVE_CONTENT_REVISION,
                     PilotContent.RETAINED_SIX_CONTENT_REVISION,
+                    PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
@@ -42,6 +45,7 @@ object PilotReview {
             if (snapshot.contentRevision in setOf(
                     PilotContent.RETAINED_FIVE_CONTENT_REVISION,
                     PilotContent.RETAINED_SIX_CONTENT_REVISION,
+                    PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
@@ -51,20 +55,33 @@ object PilotReview {
             }
             if (snapshot.contentRevision in setOf(
                     PilotContent.RETAINED_SIX_CONTENT_REVISION,
+                    PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
                 appendMatchingInventory(snapshot)
             }
-            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) appendGapInventory(snapshot)
+            if (snapshot.contentRevision in setOf(
+                    PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
+                    PilotContent.CURRENT_CONTENT_REVISION,
+                )
+            ) appendGapInventory(snapshot)
+            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+                appendModuleOneProfileInventory()
+                appendModuleOneInventory()
+            }
         }
     }
 
     private fun reviewProvenance(snapshot: PilotContentSnapshot): String =
-        if (snapshot.contentRevision in setOf(
+        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
+                "docs/knowledge/module-one-language-pack.md (L024 packet) and " +
+                "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks; 2026-11-09)"
+        } else if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_FIVE_CONTENT_REVISION,
                 PilotContent.RETAINED_SIX_CONTENT_REVISION,
-                PilotContent.CURRENT_CONTENT_REVISION,
+                PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
             )
         ) {
             "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
@@ -74,10 +91,14 @@ object PilotReview {
         }
 
     private fun sourceReview(snapshot: PilotContentSnapshot): String =
-        if (snapshot.contentRevision in setOf(
+        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
+                "2026-11-09 L025/C004/Module 1 source checks; see docs/knowledge/pilot-source-review.md, " +
+                "docs/knowledge/module-one-language-pack.md and docs/knowledge/module-one-activation.md"
+        } else if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_FIVE_CONTENT_REVISION,
                 PilotContent.RETAINED_SIX_CONTENT_REVISION,
-                PilotContent.CURRENT_CONTENT_REVISION,
+                PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
             )
         ) {
             "2026-11-07 retained seed; 2026-11-08 pair-five extension; see " +
@@ -361,6 +382,91 @@ object PilotReview {
                 ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
             )
         }
+    }
+
+    private fun StringBuilder.appendModuleOneInventory() {
+        appendLine()
+        appendLine("## Module 1 authored task inventory")
+        appendLine()
+        appendLine("Selection and recall use explicitly different authored situations. Danish answers remain teaching drafts.")
+        appendLine()
+        appendLine(
+            "| Task | Format | Instruction | Scope | Cue | Context | Frame | Reference role | Case policy | Expected | Alternatives | " +
+                "Introduction | Hint | Answer exposure | Prompt exposure | Lesson exposure | Hint exposure | " +
+                "Feedback exposure | Choices and rationales |",
+        )
+        appendLine(
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        )
+        ModuleOneContent.tasks.forEach { task ->
+            appendLine(
+                listOf(
+                    task.id,
+                    task.formatId,
+                    ModuleOneContent.instruction(task.formatId),
+                    task.targetScopeId,
+                    task.cue,
+                    task.context,
+                    listOf(task.before, "___", task.after, task.sentenceGloss).joinToString(" "),
+                    task.referenceRole.orEmpty(),
+                    task.casePolicy,
+                    task.expectedForm,
+                    task.knownAlternativeForms.joinToString(", "),
+                    task.introduction.joinToString("; ") { section ->
+                        "${section.title} [${section.bodyLanguage ?: "en"}]: ${section.body}"
+                    },
+                    task.hint,
+                    task.answerExposureKeys.joinToString(", "),
+                    task.promptExposureKeys.joinToString(", "),
+                    task.lessonExposureKeys.joinToString(", "),
+                    task.hintExposureKeys.joinToString(", "),
+                    task.feedbackExposureKeys.joinToString(", "),
+                    task.choiceRationales.joinToString("; ") { "${it.choice}: ${it.rationale}" },
+                ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+            )
+        }
+        appendLine()
+    }
+
+    private fun StringBuilder.appendModuleOneProfileInventory() {
+        val planner = PracticePlanner()
+        appendLine()
+        appendLine("## Module 1 mandatory profile introductions")
+        appendLine()
+        appendLine(
+            "Each pinned profile below includes the complete mandatory introduction shown before its six planned items.",
+        )
+        appendLine()
+        appendLine(
+            "| Profile | Plan revision | Title | Prerequisites | Formats and scopes | Introduction required | Completion policy | " +
+                "Exposure policy | Introduction exposure | Full introduction |",
+        )
+        appendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+        ModuleOnePracticePlanner.SPECIFICATIONS.forEach { specification ->
+            val plan = planner.plan(specification.focusId, specification.planRevision, REVIEW_SEED)
+            val formatsAndScopes = plan.items
+                .map { item -> "${item.exercise.formatId}:${item.targetDescriptor.targetScopeId}" }
+                .distinct()
+                .joinToString(", ")
+            val introduction = plan.introduction.joinToString("; ") { section ->
+                "${section.title} [${section.bodyLanguage ?: "en"}]: ${section.body}"
+            }
+            appendLine(
+                listOf(
+                    plan.focusId,
+                    plan.planRevision,
+                    plan.title,
+                    plan.prerequisiteSkillIds.joinToString(", "),
+                    formatsAndScopes,
+                    plan.introductionRequired.toString(),
+                    plan.completionRuleId.orEmpty(),
+                    plan.exposurePolicyId.orEmpty(),
+                    plan.introductionExposureKeys.orEmpty().joinToString(", "),
+                    introduction,
+                ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+            )
+        }
+        appendLine()
     }
 
     private fun realize(sentence: Sentence): String {

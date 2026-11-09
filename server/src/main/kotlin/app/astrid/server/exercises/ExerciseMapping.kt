@@ -58,6 +58,7 @@ internal fun GeneratedExercise.toResponse(id: String) = ExerciseResponse(
     hint = hint,
     readingTarget = readingTarget?.let { ReadingTaskDto(it.facet) },
     lexicalTargets = lexicalTargets?.map { LexicalTargetDto(it.entryId, it.senseId, it.facet, it.direction) },
+    targetScopeId = targetScopeId,
 )
 
 internal fun AttemptAnswerDto.toEngineAnswer(): Answer = when (this) {
@@ -123,6 +124,18 @@ internal fun GeneratedExercise.toInspector(id: String) = ExerciseInspectorDto(
             },
         )
     },
+    moduleOneSource = inspector.moduleOneSource?.let { source ->
+        ModuleOneSourceDetailsDto(
+            source.taskId,
+            source.targetLexicalId,
+            source.expectedForm,
+            source.knownAlternativeForms,
+            source.referenceRole,
+            source.frameVariantId,
+            source.casePolicy,
+            source.choiceRationales.map { ModuleOneChoiceRationaleDto(it.choice, it.rationale) },
+        )
+    },
 )
 
 internal fun GeneratedExercise.reproductionFingerprint(
@@ -133,6 +146,7 @@ internal fun GeneratedExercise.reproductionFingerprint(
     readingTargetForFingerprint: ReadingTask? = readingTarget,
     introductionForFingerprint: List<IntroductionSection> = introduction,
     lexicalTargetsForFingerprint: List<LexicalTarget>? = lexicalTargets,
+    targetScopeIdForFingerprint: String? = targetScopeId,
 ): String {
     val legacyCanonical = legacyFingerprintCanonical(promptForFingerprint, inspectorForFingerprint)
     val pairTwoCanonical = legacyCanonical +
@@ -193,6 +207,17 @@ internal fun GeneratedExercise.reproductionFingerprint(
             readingTargetForFingerprint,
             introductionForFingerprint,
             lexicalTargetsForFingerprint,
+        )
+        "pilot-8" to "generator-8" -> pairEightFingerprintCanonical(
+            promptForFingerprint,
+            lexicalTargetForFingerprint,
+            inspectorForFingerprint,
+            supportSkillIdsForFingerprint,
+            readingTargetForFingerprint,
+            introductionForFingerprint,
+            lexicalTargetsForFingerprint,
+            targetScopeIdForFingerprint,
+            inspectorForFingerprint.moduleOneSource,
         )
         else -> error("Unsupported fingerprint revision pair: $contentRevision/$generatorRevision")
     }
@@ -415,6 +440,47 @@ private fun GeneratedExercise.pairSevenFingerprintCanonical(
                     ),
                 )
             })
+        }),
+    ),
+)
+
+private fun GeneratedExercise.pairEightFingerprintCanonical(
+    prompt: ExercisePrompt,
+    lexicalTarget: LexicalTarget?,
+    inspector: ExerciseInspector,
+    supportSkillIds: List<String>,
+    readingTarget: ReadingTask?,
+    introduction: List<IntroductionSection>,
+    lexicalTargets: List<LexicalTarget>?,
+    targetScopeId: String?,
+    moduleOneSource: app.astrid.engine.ModuleOneSourceDetails?,
+): String = framedList(
+    listOf(
+        pairSevenFingerprintCanonical(
+            prompt,
+            lexicalTarget,
+            inspector,
+            supportSkillIds,
+            readingTarget,
+            introduction,
+            lexicalTargets,
+        ),
+        framedNullable(targetScopeId),
+        framedNullable(moduleOneSource?.let { source ->
+            framedList(
+                listOf(
+                    source.taskId,
+                    source.targetLexicalId,
+                    source.expectedForm,
+                    framedList(source.knownAlternativeForms),
+                    framedNullable(source.referenceRole),
+                    framedNullable(source.frameVariantId),
+                    source.casePolicy,
+                    framedList(source.choiceRationales.map { rationale ->
+                        framedList(listOf(rationale.choice, rationale.rationale))
+                    }),
+                ),
+            )
         }),
     ),
 )

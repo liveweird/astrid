@@ -48,6 +48,14 @@ new user requirements or already delivered behavior:
 The complete published values, content counts and exposure keys will be recorded with
 implementation evidence. No targeted follow-up fallback is added for these profiles.
 
+**Measured CI budget:** the unchanged planning baseline's [CI run](https://github.com/liveweird/astrid/actions/runs/42709008358)
+passed all five jobs and 312 Linux journeys without retries/flakies. Its image job consumed
+1,476 seconds of the former 1,500-second budget (browser/startup step: 1,205 seconds).
+The additional first-step journeys require a 35-minute image-job budget; the existing
+40-minute nightly budget is retained. All tests, scans, browser per-test limits, worker/retry
+settings and coverage floors remain enforced. This is an execution-budget adjustment based
+on observed workload, not omitted verification.
+
 ## Learner flow and completion
 
 Show a **Module 1: First steps** group in the existing practice chooser, containing three
@@ -170,8 +178,10 @@ must retain every existing key and serialized default exactly. Summary labels de
 the observed operation/subset: no completion of all G003/G004 and no merged selection/recall
 score. The typed target is a single word, not a full-sentence translation. Preserve raw input;
 normalize NFC and surrounding whitespace only before the new pronoun grading rules. State
-the standalone-form instruction: “Enter the introduced subject word: lowercase
-`jeg/du/han/hun/vi/de`; capital `I`.” Exact canonical forms pass. A case-only deviation has a
+the English-only instruction: “Type only the introduced subject word using its taught
+standalone spelling.” The profile's teaching/reference gives its own lowercase forms and,
+where introduced, capital `I`; the instruction does not print unintroduced word lists.
+Exact canonical forms pass. A case-only deviation has a
 known written-form constraint failure, with specific capitalization feedback. This is not a
 wrong-person diagnosis or a claim about sentence-initial Danish. Keep reference meaning
 unevaluable where lexical identity is ambiguous (`i` or `De`); do not silently reinterpret
@@ -200,6 +210,19 @@ Each new grade distinguishes task constraint, named target and bounded linguisti
 Author known alternatives and capitalization cases explicitly; do not treat every string unequal
 to the expected word as known-bad Danish. Feedback gives the expected word on known errors;
 that disclosure must update possible exposure even when the target is `NOT_MET`.
+
+**Runtime grading clarification:** S03 `Er`/`ER` are known written-form corrections within
+the exact mid-sentence task: target `NOT_MET`, language `KNOWN_ISSUE`, constraint `NOT_MET`,
+code `PRESENT_FORM_CASE_REQUIRED`. They may advance through the known-target branch, and
+showing the corrected form records exposure. This does not call sentence-initial capitalization
+invalid Danish. At the pure grading boundary, blank input has target `UNEVALUABLE`, language
+`UNKNOWN`, constraint `NOT_MET`, and `EMPTY_RESPONSE`; it reveals no solution and its code is
+outside the completion exception list. Human subject, identifying `det`, article and noun
+exposure have distinct explicit namespaces; no non-human or article ID is relabelled a human
+subject form.
+G003 feedback shows the canonical standalone correction (`de`, `I`, `jeg`) with its Danish
+language tag; a sentence-initial capital in a full example must not contradict that correction.
+The private canonical clause remains available for reproduction and teaching review.
 
 ## Teaching exposure, summaries and recovery
 

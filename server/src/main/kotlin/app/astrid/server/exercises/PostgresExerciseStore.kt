@@ -52,6 +52,7 @@ class PostgresExerciseStore(
         val practice = when (val binding = practiceHook.bind(sessionId, exerciseId)) {
             PracticeBinding.Unbound -> null
             PracticeBinding.PositionConflict -> return@suspendTransaction AttemptWriteResult.PracticePositionConflict
+            PracticeBinding.IntroductionRequired -> return@suspendTransaction AttemptWriteResult.PracticeIntroductionRequired
             is PracticeBinding.Bound -> binding
         }
         val retry = Attempts.select(Attempts.attemptId).where {

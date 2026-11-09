@@ -106,7 +106,7 @@ internal object PilotSevenCompatibilityGolden {
         Files.createDirectories(provenancePath.toAbsolutePath().parent)
         Files.write(fixturePath, bytes, StandardOpenOption.CREATE_NEW)
         val rowCount = bytes.count { it == '\n'.code.toByte() }
-        val reviewBytes = PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
+        val reviewBytes = PilotReview.renderPilotSevenMarkdown().toByteArray(Charsets.UTF_8)
         val description = "All inherited cycles and boundaries, bounded E014 matching behavior, and every E015 clause " +
             "with all nine semantic states, all thirteen ordered selection arrays, malformed and raw Unicode wrong-kind " +
             "answers, nested hashes, and boundaries."
@@ -293,6 +293,7 @@ internal object PilotSevenCompatibilityGolden {
             is AnswerKey.Gaps -> Answer.Gaps(
                 requireNotNull(exercise.inspector.gapSource).slots.map { GapSelection(it.slotId, it.expectedChoiceId) },
             )
+            is AnswerKey.ModuleOneForm -> error("Module One key is unreachable in pilot seven")
         }
     }
 
@@ -335,7 +336,7 @@ internal object PilotSevenCompatibilityGolden {
             Answer.Text(key.expected.uppercase(Locale.ROOT)), Answer.Text("e\u0301t magasin"), Answer.Order(emptyList()),
         )
         is AnswerKey.TileOrder -> tileAnswers(exercise, key)
-        is AnswerKey.Matching, is AnswerKey.Gaps -> error("Newer keys are covered separately")
+        is AnswerKey.Matching, is AnswerKey.Gaps, is AnswerKey.ModuleOneForm -> error("Newer keys are covered separately")
     }
 
     private fun specialExercise(format: FormatSpec): GeneratedExercise {
