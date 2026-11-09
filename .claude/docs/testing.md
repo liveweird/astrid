@@ -42,7 +42,7 @@ Guard tests that must stay green and are never loosened to fit a change:
   revision pair). A new operation lands with its statuses exercised here.
 - `MigrationChecksumTest` — Flyway CRC32 of every `V*.sql`; the file set must equal the pinned map (`persistence.md`).
 - `PackageBoundaryTest` — layering (`conventions.md`); includes self-tests of its own regex scan.
-- `PilotThreeWireCompatibilityTest`, `PilotFourWireCompatibilityTest`, `PilotFiveWireCompatibilityTest`, `PilotSixWireCompatibilityTest`, `PublishedFingerprintCompatibilityTest`, `PracticeWireCompatibilityTest` — frozen wire and
+- `PilotThreeWireCompatibilityTest`, `PilotFourWireCompatibilityTest`, `PilotFiveWireCompatibilityTest`, `PilotSixWireCompatibilityTest`, `PilotSevenWireCompatibilityTest`, `PublishedFingerprintCompatibilityTest`, `PracticeWireCompatibilityTest` — frozen wire and
   fingerprint evidence (`compatibility.md`).
 - `ServerConfigTest`, `DatabaseBootstrapTest` — env validation, bounded migration connect/login deadlines.
 

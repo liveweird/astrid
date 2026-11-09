@@ -54,13 +54,16 @@ new plan revision with its own validation. Gradle/npm package versions, `/api/v1
 | `server/.../pilot-5-generator-5-wire.tsv` (2,811) | `PilotFiveWireCompatibilityTest` (SHA-256 pinned) | pair-five public wire, inspector and reproduction fingerprints |
 | `engine/.../pilot-6-generator-6-evaluation-6.tsv` (2,365) | `PilotSixCompatibilityGoldenTest` (SHA-256 pinned) | inherited cycles, bounded matching generation, 209 partial bijections, ordered answers, raw/Unicode/boundary grading and byte-exact review |
 | `server/.../pilot-6-generator-6-wire.tsv` (2,852) | `PilotSixWireCompatibilityTest` (SHA-256 pinned) | pair-six public wire, private source and reproduction fingerprints |
+| `engine/.../pilot-7-generator-7-evaluation-7.tsv` (3,675) | `PilotSevenCompatibilityGoldenTest` (SHA-256 pinned) | inherited formats and all 92 gap clauses with nine semantic states, thirteen ordered arrays, malformed/raw input and byte-exact review |
+| `server/.../pilot-7-generator-7-wire.tsv` (3,134) | `PilotSevenWireCompatibilityTest` (SHA-256 pinned) | pair-seven public/private gap wire, attempt results and reproduction fingerprints |
 | `server/.../published-fingerprints.tsv` (978) | `PublishedFingerprintCompatibilityTest` (SHA-256 pinned) | original reproduction fingerprints of pilot-1/2 |
 
 Plus `PracticeWireCompatibilityTest` (legacy plan payload and practice item/response stay byte-stable when new optional fields are absent).
 Pair four was frozen from unchanged baseline `e37749c` in commit `c43c8f7` before pair-five production edits.
 Pair five was frozen from unchanged baseline `06dc714` in commit `ac2ed71` before pair-six production edits.
 Pair six was frozen from unchanged baseline `6d1c0fe` in commit `889a9b4` before pair-seven production edits.
-Pair seven has behavioural tests and must itself be frozen before a future revision changes it.
+Pair seven was frozen from unchanged baseline `8138855` before guided multiple-gap production edits;
+it remains CURRENT with unchanged generation and grading. New practice plans carry separate revisions.
 
 Rules:
 
@@ -98,6 +101,7 @@ Rules:
 | `:engine:exportPilotFourCompatibility` / `:server:exportPilotFourWireCompatibility` | write **new** pair-four evidence and provenance only (refuse overwrite) |
 | `:engine:exportPilotFiveCompatibility` / `:server:exportPilotFiveWireCompatibility` | write **new** pair-five evidence and provenance only (refuse overwrite) |
 | `:engine:exportPilotSixCompatibility` / `:server:exportPilotSixWireCompatibility` | write **new** pair-six evidence and provenance only (refuse overwrite) |
+| `:engine:exportPilotSevenCompatibility` / `:server:exportPilotSevenWireCompatibility` | write **new** pair-seven evidence and provenance only (refuse overwrite) |
 | `:server:exportPilotThreeWireCompatibility` | writes a **new** wire fixture + provenance (refuses to overwrite) |
 
 Review exports are deterministic evidence for teaching review; they are not approval. The production engine does no file I/O.

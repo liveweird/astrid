@@ -68,6 +68,9 @@ val pilotFiveWireProvenance =
 val pilotSixWireFixture = layout.projectDirectory.file("src/test/resources/golden/pilot-6-generator-6-wire.tsv")
 val pilotSixWireProvenance =
     layout.projectDirectory.file("src/test/resources/golden/pilot-6-generator-6-wire.provenance")
+val pilotSevenWireFixture = layout.projectDirectory.file("src/test/resources/golden/pilot-7-generator-7-wire.tsv")
+val pilotSevenWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-7-generator-7-wire.provenance")
 
 tasks.register<JavaExec>("exportPilotThreeWireCompatibility") {
     group = "verification"
@@ -135,6 +138,23 @@ tasks.register<JavaExec>("exportPilotSixWireCompatibility") {
         },
     )
     outputs.files(pilotSixWireFixture, pilotSixWireProvenance)
+}
+
+tasks.register<JavaExec>("exportPilotSevenWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-7 server public-wire compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.PilotSevenWireCompatibilityExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                pilotSevenWireFixture.asFile.absolutePath,
+                pilotSevenWireProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(pilotSevenWireFixture, pilotSevenWireProvenance)
 }
 
 tasks.test {

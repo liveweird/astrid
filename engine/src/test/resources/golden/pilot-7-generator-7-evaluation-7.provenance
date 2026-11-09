@@ -1,0 +1,10 @@
+baselineCommit=81388557402af7c562f23284bf9c9fb89480d573
+captureDate=2026-11-09
+reviewState=compatibility-only-not-linguistic-approval
+contentRevision=pilot-7
+generatorRevision=generator-7
+evaluationRevision=evaluation-7
+rowCount=3675
+fixtureSha256=fe25485c618f3906ad25a8986779e45e58a8c9b0f910a69eb73651278db75393
+reviewSha256=0a1caa4c367e8408ac8e35cbffa0249b524493d5c4122c8361be8081b4a3d0d2
+description=All inherited cycles and boundaries, bounded E014 matching behavior, and every E015 clause with all nine semantic states, all thirteen ordered selection arrays, malformed and raw Unicode wrong-kind answers, nested hashes, and boundaries.

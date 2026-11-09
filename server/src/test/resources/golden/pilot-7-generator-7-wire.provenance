@@ -1,0 +1,9 @@
+baselineCommit=81388557402af7c562f23284bf9c9fb89480d573
+captureDate=2026-11-09
+contentRevision=pilot-7
+generatorRevision=generator-7
+evaluationRevision=evaluation-7
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=3134
+fixtureSha256=20d5e590db0c7f1c26e8a8ebfdf93f9dc9b6f5df3dee88e6020e9b2754bf4a51
+description=All inherited cycles for seeds 0, 47, and Int.MAX_VALUE, bounded E014 samples, and the complete E015 cycle and boundaries; SHA-256 over byte-exact public response, private nested inspector, and reproduction fingerprint.
