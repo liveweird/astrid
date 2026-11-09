@@ -1,14 +1,85 @@
-import { screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { PracticeSummaryRow } from "../../api/models";
 import {
-  completedState, context, json, outcomes, owner, practiceId, resetPracticeBrowser, state,
+  completedState, context, gapState, json, outcomes, owner, practiceId, resetPracticeBrowser, state,
 } from "../../test/practiceFixtures";
 import { renderWithProviders } from "../../test/render";
 import Practice from "./Practice";
 import { saveRunRecovery } from "./practiceRecovery";
 
 beforeEach(resetPracticeBrowser);
+
+it("does not persist an abandoned review after a delayed owner preflight resolves", async () => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  let contextReads = 0, creations = 0;
+  let resolveContext: ((response: Response) => void) | undefined;
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) {
+      contextReads += 1;
+      return contextReads === 1 ? json(context()) : new Promise<Response>((resolve) => { resolveContext = resolve; });
+    }
+    if (path.endsWith(`/practice-sessions/${practiceId}`)) return json(completedState());
+    if (path.endsWith("/follow-ups")) { creations += 1; return json({}); }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  const mounted = renderWithProviders(<Practice />);
+  await user.click(await screen.findByRole("checkbox", { name: "Review book · meaning" }));
+  const before = { ...localStorage };
+  await user.click(screen.getByRole("button", { name: "Start selected review" }));
+  expect(resolveContext).toBeDefined();
+  mounted.unmount();
+  await act(async () => { resolveContext?.(json(context())); });
+  expect(creations).toBe(0);
+  expect({ ...localStorage }).toEqual(before);
+});
+
+it("keeps gap assessment roles distinct and creates the written-article transition with follow-up three", async () => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed: 47 });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const rows = [
+    { label: "Present verb selection", targetSkillId: "G004", assessmentMode: "selection", assessmentRole: "primary" },
+    { label: "Indefinite article selection", targetSkillId: "G006", assessmentMode: "selection", assessmentRole: "support" },
+  ].map((row) => ({ ...row, plannedItems: 4, attemptedItems: 4, advancedItems: 4,
+    attemptCount: 4, retryCount: 0, firstOutcomes: outcomes, latestOutcomes: outcomes,
+    firstWithSupport: 0, firstWithPriorExposure: 0, lessonOpenedItems: 0, hintOpenedItems: 0 }));
+  const completed = gapState({
+    state: "completed", cursor: 4, currentExercise: null,
+    summary: { ...completedState().summary, plannedItems: 4, completedItems: 4, rows },
+  });
+  let body = "";
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith(`/practice-sessions/${practiceId}`)) return json(completed);
+    if (path.endsWith("/follow-ups")) {
+      body = String(init?.body);
+      const request = JSON.parse(body) as { practiceSessionId: string; targetKeys: string[] };
+      return json(gapState({
+        id: request.practiceSessionId, focusId: "targeted-review", planRevision: "follow-up-3",
+        title: "Focused review", followUpPlanRevision: "follow-up-3",
+        followUp: { sourcePracticeSessionId: practiceId, selectedTargetKeys: request.targetKeys },
+      }), 201);
+    }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  renderWithProviders(<Practice />);
+
+  expect(await screen.findByRole("article", { name: "Present verb selection" })).toHaveTextContent("Primary assessment");
+  expect(screen.getByRole("article", { name: "Indefinite article selection" })).toHaveTextContent("Supporting assessment");
+  await user.click(screen.getByRole("checkbox", { name: "Review Present verb selection" }));
+  await user.click(screen.getByRole("checkbox", { name: "Review Indefinite article selection" }));
+  expect(screen.getByText("Articles will be supplied in writing")).toBeVisible();
+  await user.click(screen.getByRole("button", { name: "Start selected review" }));
+
+  expect(await screen.findByRole("heading", { name: "Focused review" })).toBeVisible();
+  expect(JSON.parse(body)).toMatchObject({
+    planRevision: "follow-up-3",
+    targetKeys: ["grammar:G004:selection", "grammar:G006:selection"],
+  });
+});
 
 it("starts an unchecked learner-selected follow-up without renewing or abandoning its source", async () => {
   const sourceRun = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };

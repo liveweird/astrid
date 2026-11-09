@@ -60,6 +60,49 @@ import org.flywaydb.core.Flyway
 
 class PostgresRepositoryTest {
     @Test
+    fun `guided gap feedback exposure is frozen per saved slot result in postgres`() = withRepositories { first, second ->
+        val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        val practiceId = UUID.randomUUID()
+        val request = PracticeSessionRequest(practiceId.toString(), "verb-article-gaps", "verb-article-gaps-1", 17)
+        val created = assertIs<PracticeCreateResult.Created>(
+            first.practice.createPracticeSession(owner, request, wireJson.encodeToString(request)) {
+                practiceFixture(owner, request)
+            },
+        ).session
+        val item = created.items.first()
+        val primary = item.assessments.single { it.slotId == "g0" }
+        val support = item.assessments.single { it.slotId == "g1" }
+        val primaryKey = primary.answerExposureKeys.single()
+        val supportKey = support.answerExposureKeys.single()
+
+        suspend fun write(
+            primaryStatus: String,
+            supportStatus: String,
+            expectedKeys: Set<String>,
+        ) {
+            val attempt = practiceAttempt(item.exercise.id)
+            val result = second.exercises.writeAttemptWithPractice(owner.id, attempt, attemptPayload(attempt)) {
+                    stored, retry, now, source ->
+                val frozen = assertNotNull(source).items.single { it.position == item.position }.feedbackExposureKeys
+                assertEquals(expectedKeys, frozen.filter { it == primaryKey || it == supportKey }.toSet())
+                val response = attemptResponse(attempt.attemptId, stored, retry, now).copy(
+                    targetSatisfaction = primaryStatus,
+                    gapResults = listOf(
+                        gapResult("g0", "G004", "primary", primaryStatus),
+                        gapResult("g1", "G006", "support", supportStatus),
+                    ),
+                )
+                CreatedAttempt(response, PracticeAttemptContextDto(false, false, false, emptyList()))
+            }
+            assertIs<AttemptWriteResult.Created>(result)
+        }
+
+        write("not-met", "unevaluable", emptySet())
+        write("unevaluable", "not-met", setOf(primaryKey))
+        write("met", "met", setOf(primaryKey, supportKey))
+    }
+
+    @Test
     fun `present verb feedback exposure requires a prior met attempt in postgres`() = withRepositories { first, second ->
         val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
         val practiceId = UUID.randomUUID()
@@ -902,7 +945,7 @@ class PostgresRepositoryTest {
             plan.generatorRevision,
             plan.evaluationRevision,
             plan.prerequisiteSkillIds,
-            plan.introduction.map { IntroductionDto(it.title, it.body) },
+            plan.introduction.map { IntroductionDto(it.title, it.body, it.bodyLanguage) },
             plan.items.map { item ->
                 val id = UUID.randomUUID()
                 NewPracticeItem(
@@ -926,8 +969,19 @@ class PostgresRepositoryTest {
                     item.hintExposureKeys,
                     item.feedbackExposureKeys,
                     item.targetDescriptor.assessmentMode,
+                    item.assessments.map { assessment ->
+                        app.astrid.server.practice.PracticeAssessmentPayload(
+                            assessment.slotId,
+                            assessment.targetDescriptor.label,
+                            requireNotNull(assessment.targetDescriptor.targetSkillId),
+                            requireNotNull(assessment.targetDescriptor.assessmentMode),
+                            assessment.assessmentRole,
+                            assessment.answerExposureKeys,
+                        )
+                    },
                 )
             },
+            introductionExposureKeys = plan.introductionExposureKeys,
         )
     }
 
@@ -951,6 +1005,7 @@ class PostgresRepositoryTest {
             sourceItem.hintExposureKeys,
             sourceItem.feedbackExposureKeys,
             sourceItem.assessmentMode,
+            sourceItem.assessments,
         )
         val ancestry = source.sourceExposure.ifEmpty {
             listOf(PracticeCrossRunExposureDto(sourceId.toString(), -1, "introduction", listOf("grammar:G005")))
@@ -965,6 +1020,7 @@ class PostgresRepositoryTest {
             listOf(item),
             PracticeFollowUpLineage(sourceId, request.targetKeys),
             ancestry,
+            source.introductionExposureKeys,
         )
     }
 
@@ -986,6 +1042,17 @@ class PostgresRepositoryTest {
         exerciseId.toString(),
         AttemptAnswerDto.Text("wrong"),
         false,
+    )
+
+    private fun gapResult(slotId: String, skillId: String, role: String, status: String) = GapResultDto(
+        slotId = slotId,
+        choiceId = "c0".takeUnless { status == "unevaluable" },
+        targetSkillId = skillId,
+        assessmentRole = role,
+        targetSatisfaction = status,
+        responseConstraintStatus = if (status == "unevaluable") "not-met" else "met",
+        linguisticStatus = if (status == "met") "acceptable" else if (status == "not-met") "known-issue" else "unknown",
+        feedback = "Saved feedback",
     )
 
     private fun attemptPayload(request: AttemptRequest) =

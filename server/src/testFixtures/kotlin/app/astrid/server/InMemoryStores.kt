@@ -25,6 +25,7 @@ import app.astrid.server.practice.PracticeSupportRequest
 import app.astrid.server.practice.StoredPracticeAttempt
 import app.astrid.server.practice.StoredPracticeItem
 import app.astrid.server.practice.StoredPracticeSession
+import app.astrid.server.practice.toEngineAssessment
 import app.astrid.server.session.SessionStore
 import java.util.UUID
 import kotlinx.coroutines.sync.Mutex
@@ -101,7 +102,8 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                             it.hintExposureKeys,
                             frozenFeedbackExposureKeys(
                                 it.feedbackExposureKeys,
-                                it.attempts.any { attempt -> attempt.response.targetSatisfaction == "met" },
+                                it.assessments.map { assessment -> assessment.toEngineAssessment() },
+                                it.attempts.map { attempt -> attempt.response },
                             ),
                             it.lessonOpened,
                             it.hintOpened,
@@ -160,6 +162,7 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                 prerequisiteSkillIds = plan.prerequisiteSkillIds.toList(),
                 introduction = plan.introduction.toList(),
                 items = plan.items.sortedBy { it.position }.map { MemoryPracticeItem(it) }.toMutableList(),
+                introductionExposureKeys = plan.introductionExposureKeys?.toList(),
             )
             plan.items.forEach { exerciseRecords[ownerSession.id to it.exercise.id] = it.exercise }
             practiceRequests[key] = requestPayload
@@ -206,6 +209,7 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                 items = plan.items.sortedBy { it.position }.map { MemoryPracticeItem(it) }.toMutableList(),
                 followUp = plan.followUp,
                 sourceExposure = plan.sourceExposure.toList(),
+                introductionExposureKeys = plan.introductionExposureKeys?.toList(),
             )
             plan.items.forEach { exerciseRecords[ownerSession.id to it.exercise.id] = it.exercise }
             practiceRequests[key] = requestPayload
@@ -295,12 +299,14 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
         val items: MutableList<MemoryPracticeItem>,
         val followUp: PracticeFollowUpLineage? = null,
         val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
+        val introductionExposureKeys: List<String>? = null,
     ) {
         fun snapshot() = StoredPracticeSession(
             id, ownerSessionId, sessionExpiresAt, focusId, title, planRevision, seed,
             contentRevision, generatorRevision, evaluationRevision, cursor, introductionOpened,
             prerequisiteSkillIds.toList(), introduction.toList(), items.map(MemoryPracticeItem::snapshot),
             followUp, sourceExposure.toList(),
+            introductionExposureKeys?.toList(),
         )
     }
 
@@ -314,6 +320,7 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
         val hintExposureKeys = item.hintExposureKeys.toList()
         val feedbackExposureKeys = item.feedbackExposureKeys.toList()
         val assessmentMode = item.assessmentMode
+        val assessments = item.assessments.toList()
         var lessonOpened = false
         var hintOpened = false
         var attempts = mutableListOf<StoredPracticeAttempt>()
@@ -322,6 +329,7 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
             position, exercise, targetLabel, answerExposureKeys, promptExposureKeys, lessonExposureKeys, hintExposureKeys,
             feedbackExposureKeys, lessonOpened, hintOpened, attempts.toList(),
             assessmentMode,
+            assessments,
         )
     }
 }

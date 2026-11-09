@@ -1,13 +1,80 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
-  type AttemptRequestLike, choosePractice, completedState, context, exercise, json, owner, practiceId, profiles, resetPracticeBrowser, state, wrongAttempt,
+  type AttemptRequestLike, choosePractice, completedState, context, exercise, gapAttempt, gapState, json, owner, practiceId,
+  profiles, resetPracticeBrowser, state, wrongAttempt,
 } from "../../test/practiceFixtures";
 import { renderWithProviders } from "../../test/render";
 import Practice from "./Practice";
 import { listOutbox, saveOutboxEntry, saveRunRecovery } from "./practiceRecovery";
 
 beforeEach(resetPracticeBrowser);
+
+it("restores an uncertain gap answer in its exact saved order and freezes the board", async () => {
+  const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed: 47 };
+  saveRunRecovery(run);
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const pending = {
+    attemptId: "77777777-7777-4777-8777-777777777777",
+    exerciseId: gapAttempt.exerciseId,
+    answer: { kind: "gaps", selections: [{ slotId: "g1", choiceId: "c1" }, { slotId: "g0", choiceId: "c0" }] },
+    hintUsed: false,
+  };
+  const body = JSON.stringify(pending);
+  saveOutboxEntry({ ...run, kind: "attempt", identity: pending.attemptId, body, queuedAt: 1 });
+  const bodies: string[] = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("/attempts")) {
+      bodies.push(String(init?.body));
+      throw new TypeError("response lost");
+    }
+    if (path.includes("/practice-sessions/")) return json(gapState());
+    throw new Error(`Unexpected ${path}`);
+  }));
+
+  renderWithProviders(<Practice />);
+  expect(await screen.findByText("Your answer is not confirmed")).toBeVisible();
+  expect(screen.getByRole("button", { name: "en" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("button", { name: "læse" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("button", { name: "en" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Check gaps" })).toBeDisabled();
+  await userEvent.click(screen.getByRole("button", { name: "Retry saved operation" }));
+  expect(await screen.findByRole("button", { name: "en" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("button", { name: "læse" })).toHaveAttribute("aria-pressed", "true");
+  expect(bodies).toEqual([body, body]);
+  expect(JSON.parse(bodies[0]!).answer.selections).toEqual(pending.answer.selections);
+});
+
+it("unlocks a reloaded gap item after its pending attempt replays successfully", async () => {
+  const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed: 47 };
+  saveRunRecovery(run);
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const selections = [{ slotId: "g1", choiceId: "c1" }, { slotId: "g0", choiceId: "c0" }];
+  const pending = {
+    attemptId: "77777777-7777-4777-8777-777777777777", exerciseId: gapAttempt.exerciseId,
+    answer: { kind: "gaps", selections }, hintUsed: false,
+  };
+  saveOutboxEntry({ ...run, kind: "attempt", identity: pending.attemptId, body: JSON.stringify(pending), queuedAt: 1 });
+  let serverState = gapState();
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("/attempts")) {
+      const saved = { ...gapAttempt, attemptId: pending.attemptId };
+      serverState = gapState({ items: [{ ...gapState().items[0]!, attemptIds: [pending.attemptId], attemptCount: 1,
+        firstAttempt: saved, lastAttempt: saved, firstAnswer: pending.answer, lastAnswer: pending.answer }] });
+      return json(saved);
+    }
+    if (path.includes("/practice-sessions/")) return json(serverState);
+    throw new Error(`Unexpected ${path}`);
+  }));
+
+  renderWithProviders(<Practice />);
+  expect(await screen.findByRole("status")).toHaveTextContent("Review both selected forms.");
+  expect(screen.getByRole("button", { name: "Try again" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+  expect(screen.queryByText("Your answer is not confirmed")).not.toBeInTheDocument();
+});
 
 it("replays an uncertain answer byte-for-byte after refresh and blocks editing meanwhile", async () => {
   const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };

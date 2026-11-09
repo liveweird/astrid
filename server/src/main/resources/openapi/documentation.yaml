@@ -1,5 +1,5 @@
 openapi: 3.0.3
-info: { title: Astrid pilot API, version: 0.7.0 }
+info: { title: Astrid pilot API, version: 0.8.0 }
 servers: [{ url: 'http://localhost:8088' }]
 # Every operation needs the development session cookie except the three that declare `security: []`.
 security:
@@ -2007,7 +2007,7 @@ components:
       properties:
         ownerSessionId: { type: string, format: uuid }
         sessionExpiresAt: { type: integer, format: int64 }
-        profiles: { type: array, minItems: 2, maxItems: 2, items: { $ref: '#/components/schemas/PracticeProfile' } }
+        profiles: { type: array, minItems: 3, maxItems: 3, items: { $ref: '#/components/schemas/PracticeProfile' } }
     PracticeProfile:
       oneOf:
         - type: object
@@ -2030,6 +2030,16 @@ components:
             description: { type: string }
             itemCount: { type: integer, enum: [6] }
             prerequisiteSkillIds: { type: array, items: { type: string } }
+        - type: object
+          additionalProperties: false
+          required: [focusId, planRevision, title, description, itemCount, prerequisiteSkillIds]
+          properties:
+            focusId: { type: string, enum: [verb-article-gaps] }
+            planRevision: { type: string, enum: [verb-article-gaps-1] }
+            title: { type: string, enum: [Verbs and articles together] }
+            description: { type: string, enum: [Practise a present verb and an indefinite article in the same sentence.] }
+            itemCount: { type: integer, enum: [4] }
+            prerequisiteSkillIds: { type: array, minItems: 4, maxItems: 4, items: { type: string, enum: [G001, G002, G003, G005] } }
     PracticeSessionRequest:
       oneOf:
         - type: object
@@ -2039,6 +2049,14 @@ components:
             practiceSessionId: { type: string, format: uuid }
             focusId: { type: string, enum: [reading-basics] }
             planRevision: { type: string, enum: [practice-1] }
+            seed: { type: integer, minimum: 0 }
+        - type: object
+          additionalProperties: false
+          required: [practiceSessionId, focusId, planRevision, seed]
+          properties:
+            practiceSessionId: { type: string, format: uuid }
+            focusId: { type: string, enum: [verb-article-gaps] }
+            planRevision: { type: string, enum: [verb-article-gaps-1] }
             seed: { type: integer, minimum: 0 }
         - type: object
           additionalProperties: false
@@ -2061,7 +2079,7 @@ components:
       required: [practiceSessionId, planRevision, seed, targetKeys]
       properties:
         practiceSessionId: { type: string, format: uuid }
-        planRevision: { type: string, enum: [follow-up-1, follow-up-2] }
+        planRevision: { type: string, enum: [follow-up-1, follow-up-2, follow-up-3] }
         seed: { type: integer, minimum: 0 }
         targetKeys: { type: array, minItems: 1, maxItems: 8, uniqueItems: true, items: { type: string, minLength: 1, maxLength: 160 } }
     PracticeAdvanceRequest:
@@ -2095,7 +2113,63 @@ components:
         currentExercise: { $ref: '#/components/schemas/PracticeExercise' }
         summary: { $ref: '#/components/schemas/PracticeSummary' }
         followUp: { $ref: '#/components/schemas/PracticeFollowUp' }
-        followUpPlanRevision: { type: string, enum: [follow-up-2] }
+        followUpPlanRevision: { type: string, enum: [follow-up-2, follow-up-3] }
+      allOf:
+        - oneOf:
+            - type: object
+              additionalProperties: true
+              required: [focusId, planRevision, contentRevision, generatorRevision, evaluationRevision, itemCount]
+              properties:
+                focusId: { type: string, enum: [reading-basics] }
+                planRevision: { type: string, enum: [practice-1] }
+                contentRevision: { type: string, enum: [pilot-3] }
+                generatorRevision: { type: string, enum: [generator-3] }
+                evaluationRevision: { type: string, enum: [evaluation-3] }
+                itemCount: { type: integer, enum: [8] }
+                items: { type: array, items: { $ref: '#/components/schemas/LegacyPracticeItem' } }
+            - type: object
+              additionalProperties: true
+              required: [focusId, planRevision, contentRevision, generatorRevision, evaluationRevision, itemCount]
+              properties:
+                focusId: { type: string, enum: [present-verbs] }
+                planRevision: { type: string, enum: [present-verbs-1] }
+                contentRevision: { type: string, enum: [pilot-3] }
+                generatorRevision: { type: string, enum: [generator-3] }
+                evaluationRevision: { type: string, enum: [evaluation-3] }
+                itemCount: { type: integer, enum: [6] }
+                items: { type: array, items: { $ref: '#/components/schemas/LegacyPracticeItem' } }
+            - type: object
+              additionalProperties: true
+              required: [focusId, planRevision, contentRevision, generatorRevision, evaluationRevision]
+              properties:
+                focusId: { type: string, enum: [targeted-review] }
+                planRevision: { type: string, enum: [follow-up-1, follow-up-2] }
+                contentRevision: { type: string, enum: [pilot-3] }
+                generatorRevision: { type: string, enum: [generator-3] }
+                evaluationRevision: { type: string, enum: [evaluation-3] }
+                items: { type: array, items: { $ref: '#/components/schemas/LegacyPracticeItem' } }
+            - type: object
+              additionalProperties: true
+              required: [focusId, planRevision, contentRevision, generatorRevision, evaluationRevision, itemCount]
+              properties:
+                focusId: { type: string, enum: [targeted-review] }
+                planRevision: { type: string, enum: [follow-up-3] }
+                contentRevision: { type: string, enum: [pilot-7] }
+                generatorRevision: { type: string, enum: [generator-7] }
+                evaluationRevision: { type: string, enum: [evaluation-7] }
+                itemCount: { type: integer, enum: [4] }
+                items: { type: array, minItems: 4, maxItems: 4, items: { $ref: '#/components/schemas/GuidedFollowUpPracticeItem' } }
+            - type: object
+              additionalProperties: true
+              required: [focusId, planRevision, contentRevision, generatorRevision, evaluationRevision, itemCount]
+              properties:
+                focusId: { type: string, enum: [verb-article-gaps] }
+                planRevision: { type: string, enum: [verb-article-gaps-1] }
+                contentRevision: { type: string, enum: [pilot-7] }
+                generatorRevision: { type: string, enum: [generator-7] }
+                evaluationRevision: { type: string, enum: [evaluation-7] }
+                itemCount: { type: integer, enum: [4] }
+                items: { type: array, minItems: 4, maxItems: 4, items: { $ref: '#/components/schemas/GuidedGapPracticeItem' } }
     PracticeFollowUp:
       type: object
       additionalProperties: false
@@ -2114,18 +2188,66 @@ components:
         targetSkillId: { type: string, nullable: true }
         lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
         assessmentMode: { type: string, enum: [selection, recall, repair] }
+        assessments:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items: { $ref: '#/components/schemas/PracticeAssessment' }
         lessonOpened: { type: boolean }
         hintOpened: { type: boolean }
         attemptIds: { type: array, items: { type: string, format: uuid } }
         attemptCount: { type: integer, minimum: 0 }
-        firstAttempt: { $ref: '#/components/schemas/NonMatchingAttempt' }
-        lastAttempt: { $ref: '#/components/schemas/NonMatchingAttempt' }
+        firstAttempt:
+          oneOf: [{ $ref: '#/components/schemas/NonMatchingAttempt' }, { $ref: '#/components/schemas/GapAttempt' }]
+        lastAttempt:
+          oneOf: [{ $ref: '#/components/schemas/NonMatchingAttempt' }, { $ref: '#/components/schemas/GapAttempt' }]
         firstAnswer:
-          oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }]
+          oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }, { $ref: '#/components/schemas/GapsAnswer' }]
         lastAnswer:
-          oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }]
+          oneOf: [{ $ref: '#/components/schemas/TextAnswer' }, { $ref: '#/components/schemas/OrderAnswer' }, { $ref: '#/components/schemas/GapsAnswer' }]
         firstAttemptContext: { $ref: '#/components/schemas/PracticeAttemptContext' }
         lastAttemptContext: { $ref: '#/components/schemas/PracticeAttemptContext' }
+      allOf:
+        - oneOf:
+            - type: object
+              additionalProperties: true
+              not: { required: [assessments] }
+              properties:
+                formatId: { type: string, enum: [E001, E002, E003, E004, E005, E006, E007, E008, E009, E010, E011, E012, E013, E014] }
+            - type: object
+              additionalProperties: true
+              required: [targetSkillId, assessments]
+              properties:
+                formatId: { type: string, enum: [E015] }
+                targetSkillId: { type: string, enum: [G004] }
+                assessments:
+                  type: array
+                  minItems: 2
+                  maxItems: 2
+                  uniqueItems: true
+                  items: { $ref: '#/components/schemas/GuidedGapPracticeAssessment' }
+            - type: object
+              additionalProperties: true
+              required: [targetSkillId, assessments]
+              properties:
+                formatId: { type: string, enum: [E001] }
+                targetSkillId: { type: string, enum: [G004] }
+                assessments:
+                  type: array
+                  minItems: 1
+                  maxItems: 1
+                  items: { $ref: '#/components/schemas/GuidedVerbFollowUpAssessment' }
+            - type: object
+              additionalProperties: true
+              required: [targetSkillId, assessments]
+              properties:
+                formatId: { type: string, enum: [E002] }
+                targetSkillId: { type: string, enum: [G006] }
+                assessments:
+                  type: array
+                  minItems: 1
+                  maxItems: 1
+                  items: { $ref: '#/components/schemas/GuidedArticleFollowUpAssessment' }
     PracticeExercise:
       oneOf:
         - { $ref: '#/components/schemas/GrammarExercise' }
@@ -2133,6 +2255,99 @@ components:
         - { $ref: '#/components/schemas/WritingExercise' }
         - { $ref: '#/components/schemas/ReadingExercise' }
         - { $ref: '#/components/schemas/TileExercise' }
+        - { $ref: '#/components/schemas/GapExercise' }
+    LegacyPracticeItem:
+      allOf:
+        - { $ref: '#/components/schemas/PracticeItem' }
+        - type: object
+          additionalProperties: true
+          not: { required: [assessments] }
+    GuidedGapPracticeItem:
+      allOf:
+        - { $ref: '#/components/schemas/PracticeItem' }
+        - type: object
+          additionalProperties: true
+          required: [targetSkillId, assessments]
+          properties:
+            formatId: { type: string, enum: [E015] }
+            targetSkillId: { type: string, enum: [G004] }
+            assessments:
+              type: array
+              minItems: 2
+              maxItems: 2
+              uniqueItems: true
+              items: { $ref: '#/components/schemas/GuidedGapPracticeAssessment' }
+    GuidedFollowUpPracticeItem:
+      allOf:
+        - { $ref: '#/components/schemas/PracticeItem' }
+        - oneOf:
+            - type: object
+              additionalProperties: true
+              required: [targetSkillId, assessments]
+              properties:
+                formatId: { type: string, enum: [E001] }
+                targetSkillId: { type: string, enum: [G004] }
+                assessments:
+                  type: array
+                  minItems: 1
+                  maxItems: 1
+                  items: { $ref: '#/components/schemas/GuidedVerbFollowUpAssessment' }
+            - type: object
+              additionalProperties: true
+              required: [targetSkillId, assessments]
+              properties:
+                formatId: { type: string, enum: [E002] }
+                targetSkillId: { type: string, enum: [G006] }
+                assessments:
+                  type: array
+                  minItems: 1
+                  maxItems: 1
+                  items: { $ref: '#/components/schemas/GuidedArticleFollowUpAssessment' }
+    PracticeAssessment:
+      oneOf:
+        - { $ref: '#/components/schemas/GuidedGapPracticeAssessment' }
+        - { $ref: '#/components/schemas/GuidedVerbFollowUpAssessment' }
+        - { $ref: '#/components/schemas/GuidedArticleFollowUpAssessment' }
+    GuidedGapPracticeAssessment:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [slotId, label, targetSkillId, assessmentMode, assessmentRole]
+          properties:
+            slotId: { type: string, enum: [g0] }
+            label: { type: string, enum: [Present verb selection] }
+            targetSkillId: { type: string, enum: [G004] }
+            assessmentMode: { type: string, enum: [selection] }
+            assessmentRole: { type: string, enum: [primary] }
+        - type: object
+          additionalProperties: false
+          required: [slotId, label, targetSkillId, assessmentMode, assessmentRole]
+          properties:
+            slotId: { type: string, enum: [g1] }
+            label: { type: string, enum: [Indefinite article selection] }
+            targetSkillId: { type: string, enum: [G006] }
+            assessmentMode: { type: string, enum: [selection] }
+            assessmentRole: { type: string, enum: [support] }
+    GuidedVerbFollowUpAssessment:
+      type: object
+      additionalProperties: false
+      required: [label, targetSkillId, assessmentMode, assessmentRole]
+      not: { required: [slotId] }
+      properties:
+        label: { type: string, enum: [Present verb selection] }
+        targetSkillId: { type: string, enum: [G004] }
+        assessmentMode: { type: string, enum: [selection] }
+        assessmentRole: { type: string, enum: [primary] }
+    GuidedArticleFollowUpAssessment:
+      type: object
+      additionalProperties: false
+      required: [label, targetSkillId, assessmentMode, assessmentRole]
+      not: { required: [slotId] }
+      properties:
+        label: { type: string, enum: [Written indefinite article recall] }
+        targetSkillId: { type: string, enum: [G006] }
+        assessmentMode: { type: string, enum: [recall] }
+        assessmentRole: { type: string, enum: [primary] }
     PracticeAttemptContext:
       type: object
       additionalProperties: false
@@ -2181,6 +2396,7 @@ components:
         targetSkillId: { type: string, nullable: true }
         lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
         assessmentMode: { type: string, enum: [selection, recall, repair] }
+        assessmentRole: { type: string, enum: [primary, support] }
         plannedItems: { type: integer }
         attemptedItems: { type: integer }
         advancedItems: { type: integer }

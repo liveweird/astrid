@@ -110,6 +110,6 @@ bundled Inter (`@fontsource-variable/inter`, same-origin for the CSP), a reduced
 - **Tests**: Vitest 5 + happy-dom + Testing Library. Use `renderWithProviders` from `src/test/render.tsx` (Mantine with `env="test"` — required or Select/Popover dropdowns stay hidden —, a fresh `QueryClient` with the
   app defaults, a real `BrowserRouter`; set the URL with `window.history.replaceState` first, assert `window.location` after; `strict: true` replays mount effects like `main.tsx`). Shared fixtures:
   `src/test/playgroundFixtures.tsx`, `practiceFixtures.ts`; stub `fetch` per test and restore it. Test names state behaviour.
-- **Coverage floors** (`vite.config.ts` `test.coverage.thresholds`): statements 94, branches 88, functions 97, lines 97 (2026-11-08). Ratchet: floor = integer below the measured value, raised when coverage rises, never lowered.
+- **Coverage floors** (`vite.config.ts` `test.coverage.thresholds`): statements 95, branches 89, functions 97, lines 97 (2026-11-09). Ratchet: floor = integer below the measured value, raised when coverage rises, never lowered.
   `main.tsx`, `schema.ts`, tests and `src/test/**` are excluded from the measure.
 - `scripts/check.sh` also runs `lint:api`, `check:api`, e2e `lint`/`knip`/`typecheck`; Playwright journeys need the stack (`testing.md`).

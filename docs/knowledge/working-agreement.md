@@ -184,3 +184,13 @@ compared in owned QA before app-only promotion. All immutable histories, retaine
 PostgreSQL process/mounts and schema 1/2/3 were preserved; only owned QA resources were removed.
 The [contract and delivery](multiple-gap-contract.md#observed-delivery--9-november-2026) close BL-049 before the 07:30 Warsaw cutoff.
 Guided integration is a proposal; no further feature is activated by this completion record.
+
+## Guided multiple-gap integration authorization
+
+**9 November 2026 — Confirmed:** “Go for it” selects BL-050 after the recommendation to add a
+bounded guided multiple-gap session, introduction/worked example, separate verb/article
+summaries and targeted follow-up. Preserve old runs, support/retry and exact recovery; use
+independent review and the standing verified, versioned commit/merge/push/release/private-preview
+workflow. The [contract](guided-gap-practice.md) records implementation defaults. Full Module 1
+activation and other backlog features remain separate. The completed 0.7.0 overnight cutoff
+does not imply another overnight work period for this selection.

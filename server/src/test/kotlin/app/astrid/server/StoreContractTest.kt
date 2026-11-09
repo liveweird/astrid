@@ -21,6 +21,7 @@ import app.astrid.server.practice.NewPracticeItem
 import app.astrid.server.practice.NewPracticeSession
 import app.astrid.server.practice.PracticeCreateResult
 import app.astrid.server.practice.PracticeFollowUpRequest
+import app.astrid.server.practice.PracticeAssessmentPayload
 import app.astrid.server.practice.PracticeMutationResult
 import app.astrid.server.practice.PracticeSessionRequest
 import app.astrid.server.practice.PracticeSupportRequest
@@ -290,7 +291,7 @@ abstract class StoreContractTest {
             plan.generatorRevision,
             plan.evaluationRevision,
             plan.prerequisiteSkillIds,
-            plan.introduction.map { IntroductionDto(it.title, it.body) },
+            plan.introduction.map { IntroductionDto(it.title, it.body, it.bodyLanguage) },
             plan.items.map { item ->
                 val id = UUID.randomUUID()
                 NewPracticeItem(
@@ -314,8 +315,19 @@ abstract class StoreContractTest {
                     item.hintExposureKeys,
                     item.feedbackExposureKeys,
                     item.targetDescriptor.assessmentMode,
+                    item.assessments.map { assessment ->
+                        PracticeAssessmentPayload(
+                            assessment.slotId,
+                            assessment.targetDescriptor.label,
+                            requireNotNull(assessment.targetDescriptor.targetSkillId),
+                            requireNotNull(assessment.targetDescriptor.assessmentMode),
+                            assessment.assessmentRole,
+                            assessment.answerExposureKeys,
+                        )
+                    },
                 )
             },
+            introductionExposureKeys = plan.introductionExposureKeys,
         )
     }
 

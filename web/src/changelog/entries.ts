@@ -10,6 +10,16 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.8.0",
+    date: "2026-11-09",
+    body: `**Practise verbs and articles together.**
+
+- Choose **Verbs and articles together** for four guided two-gap exercises, with an optional introduction and worked example.
+- See separate results for the primary present verb and supporting article, including first answers and editable retries.
+- Select either target for a focused review. Verb reviews use choices; article reviews ask you to supply the article in writing.
+- Saved selections and uncertain answers recover safely after reload. Earlier practice runs and exercise results keep their original revisions.`,
+  },
+  {
     version: "0.7.0",
     date: "2026-11-09",
     body: `**Two gaps with clear grammar feedback.**

@@ -4,6 +4,7 @@ package app.astrid.server
 
 import app.astrid.server.exercises.AttemptAnswerDto
 import app.astrid.server.exercises.AttemptRequest
+import app.astrid.server.exercises.GapSelectionDto
 import app.astrid.server.infra.config.ServerConfig
 import app.astrid.server.infra.json.wireJson
 import app.astrid.server.plugins.ProblemJson
@@ -34,7 +35,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -66,8 +69,13 @@ class OpenApiContractTest {
     fun `practice creation schema admits only supported focus revision pairs`() {
         val requestValidator = OpenApiInteractionValidator.createForInlineApiSpecification(rawSpec).build()
         val id = "4d2dc82d-bbdc-4645-a78a-ad0be38c4355"
-        for (focus in listOf("reading-basics", "present-verbs")) {
-            for (revision in listOf("practice-1", "present-verbs-1")) {
+        val supportedPairs = setOf(
+            "reading-basics" to "practice-1",
+            "present-verbs" to "present-verbs-1",
+            "verb-article-gaps" to "verb-article-gaps-1",
+        )
+        for (focus in supportedPairs.map { it.first }) {
+            for (revision in supportedPairs.map { it.second }) {
                 val request = SimpleRequest.Builder.post("/api/v1/practice-sessions")
                     .withHeader("Content-Type", "application/json")
                     .withHeader("X-Astrid-Client", "playground")
@@ -75,7 +83,7 @@ class OpenApiContractTest {
                     .withBody("""{"practiceSessionId":"$id","focusId":"$focus","planRevision":"$revision","seed":47}""")
                     .build()
                 val report = requestValidator.validateRequest(request)
-                val supported = (focus == "reading-basics") == (revision == "practice-1")
+                val supported = focus to revision in supportedPairs
                 assertEquals(supported, !report.hasErrors(), SimpleValidationReportFormat.getInstance().apply(report))
             }
         }
@@ -620,6 +628,230 @@ class OpenApiContractTest {
     }
 
     @Test
+    fun `guided practice and all nine saved gap outcomes conform to the contract`() = testApplication {
+        val inspectorKey = "k".repeat(32)
+        application { astridModule(config(inspectorKey = inspectorKey), InMemoryStores()) }
+        val session = client.post("/api/v1/development-session") {
+            trustedHost()
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+        val cookie = session.headers[HttpHeaders.SetCookie]!!.substringAfter("astrid_session=").substringBefore(';')
+        val context = client.get("/api/v1/practice-context") { trustedHost(); cookie("astrid_session", cookie) }
+        val owner = wireJson.parseToJsonElement(context.bodyAsText()).jsonObject
+            .getValue("ownerSessionId").jsonPrimitive.content
+        val practiceId = UUID.randomUUID()
+        val created = client.post("/api/v1/practice-sessions") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+            header("X-Astrid-Client", "playground")
+            header("X-Astrid-Practice-Owner", owner)
+            contentType(ContentType.Application.Json)
+            setBody(
+                """{"practiceSessionId":"$practiceId","focusId":"verb-article-gaps","planRevision":"verb-article-gaps-1","seed":47}""",
+            )
+        }
+        validate(HttpMethod.Post, "/api/v1/practice-sessions", created)
+        val state = wireJson.parseToJsonElement(created.bodyAsText()).jsonObject
+        assertPracticeResponseValidity(state.toString(), expected = true)
+        val badFollowUpThreePair = JsonObject(
+            state + mapOf(
+                "focusId" to JsonPrimitive("targeted-review"),
+                "planRevision" to JsonPrimitive("follow-up-3"),
+                "contentRevision" to JsonPrimitive("pilot-3"),
+                "generatorRevision" to JsonPrimitive("generator-3"),
+                "evaluationRevision" to JsonPrimitive("evaluation-3"),
+            ),
+        )
+        assertPracticeResponseValidity(badFollowUpThreePair.toString(), expected = false)
+        val badLegacyFollowUpPair = JsonObject(
+            state + mapOf(
+                "focusId" to JsonPrimitive("targeted-review"),
+                "planRevision" to JsonPrimitive("follow-up-1"),
+            ),
+        )
+        assertPracticeResponseValidity(badLegacyFollowUpPair.toString(), expected = false)
+        val items = state.getValue("items").jsonArray
+        val firstItem = items.first().jsonObject
+        val verbAssessment = JsonObject(
+            mapOf(
+                "label" to JsonPrimitive("Present verb selection"),
+                "targetSkillId" to JsonPrimitive("G004"),
+                "assessmentMode" to JsonPrimitive("selection"),
+                "assessmentRole" to JsonPrimitive("primary"),
+            ),
+        )
+        val assessedE001Items = JsonArray(items.map { value ->
+            JsonObject(
+                value.jsonObject + mapOf(
+                    "formatId" to JsonPrimitive("E001"),
+                    "targetSkillId" to JsonPrimitive("G004"),
+                    "assessments" to JsonArray(listOf(verbAssessment)),
+                ),
+            )
+        })
+        val pairThreeWithNewMetadata = JsonObject(
+            state + mapOf(
+                "focusId" to JsonPrimitive("targeted-review"),
+                "planRevision" to JsonPrimitive("follow-up-1"),
+                "contentRevision" to JsonPrimitive("pilot-3"),
+                "generatorRevision" to JsonPrimitive("generator-3"),
+                "evaluationRevision" to JsonPrimitive("evaluation-3"),
+                "items" to assessedE001Items,
+            ),
+        )
+        assertPracticeResponseValidity(pairThreeWithNewMetadata.toString(), expected = false)
+        val legacyE001Items = JsonArray(items.map { value ->
+            JsonObject(
+                (value.jsonObject - "assessments") + mapOf(
+                    "formatId" to JsonPrimitive("E001"),
+                    "targetSkillId" to JsonPrimitive("G004"),
+                ),
+            )
+        })
+        val pairSevenWithoutNewMetadata = JsonObject(
+            state + mapOf(
+                "focusId" to JsonPrimitive("targeted-review"),
+                "planRevision" to JsonPrimitive("follow-up-3"),
+                "items" to legacyE001Items,
+            ),
+        )
+        assertPracticeResponseValidity(pairSevenWithoutNewMetadata.toString(), expected = false)
+        val withoutAssessments = JsonObject(firstItem.filterKeys { it != "assessments" })
+        assertPracticeResponseValidity(
+            JsonObject(state + ("items" to JsonArray(listOf(withoutAssessments) + items.drop(1)))).toString(),
+            expected = false,
+        )
+        val firstAssessment = firstItem.getValue("assessments").jsonArray.first()
+        val duplicatedAssessment = JsonObject(
+            firstItem + ("assessments" to JsonArray(listOf(firstAssessment, firstAssessment))),
+        )
+        assertPracticeResponseValidity(
+            JsonObject(state + ("items" to JsonArray(listOf(duplicatedAssessment) + items.drop(1)))).toString(),
+            expected = false,
+        )
+        val exercise = state.getValue("currentExercise").jsonObject
+        val exerciseId = exercise.getValue("id").jsonPrimitive.content
+        val inspector = client.get("/api/v1/dev/exercises/$exerciseId") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+            header("X-Astrid-Inspector-Key", inspectorKey)
+        }
+        val expected = wireJson.parseToJsonElement(inspector.bodyAsText()).jsonObject
+            .getValue("gapSource").jsonObject.getValue("slots").jsonArray.associate { value ->
+                value.jsonObject.let {
+                    it.getValue("slotId").jsonPrimitive.content to it.getValue("expectedChoiceId").jsonPrimitive.content
+                }
+            }
+        val choices = exercise.getValue("prompt").jsonObject.getValue("gapPrompt").jsonObject
+            .getValue("slots").jsonArray.associate { value ->
+                val slot = value.jsonObject
+                slot.getValue("id").jsonPrimitive.content to slot.getValue("choices").jsonArray.map {
+                    it.jsonObject.getValue("id").jsonPrimitive.content
+                }
+            }
+        listOf<Boolean?>(null, true, false).forEach { primary ->
+            listOf<Boolean?>(null, true, false).forEach { support ->
+                val selections = listOf("g0" to primary, "g1" to support).mapNotNull { (slotId, correct) ->
+                    correct?.let {
+                        val answer = expected.getValue(slotId)
+                        GapSelectionDto(slotId, if (it) answer else choices.getValue(slotId).single { choice -> choice != answer })
+                    }
+                }
+                val attempt = client.post("/api/v1/attempts") {
+                    trustedHost()
+                    cookie("astrid_session", cookie)
+                    header("X-Astrid-Client", "playground")
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        wireJson.encodeToString(
+                            AttemptRequest(
+                                UUID.randomUUID().toString(),
+                                exerciseId,
+                                AttemptAnswerDto.Gaps(selections),
+                                false,
+                            ),
+                        ),
+                    )
+                }
+                validate(HttpMethod.Post, "/api/v1/attempts", attempt)
+                validate(
+                    HttpMethod.Get,
+                    "/api/v1/practice-sessions/$practiceId",
+                    client.get("/api/v1/practice-sessions/$practiceId") {
+                        trustedHost()
+                        cookie("astrid_session", cookie)
+                    },
+                )
+            }
+        }
+        val advanced = client.post("/api/v1/practice-sessions/$practiceId/advance") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+            header("X-Astrid-Client", "playground")
+            header("X-Astrid-Practice-Owner", owner)
+            contentType(ContentType.Application.Json)
+            setBody("""{"position":0}""")
+        }
+        validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/advance", advanced)
+        var advancedState = wireJson.parseToJsonElement(advanced.bodyAsText()).jsonObject
+        for (position in 1..3) {
+            val nextExerciseId = advancedState.getValue("currentExercise").jsonObject
+                .getValue("id").jsonPrimitive.content
+            val attempt = client.post("/api/v1/attempts") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                contentType(ContentType.Application.Json)
+                setBody(
+                    wireJson.encodeToString(
+                        AttemptRequest(
+                            UUID.randomUUID().toString(),
+                            nextExerciseId,
+                            AttemptAnswerDto.Gaps(emptyList()),
+                            false,
+                        ),
+                    ),
+                )
+            }
+            validate(HttpMethod.Post, "/api/v1/attempts", attempt)
+            val next = client.post("/api/v1/practice-sessions/$practiceId/advance") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                header("X-Astrid-Practice-Owner", owner)
+                contentType(ContentType.Application.Json)
+                setBody("""{"position":$position}""")
+            }
+            validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/advance", next)
+            advancedState = wireJson.parseToJsonElement(next.bodyAsText()).jsonObject
+        }
+        assertEquals("completed", advancedState.getValue("state").jsonPrimitive.content)
+        assertEquals(2, advancedState.getValue("summary").jsonObject.getValue("rows").jsonArray.size)
+        val childId = UUID.randomUUID()
+        val followUp = client.post("/api/v1/practice-sessions/$practiceId/follow-ups") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+            header("X-Astrid-Client", "playground")
+            header("X-Astrid-Practice-Owner", owner)
+            contentType(ContentType.Application.Json)
+            setBody(
+                """{"practiceSessionId":"$childId","planRevision":"follow-up-3","seed":48,"targetKeys":["grammar:G004:selection","grammar:G006:selection"]}""",
+            )
+        }
+        validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/follow-ups", followUp)
+        val followUpState = wireJson.parseToJsonElement(followUp.bodyAsText()).jsonObject
+        assertPracticeResponseValidity(followUpState.toString(), expected = true)
+        assertPracticeResponseValidity(
+            JsonObject(
+                followUpState + ("items" to JsonArray(followUpState.getValue("items").jsonArray.take(3))),
+            ).toString(),
+            expected = false,
+        )
+    }
+
+    @Test
     fun `security and production mode responses conform to declared api statuses`() = testApplication {
         application { astridModule(config(developmentMode = false), InMemoryStores()) }
         val forbiddenCatalog = client.get("/api/v1/catalog") {
@@ -812,6 +1044,17 @@ class OpenApiContractTest {
             .build()
         val report = strictValidator.validateRequest(request)
         assertEquals(expected, !report.hasErrors(), "$body\n${SimpleValidationReportFormat.getInstance().apply(report)}")
+    }
+
+    private fun assertPracticeResponseValidity(body: String, expected: Boolean) {
+        val request = SimpleRequest.Builder.post("/api/v1/practice-sessions").build()
+        val response = SimpleResponse.Builder(201)
+            .withHeader("Content-Type", "application/json")
+            .withHeader("Location", "/api/v1/practice-sessions/00000000-0000-0000-0000-000000000001")
+            .withBody(body)
+            .build()
+        val report = validator.validate(request, response)
+        assertEquals(expected, !report.hasErrors(), SimpleValidationReportFormat.getInstance().apply(report))
     }
 
     private fun matchingAttemptRequest(pairs: List<Pair<String, String>>): String {

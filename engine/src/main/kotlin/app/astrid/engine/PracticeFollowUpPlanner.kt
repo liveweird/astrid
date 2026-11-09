@@ -1,6 +1,145 @@
 package app.astrid.engine
 
 class PracticeFollowUpPlanner(private val engine: PilotEngine = PilotEngine()) {
+    fun planGuidedGaps(
+        planRevision: String,
+        seed: Int,
+        selectedTargetKeys: List<String>,
+        sourceItems: List<PracticeFollowUpSourceItem>,
+    ): PracticePlan {
+        require(planRevision == GUIDED_GAP_PLAN_REVISION) { "Unsupported guided-gap follow-up plan revision: $planRevision" }
+        require(seed >= 0) { "seed must be non-negative" }
+        require(selectedTargetKeys.isNotEmpty()) { "At least one follow-up target is required" }
+        require(selectedTargetKeys.distinct().size == selectedTargetKeys.size) { "Follow-up targets must be unique" }
+        require(sourceItems.isNotEmpty()) { "A follow-up requires source items" }
+        val sourceAssessments = sourceItems.flatMap { source ->
+            requireGuidedSource(source)
+            source.assessments
+        }
+        val sourceKeys = sourceAssessments.map { it.targetDescriptor.targetKey() }.toSet()
+        require(selectedTargetKeys.all { it in sourceKeys && it in GUIDED_SOURCE_TARGET_KEYS }) {
+            "Every guided-gap follow-up target must have been assessed in the source practice"
+        }
+        val mappedKeys = selectedTargetKeys.map(::guidedChildKey).distinct()
+        require(mappedKeys.size == selectedTargetKeys.size) { "Selected targets must map to distinct follow-up operations" }
+        val base = mappedKeys.rotate(seed.mod(mappedKeys.size))
+        val sequence = List(GUIDED_FOLLOW_UP_ITEM_COUNT) { base[it.mod(base.size)] }
+        val excludedSentenceIds = sourceItems.mapNotNullTo(mutableSetOf()) { it.exercise.inspector.canonicalSentenceId }
+        val items = sequence.mapIndexed { position, key ->
+            val descriptor = if (key == GUIDED_VERB_TARGET_KEY) GUIDED_VERB_DESCRIPTOR else GUIDED_ARTICLE_DESCRIPTOR
+            val formatId = if (key == GUIDED_VERB_TARGET_KEY) "E001" else "E002"
+            val exercise = guidedChildExercise(formatId, descriptor.targetSkillId!!, seed, position, excludedSentenceIds)
+            excludedSentenceIds += requireNotNull(exercise.inspector.canonicalSentenceId)
+            guidedChildItem(position, exercise, descriptor)
+        }
+        return PracticePlan(
+            focusId = FOCUS_ID,
+            planRevision = planRevision,
+            seed = seed,
+            title = "Review selected targets",
+            prerequisiteSkillIds = listOf("G001", "G002", "G003", "G005"),
+            introduction = items.flatMap { it.exercise.introduction }.distinct(),
+            items = items,
+            contentRevision = GUIDED_CONTENT_REVISION,
+            generatorRevision = GUIDED_GENERATOR_REVISION,
+            evaluationRevision = GUIDED_EVALUATION_REVISION,
+        )
+    }
+
+    private fun requireGuidedSource(source: PracticeFollowUpSourceItem) {
+        require(
+            source.exercise.contentRevision == GUIDED_CONTENT_REVISION &&
+                source.exercise.generatorRevision == GUIDED_GENERATOR_REVISION,
+        ) { "Guided-gap follow-up sources must use $GUIDED_CONTENT_REVISION/$GUIDED_GENERATOR_REVISION" }
+        val expected = when (source.exercise.formatId) {
+            "E015" -> listOf(
+                GuidedAssessmentIdentity("g0", GUIDED_VERB_DESCRIPTOR, "primary"),
+                GuidedAssessmentIdentity("g1", GUIDED_ARTICLE_SELECTION_DESCRIPTOR, "support"),
+            )
+            "E001" -> listOf(GuidedAssessmentIdentity(null, GUIDED_VERB_DESCRIPTOR, "primary"))
+            "E002" -> listOf(GuidedAssessmentIdentity(null, GUIDED_ARTICLE_DESCRIPTOR, "primary"))
+            else -> throw IllegalArgumentException("Unsupported guided-gap source format: ${source.exercise.formatId}")
+        }
+        require(source.targetDescriptor == expected.first().targetDescriptor) {
+            "Guided-gap source item descriptor must match its primary assessment"
+        }
+        require(source.exercise.targetSkillId == expected.first().targetDescriptor.targetSkillId) {
+            "Guided-gap source exercise target must match its primary assessment"
+        }
+        require(source.assessments.map { it.guidedIdentity() } == expected) {
+            "Guided-gap source assessments must match the exercise format exactly"
+        }
+    }
+
+    private fun PracticeAssessment.guidedIdentity() =
+        GuidedAssessmentIdentity(slotId, targetDescriptor, assessmentRole)
+
+    private fun guidedChildKey(sourceKey: String): String = when (sourceKey) {
+        GUIDED_VERB_TARGET_KEY -> GUIDED_VERB_TARGET_KEY
+        in GUIDED_ARTICLE_SOURCE_TARGET_KEYS -> GUIDED_ARTICLE_TARGET_KEY
+        else -> error("Unsupported guided-gap target $sourceKey")
+    }
+
+    private fun guidedChildExercise(
+        formatId: String,
+        targetSkillId: String,
+        seed: Int,
+        position: Int,
+        excludedSentenceIds: Set<String>,
+    ): GeneratedExercise =
+        (0 until GRAMMAR_SCAN_SIZE).asSequence()
+            .map { engine.generate(guidedRequest(formatId, targetSkillId, seed, it + position)) }
+            .firstOrNull {
+                it.inspector.canonicalSentenceId !in excludedSentenceIds &&
+                    (formatId != "E002" || it.inspector.lexicalIds.any(REVIEW_NOUN_IDS::contains))
+            }
+            ?: error("No unused licensed sentence for $targetSkillId and $formatId")
+
+    private fun guidedRequest(formatId: String, targetSkillId: String, seed: Int, index: Int) = GenerationRequest(
+        formatId,
+        targetSkillId,
+        seed,
+        index,
+        GUIDED_CONTENT_REVISION,
+        GUIDED_GENERATOR_REVISION,
+    )
+
+    private fun guidedChildItem(
+        position: Int,
+        exercise: GeneratedExercise,
+        descriptor: PracticeTargetDescriptor,
+    ): PracticePlanItem {
+        val answerKey: String
+        val promptKeys: List<String>
+        val lessonKeys: List<String>
+        val conceptKey = "grammar:${descriptor.targetSkillId}"
+        if (exercise.formatId == "E001") {
+            val verb = presentVerb(exercise)
+            answerKey = "verb-present:${verb.lexicalId}"
+            val infinitiveKey = "verb-infinitive:${verb.lexicalId}"
+            promptKeys = listOf(infinitiveKey, answerKey)
+            lessonKeys = listOf(infinitiveKey, answerKey, conceptKey)
+        } else {
+            val noun = grammarNoun(exercise)
+            answerKey = articleKey(noun.entryId)
+            promptKeys = listOf(headwordKey(noun.senseId), glossKey(noun.senseId))
+            lessonKeys = (promptKeys + answerKey + conceptKey).distinct()
+        }
+        val assessment = PracticeAssessment(null, descriptor, "primary", listOf(answerKey))
+        return PracticePlanItem(
+            position,
+            exercise,
+            descriptor,
+            listOf(answerKey),
+            promptKeys,
+            lessonKeys,
+            listOf(conceptKey),
+            listOf(answerKey, conceptKey),
+            listOf(assessment),
+        )
+    }
+
+
     fun planPresentVerbs(
         planRevision: String,
         seed: Int,
@@ -337,9 +476,13 @@ class PracticeFollowUpPlanner(private val engine: PilotEngine = PilotEngine()) {
         const val FOCUS_ID = "targeted-review"
         const val PLAN_REVISION = "follow-up-1"
         const val PRESENT_VERBS_PLAN_REVISION = "follow-up-2"
+        const val GUIDED_GAP_PLAN_REVISION = "follow-up-3"
         const val CONTENT_REVISION = "pilot-3"
         const val GENERATOR_REVISION = "generator-3"
         const val EVALUATION_REVISION = "evaluation-3"
+        const val GUIDED_CONTENT_REVISION = "pilot-7"
+        const val GUIDED_GENERATOR_REVISION = "generator-7"
+        const val GUIDED_EVALUATION_REVISION = "evaluation-7"
         const val GRAMMAR_PREFIX = "grammar:"
         const val LEXICAL_PREFIX = "lexical:"
         const val LEXICAL_KEY_PARTS = 5
@@ -357,6 +500,16 @@ class PracticeFollowUpPlanner(private val engine: PilotEngine = PilotEngine()) {
         const val FNV_OFFSET = 0xcbf29ce484222325UL
         const val FNV_PRIME = 0x100000001b3UL
         const val PRESENT_VERB_TARGET_PREFIX = "grammar:G004:"
+        const val GUIDED_FOLLOW_UP_ITEM_COUNT = 4
+        const val GUIDED_VERB_TARGET_KEY = "grammar:G004:selection"
+        const val GUIDED_ARTICLE_TARGET_KEY = "grammar:G006:recall"
+        val GUIDED_ARTICLE_SOURCE_TARGET_KEYS = setOf("grammar:G006:selection", GUIDED_ARTICLE_TARGET_KEY)
+        val GUIDED_SOURCE_TARGET_KEYS = GUIDED_ARTICLE_SOURCE_TARGET_KEYS + GUIDED_VERB_TARGET_KEY
+        val GUIDED_VERB_DESCRIPTOR = PracticeTargetDescriptor("Present verb selection", "G004", null, "selection")
+        val GUIDED_ARTICLE_SELECTION_DESCRIPTOR =
+            PracticeTargetDescriptor("Indefinite article selection", "G006", null, "selection")
+        val GUIDED_ARTICLE_DESCRIPTOR =
+            PracticeTargetDescriptor("Written indefinite article recall", "G006", null, "recall")
         val PRESENT_VERB_FORMAT_BY_MODE = mapOf(
             "selection" to "E001",
             "recall" to "E004",
@@ -374,4 +527,10 @@ class PracticeFollowUpPlanner(private val engine: PilotEngine = PilotEngine()) {
             }
         }
     }
+
+    private data class GuidedAssessmentIdentity(
+        val slotId: String?,
+        val targetDescriptor: PracticeTargetDescriptor,
+        val assessmentRole: String,
+    )
 }

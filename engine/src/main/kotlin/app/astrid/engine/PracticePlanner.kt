@@ -19,6 +19,14 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
                 itemCount = PRESENT_VERBS_ITEM_COUNT,
                 prerequisiteSkillIds = listOf("G001", "G002", "G003"),
             ),
+            PracticeProfile(
+                focusId = PracticeGapPlanner.FOCUS_ID,
+                planRevision = PracticeGapPlanner.PLAN_REVISION,
+                title = PracticeGapPlanner.TITLE,
+                description = "Practise a present verb and an indefinite article in the same sentence.",
+                itemCount = PracticeGapPlanner.ITEM_COUNT,
+                prerequisiteSkillIds = listOf("G001", "G002", "G003", "G005"),
+            ),
         )
 
     fun plan(
@@ -30,6 +38,7 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
         return when (focusId to planRevision) {
             READING_FOCUS_ID to READING_PLAN_REVISION -> readingPlan(focusId, planRevision, seed)
             PRESENT_VERBS_FOCUS_ID to PRESENT_VERBS_PLAN_REVISION -> presentVerbsPlan(focusId, planRevision, seed)
+            PracticeGapPlanner.FOCUS_ID to PracticeGapPlanner.PLAN_REVISION -> PracticeGapPlanner(engine).plan(seed)
             else -> throw IllegalArgumentException("Unsupported practice profile: $focusId/$planRevision")
         }
     }

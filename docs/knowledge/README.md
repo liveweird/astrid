@@ -90,3 +90,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Vocabulary matching grid](vocabulary-matching-contract.md): delivered four-pair E014, per-pair evidence, whole-board retry contract and verified 0.6.0 release.
 
 - [Multiple-gap exercises](multiple-gap-contract.md): delivered two-gap 0.7.0 release, primary/supporting grammar evidence, compatibility, actual backup restore and verified preview promotion.
+
+- [Guided multiple-gap practice](guided-gap-practice.md): authorized bounded session, separate slot evidence, summaries/follow-up and compatibility/release acceptance.

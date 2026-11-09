@@ -2,7 +2,7 @@ import {
   advancePracticeSession, ApiError, createPracticeFollowUp, createPracticeSession, loadPracticeContext,
   loadPracticeSession, submitSerializedAttempt, updatePracticeSupport,
 } from "../../api/client";
-import type { AttemptAnswer, AttemptRequest, PracticeSession } from "../../api/models";
+import type { AttemptAnswer, AttemptRequest, GapSelection, PracticeSession } from "../../api/models";
 import {
   listOutbox, PracticeOutboxConflictError, PracticePersistenceError,
   type PracticeOutboxEntry, type PracticeRunRecovery, removeOutboxEntry,
@@ -10,14 +10,22 @@ import {
 
 export class PracticeCatalogError extends Error {}
 
-export function answerFor(exercise: NonNullable<PracticeSession["currentExercise"]>, text: string, order: string[]): AttemptAnswer {
-  return exercise.formatId === "E003" ? { kind: "order", blockIds: order } : { kind: "text", text };
+export function answerFor(
+  exercise: NonNullable<PracticeSession["currentExercise"]>,
+  text: string,
+  order: string[],
+  gapSelections: GapSelection[],
+): AttemptAnswer {
+  if (exercise.formatId === "E003") return { kind: "order", blockIds: order };
+  if (exercise.formatId === "E015") return { kind: "gaps", selections: gapSelections };
+  return { kind: "text", text };
 }
 
 export function answerValues(answer?: AttemptAnswer) {
-  if (answer?.kind === "text") return { text: answer.text, order: [] as string[] };
-  if (answer?.kind === "order") return { text: "", order: answer.blockIds };
-  return { text: "", order: [] as string[] };
+  if (answer?.kind === "text") return { text: answer.text, order: [] as string[], gapSelections: [] as GapSelection[] };
+  if (answer?.kind === "order") return { text: "", order: answer.blockIds, gapSelections: [] as GapSelection[] };
+  if (answer?.kind === "gaps") return { text: "", order: [] as string[], gapSelections: answer.selections };
+  return { text: "", order: [] as string[], gapSelections: [] as GapSelection[] };
 }
 
 export function outboxEntry(run: PracticeRunRecovery, kind: PracticeOutboxEntry["kind"], identity: string, body: unknown) {
@@ -160,6 +168,7 @@ async function resolveOperationError(
 export type OperationHandlers = {
   applyState: (session: PracticeSession) => void;
   setError: (message: string) => void;
+  setGapSelections: (selections: GapSelection[]) => void;
   setOrder: (order: string[]) => void;
   setPending: (entry: PracticeOutboxEntry | null) => void;
   setRecoveryUnavailable: (value: boolean) => void;
@@ -170,6 +179,7 @@ export type OperationHandlers = {
 function restoreUncertain(request: AttemptRequest | null, handlers: OperationHandlers) {
   handlers.setUncertain(request);
   const restored = answerValues(request?.answer);
+  handlers.setGapSelections(restored.gapSelections);
   handlers.setText(restored.text);
   handlers.setOrder(restored.order);
 }

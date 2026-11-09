@@ -2695,6 +2695,18 @@ export interface components {
             /** @enum {integer} */
             itemCount: 6;
             prerequisiteSkillIds: string[];
+        } | {
+            /** @enum {string} */
+            focusId: "verb-article-gaps";
+            /** @enum {string} */
+            planRevision: "verb-article-gaps-1";
+            /** @enum {string} */
+            title: "Verbs and articles together";
+            /** @enum {string} */
+            description: "Practise a present verb and an indefinite article in the same sentence.";
+            /** @enum {integer} */
+            itemCount: 4;
+            prerequisiteSkillIds: ("G001" | "G002" | "G003" | "G005")[];
         };
         PracticeSessionRequest: {
             /** Format: uuid */
@@ -2703,6 +2715,14 @@ export interface components {
             focusId: "reading-basics";
             /** @enum {string} */
             planRevision: "practice-1";
+            seed: number;
+        } | {
+            /** Format: uuid */
+            practiceSessionId: string;
+            /** @enum {string} */
+            focusId: "verb-article-gaps";
+            /** @enum {string} */
+            planRevision: "verb-article-gaps-1";
             seed: number;
         } | {
             /** Format: uuid */
@@ -2722,7 +2742,7 @@ export interface components {
             /** Format: uuid */
             practiceSessionId: string;
             /** @enum {string} */
-            planRevision: "follow-up-1" | "follow-up-2";
+            planRevision: "follow-up-1" | "follow-up-2" | "follow-up-3";
             seed: number;
             targetKeys: string[];
         };
@@ -2755,8 +2775,86 @@ export interface components {
             summary: components["schemas"]["PracticeSummary"];
             followUp?: components["schemas"]["PracticeFollowUp"];
             /** @enum {string} */
-            followUpPlanRevision?: "follow-up-2";
-        };
+            followUpPlanRevision?: "follow-up-2" | "follow-up-3";
+        } & (({
+            /** @enum {string} */
+            focusId: "reading-basics";
+            /** @enum {string} */
+            planRevision: "practice-1";
+            /** @enum {string} */
+            contentRevision: "pilot-3";
+            /** @enum {string} */
+            generatorRevision: "generator-3";
+            /** @enum {string} */
+            evaluationRevision: "evaluation-3";
+            /** @enum {integer} */
+            itemCount: 8;
+            items?: components["schemas"]["LegacyPracticeItem"][];
+        } & {
+            [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            focusId: "present-verbs";
+            /** @enum {string} */
+            planRevision: "present-verbs-1";
+            /** @enum {string} */
+            contentRevision: "pilot-3";
+            /** @enum {string} */
+            generatorRevision: "generator-3";
+            /** @enum {string} */
+            evaluationRevision: "evaluation-3";
+            /** @enum {integer} */
+            itemCount: 6;
+            items?: components["schemas"]["LegacyPracticeItem"][];
+        } & {
+            [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            focusId: "targeted-review";
+            /** @enum {string} */
+            planRevision: "follow-up-1" | "follow-up-2";
+            /** @enum {string} */
+            contentRevision: "pilot-3";
+            /** @enum {string} */
+            generatorRevision: "generator-3";
+            /** @enum {string} */
+            evaluationRevision: "evaluation-3";
+            items?: components["schemas"]["LegacyPracticeItem"][];
+        } & {
+            [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            focusId: "targeted-review";
+            /** @enum {string} */
+            planRevision: "follow-up-3";
+            /** @enum {string} */
+            contentRevision: "pilot-7";
+            /** @enum {string} */
+            generatorRevision: "generator-7";
+            /** @enum {string} */
+            evaluationRevision: "evaluation-7";
+            /** @enum {integer} */
+            itemCount: 4;
+            items?: components["schemas"]["GuidedFollowUpPracticeItem"][];
+        } & {
+            [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            focusId: "verb-article-gaps";
+            /** @enum {string} */
+            planRevision: "verb-article-gaps-1";
+            /** @enum {string} */
+            contentRevision: "pilot-7";
+            /** @enum {string} */
+            generatorRevision: "generator-7";
+            /** @enum {string} */
+            evaluationRevision: "evaluation-7";
+            /** @enum {integer} */
+            itemCount: 4;
+            items?: components["schemas"]["GuidedGapPracticeItem"][];
+        } & {
+            [key: string]: unknown;
+        }));
         PracticeFollowUp: {
             /** Format: uuid */
             sourcePracticeSessionId: string;
@@ -2771,18 +2869,121 @@ export interface components {
             lexicalTarget?: components["schemas"]["LexicalTarget"];
             /** @enum {string} */
             assessmentMode?: "selection" | "recall" | "repair";
+            assessments?: components["schemas"]["PracticeAssessment"][];
             lessonOpened: boolean;
             hintOpened: boolean;
             attemptIds: string[];
             attemptCount: number;
-            firstAttempt?: components["schemas"]["NonMatchingAttempt"];
-            lastAttempt?: components["schemas"]["NonMatchingAttempt"];
-            firstAnswer?: components["schemas"]["TextAnswer"] | components["schemas"]["OrderAnswer"];
-            lastAnswer?: components["schemas"]["TextAnswer"] | components["schemas"]["OrderAnswer"];
+            firstAttempt?: components["schemas"]["NonMatchingAttempt"] | components["schemas"]["GapAttempt"];
+            lastAttempt?: components["schemas"]["NonMatchingAttempt"] | components["schemas"]["GapAttempt"];
+            firstAnswer?: components["schemas"]["TextAnswer"] | components["schemas"]["OrderAnswer"] | components["schemas"]["GapsAnswer"];
+            lastAnswer?: components["schemas"]["TextAnswer"] | components["schemas"]["OrderAnswer"] | components["schemas"]["GapsAnswer"];
             firstAttemptContext?: components["schemas"]["PracticeAttemptContext"];
             lastAttemptContext?: components["schemas"]["PracticeAttemptContext"];
+        } & (({
+            /** @enum {string} */
+            formatId?: "E001" | "E002" | "E003" | "E004" | "E005" | "E006" | "E007" | "E008" | "E009" | "E010" | "E011" | "E012" | "E013" | "E014";
+        } & {
+            [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            formatId?: "E015";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            assessments: components["schemas"]["GuidedGapPracticeAssessment"][];
+        } & {
+            [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            formatId?: "E001";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            assessments: components["schemas"]["GuidedVerbFollowUpAssessment"][];
+        } & {
+            [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            formatId?: "E002";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            assessments: components["schemas"]["GuidedArticleFollowUpAssessment"][];
+        } & {
+            [key: string]: unknown;
+        }));
+        PracticeExercise: components["schemas"]["GrammarExercise"] | components["schemas"]["LexicalExercise"] | components["schemas"]["WritingExercise"] | components["schemas"]["ReadingExercise"] | components["schemas"]["TileExercise"] | components["schemas"]["GapExercise"];
+        LegacyPracticeItem: components["schemas"]["PracticeItem"] & {
+            [key: string]: unknown;
         };
-        PracticeExercise: components["schemas"]["GrammarExercise"] | components["schemas"]["LexicalExercise"] | components["schemas"]["WritingExercise"] | components["schemas"]["ReadingExercise"] | components["schemas"]["TileExercise"];
+        GuidedGapPracticeItem: components["schemas"]["PracticeItem"] & ({
+            /** @enum {string} */
+            formatId?: "E015";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            assessments: components["schemas"]["GuidedGapPracticeAssessment"][];
+        } & {
+            [key: string]: unknown;
+        });
+        GuidedFollowUpPracticeItem: components["schemas"]["PracticeItem"] & (({
+            /** @enum {string} */
+            formatId?: "E001";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            assessments: components["schemas"]["GuidedVerbFollowUpAssessment"][];
+        } & {
+            [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            formatId?: "E002";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            assessments: components["schemas"]["GuidedArticleFollowUpAssessment"][];
+        } & {
+            [key: string]: unknown;
+        }));
+        PracticeAssessment: components["schemas"]["GuidedGapPracticeAssessment"] | components["schemas"]["GuidedVerbFollowUpAssessment"] | components["schemas"]["GuidedArticleFollowUpAssessment"];
+        GuidedGapPracticeAssessment: {
+            /** @enum {string} */
+            slotId: "g0";
+            /** @enum {string} */
+            label: "Present verb selection";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            /** @enum {string} */
+            assessmentMode: "selection";
+            /** @enum {string} */
+            assessmentRole: "primary";
+        } | {
+            /** @enum {string} */
+            slotId: "g1";
+            /** @enum {string} */
+            label: "Indefinite article selection";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            /** @enum {string} */
+            assessmentMode: "selection";
+            /** @enum {string} */
+            assessmentRole: "support";
+        };
+        GuidedVerbFollowUpAssessment: {
+            /** @enum {string} */
+            label: "Present verb selection";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            /** @enum {string} */
+            assessmentMode: "selection";
+            /** @enum {string} */
+            assessmentRole: "primary";
+        };
+        GuidedArticleFollowUpAssessment: {
+            /** @enum {string} */
+            label: "Written indefinite article recall";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            /** @enum {string} */
+            assessmentMode: "recall";
+            /** @enum {string} */
+            assessmentRole: "primary";
+        };
         PracticeAttemptContext: {
             introductionOpened: boolean;
             lessonOpened: boolean;
@@ -2819,6 +3020,8 @@ export interface components {
             lexicalTarget?: components["schemas"]["LexicalTarget"];
             /** @enum {string} */
             assessmentMode?: "selection" | "recall" | "repair";
+            /** @enum {string} */
+            assessmentRole?: "primary" | "support";
             plannedItems: number;
             attemptedItems: number;
             advancedItems: number;

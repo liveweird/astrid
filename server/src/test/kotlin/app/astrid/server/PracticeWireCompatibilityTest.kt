@@ -34,13 +34,15 @@ class PracticeWireCompatibilityTest {
             ),
         )
 
+        val encoded = wireJson.encodeToString(payload)
+        assertFalse("introductionExposureKeys" in encoded)
         assertEquals(
             """{"title":"Legacy","contentRevision":"pilot-3","generatorRevision":"generator-3",""" +
                 """"evaluationRevision":"evaluation-3","prerequisiteSkillIds":["G001"],"introduction":[],""" +
                 """"items":[{"position":0,"targetLabel":"Word order","answerExposureKeys":["grammar:G005"],""" +
                 """"promptExposureKeys":[],"lessonExposureKeys":[],"hintExposureKeys":[],""" +
                 """"feedbackExposureKeys":[]}]}""",
-            wireJson.encodeToString(payload),
+            encoded,
         )
     }
 
@@ -59,6 +61,7 @@ class PracticeWireCompatibilityTest {
         val encoded = wireJson.encodeToString(item)
 
         assertFalse("assessmentMode" in encoded)
+        assertFalse("assessments" in encoded)
         assertFalse("followUpPlanRevision" in wireJson.encodeToString(legacyResponse(item)))
     }
 

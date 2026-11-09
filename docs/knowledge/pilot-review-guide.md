@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This proposed walkthrough helps evaluate the engine before expanding content or producing media. Open `http://localhost:8088`. It is a private developer preview, with fourteen entries and draft Danish content rather than a complete beginner course.
+This proposed walkthrough helps evaluate the engine before expanding content or producing media. Open `http://localhost:8088`. It is a private developer preview, with fifteen entries and draft Danish content rather than a complete beginner course.
 
-## Try the fourteen entries
+## Try the fifteen entries
 
 1. **Present form:** open “Learn this first,” then choose the finite present form. The alternatives deliberately use the same verb. Check the answer, inspect feedback, retry, then advance. Opening the lesson or hint records supported practice; that evidence stays attached to retries of the same exercise.
 2. **Article:** expand “Generation controls” and select “Supply the indefinite article.” Type `en` or `et`. Try the wrong gender, then retry with the matching form. A matching accented numeral such as `én` has a different target interpretation from the requested unstressed article; feedback should distinguish that from a gender error.
@@ -26,11 +26,21 @@ This proposed walkthrough helps evaluate the engine before expanding content or 
 
 14. **Word matching:** select “Match English and Danish words.” Choose an English meaning, then its Danish article+noun phrase. Check one pair, a mixed board and all four correct pairs. Compare per-pair feedback with the whole-board status. **Try again** keeps every pair editable; later attempts are labeled **Retry after feedback**. Use Enter/Space on the buttons, remove a match and regenerate with an unfinished selection. The new board should start with no selection. Check that complete feedback remains readable at 320px with 200% text.
 
+15. **Two gaps:** select “Choose a present verb and article.” Check a correct verb with a wrong or
+missing article, and the reverse. Compare each slot's feedback with the whole-response status.
+Retry with both choices retained, change/clear either selection, and compare the selected sentence.
+
 Use Tab/Enter throughout and try the narrow layout and both themes. If a result cannot be confirmed after a connection problem, “Check the same attempt” safely replays the original submission.
 
 ## Try guided practice
 
 Open `http://localhost:8088/practice` and choose **Mixed practice** for eight parts, or **Present verb forms** for six. The verb run alternates choosing a form, written recall and repairing one wrong word, using all five introduced verbs. A saved run resumes directly instead of returning to selection.
+
+Choose **Verbs and articles together** for four two-gap items. Read the optional worked example,
+then select choices before opening support: the choices should remain intact. Check both named
+feedback cards and compare the primary-verb and supporting-article summary rows. A missing
+article remains unevaluable rather than a verb failure. Inspect both themes at enlarged text;
+First/Latest columns and the totals must remain separately readable inside their cards.
 
 1. Open the optional introduction, item lesson or hint. The revealed text should receive focus and stay readable, including in a short window with enlarged text.
 2. Give an incorrect answer. Check whether feedback distinguishes the target from response constraints and explains opened support. Retry if useful, or choose **Continue** immediately after the saved result.
@@ -45,13 +55,19 @@ From a completed summary, choose targets with the **Review …** checkboxes, the
 
 For a completed verb run, compare the three operation cards and select each separately. One or two selected operations produce four parts; all three produce six. Follow-up sentences differ from the immediate source. Incorrect typed feedback repeats the learner's sentence and must not claim to have revealed a correct form. The [topic contract](topic-practice.md) defines these boundaries.
 
+From a two-gap summary, choose only verbs, only articles, then both. Each review has four items
+and assesses only selected targets. The article-selection card explains that follow-up uses
+written recall; its new summary keeps recall distinct from selection. Repeat an article review
+from that child and confirm the original source remains unchanged. The [guided-gap contract](guided-gap-practice.md)
+defines the separate plan and slot-specific exposure rules.
+
 Check whether selecting targets feels useful and whether source exposure is understandable. Refresh a review midway, complete it, and compare its first/latest outcomes with the unchanged source. Reviews retain possible earlier exposure rather than implying independent mastery. The [follow-up contract](targeted-follow-up.md) records the finite vocabulary pool and saved-lineage boundaries.
 
 ## Inspect variation
 
 Record the format, seed and index under “Generation controls.” Reusing those coordinates and revisions reproduces the exercise presentation; the API's persisted UUID is a separate identity. Change the index or use “Next exercise” to sample variation. The finite pools contain 99 sentences for present/order and 92 for articles, while E007/E008 each cycle through three selected senses and E011 cycles through four. Matching reuses those four E011 senses with independently shuffled columns; occasional correctly aligned rows are possible. Long-term variety needs more reviewed content.
 
-For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-6.md`. Retained revision five is available with `:engine:exportPilotFiveReview` at `engine/build/review/pilot-5.md`; revision four is available with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
+For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-7.md`. Retained revision six is available with `:engine:exportPilotSixReview` at `engine/build/review/pilot-6.md`; revision five with `:engine:exportPilotFiveReview` at `engine/build/review/pilot-5.md`; revision four with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
 
 ## Record feedback
 

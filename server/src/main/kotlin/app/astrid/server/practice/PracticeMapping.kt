@@ -4,6 +4,7 @@ import app.astrid.engine.GeneratedExercise
 import app.astrid.engine.LinguisticStatus
 import app.astrid.engine.PilotEngine
 import app.astrid.engine.PracticeAttemptContext
+import app.astrid.engine.PracticeAssessment
 import app.astrid.engine.PracticeExposureSource
 import app.astrid.engine.PracticeFollowUpPlanner
 import app.astrid.engine.PracticeFollowUpSourceItem
@@ -34,6 +35,9 @@ internal const val FOLLOW_UP_REVISION = "follow-up-1"
 internal const val PRESENT_VERBS_FOCUS = "present-verbs"
 internal const val PRESENT_VERBS_REVISION = "present-verbs-1"
 internal const val PRESENT_VERBS_FOLLOW_UP_REVISION = "follow-up-2"
+internal const val GUIDED_GAPS_FOCUS = "verb-article-gaps"
+internal const val GUIDED_GAPS_REVISION = "verb-article-gaps-1"
+internal const val GUIDED_GAPS_FOLLOW_UP_REVISION = "follow-up-3"
 private const val TARGETED_REVIEW_FOCUS = "targeted-review"
 private const val INTRODUCTION_POSITION = -1
 
@@ -43,7 +47,7 @@ internal fun app.astrid.engine.PracticePlan.toNewPracticeSession(ownerId: UUID) 
     generatorRevision,
     evaluationRevision,
     prerequisiteSkillIds,
-    introduction.map { IntroductionDto(it.title, it.body) },
+    introduction.map { IntroductionDto(it.title, it.body, it.bodyLanguage) },
     items.map { item ->
         val id = UUID.randomUUID()
         NewPracticeItem(
@@ -56,8 +60,10 @@ internal fun app.astrid.engine.PracticePlan.toNewPracticeSession(ownerId: UUID) 
             item.hintExposureKeys,
             item.feedbackExposureKeys,
             item.targetDescriptor.assessmentMode,
+            item.assessments.map { it.toPayload() },
         )
     },
+    introductionExposureKeys = introductionExposureKeys,
 )
 
 internal fun StoredPracticeSession.toFollowUp(
@@ -77,6 +83,7 @@ internal fun StoredPracticeSession.toFollowUp(
                 },
                 item.assessmentMode,
             ),
+            item.assessments.map { it.toEngineAssessment() },
         )
     }
     val plan = try {
@@ -92,6 +99,10 @@ internal fun StoredPracticeSession.toFollowUp(
                 requirePresentVerbFollowUpSource()
                 planner.planPresentVerbs(request.planRevision, request.seed, request.targetKeys, sourceItems)
             }
+            GUIDED_GAPS_FOLLOW_UP_REVISION -> {
+                requireGuidedGapsFollowUpSource()
+                planner.planGuidedGaps(request.planRevision, request.seed, request.targetKeys, sourceItems)
+            }
             else -> error("Unsupported follow-up practice plan")
         }
     } catch (cause: IllegalArgumentException) {
@@ -103,7 +114,7 @@ internal fun StoredPracticeSession.toFollowUp(
         plan.generatorRevision,
         plan.evaluationRevision,
         plan.prerequisiteSkillIds,
-        plan.introduction.map { IntroductionDto(it.title, it.body) },
+        plan.introduction.map { IntroductionDto(it.title, it.body, it.bodyLanguage) },
         plan.items.map { item ->
             NewPracticeItem(
                 item.position,
@@ -115,10 +126,12 @@ internal fun StoredPracticeSession.toFollowUp(
                 item.hintExposureKeys,
                 item.feedbackExposureKeys,
                 item.targetDescriptor.assessmentMode,
+                item.assessments.map { it.toPayload() },
             )
         },
         PracticeFollowUpLineage(sourceId, request.targetKeys),
         sourceExposureSnapshot(),
+        plan.introductionExposureKeys,
     )
 }
 
@@ -130,6 +143,14 @@ private fun StoredPracticeSession.requirePresentVerbFollowUpSource() {
     require(items.all { it.exercise.targetSkillId != "G004" || it.assessmentMode != null }) {
         "Follow-up-2 requires frozen assessment modes"
     }
+}
+
+private fun StoredPracticeSession.requireGuidedGapsFollowUpSource() {
+    val eligible =
+        (focusId == GUIDED_GAPS_FOCUS && planRevision == GUIDED_GAPS_REVISION) ||
+            (focusId == TARGETED_REVIEW_FOCUS && planRevision == GUIDED_GAPS_FOLLOW_UP_REVISION)
+    require(eligible) { "Follow-up-3 requires a guided verb-and-article source practice" }
+    require(items.all { it.assessments.isNotEmpty() }) { "Follow-up-3 requires frozen assessments" }
 }
 
 internal fun PracticeMutationResult.response() = when (this) {
@@ -176,8 +197,10 @@ internal fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
                         attempt.response.responseConstraintStatus?.let { enumByWire<ResponseConstraintStatus>(it) },
                         attempt.context.toEngine(),
                         attempt.response.hintUsed,
+                        attempt.response.gapResults.orEmpty().map { it.toEngine() },
                     )
                 },
+                assessments = stored.assessments.map { it.toEngineAssessment() },
             )
         },
     )
@@ -194,9 +217,14 @@ internal fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
 }
 
 private fun StoredPracticeSession.followUpPlanRevision(): String? =
-    PRESENT_VERBS_FOLLOW_UP_REVISION.takeIf {
+    when {
         (focusId == PRESENT_VERBS_FOCUS && planRevision == PRESENT_VERBS_REVISION) ||
-            (focusId == TARGETED_REVIEW_FOCUS && planRevision == PRESENT_VERBS_FOLLOW_UP_REVISION)
+            (focusId == TARGETED_REVIEW_FOCUS && planRevision == PRESENT_VERBS_FOLLOW_UP_REVISION) ->
+            PRESENT_VERBS_FOLLOW_UP_REVISION
+        (focusId == GUIDED_GAPS_FOCUS && planRevision == GUIDED_GAPS_REVISION) ||
+            (focusId == TARGETED_REVIEW_FOCUS && planRevision == GUIDED_GAPS_FOLLOW_UP_REVISION) ->
+            GUIDED_GAPS_FOLLOW_UP_REVISION
+        else -> null
     }
 
 private fun StoredPracticeItem.toDto(): PracticeItemDto = PracticeItemDto(
@@ -216,6 +244,7 @@ private fun StoredPracticeItem.toDto(): PracticeItemDto = PracticeItemDto(
     attempts.firstOrNull()?.context,
     attempts.lastOrNull()?.context,
     assessmentMode,
+    assessments.map { PracticeAssessmentDto(it.slotId, it.label, it.targetSkillId, it.assessmentMode, it.assessmentRole) },
 )
 
 private fun PracticeAttemptContextDto.toEngine() = PracticeAttemptContext(
@@ -248,7 +277,7 @@ private fun StoredPracticeSession.sourceExposureSnapshot(): List<PracticeCrossRu
                     id.toString(),
                     INTRODUCTION_POSITION,
                     PracticeExposureSource.INTRODUCTION.wireValue,
-                    items.flatMap { it.lessonExposureKeys }.distinct(),
+                    (introductionExposureKeys ?: items.flatMap { it.lessonExposureKeys }).distinct(),
                 ),
             )
         }
@@ -264,7 +293,8 @@ private fun StoredPracticeSession.sourceExposureSnapshot(): List<PracticeCrossRu
                         "feedback",
                         frozenFeedbackExposureKeys(
                             item.feedbackExposureKeys,
-                            item.attempts.any { it.response.targetSatisfaction == "met" },
+                            item.assessments.map { it.toEngineAssessment() },
+                            item.attempts.map { it.response },
                         ),
                     ),
                 )
@@ -297,6 +327,7 @@ private fun app.astrid.engine.PracticeSummary.toDto(includeRows: Boolean) = Prac
             row.lessonOpenedItems,
             row.hintOpenedItems,
             row.assessmentMode,
+            row.assessmentRole,
         )
     },
 )
@@ -313,3 +344,23 @@ private inline fun <reified T : Enum<T>> enumByWire(value: String): T = enumValu
         else -> error("Unsupported wire enum")
     } == value
 }
+
+private fun PracticeAssessment.toPayload() = PracticeAssessmentPayload(
+    slotId,
+    targetDescriptor.label,
+    requireNotNull(targetDescriptor.targetSkillId),
+    requireNotNull(targetDescriptor.assessmentMode),
+    assessmentRole,
+    answerExposureKeys,
+)
+
+private fun app.astrid.server.exercises.GapResultDto.toEngine() = app.astrid.engine.GapResult(
+    slotId,
+    choiceId,
+    targetSkillId,
+    app.astrid.engine.GapAssessmentRole.entries.single { it.wireValue == assessmentRole },
+    enumByWire(targetSatisfaction),
+    enumByWire(responseConstraintStatus),
+    enumByWire(linguisticStatus),
+    feedback,
+)

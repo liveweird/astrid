@@ -12,11 +12,16 @@ class PracticePresentVerbPlannerTest {
     @Test
     fun `profiles publish mixed and present verb choices without changing the legacy plan title`() {
         assertEquals(
-            listOf("reading-basics/practice-1", "present-verbs/present-verbs-1"),
+            listOf(
+                "reading-basics/practice-1",
+                "present-verbs/present-verbs-1",
+                "verb-article-gaps/verb-article-gaps-1",
+            ),
             planner.profiles().map { "${it.focusId}/${it.planRevision}" },
         )
-        assertEquals(listOf("Mixed practice", "Present verb forms"), planner.profiles().map { it.title })
-        assertEquals(listOf(8, 6), planner.profiles().map { it.itemCount })
+        assertEquals(listOf("Mixed practice", "Present verb forms", "Verbs and articles together"),
+            planner.profiles().map { it.title })
+        assertEquals(listOf(8, 6, 4), planner.profiles().map { it.itemCount })
         assertEquals("Words and simple statements", planner.plan("reading-basics", "practice-1", 0).title)
     }
 
@@ -53,6 +58,9 @@ class PracticePresentVerbPlannerTest {
         assertFailsWith<IllegalArgumentException> { planner.plan("reading-basics", "present-verbs-1", 0) }
         assertFailsWith<IllegalArgumentException> { PracticeTargetKeys.key("G005", null, "selection") }
         assertFailsWith<IllegalArgumentException> { PracticeTargetKeys.key("G004", null, "unknown") }
+        assertEquals("grammar:G006:selection", PracticeTargetKeys.key("G006", null, "selection"))
+        assertEquals("grammar:G006:recall", PracticeTargetKeys.key("G006", null, "recall"))
+        assertFailsWith<IllegalArgumentException> { PracticeTargetKeys.key("G006", null, "repair") }
     }
 
     @Test

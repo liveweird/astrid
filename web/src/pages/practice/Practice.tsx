@@ -2,14 +2,14 @@ import { Box, Group, Loader, Progress, Stack, Text } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { loadPracticeContext, loadPracticeProfiles } from "../../api/client";
-import type { Attempt, AttemptAnswer, AttemptRequest, PracticeSession } from "../../api/models";
+import type { Attempt, AttemptAnswer, AttemptRequest, GapSelection, PracticeSession } from "../../api/models";
 import PracticeSummary from "../../components/PracticeSummary";
 import classes from "../../theme.module.css";
 import ActivePractice from "./ActivePractice";
 import PracticeChooser, { EmptyPractice, PracticeHeading } from "./PracticeChooser";
 import { PracticeError } from "./PracticeMessages";
 import {
-  answerFor, answerValues, handleOperationFailure, type OperationHandlers, operationCallbacks, outboxEntry,
+  answerFor, answerValues, attemptFromEntry, handleOperationFailure, type OperationHandlers, operationCallbacks, outboxEntry,
   practiceError, reconcileOutbox,
 } from "./practiceOperations";
 import {
@@ -20,6 +20,23 @@ import {
 } from "./practiceRecovery";
 import { useInitialPracticeRecovery } from "./useInitialPracticeRecovery";
 import { type PracticeFocusTarget, pendingFocus, reconciledFocus, usePracticeFocusQueue } from "./usePracticeFocusQueue";
+
+function restoreAnswer(
+  answer: AttemptAnswer | undefined,
+  setText: (value: string) => void,
+  setOrder: (value: string[]) => void,
+  setGapSelections: (value: GapSelection[]) => void,
+) {
+  const restored = answerValues(answer);
+  setText(restored.text); setOrder(restored.order); setGapSelections(restored.gapSelections);
+}
+
+function sameCurrentAnswer(before: PracticeSession | null, next: PracticeSession) {
+  if (!before?.currentExercise || before.currentExercise.id !== next.currentExercise?.id) return false;
+  const previous = before.items.find((item) => item.position === before.cursor);
+  const current = next.items.find((item) => item.position === next.cursor);
+  return previous?.lastAttempt?.attemptId === current?.lastAttempt?.attemptId;
+}
 
 export default function Practice() {
   const location = useLocation();
@@ -36,6 +53,7 @@ export default function Practice() {
   const [session, setSession] = useState<PracticeSession | null>(null);
   const [text, setText] = useState("");
   const [order, setOrder] = useState<string[]>([]);
+  const [gapSelections, setGapSelections] = useState<GapSelection[]>([]);
   const [attempt, setAttempt] = useState<Attempt | null>(null);
   const [busy, setBusy] = useState(true);
   const [uncertain, setUncertain] = useState<AttemptRequest | null>(null);
@@ -43,21 +61,21 @@ export default function Practice() {
   const [error, setError] = useState("");
   const [recoveryUnavailable, setRecoveryUnavailable] = useState(false), [selectedTargets, setSelectedTargets] = useState<Set<string>>(() => new Set());
   const [chooserOpen, setChooserOpen] = useState(false), [selectedProfile, setSelectedProfile] = useState<string | null>(null);
-  const { errorRef, feedbackRef, hintRef, introductionContentRef, itemHeadingRef, lessonContentRef, requestFocus, summaryHeadingRef } = usePracticeFocusQueue(error);
+  const { errorRef, feedbackRef, gapFocusRef, hintRef, introductionContentRef, itemHeadingRef,
+    lessonContentRef, requestFocus, summaryHeadingRef } = usePracticeFocusQueue(error);
   const generationRef = useRef(0), chooserReturnErrorRef = useRef(""); useEffect(() => () => { generationRef.current += 1; }, []);
 
-  const applyState = (next: PracticeSession) => {
+  const applyState = (next: PracticeSession, preserveDraft = false) => {
     setSession(next);
+    if (preserveDraft && sameCurrentAnswer(session, next)) return;
     const item = next.items.find((candidate) => candidate.position === next.cursor);
     setAttempt(item?.lastAttempt ?? null);
-    const restored = answerValues(item?.lastAnswer as AttemptAnswer | undefined);
-    setText(restored.text);
-    setOrder(restored.order);
+    restoreAnswer(item?.lastAnswer as AttemptAnswer | undefined, setText, setOrder, setGapSelections);
     setSelectedTargets(new Set());
   };
 
   useInitialPracticeRecovery(boundId, {
-    applyState, bindUrl, setBusy, setError, setOrder, setPendingEntry, setRecoveryUnavailable,
+    applyState, bindUrl, setBusy, setError, setGapSelections, setOrder, setPendingEntry, setRecoveryUnavailable,
     setRun, setText, setUncertain,
     showFreshChooser: (_catalog, message = "") => {
       setSelectedProfile(null);
@@ -66,14 +84,8 @@ export default function Practice() {
     },
   });
 
-  const operationHandlers: OperationHandlers = {
-    applyState, setError,
-    setOrder,
-    setPending: setPendingEntry,
-    setRecoveryUnavailable,
-    setText,
-    setUncertain,
-  };
+  const operationHandlers: OperationHandlers = { applyState, setError, setGapSelections, setOrder,
+    setPending: setPendingEntry, setRecoveryUnavailable, setText, setUncertain };
   const perform = async (
     entry: PracticeOutboxEntry,
     focus: PracticeFocusTarget,
@@ -88,8 +100,13 @@ export default function Practice() {
       if (!operationRun) throw new Error("Practice recovery is unavailable.");
       const result = await reconcileOutbox(operationRun, operationCallbacks(operationRun, operationHandlers));
       if (generation !== generationRef.current) return;
-      if (result.session) applyState(result.session);
+      if (result.session) applyState(result.session, entry.kind === "support");
       setPendingEntry(result.pending);
+      const pendingRequest = result.pending ? attemptFromEntry(result.pending) : null;
+      if (pendingRequest) {
+        setUncertain(pendingRequest);
+        restoreAnswer(pendingRequest.answer, setText, setOrder, setGapSelections);
+      }
       if (!result.pending) {
         setUncertain(null);
         requestFocus(reconciledFocus(session?.cursor, result.session, focus));
@@ -141,6 +158,7 @@ export default function Practice() {
       setRun(recovery);
       setSession(null);
       setAttempt(null);
+      setGapSelections([]);
       setUncertain(null);
       setPendingEntry(creation);
       setSelectedTargets(new Set());
@@ -171,6 +189,7 @@ export default function Practice() {
       }
       // This read cannot renew the development cookie. A review always keeps its source owner.
       const context = await loadPracticeContext();
+      if (generation !== generationRef.current) return;
       if (context.ownerSessionId !== run.ownerSessionId) {
         setRecoveryUnavailable(true);
         setError("This source practice belongs to an expired browser session. A review was not created.");
@@ -183,6 +202,7 @@ export default function Practice() {
       setRun(recovery);
       setSession(null);
       setAttempt(null);
+      setGapSelections([]);
       setUncertain(null);
       setPendingEntry(creation);
       setSelectedTargets(new Set());
@@ -219,7 +239,7 @@ export default function Practice() {
     if (!run || !exercise || !item) return;
     const request: AttemptRequest = {
       attemptId: crypto.randomUUID(), exerciseId: exercise.id,
-      answer: answerFor(exercise, text, order), hintUsed: item.lessonOpened || item.hintOpened,
+      answer: answerFor(exercise, text, order, gapSelections), hintUsed: item.lessonOpened || item.hintOpened,
     };
     void perform(outboxEntry(run, "attempt", request.attemptId, request), "feedback");
   };
@@ -266,23 +286,16 @@ export default function Practice() {
         })}
         onStartReview={() => void startFollowUp()}
       /> : <ActivePractice
-        session={session}
-        blocked={blocked}
-        busy={busy}
-        text={text}
-        order={order}
-        attempt={attempt}
-        feedbackRef={feedbackRef}
-        hintRef={hintRef}
-        introductionRef={introductionContentRef}
-        itemRef={itemHeadingRef}
-        lessonRef={lessonContentRef}
-        onText={setText}
-        onOrder={setOrder}
-        onSupport={support}
-        onSubmit={submit}
-        onAdvance={advance}
-        onRetry={() => { setAttempt(null); setText(""); setOrder([]); requestFocus("item"); }}
+        session={session} blocked={blocked} busy={busy} text={text} order={order}
+        gapSelections={gapSelections} attempt={attempt} feedbackRef={feedbackRef} gapFocusRef={gapFocusRef}
+        hintRef={hintRef} introductionRef={introductionContentRef} itemRef={itemHeadingRef} lessonRef={lessonContentRef}
+        onText={setText} onOrder={setOrder} onGapSelections={setGapSelections} onSupport={support}
+        onSubmit={submit} onAdvance={advance}
+        onRetry={() => {
+          setAttempt(null);
+          if (exercise?.formatId === "E015") requestFocus("gaps");
+          else { setText(""); setOrder([]); setGapSelections([]); requestFocus("item"); }
+        }}
       />}
     </Stack>
   );

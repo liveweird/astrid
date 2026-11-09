@@ -17,15 +17,16 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | --- | --- | --- | --- |
 | `pilot-1` / `generator-1` | `evaluation-1` | E001–E003 | published, frozen |
 | `pilot-2` / `generator-2` | `evaluation-2` | + E004–E006 | published, frozen |
-| `pilot-3` / `generator-3` | `evaluation-3` | + E007–E008 (vocabulary) | published, frozen; guided practice and follow-ups stay pinned here |
+| `pilot-3` / `generator-3` | `evaluation-3` | + E007–E008 (vocabulary) | published, frozen; legacy guided plans and follow-up-1/2 stay pinned here |
 | `pilot-4` / `generator-4` | `evaluation-4` | + E009 (writing), E010 (reading) | published, frozen |
 | `pilot-5` / `generator-5` | `evaluation-5` | + E011 (Danish word choice), E012/E013 (all/spare word tiles) | published, frozen |
 | `pilot-6` / `generator-6` | `evaluation-6` | + E014 (four-pair vocabulary matching) | published, frozen |
 | `pilot-7` / `generator-7` | `evaluation-7` | + E015 (primary present-verb/supporting-article gaps) | CURRENT (catalog, new playground exercises) |
 
-Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1`, …) carry their own plan revisions and are
-pinned to pair three in `PracticePlanner` and `PracticeFollowUpPlanner`. A CURRENT constant must never silently upgrade them; moving them is a
-new plan revision with its own validation. Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
+Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
+pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
+A CURRENT constant must never silently upgrade a plan; moving it requires a new plan revision with its own validation.
+Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 
 ## What is stored, and what that implies
 

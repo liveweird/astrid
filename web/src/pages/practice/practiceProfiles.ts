@@ -19,6 +19,11 @@ export const PRESENTATION_PROFILES = [
     description: "Choose, recall and repair present-tense verb forms in six focused parts.",
     itemCount: 6, prerequisiteSkillIds: ["G001", "G002", "G003"],
   },
+  {
+    focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", title: "Verbs and articles together",
+    description: "Practise a present verb and an indefinite article in the same sentence.",
+    itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G005"],
+  },
 ] satisfies PracticeProfile[];
 
 export function profileKey(profile: Pick<PracticeProfile, "focusId" | "planRevision">) {
@@ -79,6 +84,8 @@ export async function preparePracticeCreation(chosenKey: string) {
     request = { practiceSessionId, focusId: "reading-basics", planRevision: "practice-1", seed };
   } else if (profile.focusId === "present-verbs" && profile.planRevision === "present-verbs-1") {
     request = { practiceSessionId, focusId: "present-verbs", planRevision: "present-verbs-1", seed };
+  } else if (profile.focusId === "verb-article-gaps" && profile.planRevision === "verb-article-gaps-1") {
+    request = { practiceSessionId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed };
   } else {
     throw new PracticeCatalogError("The selected practice profile has an unsupported revision.");
   }

@@ -144,7 +144,8 @@ private fun PracticeSessionRequest.validated(): PracticeSessionRequest {
     parseStrictUuid(practiceSessionId, "practiceSessionId")
     val supported =
         (focusId == PRACTICE_FOCUS && planRevision == PRACTICE_REVISION) ||
-            (focusId == PRESENT_VERBS_FOCUS && planRevision == PRESENT_VERBS_REVISION)
+            (focusId == PRESENT_VERBS_FOCUS && planRevision == PRESENT_VERBS_REVISION) ||
+            (focusId == GUIDED_GAPS_FOCUS && planRevision == GUIDED_GAPS_REVISION)
     if (!supported) throw Conflict("Unsupported practice plan")
     if (seed < 0) throw BadRequest("Invalid practice seed")
     return this
@@ -153,7 +154,7 @@ private fun PracticeSessionRequest.validated(): PracticeSessionRequest {
 private fun PracticeFollowUpRequest.validated(sourceId: UUID): PracticeFollowUpRequest {
     val id = parseStrictUuid(practiceSessionId, "practiceSessionId")
     if (id == sourceId) throw Conflict("Follow-up practice must use a new session id")
-    if (planRevision != FOLLOW_UP_REVISION && planRevision != PRESENT_VERBS_FOLLOW_UP_REVISION) {
+    if (planRevision !in setOf(FOLLOW_UP_REVISION, PRESENT_VERBS_FOLLOW_UP_REVISION, GUIDED_GAPS_FOLLOW_UP_REVISION)) {
         throw Conflict("Unsupported follow-up practice plan")
     }
     if (seed < 0) throw BadRequest("Invalid practice seed")

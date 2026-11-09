@@ -70,20 +70,20 @@ class PostgresPracticeHook(private val json: Json) : AttemptPracticeHook {
             (PracticeItems.ownerSessionId eq ownerSessionId) and
                 (PracticeItems.practiceSessionId eq practiceSessionId)
         }.toList().sortedBy { it[PracticeItems.position] }
-        val feedbackPositions = PracticeAttemptContexts.select(PracticeAttemptContexts.position).where {
+        val attemptContexts = PracticeAttemptContexts.selectAll().where {
             (PracticeAttemptContexts.ownerSessionId eq ownerSessionId) and
                 (PracticeAttemptContexts.practiceSessionId eq practiceSessionId)
-        }.toList().map { it[PracticeAttemptContexts.position] }.toSet()
-        val targetMetPositions = PracticeAttemptContexts.selectAll().where {
-            (PracticeAttemptContexts.ownerSessionId eq ownerSessionId) and
-                (PracticeAttemptContexts.practiceSessionId eq practiceSessionId)
-        }.toList().mapNotNull { context ->
-            val response = Attempts.select(Attempts.responsePayload).where {
-                (Attempts.sessionId eq ownerSessionId) and
-                    (Attempts.attemptId eq context[PracticeAttemptContexts.attemptId])
-            }.toList().singleOrNull()?.let { json.decodeFromString<AttemptResponse>(it[Attempts.responsePayload]) }
-            context[PracticeAttemptContexts.position].takeIf { response?.targetSatisfaction == "met" }
-        }.toSet()
+        }.toList()
+        val feedbackPositions = attemptContexts.map { it[PracticeAttemptContexts.position] }.toSet()
+        val attemptsByPosition = attemptContexts.groupBy { it[PracticeAttemptContexts.position] }.mapValues { (_, contexts) ->
+            contexts.mapNotNull { context ->
+                val response = Attempts.select(Attempts.responsePayload).where {
+                    (Attempts.sessionId eq ownerSessionId) and
+                        (Attempts.attemptId eq context[PracticeAttemptContexts.attemptId])
+                }.toList().singleOrNull()?.let { json.decodeFromString<AttemptResponse>(it[Attempts.responsePayload]) }
+                response
+            }
+        }
         val payload: PracticePlanPayload = json.decodeFromString(practice[PracticeSessions.planPayload])
         val metadata = payload.items.associateBy { it.position }
         return PracticeAttemptSource(
@@ -101,7 +101,10 @@ class PostgresPracticeHook(private val json: Json) : AttemptPracticeHook {
                     metadata.getValue(it[PracticeItems.position]).hintExposureKeys,
                     frozenFeedbackExposureKeys(
                         metadata.getValue(it[PracticeItems.position]).feedbackExposureKeys,
-                        it[PracticeItems.position] in targetMetPositions,
+                        metadata.getValue(it[PracticeItems.position]).assessments.map {
+                            assessment -> assessment.toEngineAssessment()
+                        },
+                        attemptsByPosition[it[PracticeItems.position]].orEmpty(),
                     ),
                     it[PracticeItems.lessonOpened],
                     it[PracticeItems.hintOpened],

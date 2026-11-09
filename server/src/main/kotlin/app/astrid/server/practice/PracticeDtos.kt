@@ -85,6 +85,18 @@ data class PracticeItemDto(
     val lastAttemptContext: PracticeAttemptContextDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val assessmentMode: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val assessments: List<PracticeAssessmentDto> = emptyList(),
+)
+
+@Serializable
+data class PracticeAssessmentDto(
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val slotId: String? = null,
+    val label: String,
+    val targetSkillId: String,
+    val assessmentMode: String,
+    val assessmentRole: String,
 )
 
 @Serializable
@@ -116,6 +128,8 @@ data class PracticeSummaryRowDto(
     val hintOpenedItems: Int,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val assessmentMode: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val assessmentRole: String? = null,
 )
 
 @Serializable

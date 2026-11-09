@@ -54,6 +54,7 @@ export default function SupportSections({ session, disabled, introductionContent
                         ref={index === 0 ? introductionContentRef : undefined}
                         data-practice-focus={index === 0 ? "introduction" : undefined}
                         tabIndex={index === 0 ? -1 : undefined}
+                        lang={section.bodyLanguage}
                         size="sm"
                         mt={4}
                       >{section.body}</Text>
@@ -87,6 +88,7 @@ export default function SupportSections({ session, disabled, introductionContent
                     ref={index === 0 ? lessonContentRef : undefined}
                     data-practice-focus={index === 0 ? "lesson" : undefined}
                     tabIndex={index === 0 ? -1 : undefined}
+                    lang={section.bodyLanguage}
                     size="sm"
                     mt={4}
                   >{section.body}</Text>

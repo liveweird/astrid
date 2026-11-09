@@ -78,12 +78,12 @@ export default defineConfig({
         "src/main.tsx",
         "src/vite-env.d.ts",
       ],
-      // Full-source baseline after word choice and sentence tiles
-      // (2026-11-08): statements 94.84, branches 88.34, functions 97.66, lines 97.56. Floors sit at the
+      // Full-source baseline after guided multiple-gap practice
+      // (2026-11-09): statements 95.06, branches 89.11, functions 97.73, lines 97.73. Floors sit at the
       // integer below each result and must move upward as coverage grows.
       thresholds: {
-        statements: 94,
-        branches: 88,
+        statements: 95,
+        branches: 89,
         functions: 97,
         lines: 97,
       },

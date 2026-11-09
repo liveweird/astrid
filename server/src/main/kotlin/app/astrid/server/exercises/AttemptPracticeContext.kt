@@ -2,10 +2,18 @@
 
 package app.astrid.server.exercises
 
+import app.astrid.engine.GapAssessmentRole
+import app.astrid.engine.GapResult
+import app.astrid.engine.LinguisticStatus
+import app.astrid.engine.PracticeAssessment
 import app.astrid.engine.PracticeAttemptContextCalculator
 import app.astrid.engine.PracticeCrossRunExposure
 import app.astrid.engine.PracticeExposureSnapshot
+import app.astrid.engine.PracticeFeedbackAttemptObservation
+import app.astrid.engine.PracticeFeedbackExposureCalculator
 import app.astrid.engine.PracticeItemExposureObservation
+import app.astrid.engine.ResponseConstraintStatus
+import app.astrid.engine.TargetStatus
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.Serializable
 
@@ -38,14 +46,38 @@ data class PracticeExposureState(
 
 internal fun frozenFeedbackExposureKeys(
     candidateKeys: List<String>,
-    hasPriorTargetMetAttempt: Boolean,
-): List<String> = if (hasPriorTargetMetAttempt) {
-    candidateKeys
-} else {
-    candidateKeys.filterNot { it.startsWith(VERB_PRESENT_EXPOSURE_PREFIX) }
-}
+    assessments: List<PracticeAssessment>,
+    attempts: List<AttemptResponse>,
+): List<String> = PracticeFeedbackExposureCalculator.releasedKeys(
+    candidateKeys,
+    assessments,
+    attempts.map { response ->
+        PracticeFeedbackAttemptObservation(
+            enumByWire(response.targetSatisfaction),
+            response.gapResults.orEmpty().map { it.toEngine() },
+        )
+    },
+)
 
-private const val VERB_PRESENT_EXPOSURE_PREFIX = "verb-present:"
+private fun GapResultDto.toEngine() = GapResult(
+    slotId,
+    choiceId,
+    targetSkillId,
+    GapAssessmentRole.entries.single { it.wireValue == assessmentRole },
+    enumByWire(targetSatisfaction),
+    enumByWire(responseConstraintStatus),
+    enumByWire(linguisticStatus),
+    feedback,
+)
+
+private inline fun <reified T : Enum<T>> enumByWire(value: String): T = enumValues<T>().single { entry ->
+    when (entry) {
+        is TargetStatus -> entry.wireValue
+        is LinguisticStatus -> entry.wireValue
+        is ResponseConstraintStatus -> entry.wireValue
+        else -> error("Unsupported wire enum")
+    } == value
+}
 
 @Serializable
 data class PracticePriorExposureDto(

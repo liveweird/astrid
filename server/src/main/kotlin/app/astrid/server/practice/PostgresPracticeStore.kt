@@ -247,6 +247,7 @@ class PostgresPracticeStore(
                 item[PracticeItems.hintOpened],
                 attempts,
                 itemPayload.assessmentMode,
+                itemPayload.assessments,
             )
         }
         return StoredPracticeSession(
@@ -269,6 +270,7 @@ class PostgresPracticeStore(
                 PracticeFollowUpLineage(UUID.fromString(it.sourcePracticeSessionId), it.selectedTargetKeys)
             },
             payload.sourceExposure,
+            payload.introductionExposureKeys,
         )
     }
 

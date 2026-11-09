@@ -27,7 +27,7 @@ function OutcomeSummary({ row, kind }: { row: PracticeSummaryRow; kind: "firstOu
 
 function practiceTargetKey(row: PracticeSummaryRow) {
   if (row.targetSkillId) {
-    return row.targetSkillId === "G004" && row.assessmentMode
+    return row.assessmentMode
       ? `grammar:${row.targetSkillId}:${row.assessmentMode}`
       : `grammar:${row.targetSkillId}`;
   }
@@ -40,6 +40,8 @@ function targetKind(row: PracticeSummaryRow) {
   if (row.targetSkillId === "G004" && row.assessmentMode === "selection") return "Form selection";
   if (row.targetSkillId === "G004" && row.assessmentMode === "recall") return "Written form recall";
   if (row.targetSkillId === "G004" && row.assessmentMode === "repair") return "Form repair";
+  if (row.targetSkillId === "G006" && row.assessmentMode === "selection") return "Article selection";
+  if (row.targetSkillId === "G006" && row.assessmentMode === "recall") return "Written article recall";
   if (row.targetSkillId) return "Grammar";
   return row.lexicalTarget?.direction === "da-en" ? "Meaning recognition" : "Written headword recall";
 }
@@ -59,19 +61,19 @@ export default function PracticeSummary({ session, headingRef, selectedTargets, 
         <Text c="dimmed">This records what you attempted, not a mastery judgment.</Text>
       </Box>
       <Paper withBorder p="lg">
-        <SimpleGrid cols={{ base: 2, sm: 4 }}>
+        <SimpleGrid minColWidth="min(100%, 9rem)">
           <Box><Text fw={700} size="xl">{session.summary.completedItems}</Text><Text size="sm" c="dimmed">continued</Text></Box>
           <Box><Text fw={700} size="xl">{session.summary.attemptedItems}</Text><Text size="sm" c="dimmed">attempted</Text></Box>
           <Box><Text fw={700} size="xl">{session.summary.attemptCount}</Text><Text size="sm" c="dimmed">answers</Text></Box>
           <Box><Text fw={700} size="xl">{session.summary.retryCount}</Text><Text size="sm" c="dimmed">retries</Text></Box>
         </SimpleGrid>
       </Paper>
-      <SimpleGrid cols={{ base: 1, md: 2 }}>
+      <SimpleGrid minColWidth="min(100%, 22rem)">
         {session.summary.rows.map((row) => (
           <Paper
             component="article"
             aria-label={row.label}
-            key={`${row.targetSkillId ?? "lexical"}-${row.assessmentMode ?? ""}-${row.lexicalTarget?.entryId ?? ""}-${row.lexicalTarget?.senseId ?? ""}-${row.lexicalTarget?.facet ?? ""}-${row.lexicalTarget?.direction ?? ""}`}
+            key={`${row.targetSkillId ?? "lexical"}-${row.assessmentMode ?? ""}-${row.assessmentRole ?? ""}-${row.lexicalTarget?.entryId ?? ""}-${row.lexicalTarget?.senseId ?? ""}-${row.lexicalTarget?.facet ?? ""}-${row.lexicalTarget?.direction ?? ""}`}
             withBorder
             p="lg"
           >
@@ -79,10 +81,15 @@ export default function PracticeSummary({ session, headingRef, selectedTargets, 
               <Box>
                 <Title order={3} size="h4">{row.label}</Title>
                 <Text size="sm" fw={650}>{targetKind(row)}</Text>
+                {row.assessmentRole && (
+                  <Text size="sm" c="dimmed">
+                    {row.assessmentRole === "primary" ? "Primary assessment" : "Supporting assessment"}
+                  </Text>
+                )}
                 <Text size="sm" c="dimmed">{row.advancedItems}/{row.plannedItems} continued · {row.attemptCount} answers · {row.retryCount} retries</Text>
               </Box>
               <Divider />
-              <SimpleGrid cols={{ base: 1, xs: 2 }}>
+              <SimpleGrid minColWidth="min(100%, 12rem)">
                 <OutcomeSummary row={row} kind="firstOutcomes" />
                 <OutcomeSummary row={row} kind="latestOutcomes" />
               </SimpleGrid>
@@ -104,6 +111,9 @@ export default function PracticeSummary({ session, headingRef, selectedTargets, 
         <Text size="sm" c="dimmed" mt="xs">
           Choose one or more targets. Vocabulary targets currently add one meaningful item each; grammar can vary across sentences.
         </Text>
+        {selectedTargets.has("grammar:G006:selection") && (
+          <Text size="sm" fw={650} mt="xs">Articles will be supplied in writing</Text>
+        )}
       </Box>
     </Stack>
   );

@@ -18,6 +18,36 @@ export const wrongAttempt = {
   issues: [], feedback: "Look at the word once more.", completedSentence: "",
   evaluationRevision: "evaluation-3", hintUsed: true, retryNumber: 1, createdAt: 1,
 };
+export const gapExercise = {
+  id: "55555555-5555-4555-8555-555555555555", formatId: "E015", targetSkillId: "G004",
+  supportSkillIds: ["G006"], contentRevision: "pilot-7", generatorRevision: "generator-7",
+  instruction: "Complete both gaps.", context: "Choose a present verb and an indefinite article.",
+  prompt: {
+    before: "", after: "", choices: [], blocks: [], punctuation: ".", cue: "", cueLanguage: "da", answerLanguage: "da",
+    gapPrompt: {
+      segments: ["Jeg ", " ", " bog."],
+      slots: [
+        { id: "g0", label: "Present verb — Primary target", targetSkillId: "G004", assessmentRole: "primary",
+          choices: [{ id: "c0", text: "læse" }, { id: "c1", text: "læser" }] },
+        { id: "g1", label: "Indefinite article — Supporting grammar", targetSkillId: "G006", assessmentRole: "support",
+          choices: [{ id: "c0", text: "et" }, { id: "c1", text: "en" }] },
+      ],
+    },
+  },
+  introduction: [], hint: "Choose each form for its own gap.",
+} as const;
+export const gapAttempt = {
+  attemptId: "66666666-6666-4666-8666-666666666666", exerciseId: gapExercise.id,
+  targetSatisfaction: "not-met", linguisticStatus: "known-issue", linguisticScope: "danish-gaps",
+  responseConstraintStatus: "met", issues: [], feedback: "Review both selected forms.", completedSentence: "Jeg læse et bog.",
+  evaluationRevision: "evaluation-7", hintUsed: false, retryNumber: 1, createdAt: 1,
+  gapResults: [
+    { slotId: "g0", choiceId: "c0", targetSkillId: "G004", assessmentRole: "primary", targetSatisfaction: "not-met",
+      responseConstraintStatus: "met", linguisticStatus: "known-issue", feedback: "Choose the present form." },
+    { slotId: "g1", choiceId: "c0", targetSkillId: "G006", assessmentRole: "support", targetSatisfaction: "not-met",
+      responseConstraintStatus: "met", linguisticStatus: "known-issue", feedback: "Choose the article for bog." },
+  ],
+} as const;
 export const outcomes = { fullyMet: 0, targetMet: 0, targetNotMet: 1, unevaluable: 0, languageUnknown: 0, languageKnownIssue: 0, responseConstraintNotMet: 0 };
 
 export function state(overrides: Record<string, unknown> = {}) {
@@ -53,6 +83,29 @@ export function completedState() {
   });
 }
 
+export function gapState(overrides: Record<string, unknown> = {}) {
+  return state({
+    focusId: "verb-article-gaps", title: "Verbs and articles together", planRevision: "verb-article-gaps-1",
+    contentRevision: "pilot-7", generatorRevision: "generator-7", evaluationRevision: "evaluation-7",
+    itemCount: 4, followUpPlanRevision: "follow-up-3",
+    introduction: [
+      { title: "Verbs and articles", body: "Choose each form separately.", bodyLanguage: "en" },
+      { title: "Worked example", body: "Jeg læser en bog.", bodyLanguage: "da" },
+    ],
+    items: [{
+      position: 0, exerciseId: gapExercise.id, formatId: "E015", targetSkillId: "G004",
+      assessments: [
+        { slotId: "g0", label: "Present verb selection", targetSkillId: "G004", assessmentMode: "selection", assessmentRole: "primary" },
+        { slotId: "g1", label: "Indefinite article selection", targetSkillId: "G006", assessmentMode: "selection", assessmentRole: "support" },
+      ],
+      lessonOpened: false, hintOpened: false, attemptIds: [], attemptCount: 0,
+      firstAttempt: null, lastAttempt: null, firstAttemptContext: null, lastAttemptContext: null,
+    }],
+    currentExercise: gapExercise,
+    ...overrides,
+  });
+}
+
 export function json(body: unknown, status = 200) {
   const type = status >= 400 ? "application/problem+json" : "application/json";
   return Response.json(body, { status, headers: { "Content-Type": type } });
@@ -69,11 +122,17 @@ export function profiles(ownerSessionId = owner) {
         description: "Mixed existing skills.", itemCount: 8, prerequisiteSkillIds: [] },
       { focusId: "present-verbs", planRevision: "present-verbs-1", title: "Present verb forms",
         description: "Present-tense verb forms.", itemCount: 6, prerequisiteSkillIds: ["G001", "G002", "G003"] },
+      { focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", title: "Verbs and articles together",
+        description: "Practise a present verb and an indefinite article in the same sentence.", itemCount: 4,
+        prerequisiteSkillIds: ["G001", "G002", "G003", "G005"] },
     ],
   };
 }
 
-export async function choosePractice(user: ReturnType<typeof userEvent.setup>, name: "Mixed practice" | "Present verb forms" = "Mixed practice") {
+export async function choosePractice(
+  user: ReturnType<typeof userEvent.setup>,
+  name: "Mixed practice" | "Present verb forms" | "Verbs and articles together" = "Mixed practice",
+) {
   await screen.findByRole("heading", { name: "Choose your practice" });
   await user.click(screen.getByRole("radio", { name }));
   await user.click(screen.getByRole("button", { name: "Start practice" }));

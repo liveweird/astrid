@@ -155,3 +155,10 @@ Learning pair seven and app 0.7.0 advance separately; guided plans stay at pair 
 **Observed multiple-gap delivery:** E015 is available in the fifteen-entry standalone catalog
 at [0.7.0](https://github.com/liveweird/astrid/releases/tag/v0.7.0). The [verified delivery](multiple-gap-contract.md#observed-delivery--9-november-2026) closes BL-049 with separate primary/support outcomes,
 exact editable retry and all six retained pairs. No new language or guided plan was activated.
+
+**9 November 2026 — Guided gaps authorized:** BL-050 adds a separate four-item
+`verb-article-gaps-1` profile and selected-only `follow-up-3` at pair seven. The
+[contract](guided-gap-practice.md) freezes per-slot assessments, explicit introduction exposure,
+independent summaries and article selection-to-written-recall transitions. Older mixed/verb
+plans and reviews retain pair three; the standalone catalog and all seven graders are unchanged.
+Full Module 1 activation remains separate. Release verification is pending.

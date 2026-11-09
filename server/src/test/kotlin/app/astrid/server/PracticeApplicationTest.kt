@@ -6,6 +6,9 @@ import app.astrid.server.authz.NotFound
 import app.astrid.server.authz.Unauthorized
 import app.astrid.server.infra.config.ServerConfig
 import app.astrid.server.infra.json.wireJson
+import app.astrid.server.exercises.AttemptAnswerDto
+import app.astrid.server.exercises.AttemptRequest
+import app.astrid.server.exercises.GapSelectionDto
 import io.ktor.client.request.cookie
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -34,6 +37,109 @@ import kotlinx.serialization.json.jsonPrimitive
 
 class PracticeApplicationTest {
     @Test
+    fun `guided gaps preserve per-slot outcomes snapshots exposure and selected follow-ups`() = testApplication {
+        val inspectorKey = "k".repeat(32)
+        val stores = InMemoryStores()
+        application { astridModule(config(inspectorKey), stores) }
+        val auth = authenticate()
+        val profiles = client.get("/api/v1/practice-profiles") {
+            trustedHost()
+            cookie("astrid_session", auth.cookie)
+        }.bodyAsText().let { wireJson.parseToJsonElement(it).jsonObject.getValue("profiles").jsonArray }
+        assertEquals(3, profiles.size)
+        val profile = profiles.single { it.jsonObject.getValue("focusId").jsonPrimitive.content == "verb-article-gaps" }.jsonObject
+        assertEquals("verb-article-gaps-1", profile.getValue("planRevision").jsonPrimitive.content)
+        assertEquals("Verbs and articles together", profile.getValue("title").jsonPrimitive.content)
+        assertEquals(4, profile.getValue("itemCount").jsonPrimitive.content.toInt())
+
+        val sourceId = UUID.randomUUID().toString()
+        val body = guidedGapBody(sourceId)
+        val created = create(auth.cookie, auth.ownerId, body)
+        assertEquals(HttpStatusCode.Created, created.status)
+        val createdText = created.bodyAsText()
+        assertEquals(createdText, create(auth.cookie, auth.ownerId, body).bodyAsText())
+        var state = wireJson.parseToJsonElement(createdText).jsonObject
+        assertEquals("follow-up-3", state.getValue("followUpPlanRevision").jsonPrimitive.content)
+        assertTrue(state.getValue("introduction").jsonArray.any { section ->
+            section.jsonObject["bodyLanguage"]?.jsonPrimitive?.content == "da" &&
+                section.jsonObject.getValue("body").jsonPrimitive.content == "Jeg læser en bog."
+        })
+        val firstItem = state.getValue("items").jsonArray.first().jsonObject
+        val assessments = firstItem.getValue("assessments").jsonArray.map { it.jsonObject }
+        assertEquals(listOf("g0", "g1"), assessments.map { it.getValue("slotId").jsonPrimitive.content })
+        assertEquals(listOf("primary", "support"), assessments.map { it.getValue("assessmentRole").jsonPrimitive.content })
+        assertTrue(assessments.all { "answerExposureKeys" !in it })
+        assertEquals(HttpStatusCode.OK, support(auth, sourceId, """{"kind":"introduction"}""").status)
+
+        repeat(4) { position ->
+            val exercise = state.getValue("currentExercise").jsonObject
+            val exerciseId = exercise.getValue("id").jsonPrimitive.content
+            val expected = inspectGap(auth.cookie, exerciseId, inspectorKey)
+            val choices = exercise.getValue("prompt").jsonObject.getValue("gapPrompt").jsonObject
+                .getValue("slots").jsonArray.associate { value ->
+                    val slot = value.jsonObject
+                    slot.getValue("id").jsonPrimitive.content to slot.getValue("choices").jsonArray.map {
+                        it.jsonObject.getValue("id").jsonPrimitive.content
+                    }
+                }
+            if (position == 0) {
+                listOf<Boolean?>(null, true, false).forEach { primary ->
+                    listOf<Boolean?>(null, true, false).forEach { support ->
+                        val selections = listOf("g0" to primary, "g1" to support).mapNotNull { (slotId, correct) ->
+                            correct?.let {
+                                val choice = expected.getValue(slotId)
+                                val selected = if (it) choice else choices.getValue(slotId).single { candidate ->
+                                    candidate != choice
+                                }
+                                GapSelectionDto(slotId, selected)
+                            }
+                        }
+                        assertEquals(HttpStatusCode.OK, submitGaps(auth.cookie, exerciseId, selections).status)
+                    }
+                }
+            } else {
+                val correct = listOf("g0", "g1").map { GapSelectionDto(it, expected.getValue(it)) }
+                assertEquals(HttpStatusCode.OK, submitGaps(auth.cookie, exerciseId, correct).status)
+            }
+            state = wireJson.parseToJsonElement(advance(auth, sourceId, position).bodyAsText()).jsonObject
+        }
+        assertEquals("completed", state.getValue("state").jsonPrimitive.content)
+        val summary = state.getValue("summary").jsonObject
+        assertEquals(12, summary.getValue("attemptCount").jsonPrimitive.content.toInt())
+        val rows = summary.getValue("rows").jsonArray.map { it.jsonObject }
+        assertEquals(setOf("primary", "support"), rows.map { it.getValue("assessmentRole").jsonPrimitive.content }.toSet())
+        assertTrue(rows.all { it.getValue("plannedItems").jsonPrimitive.content.toInt() == 4 })
+        assertTrue(rows.all { it.getValue("attemptCount").jsonPrimitive.content.toInt() == 12 })
+        assertTrue(rows.all { it.getValue("firstOutcomes").jsonObject.getValue("unevaluable").jsonPrimitive.content.toInt() == 1 })
+        assertTrue(rows.all { it.getValue("latestOutcomes").jsonObject.getValue("targetNotMet").jsonPrimitive.content.toInt() == 1 })
+        val targetKeys = rows.map(::targetKey)
+        val childId = UUID.randomUUID().toString()
+        val child = followUp(auth, sourceId, followUpBody(childId, targetKeys, "follow-up-3"))
+        assertEquals(HttpStatusCode.Created, child.status)
+        val childState = wireJson.parseToJsonElement(child.bodyAsText()).jsonObject
+        assertEquals(4, childState.getValue("itemCount").jsonPrimitive.content.toInt())
+        assertEquals(setOf("E001", "E002"), childState.getValue("items").jsonArray.map {
+            it.jsonObject.getValue("formatId").jsonPrimitive.content
+        }.toSet())
+        assertTrue(childState.getValue("items").jsonArray.all { it.jsonObject.getValue("assessments").jsonArray.size == 1 })
+        val childStored = assertNotNull(
+            stores.practice.findPracticeSession(UUID.fromString(auth.ownerId), UUID.fromString(childId)),
+        )
+        val sourceIntroduction = childStored.sourceExposure.single { it.source == "introduction" }
+        assertEquals(
+            setOf(
+                "verb-infinitive:L011",
+                "verb-present:L011",
+                "article:L014",
+                "headword:L014-S01",
+                "grammar:G004",
+                "grammar:G006",
+            ),
+            sourceIntroduction.keys.toSet(),
+        )
+    }
+
+    @Test
     fun `practice profiles are authenticated stable and do not renew the session`() = testApplication {
         val now = AtomicLong(1_000)
         application { astridModule(config(), InMemoryStores(clock = now::get), clock = now::get) }
@@ -49,14 +155,18 @@ class PracticeApplicationTest {
         assertEquals(auth.ownerId, payload.getValue("ownerSessionId").jsonPrimitive.content)
         val choices = payload.getValue("profiles").jsonArray
         assertEquals(
-            listOf("reading-basics/practice-1", "present-verbs/present-verbs-1"),
+            listOf(
+                "reading-basics/practice-1",
+                "present-verbs/present-verbs-1",
+                "verb-article-gaps/verb-article-gaps-1",
+            ),
             choices.map { profile ->
                 profile.jsonObject.let {
                     "${it.getValue("focusId").jsonPrimitive.content}/${it.getValue("planRevision").jsonPrimitive.content}"
                 }
             },
         )
-        assertEquals(listOf(8, 6), choices.map { it.jsonObject.getValue("itemCount").jsonPrimitive.content.toInt() })
+        assertEquals(listOf(8, 6, 4), choices.map { it.jsonObject.getValue("itemCount").jsonPrimitive.content.toInt() })
 
         now.set(61_001)
         val expired = client.get("/api/v1/practice-profiles") {
@@ -430,10 +540,10 @@ class PracticeApplicationTest {
         contentType(ContentType.Application.Json)
     }
 
-    private fun config() = ServerConfig(
+    private fun config(inspectorKey: String? = null) = ServerConfig(
         developmentMode = true,
-        inspectorEnabled = false,
-        inspectorKey = null,
+        inspectorEnabled = inspectorKey != null,
+        inspectorKey = inspectorKey,
         secureCookie = false,
         trustedForwardedHeaders = false,
         allowedOrigins = setOf("http://localhost:8088"),
@@ -461,6 +571,32 @@ class PracticeApplicationTest {
 
     private fun presentVerbBody(id: String) =
         """{"practiceSessionId":"$id","focusId":"present-verbs","planRevision":"present-verbs-1","seed":20261107}"""
+
+    private fun guidedGapBody(id: String) =
+        """{"practiceSessionId":"$id","focusId":"verb-article-gaps","planRevision":"verb-article-gaps-1","seed":20261109}"""
+
+    private suspend fun ApplicationTestBuilder.inspectGap(cookie: String, exerciseId: String, key: String): Map<String, String> =
+        client.get("/api/v1/dev/exercises/$exerciseId") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+            header("X-Astrid-Inspector-Key", key)
+        }.bodyAsText().let { text ->
+            wireJson.parseToJsonElement(text).jsonObject.getValue("gapSource").jsonObject.getValue("slots").jsonArray.associate {
+                val slot = it.jsonObject
+                slot.getValue("slotId").jsonPrimitive.content to slot.getValue("expectedChoiceId").jsonPrimitive.content
+            }
+        }
+
+    private suspend fun ApplicationTestBuilder.submitGaps(
+        cookie: String,
+        exerciseId: String,
+        selections: List<GapSelectionDto>,
+    ) = submit(
+        cookie,
+        wireJson.encodeToString(
+            AttemptRequest(UUID.randomUUID().toString(), exerciseId, AttemptAnswerDto.Gaps(selections), false),
+        ),
+    )
 
     private fun targetKey(row: kotlinx.serialization.json.JsonElement): String {
         val value = row.jsonObject

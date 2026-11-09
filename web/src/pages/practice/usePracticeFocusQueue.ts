@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { PracticeSession } from "../../api/models";
 import type { PracticeOutboxEntry } from "./practiceRecovery";
 
-export type PracticeFocusTarget = "item" | "feedback" | "summary" | "error" | "introduction" | "lesson" | "hint";
+export type PracticeFocusTarget = "item" | "feedback" | "summary" | "error" | "introduction" | "lesson" | "hint" | "gaps";
 
 export function pendingFocus(entry: PracticeOutboxEntry, session: PracticeSession): PracticeFocusTarget {
   if (entry.kind === "attempt") return "feedback";
@@ -28,6 +28,7 @@ export function usePracticeFocusQueue(error: string) {
   const introductionContentRef = useRef<HTMLParagraphElement>(null);
   const lessonContentRef = useRef<HTMLParagraphElement>(null);
   const hintRef = useRef<HTMLDivElement>(null);
+  const gapFocusRef = useRef<HTMLDivElement>(null);
   const [request, setRequest] = useState<{ target: PracticeFocusTarget; sequence: number }>({
     target: "item", sequence: 0,
   });
@@ -38,14 +39,14 @@ export function usePracticeFocusQueue(error: string) {
     if (!error && request.sequence === 0) return;
     const refs = {
       item: itemHeadingRef, feedback: feedbackRef, summary: summaryHeadingRef, error: errorRef,
-      introduction: introductionContentRef, lesson: lessonContentRef, hint: hintRef,
+      introduction: introductionContentRef, lesson: lessonContentRef, hint: hintRef, gaps: gapFocusRef,
     };
     const target = refs[error ? "error" : request.target].current;
     target?.focus({ preventScroll: true });
     target?.scrollIntoView({ block: "start", inline: "nearest" });
   }, [error, request]);
   return {
-    errorRef, feedbackRef, hintRef, introductionContentRef, itemHeadingRef,
+    errorRef, feedbackRef, gapFocusRef, hintRef, introductionContentRef, itemHeadingRef,
     lessonContentRef, requestFocus, summaryHeadingRef,
   };
 }

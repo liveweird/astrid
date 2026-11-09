@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, loadPracticeContext } from "../../api/client";
-import type { AttemptRequest, PracticeProfiles, PracticeSession } from "../../api/models";
+import type { AttemptRequest, GapSelection, PracticeProfiles, PracticeSession } from "../../api/models";
 import { answerValues, attemptFromEntry, practiceError, reconcileOutbox } from "./practiceOperations";
 import { practiceProfilesQuery } from "./practiceProfiles";
 import {
@@ -13,6 +13,7 @@ export type InitialRecoveryHandlers = {
   bindUrl: (practiceSessionId: string) => void;
   setBusy: (value: boolean) => void;
   setError: (value: string) => void;
+  setGapSelections: (value: GapSelection[]) => void;
   setOrder: (value: string[]) => void;
   setPendingEntry: (value: PracticeOutboxEntry | null) => void;
   setRecoveryUnavailable: (value: boolean) => void;
@@ -21,6 +22,17 @@ export type InitialRecoveryHandlers = {
   setText: (value: string) => void;
   setUncertain: (value: AttemptRequest | null) => void;
 };
+
+function restorePendingAttempt(entry: PracticeOutboxEntry | undefined, handlers: InitialRecoveryHandlers) {
+  handlers.setPendingEntry(entry ?? null);
+  const request = entry ? attemptFromEntry(entry) : null;
+  handlers.setUncertain(request);
+  if (!request) return;
+  const restored = answerValues(request.answer);
+  handlers.setGapSelections(restored.gapSelections);
+  handlers.setText(restored.text);
+  handlers.setOrder(restored.order);
+}
 
 /** Shows the fresh chooser once the session-establishing profile read settles. */
 function useFreshChooser(freshStart: boolean, handlersRef: { current: InitialRecoveryHandlers }) {
@@ -61,6 +73,7 @@ export function useInitialPracticeRecovery(boundId: string | null, handlers: Ini
           }
           return;
         }
+        restorePendingAttempt(listOutbox(recovery.practiceSessionId)[0], handlers);
         const next = await reconcileOutbox(recovery, {
           unavailable: (message) => {
             if (active) { handlers.setRecoveryUnavailable(true); handlers.setError(message); }
@@ -70,6 +83,7 @@ export function useInitialPracticeRecovery(boundId: string | null, handlers: Ini
             if (!active) return;
             handlers.setUncertain(request);
             const restored = answerValues(request?.answer);
+            handlers.setGapSelections(restored.gapSelections);
             handlers.setText(restored.text);
             handlers.setOrder(restored.order);
           },
@@ -82,14 +96,7 @@ export function useInitialPracticeRecovery(boundId: string | null, handlers: Ini
         });
         if (active && next.session) {
           handlers.applyState(next.session);
-          const pendingAttempt = listOutbox(recovery.practiceSessionId).find((entry) => entry.kind === "attempt");
-          const request = pendingAttempt ? attemptFromEntry(pendingAttempt) : null;
-          if (request) {
-            handlers.setUncertain(request);
-            const restored = answerValues(request.answer);
-            handlers.setText(restored.text);
-            handlers.setOrder(restored.order);
-          }
+          restorePendingAttempt(next.pending ?? undefined, handlers);
         }
       } catch (caught) {
         if (active) {

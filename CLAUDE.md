@@ -12,6 +12,8 @@ fifteen exercise entries (grammar selection/supply/order/repair, vocabulary reco
 sentence writing, short reading comprehension, English→Danish word choice and all/spare word tiles, bilingual word matching and a two-gap verb/article task). Generation and grading are deterministic and reproducible
 from seed, index and revision. All Danish content is a linguistic **draft awaiting teaching review**; a
 passing test never makes content teacher-approved. Current app version: `web/src/changelog/version.ts`.
+Guided practice offers Mixed practice (eight parts), Present verb forms (six) and Verbs and articles
+together (four). The third profile and its selected-only reviews pin pair seven; older plans retain pair three.
 Next work: `BACKLOG.md`. Product scope and decisions: `docs/knowledge/product-direction.md`.
 
 Brand: Danish red accent with separately labelled learning-feedback colours (`web/src/theme.ts`); the logo (a girl

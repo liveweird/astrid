@@ -160,6 +160,31 @@ it("starts only the explicitly selected present-verb profile with its exact iden
   expect(JSON.parse(creations[0]!)).toMatchObject({ focusId: "present-verbs", planRevision: "present-verbs-1" });
 });
 
+it("starts the four-part verbs-and-articles profile with its pinned identity", async () => {
+  let creation = "";
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-profiles")) return json(profiles());
+    if (path.endsWith("practice-sessions")) {
+      creation = String(init?.body);
+      const request = JSON.parse(creation) as { practiceSessionId: string };
+      return json(state({
+        id: request.practiceSessionId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1",
+        title: "Verbs and articles together", itemCount: 4, followUpPlanRevision: "follow-up-3",
+      }), 201);
+    }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  renderWithProviders(<Practice />);
+  await choosePractice(user, "Verbs and articles together");
+
+  expect(await screen.findByRole("heading", { name: "Verbs and articles together" })).toBeVisible();
+  expect(JSON.parse(creation)).toMatchObject({
+    focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1",
+  });
+});
+
 it("opens and cancels the chooser for an expired owner without renewing or changing the draft", async () => {
   const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };
   saveRunRecovery(run);

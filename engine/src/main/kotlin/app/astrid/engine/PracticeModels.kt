@@ -11,6 +11,7 @@ data class PracticePlan(
     val contentRevision: String,
     val generatorRevision: String,
     val evaluationRevision: String,
+    val introductionExposureKeys: List<String>? = null,
 )
 
 data class PracticeProfile(
@@ -47,6 +48,13 @@ data class PracticeTargetDescriptor(
     val assessmentMode: String? = null,
 )
 
+data class PracticeAssessment(
+    val slotId: String?,
+    val targetDescriptor: PracticeTargetDescriptor,
+    val assessmentRole: String,
+    val answerExposureKeys: List<String>,
+)
+
 object PracticeTargetKeys {
     fun key(
         targetSkillId: String?,
@@ -56,11 +64,8 @@ object PracticeTargetKeys {
         require((targetSkillId == null) != (lexicalTarget == null)) {
             "A practice target must identify exactly one grammar or lexical target"
         }
-        require(assessmentMode == null || targetSkillId == "G004") {
-            "Assessment modes are supported only for grammar skill G004"
-        }
-        require(assessmentMode == null || assessmentMode in G004_ASSESSMENT_MODES) {
-            "Unsupported G004 assessment mode: $assessmentMode"
+        require(assessmentMode == null || assessmentMode in ASSESSMENT_MODES_BY_SKILL[targetSkillId].orEmpty()) {
+            "Unsupported assessment mode for $targetSkillId: $assessmentMode"
         }
         return targetSkillId?.let { skillId ->
             if (assessmentMode == null) "grammar:$skillId" else "grammar:$skillId:$assessmentMode"
@@ -70,7 +75,10 @@ object PracticeTargetKeys {
         }
     }
 
-    private val G004_ASSESSMENT_MODES = setOf("selection", "recall", "repair")
+    private val ASSESSMENT_MODES_BY_SKILL = mapOf(
+        "G004" to setOf("selection", "recall", "repair"),
+        "G006" to setOf("selection", "recall"),
+    )
 }
 
 fun PracticeTargetDescriptor.targetKey(): String = PracticeTargetKeys.key(targetSkillId, lexicalTarget, assessmentMode)
@@ -84,6 +92,7 @@ data class PracticePlanItem(
     override val lessonExposureKeys: List<String>,
     override val hintExposureKeys: List<String>,
     override val feedbackExposureKeys: List<String>,
+    val assessments: List<PracticeAssessment> = emptyList(),
 ) : PracticeExposureMetadata
 
 enum class PracticeExposureSource(val wireValue: String) {
@@ -129,6 +138,7 @@ data class PracticeSummaryAttemptObservation(
     val responseConstraintStatus: ResponseConstraintStatus?,
     val context: PracticeAttemptContext,
     val hintUsed: Boolean = false,
+    val gapResults: List<GapResult> = emptyList(),
 )
 
 data class PracticeSummaryItemObservation(
@@ -146,6 +156,7 @@ data class PracticeSummarySnapshotItemObservation(
     val lessonOpened: Boolean,
     val hintOpened: Boolean,
     val attempts: List<PracticeSummaryAttemptObservation>,
+    val assessments: List<PracticeAssessment> = emptyList(),
 )
 
 data class PracticeSummary(
@@ -174,11 +185,18 @@ data class PracticeTargetSummary(
     val lessonOpenedItems: Int,
     val hintOpenedItems: Int,
     val assessmentMode: String? = null,
+    val assessmentRole: String? = null,
 )
 
 data class PracticeFollowUpSourceItem(
     val exercise: GeneratedExercise,
     val targetDescriptor: PracticeTargetDescriptor,
+    val assessments: List<PracticeAssessment> = emptyList(),
+)
+
+data class PracticeFeedbackAttemptObservation(
+    val targetStatus: TargetStatus,
+    val gapResults: List<GapResult> = emptyList(),
 )
 
 data class PracticeOutcomeCounts(

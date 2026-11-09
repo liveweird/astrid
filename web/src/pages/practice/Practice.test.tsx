@@ -1,13 +1,190 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
-  choosePractice, completedState, context, exercise, json, owner, practiceId, profiles, resetPracticeBrowser, state, wrongAttempt,
+  choosePractice, completedState, context, exercise, gapAttempt, gapExercise, gapState, json, owner, practiceId, profiles,
+  resetPracticeBrowser, state, wrongAttempt,
 } from "../../test/practiceFixtures";
 import { renderWithProviders } from "../../test/render";
 import Practice from "./Practice";
 import { saveRunRecovery } from "./practiceRecovery";
 
 beforeEach(resetPracticeBrowser);
+
+it("submits one selected gap in supplied order and labels the bounded action", async () => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed: 47 });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  let submitted = "";
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("/attempts")) { submitted = String(init?.body); return json(gapAttempt); }
+    if (path.includes("/practice-sessions/")) return json(gapState());
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  renderWithProviders(<Practice />);
+
+  const article = within(await screen.findByRole("group", { name: "Indefinite article — Supporting grammar" }));
+  await user.click(article.getByRole("button", { name: "en" }));
+  const check = screen.getByRole("button", { name: "Check gaps" });
+  expect(check).toBeEnabled();
+  await user.click(check);
+
+  expect(JSON.parse(submitted)).toMatchObject({
+    answer: { kind: "gaps", selections: [{ slotId: "g1", choiceId: "c1" }] },
+  });
+});
+
+it("retains both gap selections for retry, focuses the board, and clears them on the next item", async () => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed: 47 });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const selections = [{ slotId: "g1", choiceId: "c1" }, { slotId: "g0", choiceId: "c0" }];
+  const checkedItem = {
+    ...gapState().items[0]!, attemptIds: [gapAttempt.attemptId], attemptCount: 1,
+    firstAttempt: gapAttempt, lastAttempt: gapAttempt,
+    firstAnswer: { kind: "gaps", selections }, lastAnswer: { kind: "gaps", selections },
+  };
+  let serverState = gapState({ items: [checkedItem] });
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("/attempts")) {
+      const request = JSON.parse(String(init?.body)) as { answer: { kind: "gaps"; selections: typeof selections } };
+      const retried = { ...gapAttempt, retryNumber: 2 };
+      const retriedItem = { ...checkedItem, attemptCount: 2, lastAttempt: retried, lastAnswer: request.answer };
+      serverState = gapState({ items: [retriedItem] });
+      return json(retried);
+    }
+    if (path.endsWith("/advance")) {
+      serverState = gapState({
+        cursor: 1,
+        items: [checkedItem, { ...gapState().items[0]!, position: 1, exerciseId: gapExercise.id }],
+      });
+      return json(serverState);
+    }
+    if (path.includes("/practice-sessions/")) return json(serverState);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  renderWithProviders(<Practice />);
+
+  expect(await screen.findByRole("button", { name: "en" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("button", { name: "læse" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("group", { name: "Present verb feedback" })).toHaveTextContent("Choose the present form.");
+  expect(screen.getByRole("group", { name: "Indefinite article feedback" })).toHaveTextContent("Choose the article for bog.");
+  await user.click(screen.getByRole("button", { name: "Try again" }));
+  const board = screen.getByRole("group", { name: "Present verb and article gaps" });
+  await waitFor(() => expect(board).toHaveFocus());
+  expect(screen.getByRole("button", { name: "en" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("button", { name: "læse" })).toHaveAttribute("aria-pressed", "true");
+  await user.click(screen.getByRole("button", { name: "Check gaps" }));
+  await user.click(await screen.findByRole("button", { name: "Continue" }));
+  expect(await screen.findByText("Part 2 of 4")).toBeVisible();
+  expect(screen.getByRole("button", { name: "en" })).toHaveAttribute("aria-pressed", "false");
+  expect(screen.getByRole("button", { name: "læse" })).toHaveAttribute("aria-pressed", "false");
+});
+
+it("preserves fresh gap choices and edited retries while saving introduction lesson and hint support", async () => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed: 47 });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const currentExercise = { ...gapExercise, introduction: [{ title: "Noun article", body: "en bog", bodyLanguage: "da" }] };
+  let serverState = gapState({ currentExercise });
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("/support")) {
+      const request = JSON.parse(String(init?.body)) as { kind: string };
+      serverState = { ...serverState,
+        introductionOpened: serverState.introductionOpened || request.kind === "introduction",
+        items: serverState.items.map((item) => ({ ...item,
+          lessonOpened: item.lessonOpened || request.kind === "lesson", hintOpened: item.hintOpened || request.kind === "hint" })),
+      };
+      return json(serverState);
+    }
+    if (path.endsWith("/attempts")) {
+      const request = JSON.parse(String(init?.body)) as { answer: { kind: "gaps"; selections: { slotId: string; choiceId: string }[] } };
+      serverState = gapState({ ...serverState, items: [{ ...serverState.items[0]!,
+        attemptIds: [gapAttempt.attemptId], attemptCount: 1, lastAttempt: gapAttempt, lastAnswer: request.answer,
+      }] });
+      return json(gapAttempt);
+    }
+    if (path.includes("/practice-sessions/")) return json(serverState);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  renderWithProviders(<Practice />);
+  await user.click(await screen.findByRole("button", { name: "læser" }));
+  await user.click(screen.getByRole("button", { name: "Session introduction" }));
+  expect(await screen.findByText("Choose each form separately.")).toBeVisible();
+  expect(screen.getByRole("button", { name: "læser" })).toHaveAttribute("aria-pressed", "true");
+  await user.click(screen.getByRole("button", { name: "Check gaps" }));
+  await user.click(await screen.findByRole("button", { name: "Try again" }));
+  await user.click(screen.getByRole("button", { name: "en" }));
+  await user.click(screen.getByRole("button", { name: "Learn this first" }));
+  expect(await screen.findByText("en bog", { exact: true })).toBeVisible();
+  expect(screen.getByRole("button", { name: "en" })).toHaveAttribute("aria-pressed", "true");
+  await user.click(screen.getByRole("button", { name: "Show hint" }));
+  expect(await screen.findByText(currentExercise.hint)).toBeVisible();
+  expect(screen.getByRole("button", { name: "læser" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("button", { name: "en" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("button", { name: "Check gaps" })).toBeEnabled();
+  expect(screen.queryByRole("button", { name: "Continue" })).not.toBeInTheDocument();
+});
+
+it.each(["new grade", "next item"])("restores authoritative state when support readback includes a %s", async (change) => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed: 47 });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  let serverState = gapState();
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("/support")) {
+      const checked = { ...serverState.items[0]!, attemptCount: 1, attemptIds: [gapAttempt.attemptId], lastAttempt: gapAttempt,
+        lastAnswer: { kind: "gaps", selections: [{ slotId: "g0", choiceId: "c0" }, { slotId: "g1", choiceId: "c0" }] } };
+      const nextExercise = { ...gapExercise, id: "77777777-7777-4777-8777-777777777777" };
+      serverState = gapState({ introductionOpened: true, items: change === "new grade" ? [checked] : [checked, {
+        ...gapState().items[0]!, position: 1, exerciseId: nextExercise.id,
+      }], ...(change === "next item" ? { cursor: 1, currentExercise: nextExercise } : {}) });
+      return json(serverState);
+    }
+    if (path.includes("/practice-sessions/")) return json(serverState);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  renderWithProviders(<Practice />);
+  await user.click(await screen.findByRole("button", { name: "læser" }));
+  await user.click(screen.getByRole("button", { name: "Session introduction" }));
+  expect(await screen.findByText("Choose each form separately.")).toBeVisible();
+  expect(screen.getByRole("button", { name: "læser" })).toHaveAttribute("aria-pressed", "false");
+  if (change === "new grade") {
+    expect(screen.getByRole("button", { name: "læse" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("group", { name: "Present verb feedback" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+  } else {
+    expect(screen.getByText("Part 2 of 4")).toBeVisible();
+    expect(screen.getByRole("button", { name: "læse" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "Check gaps" })).toBeDisabled();
+  }
+});
+
+it("marks each introduction section with its supplied content language", async () => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed: 47 });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  let serverState = gapState();
+  let supportBody = "";
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("/support")) {
+      supportBody = String(init?.body);
+      serverState = gapState({ introductionOpened: true });
+      return json(serverState);
+    }
+    if (path.includes("/practice-sessions/")) return json(serverState);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  renderWithProviders(<Practice />);
+  await user.click(await screen.findByRole("button", { name: "Session introduction" }));
+  expect(await screen.findByText("Choose each form separately.")).toHaveAttribute("lang", "en");
+  expect(screen.getByText("Jeg læser en bog.")).toHaveAttribute("lang", "da");
+  expect(supportBody).toBe('{"kind":"introduction"}');
+});
 
 it("records support before revealing it, permits retries after wrong answers, and completes honestly", async () => {
   let serverState = state();

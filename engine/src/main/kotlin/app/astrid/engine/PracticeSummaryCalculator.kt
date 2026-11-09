@@ -12,7 +12,8 @@ object PracticeSummaryCalculator {
         val byPosition = items.associateBy { it.item.position }
         require(plan.items.all {
             val observed = byPosition[it.position]?.item
-            observed != null && observed.exercise.id == it.exercise.id && observed.targetDescriptor == it.targetDescriptor
+            observed != null && observed.exercise.id == it.exercise.id &&
+                observed.targetDescriptor == it.targetDescriptor && observed.assessments == it.assessments
         }) {
             "Practice summary observations must match every planned item"
         }
@@ -29,6 +30,7 @@ object PracticeSummaryCalculator {
                     lessonOpened = it.lessonOpened,
                     hintOpened = it.hintOpened,
                     attempts = it.attempts,
+                    assessments = it.item.assessments,
                 )
             },
         )
@@ -47,7 +49,8 @@ object PracticeSummaryCalculator {
             "Practice summary observations must match every planned position"
         }
         val ordered = items.sortedBy { it.position }
-        val rows = ordered.groupBy(::targetIdentity).map { (_, observations) -> summarizeRow(observations) }
+        val units = ordered.flatMap(::summaryUnits)
+        val rows = units.groupBy(::targetIdentity).map { (_, observations) -> summarizeRow(observations) }
         val attemptCount = ordered.sumOf { it.attempts.size }
         return PracticeSummary(
             plannedItems = plannedItemCount,
@@ -60,15 +63,15 @@ object PracticeSummaryCalculator {
         )
     }
 
-    private fun summarizeRow(items: List<PracticeSummarySnapshotItemObservation>): PracticeTargetSummary {
+    private fun summarizeRow(items: List<SummaryUnitObservation>): PracticeTargetSummary {
         val firstAttempts = items.mapNotNull { it.attempts.firstOrNull() }
         val latestAttempts = items.mapNotNull { it.attempts.lastOrNull() }
-        val representative = items.first().targetDescriptor
+        val representative = items.first()
         val attemptCount = items.sumOf { it.attempts.size }
         return PracticeTargetSummary(
-            label = representative.label,
-            targetSkillId = representative.targetSkillId,
-            lexicalTarget = representative.lexicalTarget,
+            label = representative.targetDescriptor.label,
+            targetSkillId = representative.targetDescriptor.targetSkillId,
+            lexicalTarget = representative.targetDescriptor.lexicalTarget,
             plannedItems = items.size,
             attemptedItems = items.count { it.attempts.isNotEmpty() },
             advancedItems = items.count { it.advanced },
@@ -76,18 +79,98 @@ object PracticeSummaryCalculator {
             retryCount = attemptCount - items.count { it.attempts.isNotEmpty() },
             first = outcomeCounts(firstAttempts),
             latest = outcomeCounts(latestAttempts),
-            firstWithSupport = firstAttempts.count { it.hintUsed || it.context.hasSupport() },
-            firstWithPriorExposure = firstAttempts.count {
-                it.context.priorExposure.isNotEmpty() || it.context.sourceExposure.isNotEmpty()
+            firstWithSupport = items.count { item ->
+                item.attempts.firstOrNull()?.let { it.hintUsed || it.context.hasSupport() } == true
+            },
+            firstWithPriorExposure = items.count { item ->
+                item.attempts.firstOrNull()?.let {
+                    item.answerExposureKeys.let { keys ->
+                        if (keys.isEmpty()) {
+                            it.context.priorExposure.isNotEmpty() || it.context.sourceExposure.isNotEmpty()
+                        } else {
+                            it.context.priorExposure.any { exposure -> exposure.keys.any(keys::contains) } ||
+                                it.context.sourceExposure.any { exposure -> exposure.keys.any(keys::contains) }
+                        }
+                    }
+                } == true
             },
             lessonOpenedItems = items.count { it.lessonOpened },
             hintOpenedItems = items.count { it.hintOpened },
-            assessmentMode = representative.assessmentMode,
+            assessmentMode = representative.targetDescriptor.assessmentMode,
+            assessmentRole = representative.assessmentRole,
         )
     }
 
-    private fun targetIdentity(observation: PracticeSummarySnapshotItemObservation): String =
+    private fun targetIdentity(observation: SummaryUnitObservation): String =
         observation.targetDescriptor.targetKey()
+
+    private fun summaryUnits(item: PracticeSummarySnapshotItemObservation): List<SummaryUnitObservation> {
+        if (item.assessments.isEmpty()) {
+            return listOf(
+                SummaryUnitObservation(
+                    item.targetDescriptor,
+                    null,
+                    emptyList(),
+                    item.advanced,
+                    item.lessonOpened,
+                    item.hintOpened,
+                    item.attempts,
+                ),
+            )
+        }
+        require(item.assessments.map { it.slotId }.distinct().size == item.assessments.size) {
+            "Practice assessment slots must be unique"
+        }
+        item.attempts.forEach { attempt -> requireValidResults(item.assessments, attempt.gapResults) }
+        return item.assessments.map { assessment ->
+            SummaryUnitObservation(
+                assessment.targetDescriptor,
+                assessment.assessmentRole,
+                assessment.answerExposureKeys,
+                item.advanced,
+                item.lessonOpened,
+                item.hintOpened,
+                item.attempts.map { attempt -> projectAttempt(attempt, assessment) },
+            )
+        }
+    }
+
+    private fun requireValidResults(assessments: List<PracticeAssessment>, results: List<GapResult>) {
+        val slotAssessments = assessments.filter { it.slotId != null }
+        if (slotAssessments.isEmpty()) {
+            require(assessments.size == 1 && results.isEmpty()) {
+                "Single-target assessments use whole-attempt outcomes"
+            }
+            return
+        }
+        require(slotAssessments.size == assessments.size && results.size == assessments.size) {
+            "Saved gap results must cover every frozen assessment"
+        }
+        assessments.forEach { assessment -> matchingResult(results, assessment) }
+    }
+
+    private fun projectAttempt(
+        attempt: PracticeSummaryAttemptObservation,
+        assessment: PracticeAssessment,
+    ): PracticeSummaryAttemptObservation = assessment.slotId?.let {
+        val result = matchingResult(attempt.gapResults, assessment)
+        attempt.copy(
+            targetStatus = result.targetStatus,
+            linguisticStatus = result.linguisticStatus,
+            responseConstraintStatus = result.responseConstraintStatus,
+            gapResults = emptyList(),
+        )
+    } ?: attempt.copy(gapResults = emptyList())
+
+    private fun matchingResult(results: List<GapResult>, assessment: PracticeAssessment): GapResult {
+        val matching = results.filter { result ->
+            result.slotId == assessment.slotId &&
+                result.targetSkillId == assessment.targetDescriptor.targetSkillId &&
+                result.assessmentRole.wireValue == assessment.assessmentRole
+        }
+        require(matching.size == 1) { "Saved gap results must match each frozen assessment exactly once" }
+        return matching.single()
+    }
 
     private fun outcomeCounts(attempts: List<PracticeSummaryAttemptObservation>): PracticeOutcomeCounts =
         PracticeOutcomeCounts(
@@ -107,4 +190,14 @@ object PracticeSummaryCalculator {
             responseConstraintStatus != ResponseConstraintStatus.NOT_MET
 
     private fun PracticeAttemptContext.hasSupport(): Boolean = introductionOpened || lessonOpened || hintOpened
+
+    private data class SummaryUnitObservation(
+        val targetDescriptor: PracticeTargetDescriptor,
+        val assessmentRole: String?,
+        val answerExposureKeys: List<String>,
+        val advanced: Boolean,
+        val lessonOpened: Boolean,
+        val hintOpened: Boolean,
+        val attempts: List<PracticeSummaryAttemptObservation>,
+    )
 }
