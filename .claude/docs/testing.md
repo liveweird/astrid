@@ -28,7 +28,8 @@ is compiled into the test source set).
   stores share one contract (session expiry, owner isolation, attempt replay/`PayloadConflict`/`ExerciseMissing`/
   `PracticePositionConflict`, practice create `Existing`/`RequestConflict`, follow-up `SourceMissing`/`SourceActive`, support/advance
   `Missing`/`Conflict`). When a route learns a new store outcome, add the case here **before** relying on it in an HTTP test, so the
-  fake cannot drift. Concurrency, rollback and cross-pool serialization stay in `PostgresRepositoryTest` (two pools, real locks).
+  fake cannot drift. Concurrency, rollback and cross-pool serialization use real locks in
+  `PostgresRepositoryTest` and `ModuleOneLifecycleTest` (two pools).
 - **Postgres** — one Testcontainers PostgreSQL per test JVM via `PostgresTestDatabase` (lazy `object`; image pinned by tag+digest and
   checked against compose/k8s by `scripts/check-toolchain.py`; Ryuk removes it at exit). Tests call `migrate(...)` themselves, so one can
   `createDatabase("scratch")` and stop at an older migration (`V2 preserves V1 …`). Raw JDBC goes through `PostgresTestDatabase.connect()`.
@@ -50,6 +51,10 @@ Guard tests that must stay green and are never loosened to fit a change:
 - `PilotEightCompatibilityGoldenTest`, `PilotEightWireCompatibilityTest`,
   `ModuleOnePracticeCompatibilityTest` and `ModuleOnePracticeWireCompatibilityTest` — pair-eight
   private keys, review bytes, scoped teaching/exposure/outcomes, eligibility and exact wire.
+- `ModuleOneLifecycleTest` — literal first/latest outcome matrices, actual fixed-TTL expiry,
+  and database-visible owner-lock contention before concurrent operations are released.
+  The browser's missing-cookie recovery case is `module-one-continuity.spec.ts`; cookie
+  removal proves unavailable ownership, separately from the injected-clock expiry test.
 - `ServerConfigTest`, `DatabaseBootstrapTest` — env validation, bounded migration connect/login deadlines.
 
 ## Web (`web/`)
@@ -84,10 +89,10 @@ a template, never a variable. There is no coverage map: the scenario files are t
 A floor is the **integer below the measured value**, written with a dated comment, raised whenever coverage improves and **never lowered**
 (not for new code either; add tests). A tight-loop Kover disable is never committed.
 
-| Gate | Where | Floor (2026-11-09) |
+| Gate | Where | Floor (2026-11-10) |
 | --- | --- | --- |
 | engine Kover | `engine/build.gradle.kts` | line 98, branch 85 |
-| server Kover (`@Serializable` classes excluded) | `server/build.gradle.kts` | line 98, branch 80 |
+| server Kover (`@Serializable` classes excluded) | `server/build.gradle.kts` | line 98, branch 81 |
 | web vitest v8 | `web/vite.config.ts` `test.coverage.thresholds` | statements 95, branches 89, functions 97, lines 97 |
 
 Re-measure: `./gradlew :engine:koverXmlReport :server:koverXmlReport` (`check` only runs `koverVerify`, which reports pass/fail, not the
