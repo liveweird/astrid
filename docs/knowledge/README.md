@@ -95,3 +95,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Guided multiple-gap practice](guided-gap-practice.md): delivered 0.8.0 four-item session, separate slot evidence, selected-only reviews and verified compatibility/promotion.
 
 - [Inanimate-reference activation](inanimate-reference-activation.md): selected S04 subject-reference session, supplied gender, scoped evidence and compatibility/release acceptance.
+
+- [Present forms and sentence assembly](module-one-course-slice.md#following-package--s05-and-s06): selected S05–S06 activity cards, bounded grading, exposure and release acceptance.

@@ -1,0 +1,13 @@
+CATALOG	a86794f9971f1c88261dd10b106d3b732f5c98deb2b36a4bbb886fef682bc959
+PLAN	module-one-things	0	66fb753cd08aacaa72085fc32f03e1eafacb9a136ccc069f9562f129fd9a9743
+PLAN	module-one-things	1	5c8488237a3ffdc7f68bcb02db796fff5874d3e221056f67be6b074919765bd6
+PLAN	module-one-things	47	e70468823da6dcc1d7ef49b441629dc8d4f4f7a2964563c9c4631d190df313a2
+PLAN	module-one-things	2147483647	622a9b2fe3204e8d4012a64941ee7a9c81f79b5bd05c27c7ead9ea0f98d01d28
+SUMMARY	module-one-things	7761d93a724f98e82a3e6d6689e2990e3c7b2913d23c0c393969b81a0a9f8ee5
+COMPLETION	missing	false
+COMPLETION	met	true
+COMPLETION	known-wrong	true
+COMPLETION	unknown	false
+COMPLETION	case	true
+COMPLETION	multiword	true
+COMPLETION	blank	false

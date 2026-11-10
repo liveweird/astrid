@@ -1,0 +1,11 @@
+baselineCommit=3d87b4d29f956ca4140fe302c0c1e837de69c6be
+releaseVersion=0.10.0
+captureDate=2026-11-10
+contentRevision=pilot-9
+generatorRevision=generator-9
+evaluationRevision=evaluation-9
+planRevisions=module-one-things-1
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=13
+fixtureSha256=3d5062b7f4a167d4bc37670762f3b79f95e77f177252282fa6c11ca5768a9b8c
+description=The published four-item Module One S04 plan at seeds 0, 1, 47 and Int.MAX_VALUE, full teaching and policy metadata, deterministic four-item scoped assessments, feedback exposure, first/latest non-success summaries and latest-unknown completion eligibility.

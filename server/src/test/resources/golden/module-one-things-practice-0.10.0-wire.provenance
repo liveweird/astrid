@@ -1,0 +1,12 @@
+baselineCommit=3d87b4d29f956ca4140fe302c0c1e837de69c6be
+releaseSourceCommit=3d87b4d29f956ca4140fe302c0c1e837de69c6be
+releaseVersion=0.10.0
+captureDate=2026-11-10
+planRevisions=module-one-things-1
+contentRevision=pilot-9
+generatorRevision=generator-9
+evaluationRevision=evaluation-9
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=34
+fixtureSha256=37403f0a4bb18cf96fe935b0ce0a4fcd3322028d201bc49fe931e1bcba9e3453
+description=The four-item Module 1 S04 plan at four seeds; exact profile/request/private-plan and public initial/introduction-required/supported/attempted/completed wire, first/latest outcomes, latest-unknown eligibility, frozen attempt exposure/context, and request/response replay. No follow-up fallback.

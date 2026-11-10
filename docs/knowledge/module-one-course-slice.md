@@ -219,10 +219,10 @@ remains unknown. Exact correction displays the standalone form; unknown answers 
 
 ### Following package — S05 and S06
 
-**10 November 2026 — Assistant proposal only:** S05–S06 remain a separate possible package
-after S04, not an expansion of its milestone or a selected runtime release. The twelve
-activities below are authoring defaults for review. No lexical/format identifiers, learning
-revisions or plan revisions are allocated here. Danish teaching review remains outstanding.
+**10 November 2026 — Selected:** The user approved S05 and S06 as the next practice package.
+The twelve activities below define the implementation scope. Danish teaching review remains
+outstanding. Implementation targets app 0.11.0 and learning pair ten. The published pair-nine
+and S04 compatibility archives are added before the production revision changes.
 
 #### Literal activity cards
 
@@ -354,7 +354,7 @@ support preserves drafts. No targeted review, score lock or automatic next-run c
   and [readiness](../../web/src/pages/practice/ActivePractice.tsx) currently recognize E003
   ordering only. Guided word tiles need transport, readiness, feedback and recovery integration.
 
-If selected later: finalize content/outcomes; add four scoped operations reusing existing
+For implementation, finalize content and outcomes, add four scoped operations reusing existing
 choice/text/block/tile machinery with new-revision data; integrate closed API correlations,
 fingerprints and pinned plans/policies; extend the support/outbox/summary shell; independently
 review and release. Follow the [compatibility procedure](../../.claude/docs/compatibility.md),

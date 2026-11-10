@@ -1,0 +1,11 @@
+baselineCommit=3d87b4d29f956ca4140fe302c0c1e837de69c6be
+releaseSourceCommit=3d87b4d29f956ca4140fe302c0c1e837de69c6be
+releaseVersion=0.10.0
+captureDate=2026-11-10
+contentRevision=pilot-9
+generatorRevision=generator-9
+evaluationRevision=evaluation-9
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=3578
+fixtureSha256=0d8922c87ac8d9e81fb4e85cea87f7f37b135354cb40f854884ca68c1a91b771
+description=All twenty-one pair-nine formats: inherited finite cycles and boundaries, bounded E014 samples, all E016-E021 tasks/scopes/private metadata, public and inspector wire, fingerprints, and canonical/known-wrong/case/blank/unknown/Unicode/multiword/wrong-kind/replay grading cases.

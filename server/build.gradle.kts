@@ -222,6 +222,50 @@ tasks.register<JavaExec>("exportModuleOnePracticeWireCompatibility") {
     outputs.files(moduleOnePracticeWireFixture, moduleOnePracticeWireProvenance)
 }
 
+val pilotNineWireFixture =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-9-generator-9-wire.tsv")
+val pilotNineWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-9-generator-9-wire.provenance")
+
+tasks.register<JavaExec>("exportPilotNineWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-9 public and private wire compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.PilotNineWireCompatibilityExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                pilotNineWireFixture.asFile.absolutePath,
+                pilotNineWireProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(pilotNineWireFixture, pilotNineWireProvenance)
+}
+
+val moduleOneThingsPracticeWireFixture =
+    layout.projectDirectory.file("src/test/resources/golden/module-one-things-practice-0.10.0-wire.tsv")
+val moduleOneThingsPracticeWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/module-one-things-practice-0.10.0-wire.provenance")
+
+tasks.register<JavaExec>("exportModuleOneThingsPracticeWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.10.0 Module One S04 practice wire fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.ModuleOneThingsPracticeWireCompatibilityExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                moduleOneThingsPracticeWireFixture.asFile.absolutePath,
+                moduleOneThingsPracticeWireProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(moduleOneThingsPracticeWireFixture, moduleOneThingsPracticeWireProvenance)
+}
+
 tasks.test {
     useJUnit()
 }
