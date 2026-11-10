@@ -7,21 +7,22 @@ Codex reads `AGENTS.md`, which points here.
 
 Astrid is a Danish reading and writing engine for English-speaking complete beginners. Today it is a
 **private development preview**: a standalone engine playground (`/`) and short guided practice sessions
-(`/practice`) over a connected beginner slice — 25 vocabulary entries (magazine is choice/matching-only;
+(`/practice`) over a connected beginner slice — 26 vocabulary entries (magazine is choice/matching-only;
 teacher is supplied first-step vocabulary), 109 licensed complete sentences and
-nineteen exercise entries (grammar selection/supply/order/repair, vocabulary recognition/recall, constrained
+twenty-one exercise entries (grammar selection/supply/order/repair, vocabulary recognition/recall, constrained
 sentence writing, short reading comprehension, English→Danish word choice and all/spare word tiles,
-bilingual matching, verb/article gaps, and scoped subject-pronoun/stored `er` selection and recall).
+bilingual matching, verb/article gaps, and scoped subject-pronoun/stored `er` selection and recall, and inanimate subject reference).
 Generation and grading are deterministic and reproducible
 from seed, index and revision. All Danish content is a linguistic **draft awaiting teaching review**; a
 passing test never makes content teacher-approved. Current app version: `web/src/changelog/version.ts`.
 Guided practice offers Mixed practice (eight parts), Present verb forms (six) and Verbs and articles
 together (four). The third profile and its selected-only reviews pin pair seven; older plans retain pair three.
-**Module 1: First steps** adds three independent six-item beginner profiles, literally pinned to
-pair eight. They require saved teaching before assessment, expose server-computed continuation
+**Module 1: First steps** includes three independent six-item beginner profiles, literally pinned to
+pair eight, and a four-item **Referring to one thing** profile pinned to pair nine. They require saved teaching before assessment, expose server-computed continuation
 eligibility and keep scoped selection/recall results. They offer repeat/next, not targeted reviews.
 Existing format pools and all retained pairs/plans stay unchanged; the first-step contract is
-`docs/knowledge/module-one-activation.md`.
+`docs/knowledge/module-one-activation.md`; S04 is specified in
+`docs/knowledge/inanimate-reference-activation.md`.
 Next work: `BACKLOG.md`. Product scope and decisions: `docs/knowledge/product-direction.md`.
 
 Brand: Danish red accent with separately labelled learning-feedback colours (`web/src/theme.ts`); the logo (a girl

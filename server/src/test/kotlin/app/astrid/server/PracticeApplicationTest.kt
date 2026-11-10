@@ -46,7 +46,7 @@ class PracticeApplicationTest {
             trustedHost()
             cookie("astrid_session", auth.cookie)
         }.bodyAsText().let { wireJson.parseToJsonElement(it).jsonObject.getValue("profiles").jsonArray }
-        assertEquals(6, profiles.size)
+        assertEquals(7, profiles.size)
         val profile = profiles.single { it.jsonObject.getValue("focusId").jsonPrimitive.content == "verb-article-gaps" }.jsonObject
         assertEquals("verb-article-gaps-1", profile.getValue("planRevision").jsonPrimitive.content)
         assertEquals("Verbs and articles together", profile.getValue("title").jsonPrimitive.content)
@@ -162,6 +162,7 @@ class PracticeApplicationTest {
                 "module-one-singular/module-one-singular-1",
                 "module-one-groups/module-one-groups-1",
                 "module-one-er/module-one-er-1",
+                "module-one-things/module-one-things-1",
             ),
             choices.map { profile ->
                 profile.jsonObject.let {
@@ -169,7 +170,9 @@ class PracticeApplicationTest {
                 }
             },
         )
-        assertEquals(listOf(8, 6, 4, 6, 6, 6), choices.map { it.jsonObject.getValue("itemCount").jsonPrimitive.content.toInt() })
+        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4), choices.map {
+            it.jsonObject.getValue("itemCount").jsonPrimitive.content.toInt()
+        })
 
         now.set(61_001)
         val expired = client.get("/api/v1/practice-profiles") {
@@ -261,6 +264,68 @@ class PracticeApplicationTest {
                 followUpBody(UUID.randomUUID().toString(), listOf("grammar:G003:human-singular:selection")),
             ).status,
         )
+    }
+
+    @Test
+    fun `referring to things rejects invalid choices preserves replay and blocks on latest unknown`() = testApplication {
+        val inspectorKey = "r".repeat(32)
+        application { astridModule(config(inspectorKey), InMemoryStores()) }
+        val auth = authenticate()
+        val practiceId = UUID.randomUUID().toString()
+        val created = create(
+            auth.cookie,
+            auth.ownerId,
+            """{"practiceSessionId":"$practiceId","focusId":"module-one-things","planRevision":"module-one-things-1","seed":7}""",
+        )
+        assertEquals(HttpStatusCode.Created, created.status)
+        var state = wireJson.parseToJsonElement(created.bodyAsText()).jsonObject
+        assertEquals(4, state.getValue("itemCount").jsonPrimitive.content.toInt())
+        assertTrue(state.getValue("introductionRequired").jsonPrimitive.content.toBoolean())
+        assertEquals(HttpStatusCode.OK, support(auth, practiceId, """{"kind":"introduction"}""").status)
+
+        repeat(4) { position ->
+            val exercise = state.getValue("currentExercise").jsonObject
+            val exerciseId = exercise.getValue("id").jsonPrimitive.content
+            val expected = inspectInanimateReference(auth.cookie, exerciseId, inspectorKey)
+            if (position == 0) {
+                val invalid = submit(
+                    auth.cookie,
+                    attemptBody(UUID.randomUUID().toString(), exerciseId, "not a displayed choice"),
+                )
+                assertEquals(HttpStatusCode.BadRequest, invalid.status)
+                val unchanged = wireJson.parseToJsonElement(getPractice(auth.cookie, practiceId).bodyAsText()).jsonObject
+                assertEquals(0, unchanged.getValue("items").jsonArray.first().jsonObject
+                    .getValue("attemptCount").jsonPrimitive.content.toInt())
+            }
+            val attemptId = UUID.randomUUID().toString()
+            val body = attemptBody(attemptId, exerciseId, expected)
+            val accepted = submit(auth.cookie, body)
+            assertEquals(HttpStatusCode.OK, accepted.status)
+            assertEquals(accepted.bodyAsText(), submit(auth.cookie, body).bodyAsText())
+            if (position == 2) {
+                assertEquals(
+                    HttpStatusCode.OK,
+                    submit(auth.cookie, attemptBody(UUID.randomUUID().toString(), exerciseId, "dem")).status,
+                )
+                val blocked = wireJson.parseToJsonElement(getPractice(auth.cookie, practiceId).bodyAsText()).jsonObject
+                assertFalse(blocked.getValue("items").jsonArray[position].jsonObject
+                    .getValue("canAdvance").jsonPrimitive.content.toBoolean())
+                assertEquals(HttpStatusCode.Conflict, advance(auth, practiceId, position).status)
+                assertEquals(
+                    HttpStatusCode.OK,
+                    submit(auth.cookie, attemptBody(UUID.randomUUID().toString(), exerciseId, expected)).status,
+                )
+            }
+            val advanced = advance(auth, practiceId, position)
+            assertEquals(HttpStatusCode.OK, advanced.status)
+            state = wireJson.parseToJsonElement(advanced.bodyAsText()).jsonObject
+        }
+        assertEquals("completed", state.getValue("state").jsonPrimitive.content)
+        val rows = state.getValue("summary").jsonObject.getValue("rows").jsonArray.map { it.jsonObject }
+        assertEquals(setOf("selection", "recall"), rows.map { it.getValue("assessmentMode").jsonPrimitive.content }.toSet())
+        assertTrue(rows.all {
+            it.getValue("targetScopeId").jsonPrimitive.content == "inanimate-singular-subject"
+        })
     }
 
     @Test
@@ -682,6 +747,19 @@ class PracticeApplicationTest {
             wireJson.parseToJsonElement(text).jsonObject.getValue("moduleOneSource").jsonObject
                 .getValue("expectedForm").jsonPrimitive.content
         }
+
+    private suspend fun ApplicationTestBuilder.inspectInanimateReference(
+        cookie: String,
+        exerciseId: String,
+        key: String,
+    ): String = client.get("/api/v1/dev/exercises/$exerciseId") {
+        trustedHost()
+        cookie("astrid_session", cookie)
+        header("X-Astrid-Inspector-Key", key)
+    }.bodyAsText().let { text ->
+        wireJson.parseToJsonElement(text).jsonObject.getValue("inanimateReferenceSource").jsonObject
+            .getValue("expectedForm").jsonPrimitive.content
+    }
 
     private suspend fun ApplicationTestBuilder.submitGaps(
         cookie: String,

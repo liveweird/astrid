@@ -324,6 +324,24 @@ data class ModuleOneSourceDetailsDto(
 )
 
 @Serializable
+data class InanimateReferenceSourceDetailsDto(
+    val taskId: String,
+    val targetEntryId: String,
+    val targetSenseId: String,
+    val expectedForm: String,
+    val antecedentEntryId: String,
+    val antecedentSenseId: String,
+    val antecedentArticle: String,
+    val antecedentGender: String,
+    val antecedentNumber: String,
+    val requestedRole: String,
+    val casePolicy: String,
+    val contextVariantId: String,
+    val knownAlternativeForms: List<String>,
+    val choiceRationales: List<ModuleOneChoiceRationaleDto>,
+)
+
+@Serializable
 data class ExerciseInspectorDto(
     val exercise: ExerciseResponse,
     val seed: Int,
@@ -344,4 +362,6 @@ data class ExerciseInspectorDto(
     val gapSource: GapSourceDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val moduleOneSource: ModuleOneSourceDetailsDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val inanimateReferenceSource: InanimateReferenceSourceDetailsDto? = null,
 )

@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This proposed walkthrough helps evaluate the engine before expanding content or producing media. Open `http://localhost:8088`. It is a private developer preview, with nineteen entries, three beginner sessions and draft Danish content rather than a complete beginner course.
+This proposed walkthrough helps evaluate the engine before expanding content or producing media. Open `http://localhost:8088`. It is a private developer preview, with twenty-one entries, four beginner sessions and draft Danish content rather than a complete beginner course.
 
-## Try the nineteen entries
+## Try the twenty-one entries
 
 1. **Present form:** open “Learn this first,” then choose the finite present form. The alternatives deliberately use the same verb. Check the answer, inspect feedback, retry, then advance. Opening the lesson or hint records supported practice; that evidence stays attached to retries of the same exercise.
 2. **Article:** expand “Generation controls” and select “Supply the indefinite article.” Type `en` or `et`. Try the wrong gender, then retry with the matching form. A matching accented numeral such as `én` has a different target interpretation from the requested unstressed article; feedback should distinguish that from a gender error.
@@ -35,6 +35,9 @@ Retry with both choices retained, change/clear either selection, and compare the
 18. **Present er selection:** select “Choose the present form of være.” Choose the introduced finite form rather than the infinitive, using supplied name/identity/profession vocabulary.
 19. **Present er recall:** select “Recall the present form of være.” Type `er`. Compare `Er`, a known wrong form and an unsupported word; target, written form and unknown outcomes stay separate.
 
+20. **Thing-reference selection:** select “Choose a reference word for one thing.” Choose the introduced `den` or `det` for the same individual book or letter. Every context supplies the noun bundle, meaning and gender; this assesses reference, not gender recall.
+21. **Thing-reference recall:** select “Recall a reference word for one thing.” Type the lowercase reference word. Compare the other introduced word, matching `Den`/`Det`, a multiword answer and unsupported `dem`; unknown writing must not be called invalid Danish.
+
 Use Tab/Enter throughout and try the narrow layout and both themes. If a result cannot be confirmed after a connection problem, “Check the same attempt” safely replays the original submission.
 
 ## Try guided practice
@@ -57,20 +60,24 @@ Assess pacing, exercise transitions, explanation clarity and whether the summary
 ## Try the first beginner sessions
 
 Under **Module 1: First steps**, try **Talking about one person**, **Talking to and about groups**,
-then **Using the verb to be**. Each has six activities. Try entering the second or third directly:
+then **Using the verb to be** (six activities each), followed by **Referring to one thing**
+(four activities). Try entering any profile directly:
 required teaching should introduce the needed words and references before answers appear.
 Assess whether the explanation length and examples work for a complete beginner.
 
 Choose and type answers; compare a known mistake, ambiguous `i`/`De` spelling and an unsupported
 word. An unknown answer must remain available for support/retry, with Continue disabled.
 A known correction may continue. Opening a lesson/hint must preserve an unfinished answer.
-Refresh an answered item and compare the saved response. On completion, compare recognition
+Refresh an answered item and compare the saved response. On completion, compare selection
 and written-recall cards, first/latest answers and earlier teaching exposure.
 
 Use **Repeat this session** or the suggested **Next** to open the chooser; cancelling should
 retain the completed run. These sessions offer no target-selection review. Completion is
 practice evidence after teaching, not independent mastery. The [activation contract](module-one-activation.md)
-records the limited content and remaining course scope.
+records the first three profiles; the [S04 contract](inanimate-reference-activation.md) defines supplied
+`en bog`/`et brev` gender and separate referential `det`. S04 introduces both forms before two
+selections and two recalls. Check its two scoped result rows and that S03 suggests S04,
+while S04 offers no unavailable next session.
 
 ## Try targeted follow-up practice
 
@@ -94,7 +101,8 @@ The [first-step inventory](practice-variation-audit.md#first-step-finite-invento
 separately records the bounded one-person, group and `er` sequences. A new seed does not guarantee
 new content; the required teaching and answer banks make later recall potentially supported.
 
-For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-8.md`. Retained revision seven is available with `:engine:exportPilotSevenReview` at `engine/build/review/pilot-7.md`; revision six is available with `:engine:exportPilotSixReview` at `engine/build/review/pilot-6.md`; revision five with `:engine:exportPilotFiveReview` at `engine/build/review/pilot-5.md`; revision four with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
+For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-9.md`. Retained revision eight is available with `:engine:exportPilotEightReview` at
+`engine/build/review/pilot-8-retained.md`; revision seven is available with `:engine:exportPilotSevenReview` at `engine/build/review/pilot-7.md`; revision six is available with `:engine:exportPilotSixReview` at `engine/build/review/pilot-6.md`; revision five with `:engine:exportPilotFiveReview` at `engine/build/review/pilot-5.md`; revision four with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
 
 ## Record feedback
 

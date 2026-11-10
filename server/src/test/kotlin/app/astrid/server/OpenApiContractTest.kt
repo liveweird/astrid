@@ -78,6 +78,7 @@ class OpenApiContractTest {
             "module-one-singular" to "module-one-singular-1",
             "module-one-groups" to "module-one-groups-1",
             "module-one-er" to "module-one-er-1",
+            "module-one-things" to "module-one-things-1",
         )
         for (focus in supportedPairs.map { it.first }) {
             for (revision in supportedPairs.map { it.second }) {
@@ -137,6 +138,13 @@ class OpenApiContractTest {
             exerciseRequest("E017", "G003", "pilot-8", "generator-8"),
             exerciseRequest("E018", "G004", "pilot-8", "generator-8"),
             exerciseRequest("E019", "G004", "pilot-8", "generator-8"),
+            exerciseRequest("E001", "G004", "pilot-9", "generator-9"),
+            exerciseRequest("E014", null, "pilot-9", "generator-9"),
+            exerciseRequest("E015", "G004", "pilot-9", "generator-9"),
+            exerciseRequest("E016", "G003", "pilot-9", "generator-9"),
+            exerciseRequest("E019", "G004", "pilot-9", "generator-9"),
+            exerciseRequest("E020", "G038", "pilot-9", "generator-9"),
+            exerciseRequest("E021", "G038", "pilot-9", "generator-9"),
         )
         val rejected = listOf(
             exerciseRequest("E009", null, "pilot-4", "generator-4"),
@@ -164,6 +172,10 @@ class OpenApiContractTest {
             exerciseRequest("E017", null, "pilot-8", "generator-8"),
             exerciseRequest("E018", "G003", "pilot-8", "generator-8"),
             exerciseRequest("E019", "G004", "pilot-7", "generator-7"),
+            exerciseRequest("E020", "G003", "pilot-9", "generator-9"),
+            exerciseRequest("E021", null, "pilot-9", "generator-9"),
+            exerciseRequest("E020", "G038", "pilot-8", "generator-8"),
+            exerciseRequest("E020", "G038", "pilot-9", "generator-8"),
         )
 
         accepted.forEach { assertExerciseRequestValidity(it, expected = true) }
@@ -224,6 +236,8 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E017", "G003", "human-group"),
             moduleOneExerciseResponse("E018", "G004", "vaere-present"),
             moduleOneExerciseResponse("E019", "G004", "vaere-present"),
+            moduleOneExerciseResponse("E020", "G038", "inanimate-singular-subject", "pilot-9"),
+            moduleOneExerciseResponse("E021", "G038", "inanimate-singular-subject", "pilot-9"),
         )
         val rejected = listOf(
             exerciseResponse("E009", "pilot-4", "generator-4"),
@@ -310,6 +324,8 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E016", "G004", "human-singular"),
             moduleOneExerciseResponse("E017", "G003", "vaere-present"),
             moduleOneExerciseResponse("E018", "G004", "human-group"),
+            moduleOneExerciseResponse("E020", "G003", "inanimate-singular-subject", "pilot-9"),
+            moduleOneExerciseResponse("E021", "G038", "human-singular", "pilot-9"),
         )
 
         accepted.forEach { assertExerciseResponseValidity(it, expected = true) }
@@ -380,6 +396,62 @@ class OpenApiContractTest {
         assertEquals(
             "createPracticeFollowUp",
             spec.paths.getValue("/api/v1/practice-sessions/{id}/follow-ups").post.operationId,
+        )
+    }
+
+    @Test
+    fun `current matching and gap attempt responses conform to the contract`() = testApplication {
+        val inspectorKey = "k".repeat(32)
+        application { astridModule(config(inspectorKey = inspectorKey), InMemoryStores()) }
+        val sessionResponse = client.post("/api/v1/development-session") {
+            trustedHost()
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+        val cookie = sessionResponse.headers[HttpHeaders.SetCookie]!!
+            .substringAfter("astrid_session=").substringBefore(';')
+
+        val matchingExercise = createCurrentExercise(cookie, "E014")
+        val matchingId = matchingExercise.getValue("id").jsonPrimitive.content
+        val matchingInspector = inspectExercise(cookie, inspectorKey, matchingId)
+        val matchingPairs = matchingInspector.getValue("matchingSource").jsonObject
+            .getValue("pairs").jsonArray.map { value ->
+                val pair = value.jsonObject
+                app.astrid.server.exercises.MatchingPairDto(
+                    pair.getValue("leftId").jsonPrimitive.content,
+                    pair.getValue("rightId").jsonPrimitive.content,
+                )
+            }
+        val matchingAttempt = submitAttempt(
+            cookie,
+            matchingId,
+            AttemptAnswerDto.Matching(matchingPairs),
+        )
+        validate(HttpMethod.Post, "/api/v1/attempts", matchingAttempt)
+        assertEquals(
+            "evaluation-9",
+            wireJson.parseToJsonElement(matchingAttempt.bodyAsText()).jsonObject
+                .getValue("evaluationRevision").jsonPrimitive.content,
+        )
+
+        val gapExercise = createCurrentExercise(cookie, "E015", "G004")
+        val gapId = gapExercise.getValue("id").jsonPrimitive.content
+        val gapInspector = inspectExercise(cookie, inspectorKey, gapId)
+        val gapSelections = gapInspector.getValue("gapSource").jsonObject
+            .getValue("slots").jsonArray.map { value ->
+                val slot = value.jsonObject
+                GapSelectionDto(
+                    slot.getValue("slotId").jsonPrimitive.content,
+                    slot.getValue("expectedChoiceId").jsonPrimitive.content,
+                )
+            }
+        val gapAttempt = submitAttempt(cookie, gapId, AttemptAnswerDto.Gaps(gapSelections))
+        validate(HttpMethod.Post, "/api/v1/attempts", gapAttempt)
+        assertEquals(
+            "evaluation-9",
+            wireJson.parseToJsonElement(gapAttempt.bodyAsText()).jsonObject
+                .getValue("evaluationRevision").jsonPrimitive.content,
         )
     }
 
@@ -1180,6 +1252,55 @@ class OpenApiContractTest {
         }
     }
 
+    private suspend fun ApplicationTestBuilder.createCurrentExercise(
+        cookie: String,
+        formatId: String,
+        targetSkillId: String? = null,
+    ): JsonObject {
+        val target = targetSkillId?.let { "\"targetSkillId\":\"$it\"," }.orEmpty()
+        val response = client.post("/api/v1/exercises") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """{"formatId":"$formatId",$target"seed":47,"index":0,"contentRevision":"pilot-9","generatorRevision":"generator-9"}""",
+            )
+        }
+        validate(HttpMethod.Post, "/api/v1/exercises", response)
+        return wireJson.parseToJsonElement(response.bodyAsText()).jsonObject
+    }
+
+    private suspend fun ApplicationTestBuilder.inspectExercise(
+        cookie: String,
+        inspectorKey: String,
+        exerciseId: String,
+    ): JsonObject {
+        val response = client.get("/api/v1/dev/exercises/$exerciseId") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+            header("X-Astrid-Inspector-Key", inspectorKey)
+        }
+        validate(HttpMethod.Get, "/api/v1/dev/exercises/$exerciseId", response)
+        return wireJson.parseToJsonElement(response.bodyAsText()).jsonObject
+    }
+
+    private suspend fun ApplicationTestBuilder.submitAttempt(
+        cookie: String,
+        exerciseId: String,
+        answer: AttemptAnswerDto,
+    ): HttpResponse = client.post("/api/v1/attempts") {
+        trustedHost()
+        cookie("astrid_session", cookie)
+        header("X-Astrid-Client", "playground")
+        contentType(ContentType.Application.Json)
+        setBody(
+            wireJson.encodeToString(
+                AttemptRequest(UUID.randomUUID().toString(), exerciseId, answer, false),
+            ),
+        )
+    }
+
     private suspend fun ApplicationTestBuilder.submitModuleOneAttempt(
         cookie: String,
         exerciseId: String,
@@ -1368,10 +1489,16 @@ class OpenApiContractTest {
         return """{"id":"00000000-0000-0000-0000-000000000001","formatId":"E015","targetSkillId":"$target","supportSkillIds":["G001","G002","G003","G005","G006"],"contentRevision":"$content","generatorRevision":"$generator","instruction":"Instruction","context":"Context","prompt":$prompt,"introduction":[],"hint":"Hint"}"""
     }
 
-    private fun moduleOneExerciseResponse(format: String, target: String, scope: String): String {
-        val choices = if (format in setOf("E016", "E018")) "[\"jeg\",\"du\"]" else "[]"
+    private fun moduleOneExerciseResponse(
+        format: String,
+        target: String,
+        scope: String,
+        content: String = "pilot-8",
+    ): String {
+        val choices = if (format in setOf("E016", "E018", "E020")) "[\"den\",\"det\"]" else "[]"
         val prompt = """{"before":"","after":"","choices":$choices,"blocks":[],"punctuation":"","inputLabel":"Danish word","cue":"English cue","cueLanguage":"en","answerLanguage":"da"}"""
-        return """{"id":"00000000-0000-0000-0000-000000000001","formatId":"$format","targetSkillId":"$target","targetScopeId":"$scope","supportSkillIds":[],"contentRevision":"pilot-8","generatorRevision":"generator-8","instruction":"Instruction","context":"Context","prompt":$prompt,"introduction":[],"hint":"Hint"}"""
+        val generator = if (content == "pilot-9") "generator-9" else "generator-8"
+        return """{"id":"00000000-0000-0000-0000-000000000001","formatId":"$format","targetSkillId":"$target","targetScopeId":"$scope","supportSkillIds":[],"contentRevision":"$content","generatorRevision":"$generator","instruction":"Instruction","context":"Context","prompt":$prompt,"introduction":[],"hint":"Hint"}"""
     }
 
     private fun io.ktor.client.request.HttpRequestBuilder.trustedHost() {

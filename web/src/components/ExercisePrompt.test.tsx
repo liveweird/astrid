@@ -73,28 +73,58 @@ describe("ExercisePrompt", () => {
   });
 
   it.each([
-    ["E017", "Danish subject word", "Several people are being addressed."],
-    ["E019", "Present verb form", "Complete the Danish statement meaning ‘It is a letter.’"],
-  ] as const)("uses the standalone %s label and casing boundary", (formatId, label, cue) => {
+    ["E017", "Danish subject word", "Several people are being addressed.", "en"],
+    ["E019", "Present verb form", "Complete the Danish statement meaning ‘It is a letter.’", "en"],
+    ["E021", "Danish reference word", "et brev", "da"],
+  ] as const)("uses the standalone %s label and casing boundary", (formatId, label, cue, cueLanguage) => {
     render(
       <MantineProvider env="test">
         <ExercisePrompt
           exercise={{
             ...exercise(formatId as Exercise["formatId"], {
               before: "", after: "", punctuation: "", cue,
-              cueLanguage: "en", answerLanguage: "da", choices: [], inputLabel: label,
+              cueLanguage, answerLanguage: "da", choices: [], inputLabel: label,
             }),
-            targetSkillId: formatId === "E017" ? "G003" : "G004",
-            targetScopeId: formatId === "E017" ? "human-group" : "vaere-present",
+            targetSkillId: formatId === "E017" ? "G003" : formatId === "E021" ? "G038" : "G004",
+            targetScopeId: formatId === "E017" ? "human-group" : formatId === "E021" ? "inanimate-singular-subject" : "vaere-present",
           } as Exercise}
           text="" order={[]} disabled={false} onText={vi.fn()} onOrder={vi.fn()}
         />
       </MantineProvider>,
     );
 
-    expect(screen.getByText(cue)).toHaveAttribute("lang", "en");
+    expect(screen.getByText(cue)).toHaveAttribute("lang", cueLanguage);
     expect(screen.getByRole("textbox", { name: label })).toHaveAttribute("autocapitalize", "none");
     expect(screen.getByRole("textbox", { name: label })).toHaveAttribute("lang", "da");
+    if (formatId === "E021") {
+      expect(screen.getByRole("group", { name: "Danish standalone reference word response" })).toBeVisible();
+    }
+  });
+
+  it("names one-thing selection as standalone reference-word choices", async () => {
+    const onText = vi.fn();
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E020", {
+              before: "", after: "", punctuation: "", cue: "en bog",
+              cueLanguage: "da", answerLanguage: "da", choices: ["den", "det"],
+            }),
+            targetSkillId: "G038", targetScopeId: "inanimate-singular-subject",
+          } as Exercise}
+          text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    const choices = screen.getByRole("group", { name: "Danish standalone reference word choices" });
+    expect(choices).toHaveAttribute("lang", "en");
+    expect(screen.getByText("en bog")).toHaveAttribute("lang", "da");
+    expect(screen.getByText("den")).toHaveAttribute("lang", "da");
+    expect(screen.getByText("det")).toHaveAttribute("lang", "da");
+    await userEvent.click(screen.getByRole("button", { name: "den" }));
+    expect(onText).toHaveBeenCalledWith("den");
   });
 
   it("renders a full-sentence English cue with a Danish writing area and caret-aware character help", async () => {

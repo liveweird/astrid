@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.10.0",
+    date: "2026-11-10",
+    body: `**Refer to one thing with den and det.**
+
+- **Referring to one thing** adds a four-part session to Module 1: First steps. Learn to refer back to a particular book or letter using den or det.
+- Each situation supplies the Danish noun with its article, meaning and gender. Read the introduction, then choose and type the introduced reference words.
+- See separate selection and written-recall results, with support, editable retries and saved-session recovery.
+- Continue from **Using the verb to be**, enter the session directly, or repeat it from its summary.
+- The material remains a draft awaiting Danish teaching review. Earlier exercises and saved practice keep their original behavior.`,
+  },
+  {
     version: "0.9.0",
     date: "2026-11-10",
     body: `**Take your first steps in Danish.**

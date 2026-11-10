@@ -60,7 +60,54 @@ class ModuleOneApplicationTest {
             ),
             fingerprint(source.copy(choiceRationales = source.choiceRationales.reversed())),
         )
-        mutations.forEach { assertNotEquals(original, it) }
+        mutations.forEachIndexed { index, mutation -> assertNotEquals(original, mutation, "mutation $index") }
+    }
+
+    @Test
+    fun `pair nine exposes only the inanimate scope publicly and maps the private reference source`() {
+        val exercise = engine.generate(GenerationRequest("E020", "G038", 7, 0, "pilot-9", "generator-9"))
+        val public = exercise.toResponse(EXERCISE_ID)
+        val source = assertNotNull(exercise.toInspector(EXERCISE_ID).inanimateReferenceSource)
+
+        assertEquals("inanimate-singular-subject", public.targetScopeId)
+        assertEquals(exercise.inspector.inanimateReferenceSource?.expectedForm, source.expectedForm)
+        assertEquals("subject", source.requestedRole)
+        assertNull(public.lexicalTarget)
+    }
+
+    @Test
+    fun `pair nine fingerprint covers every inanimate reference source field and order`() {
+        val exercise = engine.generate(GenerationRequest("E020", "G038", 7, 0, "pilot-9", "generator-9"))
+        val source = assertNotNull(exercise.inspector.inanimateReferenceSource)
+        val rationale = source.choiceRationales.first()
+        val original = exercise.reproductionFingerprint()
+        fun fingerprint(changed: app.astrid.engine.InanimateReferenceSourceDetails) = exercise.reproductionFingerprint(
+            inspectorForFingerprint = exercise.inspector.copy(inanimateReferenceSource = changed),
+        )
+        val mutations = listOf(
+            exercise.reproductionFingerprint(targetScopeIdForFingerprint = "changed"),
+            fingerprint(source.copy(taskId = "changed")),
+            fingerprint(source.copy(targetEntryId = "changed")),
+            fingerprint(source.copy(targetSenseId = "changed")),
+            fingerprint(source.copy(expectedForm = "changed")),
+            fingerprint(source.copy(knownAlternativeForms = source.knownAlternativeForms + "changed")),
+            fingerprint(source.copy(antecedentEntryId = "changed")),
+            fingerprint(source.copy(antecedentSenseId = "changed")),
+            fingerprint(source.copy(antecedentArticle = "changed")),
+            fingerprint(source.copy(antecedentGender = "changed")),
+            fingerprint(source.copy(antecedentNumber = "changed")),
+            fingerprint(source.copy(requestedRole = "changed")),
+            fingerprint(source.copy(casePolicy = "changed")),
+            fingerprint(source.copy(contextVariantId = "changed")),
+            fingerprint(
+                source.copy(choiceRationales = listOf(rationale.copy(choice = "changed")) + source.choiceRationales.drop(1)),
+            ),
+            fingerprint(
+                source.copy(choiceRationales = listOf(rationale.copy(rationale = "changed")) + source.choiceRationales.drop(1)),
+            ),
+            fingerprint(source.copy(choiceRationales = source.choiceRationales.reversed())),
+        )
+        mutations.forEachIndexed { index, mutation -> assertNotEquals(original, mutation, "mutation $index") }
     }
 
     @Test

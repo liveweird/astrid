@@ -136,6 +136,24 @@ internal fun GeneratedExercise.toInspector(id: String) = ExerciseInspectorDto(
             source.choiceRationales.map { ModuleOneChoiceRationaleDto(it.choice, it.rationale) },
         )
     },
+    inanimateReferenceSource = inspector.inanimateReferenceSource?.toDto(),
+)
+
+private fun app.astrid.engine.InanimateReferenceSourceDetails.toDto() = InanimateReferenceSourceDetailsDto(
+    taskId = taskId,
+    targetEntryId = targetEntryId,
+    targetSenseId = targetSenseId,
+    expectedForm = expectedForm,
+    antecedentEntryId = antecedentEntryId,
+    antecedentSenseId = antecedentSenseId,
+    antecedentArticle = antecedentArticle,
+    antecedentGender = antecedentGender,
+    antecedentNumber = antecedentNumber,
+    requestedRole = requestedRole,
+    casePolicy = casePolicy,
+    contextVariantId = contextVariantId,
+    knownAlternativeForms = knownAlternativeForms,
+    choiceRationales = choiceRationales.map { ModuleOneChoiceRationaleDto(it.choice, it.rationale) },
 )
 
 internal fun GeneratedExercise.reproductionFingerprint(
@@ -151,25 +169,13 @@ internal fun GeneratedExercise.reproductionFingerprint(
     val legacyCanonical = legacyFingerprintCanonical(promptForFingerprint, inspectorForFingerprint)
     val pairTwoCanonical = legacyCanonical +
         listOf(promptForFingerprint.inputLabel.orEmpty(), promptForFingerprint.replacementWord.orEmpty())
-    val pairThreeCanonical = run {
-        val target = lexicalTargetForFingerprint
-        val source = inspectorForFingerprint.lexicalSource
-        pairTwoCanonical + listOf(
-            target?.entryId.orEmpty(),
-            target?.senseId.orEmpty(),
-            target?.facet.orEmpty(),
-            target?.direction.orEmpty(),
-            promptForFingerprint.cue.orEmpty(),
-            promptForFingerprint.cueLanguage.orEmpty(),
-            promptForFingerprint.answerLanguage.orEmpty(),
-            source?.entryId.orEmpty(),
-            source?.senseId.orEmpty(),
-            source?.headword.orEmpty(),
-            source?.gloss.orEmpty(),
-            source?.article.orEmpty(),
-            supportSkillIdsForFingerprint.joinToString(","),
-        )
-    }
+    val pairThreeCanonical = pairThreeFingerprintCanonical(
+        pairTwoCanonical,
+        promptForFingerprint,
+        lexicalTargetForFingerprint,
+        inspectorForFingerprint,
+        supportSkillIdsForFingerprint,
+    )
     val canonical = when (contentRevision to generatorRevision) {
         CONTENT_REVISION to GENERATOR_REVISION -> legacyCanonical.joinToString("\u001f")
         "pilot-2" to "generator-2" -> pairTwoCanonical.joinToString("\u001f")
@@ -219,11 +225,43 @@ internal fun GeneratedExercise.reproductionFingerprint(
             targetScopeIdForFingerprint,
             inspectorForFingerprint.moduleOneSource,
         )
+        "pilot-9" to "generator-9" -> pairNineFingerprintCanonical(
+            promptForFingerprint,
+            lexicalTargetForFingerprint,
+            inspectorForFingerprint,
+            supportSkillIdsForFingerprint,
+            readingTargetForFingerprint,
+            introductionForFingerprint,
+            lexicalTargetsForFingerprint,
+            targetScopeIdForFingerprint,
+        )
         else -> error("Unsupported fingerprint revision pair: $contentRevision/$generatorRevision")
     }
     return MessageDigest.getInstance("SHA-256").digest(canonical.toByteArray(Charsets.UTF_8))
         .joinToString("") { "%02x".format(it) }
 }
+
+private fun pairThreeFingerprintCanonical(
+    pairTwoCanonical: List<String>,
+    prompt: ExercisePrompt,
+    target: LexicalTarget?,
+    inspector: ExerciseInspector,
+    supportSkillIds: List<String>,
+): List<String> = pairTwoCanonical + listOf(
+    target?.entryId.orEmpty(),
+    target?.senseId.orEmpty(),
+    target?.facet.orEmpty(),
+    target?.direction.orEmpty(),
+    prompt.cue.orEmpty(),
+    prompt.cueLanguage.orEmpty(),
+    prompt.answerLanguage.orEmpty(),
+    inspector.lexicalSource?.entryId.orEmpty(),
+    inspector.lexicalSource?.senseId.orEmpty(),
+    inspector.lexicalSource?.headword.orEmpty(),
+    inspector.lexicalSource?.gloss.orEmpty(),
+    inspector.lexicalSource?.article.orEmpty(),
+    supportSkillIds.joinToString(","),
+)
 
 private fun GeneratedExercise.legacyFingerprintCanonical(
     prompt: ExercisePrompt,
@@ -476,6 +514,53 @@ private fun GeneratedExercise.pairEightFingerprintCanonical(
                     framedNullable(source.referenceRole),
                     framedNullable(source.frameVariantId),
                     source.casePolicy,
+                    framedList(source.choiceRationales.map { rationale ->
+                        framedList(listOf(rationale.choice, rationale.rationale))
+                    }),
+                ),
+            )
+        }),
+    ),
+)
+
+private fun GeneratedExercise.pairNineFingerprintCanonical(
+    prompt: ExercisePrompt,
+    lexicalTarget: LexicalTarget?,
+    inspector: ExerciseInspector,
+    supportSkillIds: List<String>,
+    readingTarget: ReadingTask?,
+    introduction: List<IntroductionSection>,
+    lexicalTargets: List<LexicalTarget>?,
+    targetScopeId: String?,
+): String = framedList(
+    listOf(
+        pairEightFingerprintCanonical(
+            prompt,
+            lexicalTarget,
+            inspector,
+            supportSkillIds,
+            readingTarget,
+            introduction,
+            lexicalTargets,
+            targetScopeId,
+            inspector.moduleOneSource,
+        ),
+        framedNullable(inspector.inanimateReferenceSource?.let { source ->
+            framedList(
+                listOf(
+                    source.taskId,
+                    source.targetEntryId,
+                    source.targetSenseId,
+                    source.expectedForm,
+                    framedList(source.knownAlternativeForms),
+                    source.antecedentEntryId,
+                    source.antecedentSenseId,
+                    source.antecedentArticle,
+                    source.antecedentGender,
+                    source.antecedentNumber,
+                    source.requestedRole,
+                    source.casePolicy,
+                    source.contextVariantId,
                     framedList(source.choiceRationales.map { rationale ->
                         framedList(listOf(rationale.choice, rationale.rationale))
                     }),

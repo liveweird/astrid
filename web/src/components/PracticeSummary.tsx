@@ -44,6 +44,8 @@ const SCOPED_TARGET_KINDS: Record<string, string> = {
   "human-group:recall": "Group subject word recall",
   "vaere-present:selection": "Present er selection",
   "vaere-present:recall": "Present er recall",
+  "inanimate-singular-subject:selection": "One-thing reference word selection",
+  "inanimate-singular-subject:recall": "One-thing reference word recall",
 };
 
 function targetKind(row: PracticeSummaryRow) {

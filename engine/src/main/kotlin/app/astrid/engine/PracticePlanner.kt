@@ -36,7 +36,14 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
                 itemCount = ModuleOnePracticePlanner.ITEM_COUNT,
                 prerequisiteSkillIds = specification.prerequisites,
             )
-        }
+        } + PracticeProfile(
+            focusId = InanimateReferencePracticePlanner.FOCUS_ID,
+            planRevision = InanimateReferencePracticePlanner.PLAN_REVISION,
+            title = InanimateReferencePracticePlanner.TITLE,
+            description = "Choose and recall den or det for one previously mentioned thing with its gender supplied.",
+            itemCount = InanimateReferencePracticePlanner.ITEM_COUNT,
+            prerequisiteSkillIds = InanimateReferencePracticePlanner.PREREQUISITES,
+        )
 
     fun plan(
         focusId: String,
@@ -52,6 +59,8 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
             ModuleOnePracticePlanner.GROUP_FOCUS_ID to ModuleOnePracticePlanner.GROUP_PLAN_REVISION,
             ModuleOnePracticePlanner.ER_FOCUS_ID to ModuleOnePracticePlanner.ER_PLAN_REVISION,
             -> ModuleOnePracticePlanner(engine).plan(focusId, planRevision, seed)
+            InanimateReferencePracticePlanner.FOCUS_ID to InanimateReferencePracticePlanner.PLAN_REVISION ->
+                InanimateReferencePracticePlanner(engine).plan(seed)
             else -> throw IllegalArgumentException("Unsupported practice profile: $focusId/$planRevision")
         }
     }

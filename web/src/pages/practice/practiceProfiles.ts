@@ -25,6 +25,11 @@ const PRESENTATION_PROFILES = [
     itemCount: 6, prerequisiteSkillIds: ["G001", "G002", "G003"],
   },
   {
+    focusId: "module-one-things", planRevision: "module-one-things-1", title: "Referring to one thing",
+    description: "Choose and type den or det for a previously mentioned thing with its gender supplied.",
+    itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G006"],
+  },
+  {
     focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
     description: "Practise familiar words, sentence order and articles in eight varied parts.",
     itemCount: 8, prerequisiteSkillIds: [],
@@ -41,8 +46,17 @@ const PRESENTATION_PROFILES = [
   },
 ] satisfies PracticeProfile[];
 
-export const MODULE_ONE_PROFILES = PRESENTATION_PROFILES.slice(0, 3);
-export const EXISTING_PRACTICE_PROFILES = PRESENTATION_PROFILES.slice(3);
+export const MODULE_ONE_PROFILES = [
+  PRESENTATION_PROFILES[0]!,
+  PRESENTATION_PROFILES[1]!,
+  PRESENTATION_PROFILES[2]!,
+  PRESENTATION_PROFILES[3]!,
+];
+export const EXISTING_PRACTICE_PROFILES = [
+  PRESENTATION_PROFILES[4]!,
+  PRESENTATION_PROFILES[5]!,
+  PRESENTATION_PROFILES[6]!,
+];
 
 export function profileKey(profile: Pick<PracticeProfile, "focusId" | "planRevision">) {
   return `${profile.focusId}/${profile.planRevision}`;
@@ -92,27 +106,37 @@ async function profilesForExplicitStart() {
   }
 }
 
+function creationRequestFor(
+  profile: PracticeProfile,
+  practiceSessionId: string,
+  seed: number,
+): PracticeCreationRequest {
+  switch (profileKey(profile)) {
+    case "reading-basics/practice-1":
+      return { practiceSessionId, focusId: "reading-basics", planRevision: "practice-1", seed };
+    case "present-verbs/present-verbs-1":
+      return { practiceSessionId, focusId: "present-verbs", planRevision: "present-verbs-1", seed };
+    case "verb-article-gaps/verb-article-gaps-1":
+      return { practiceSessionId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed };
+    case "module-one-singular/module-one-singular-1":
+      return { practiceSessionId, focusId: "module-one-singular", planRevision: "module-one-singular-1", seed };
+    case "module-one-groups/module-one-groups-1":
+      return { practiceSessionId, focusId: "module-one-groups", planRevision: "module-one-groups-1", seed };
+    case "module-one-er/module-one-er-1":
+      return { practiceSessionId, focusId: "module-one-er", planRevision: "module-one-er-1", seed };
+    case "module-one-things/module-one-things-1":
+      return { practiceSessionId, focusId: "module-one-things", planRevision: "module-one-things-1", seed };
+    default:
+      throw new PracticeCatalogError("The selected practice profile has an unsupported revision.");
+  }
+}
+
 export async function preparePracticeCreation(chosenKey: string) {
   const catalog = await profilesForExplicitStart();
   const profile = catalog.profiles.find((candidate) => profileKey(candidate) === chosenKey);
   if (!profile) throw new PracticeCatalogError("The selected practice is not available in the current catalog.");
   const practiceSessionId = crypto.randomUUID(), seed = freshPracticeSeed();
-  let request: PracticeCreationRequest;
-  if (profile.focusId === "reading-basics" && profile.planRevision === "practice-1") {
-    request = { practiceSessionId, focusId: "reading-basics", planRevision: "practice-1", seed };
-  } else if (profile.focusId === "present-verbs" && profile.planRevision === "present-verbs-1") {
-    request = { practiceSessionId, focusId: "present-verbs", planRevision: "present-verbs-1", seed };
-  } else if (profile.focusId === "verb-article-gaps" && profile.planRevision === "verb-article-gaps-1") {
-    request = { practiceSessionId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed };
-  } else if (profile.focusId === "module-one-singular" && profile.planRevision === "module-one-singular-1") {
-    request = { practiceSessionId, focusId: "module-one-singular", planRevision: "module-one-singular-1", seed };
-  } else if (profile.focusId === "module-one-groups" && profile.planRevision === "module-one-groups-1") {
-    request = { practiceSessionId, focusId: "module-one-groups", planRevision: "module-one-groups-1", seed };
-  } else if (profile.focusId === "module-one-er" && profile.planRevision === "module-one-er-1") {
-    request = { practiceSessionId, focusId: "module-one-er", planRevision: "module-one-er-1", seed };
-  } else {
-    throw new PracticeCatalogError("The selected practice profile has an unsupported revision.");
-  }
+  const request = creationRequestFor(profile, practiceSessionId, seed);
   const recovery: PracticeRunRecovery = { ownerSessionId: catalog.ownerSessionId, ...request };
   const creation = outboxEntry(recovery, "creation", request.practiceSessionId, request);
   return { recovery, creation };

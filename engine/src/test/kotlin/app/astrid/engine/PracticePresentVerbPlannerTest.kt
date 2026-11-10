@@ -19,6 +19,7 @@ class PracticePresentVerbPlannerTest {
                 "module-one-singular/module-one-singular-1",
                 "module-one-groups/module-one-groups-1",
                 "module-one-er/module-one-er-1",
+                "module-one-things/module-one-things-1",
             ),
             planner.profiles().map { "${it.focusId}/${it.planRevision}" },
         )
@@ -29,9 +30,10 @@ class PracticePresentVerbPlannerTest {
             "Talking about one person",
             "Talking to and about groups",
             "Using the verb to be",
+            "Referring to one thing",
         ),
             planner.profiles().map { it.title })
-        assertEquals(listOf(8, 6, 4, 6, 6, 6), planner.profiles().map { it.itemCount })
+        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4), planner.profiles().map { it.itemCount })
         assertEquals("Words and simple statements", planner.plan("reading-basics", "practice-1", 0).title)
     }
 

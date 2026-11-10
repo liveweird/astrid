@@ -80,6 +80,7 @@ it.each([
   ["human-singular", "G003", "One-person subject words"],
   ["human-group", "G003", "Group subject words"],
   ["vaere-present", "G004", "Present verb form"],
+  ["inanimate-singular-subject", "G038", "One-thing reference words"],
 ] as const)("shows a learning label instead of the %s implementation scope", async (targetScopeId, targetSkillId, label) => {
   saveModuleOneRun();
   const scopedExercise = { ...subjectExercise, targetScopeId, targetSkillId };
@@ -105,6 +106,7 @@ it.each([
   ["Talking about one person", "module-one-singular", "module-one-singular-1"],
   ["Talking to and about groups", "module-one-groups", "module-one-groups-1"],
   ["Using the verb to be", "module-one-er", "module-one-er-1"],
+  ["Referring to one thing", "module-one-things", "module-one-things-1"],
 ] as const)("creates %s only after its exact catalog choice", async (title, focusId, planRevision) => {
   let body = "";
   vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
@@ -262,7 +264,7 @@ it("opens repeat and next choices preselected without creating or discarding a r
   expect(localStorage.getItem(`astrid.practice.v1.run.${practiceId}`)).not.toBeNull();
 });
 
-it("does not claim another Module 1 session after the last profile", async () => {
+it("offers S04 after S03 and preserves the completed S03 run when cancelled", async () => {
   saveRunRecovery({
     ownerSessionId: owner, practiceSessionId: practiceId,
     focusId: "module-one-er", planRevision: "module-one-er-1", seed: 47,
@@ -278,8 +280,46 @@ it("does not claim another Module 1 session after the last profile", async () =>
     if (path.includes("/practice-sessions/")) return json(completed);
     throw new Error(`Unexpected ${path}`);
   }));
+  const user = userEvent.setup();
   renderWithProviders(<Practice />);
   expect(await screen.findByRole("button", { name: "Repeat this session" })).toBeVisible();
+  await user.click(screen.getByRole("button", { name: "Next: Referring to one thing" }));
+  expect(screen.getByRole("radio", { name: "Referring to one thing" })).toBeChecked();
+  await user.click(screen.getByRole("button", { name: "Cancel" }));
+  expect(await screen.findByRole("heading", { name: "Practice complete" })).toBeVisible();
+  expect(localStorage.getItem(`astrid.practice.v1.run.${practiceId}`)).not.toBeNull();
+});
+
+it("does not claim S05 or a targeted review after S04", async () => {
+  saveRunRecovery({
+    ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "module-one-things", planRevision: "module-one-things-1", seed: 47,
+  });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const completed = moduleOneState({
+    focusId: "module-one-things", planRevision: "module-one-things-1", title: "Referring to one thing",
+    state: "completed", cursor: 4, itemCount: 4, currentExercise: null, introductionOpened: true,
+    summary: {
+      ...completedState().summary, plannedItems: 4, completedItems: 4,
+      rows: ["selection", "recall"].map((assessmentMode) => ({
+        label: assessmentMode === "selection" ? "One-thing reference selection" : "One-thing reference recall",
+        targetSkillId: "G038", targetScopeId: "inanimate-singular-subject", assessmentMode,
+        plannedItems: 2, attemptedItems: 2, advancedItems: 2, attemptCount: 2, retryCount: 0,
+        firstOutcomes: outcomes, latestOutcomes: outcomes, firstWithSupport: 2, firstWithPriorExposure: 2,
+        lessonOpenedItems: 0, hintOpenedItems: 0,
+      })),
+    },
+  });
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.includes("/practice-sessions/")) return json(completed);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Practice />);
+  expect(await screen.findByRole("button", { name: "Repeat this session" })).toBeVisible();
+  expect(screen.getByText("One-thing reference word selection")).toBeVisible();
+  expect(screen.getByText("One-thing reference word recall")).toBeVisible();
+  expect(screen.getAllByText("2/2 continued · 2 answers · 0 retries")).toHaveLength(2);
   expect(screen.queryByRole("button", { name: /^Next:/ })).not.toBeInTheDocument();
-  expect(screen.queryByText(/module 1 complete/i)).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Start selected review" })).not.toBeInTheDocument();
 });

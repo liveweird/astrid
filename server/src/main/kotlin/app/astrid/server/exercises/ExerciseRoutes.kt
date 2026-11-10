@@ -246,7 +246,7 @@ private fun AttemptAnswerDto.validateFor(engine: PilotEngine, exercise: Generate
     when (exercise.formatId) {
         "E003" -> validateCompleteOrderAnswer(this, suppliedBlocks)
         "E012", "E013" -> validateTileOrderAnswer(this, suppliedBlocks)
-        "E011", "E016", "E018" -> validateSuppliedChoiceAnswer(this, engine, exercise)
+        "E011", "E016", "E018", "E020" -> validateSuppliedChoiceAnswer(this, engine, exercise)
         "E014" -> validateMatchingAnswer(this, exercise)
         "E015" -> validateGapAnswer(this, exercise)
         else -> validateTextAnswer(this)

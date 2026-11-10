@@ -90,6 +90,7 @@ object PracticeTargetKeys {
         "G003" to setOf("selection", "recall"),
         "G004" to setOf("selection", "recall", "repair"),
         "G006" to setOf("selection", "recall"),
+        "G038" to setOf("selection", "recall"),
     )
 
     private data class ScopedAssessment(
@@ -105,6 +106,8 @@ object PracticeTargetKeys {
         ScopedAssessment("G003", "human-group", "recall"),
         ScopedAssessment("G004", "vaere-present", "selection"),
         ScopedAssessment("G004", "vaere-present", "recall"),
+        ScopedAssessment("G038", "inanimate-singular-subject", "selection"),
+        ScopedAssessment("G038", "inanimate-singular-subject", "recall"),
     )
 }
 

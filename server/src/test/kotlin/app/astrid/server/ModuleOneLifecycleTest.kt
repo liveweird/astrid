@@ -265,6 +265,75 @@ class ModuleOneLifecycleTest {
     }
 
     @Test
+    fun `inanimate reference practice persists replay and owner isolation across postgres stores`() = runBlocking {
+        val config = PostgresTestDatabase.config()
+        migrate(config)
+        val first = PostgresStores(Database.connect(config), wireJson)
+        val second = PostgresStores(Database.connect(config), wireJson)
+        try {
+            withTimeout(TIMEOUT_MILLIS) {
+                val owner = first.sessions.createSession("b".repeat(64), Long.MAX_VALUE)
+                val otherOwner = first.sessions.createSession("c".repeat(64), Long.MAX_VALUE)
+                val request = PracticeSessionRequest(
+                    UUID.randomUUID().toString(),
+                    "module-one-things",
+                    "module-one-things-1",
+                    7,
+                )
+                val practice = assertIs<PracticeCreateResult.Created>(
+                    first.practice.createPracticeSession(owner, request, wireJson.encodeToString(request)) {
+                        PracticePlanner(PilotEngine()).plan(request.focusId, request.planRevision, request.seed)
+                            .toNewPracticeSession(owner.id)
+                    },
+                ).session
+                assertEquals("pilot-9", practice.contentRevision)
+                assertEquals(4, practice.items.size)
+                assertEquals(null, second.practice.findPracticeSession(otherOwner.id, practice.id))
+                assertIs<PracticeMutationResult.Success>(
+                    second.practice.openPracticeSupport(owner.id, practice.id, PracticeSupportRequest("introduction")),
+                )
+
+                val exercise = practice.items.first().exercise
+                val submitted = attempt(exercise.id, "den")
+                val requestPayload = wireJson.encodeToString(submitted)
+                val created = assertIs<AttemptWriteResult.Created>(
+                    first.exercises.writeAttemptWithPractice(owner.id, submitted, requestPayload) { stored, retry, now, source ->
+                        CreatedAttempt(
+                            response(
+                                submitted,
+                                stored.id,
+                                retry,
+                                now,
+                                "met",
+                                "acceptable",
+                                "met",
+                                evaluationRevision = "evaluation-9",
+                            ),
+                            assertNotNull(source).toAttemptContext(),
+                        )
+                    },
+                )
+                assertEquals("evaluation-9", created.response.evaluationRevision)
+                assertIs<AttemptWriteResult.Existing>(
+                    second.exercises.writeAttemptWithPractice(owner.id, submitted, requestPayload) { _, _, _, _ ->
+                        error("An exact replay must not evaluate")
+                    },
+                )
+                val reloaded = assertNotNull(second.practice.findPracticeSession(owner.id, practice.id))
+                assertEquals("den", (reloaded.items.first().attempts.single().answer as AttemptAnswerDto.Text).text)
+                assertTrue(reloaded.items.first().attempts.single().context.introductionOpened)
+                assertIs<PracticeMutationResult.Success>(
+                    second.practice.advancePracticeSession(owner.id, practice.id, 0),
+                )
+            }
+            Unit
+        } finally {
+            first.close()
+            second.close()
+        }
+    }
+
+    @Test
     fun `module one owner expires at the fixed boundary without renewal or reassociation`() = testApplication {
         val now = AtomicLong(1_000)
         application { astridModule(testConfig(), InMemoryStores(clock = now::get), clock = now::get) }
@@ -360,7 +429,7 @@ class ModuleOneLifecycleTest {
                 state = advance(auth, practiceId, position)
             }
 
-            assertEquals(6, state.getValue("summary").jsonObject.int("completedItems"))
+            assertEquals(profile.itemCount, state.getValue("summary").jsonObject.int("completedItems"))
             val rows = state.getValue("summary").jsonObject.getValue("rows").jsonArray.map { it.jsonObject }
             assertEquals(profile.expectedRows, rows.map(::summaryRow))
             rows.forEach { observedKeys += targetKey(it) }
@@ -378,6 +447,8 @@ class ModuleOneLifecycleTest {
                 "grammar:G003:human-group:recall",
                 "grammar:G004:vaere-present:selection",
                 "grammar:G004:vaere-present:recall",
+                "grammar:G038:inanimate-singular-subject:selection",
+                "grammar:G038:inanimate-singular-subject:recall",
             ),
             observedKeys,
         )
@@ -447,6 +518,7 @@ class ModuleOneLifecycleTest {
         language: String,
         constraint: String,
         issues: List<IssueDto> = emptyList(),
+        evaluationRevision: String = "evaluation-8",
     ) = AttemptResponse(
         request.attemptId,
         exerciseId.toString(),
@@ -455,7 +527,7 @@ class ModuleOneLifecycleTest {
         issues,
         "Saved feedback",
         "",
-        "evaluation-8",
+        evaluationRevision,
         false,
         retry,
         now,
@@ -493,10 +565,10 @@ class ModuleOneLifecycleTest {
         error("$expected operations never became database-visible as blocked on the owner-session lock")
     }
 
-    private fun correctAnswer(exercise: JsonObject): String {
-        if (exercise.string("targetScopeId") == "vaere-present") return "er"
-        val cue = exercise.getValue("prompt").jsonObject.string("cue")
-        return SUBJECTS.getValue(cue)
+    private fun correctAnswer(exercise: JsonObject): String = when (exercise.string("targetScopeId")) {
+        "vaere-present" -> "er"
+        "inanimate-singular-subject" -> if (exercise.string("context").contains("common gender")) "den" else "det"
+        else -> SUBJECTS.getValue(exercise.getValue("prompt").jsonObject.string("cue"))
     }
 
     private fun summaryRow(row: JsonObject) = ExpectedRow(
@@ -583,6 +655,7 @@ class ModuleOneLifecycleTest {
         val planRevision: String,
         val attempts: (Int, String, JsonObject) -> List<ExpectedAttempt>,
         val expectedRows: List<ExpectedRow>,
+        val itemCount: Int = 6,
     )
 
     private data class ExpectedAttempt(
@@ -761,6 +834,59 @@ class ModuleOneLifecycleTest {
                         Outcomes(2, 2, 1, 1, 0, 2, 2),
                     ),
                 ),
+            ),
+            ProfileCase(
+                "module-one-things",
+                "module-one-things-1",
+                attempts = { position, correct, prompt ->
+                    when (position) {
+                        0 -> listOf(
+                            ExpectedAttempt(
+                                prompt.getValue("choices").jsonArray.map { it.jsonPrimitive.content }
+                                    .first { it != correct },
+                                "not-met",
+                                "acceptable",
+                                "met",
+                                listOf("INTRODUCED_REFERENCE_REQUIRED"),
+                            ),
+                        )
+                        2 -> listOf(
+                            ExpectedAttempt(
+                                correct.replaceFirstChar { it.uppercase() },
+                                "met",
+                                "known-issue",
+                                "not-met",
+                                listOf("STANDALONE_PRONOUN_CASE_REQUIRED"),
+                            ),
+                        )
+                        3 -> listOf(
+                            ExpectedAttempt(
+                                "dem",
+                                "unevaluable",
+                                "unknown",
+                                "met",
+                                listOf("UNRECOGNIZED_REFERENCE_WORD"),
+                            ),
+                            correct(correct),
+                        )
+                        else -> listOf(correct(correct))
+                    }
+                },
+                expectedRows = listOf(
+                    ExpectedRow(
+                        "grammar:G038:inanimate-singular-subject:selection",
+                        2, 2, 2, 2, 0,
+                        Outcomes(1, 1, 1, 0, 0, 0, 0),
+                        Outcomes(1, 1, 1, 0, 0, 0, 0),
+                    ),
+                    ExpectedRow(
+                        "grammar:G038:inanimate-singular-subject:recall",
+                        2, 2, 2, 3, 1,
+                        Outcomes(0, 1, 0, 1, 1, 1, 1),
+                        Outcomes(1, 2, 0, 0, 0, 1, 1),
+                    ),
+                ),
+                itemCount = 4,
             ),
         )
 

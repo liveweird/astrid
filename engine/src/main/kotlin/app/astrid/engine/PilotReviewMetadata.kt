@@ -22,9 +22,22 @@ internal object PilotReviewMetadata {
         nouns: List<NounEntry>,
         matching: Boolean = false,
         moduleOne: Boolean = false,
+        referencePronouns: List<PronounEntry> = emptyList(),
     ): List<LexicalReviewRecord> =
         pronounRecords(pronouns, identifyingPronoun, moduleOne) +
-            verbRecords(verbs, moduleOne) + nounRecords(nouns, matching) + articleRecords()
+            referencePronounRecords(referencePronouns) + verbRecords(verbs, moduleOne) + nounRecords(nouns, matching) + articleRecords()
+
+    private fun referencePronounRecords(pronouns: List<PronounEntry>): List<LexicalReviewRecord> =
+        pronouns.map { entry ->
+            record(
+                entry.id,
+                entry.text,
+                "singular common-gender inanimate reference",
+                mapOf("subject-reference" to entry.text),
+                "Standalone subject-reference form with an explicit singular common-gender antecedent; other uses excluded.",
+                PRONOUN_SOURCE,
+            )
+        }
 
     private fun pronounRecords(
         pronouns: List<PronounEntry>,

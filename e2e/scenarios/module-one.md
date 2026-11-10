@@ -6,13 +6,13 @@
 
 ## Scenario: first steps teach before assessment and retain scoped outcomes for ${profile.focus}
 
-1. Choose each of the three first-step profiles directly, with no previous-course assumption.
-   - Expected: six items pin pair eight; the saved introduction is required and assessment controls stay hidden until it is opened.
+1. Choose each of the four first-step profiles directly, with no previous-course assumption.
+   - Expected: the three six-item profiles remain pinned to pair eight; the four-item one-thing profile pins pair nine. Saved introduction is required and assessment controls stay hidden until it is opened.
 2. Attempt submission through the API before the introduction, then open the introduction through the UI.
    - Expected: the early submission is rejected without an attempt; confirmed support opens the assessment.
-   - Expected: direct-entry foundation explains words/roles, supplies Danish letters and an annotated Danish statement, and the exercise uses a readable target label rather than a grammar ID.
-3. Complete every activity using independent literal English-cue/Danish-form expectations.
-   - Expected: correct saved answers include the introduction exposure; selection and recall remain distinct, and the profile's exact item budget is preserved.
+   - Expected: direct-entry foundation explains words and subject roles. The retained first three profiles supply Danish letters and an annotated Danish statement; S04 instead supplies the noun bundles, their genders, reference forms and the distinction from identification. Every exercise uses a readable target label rather than a grammar ID.
+3. Complete every activity using independent literal expectations: the retained profiles use their authored English cues, while S04 shows Danish `en bog` or `et brev` and supplies meaning and gender in the English context.
+   - Expected: the S04 cue and all Danish answer controls carry Danish language tags; correct saved answers include the introduction exposure, selection and recall remain distinct, and the profile's exact item budget is preserved.
 4. Reload the completed run.
    - Expected: summary outcomes remain exact; no unsupported targeted-review controls appear.
 5. Open repeat and, where offered, the next-session chooser; cancel each.
@@ -22,7 +22,7 @@
 
 1. Open each profile in light and dark themes, at narrow portrait and short landscape viewports, with 200% text.
 2. Inspect the required-introduction state, saved teaching, exercise feedback and completed scoped summary.
-   - Expected: Axe finds no configured WCAG violations, the page has no horizontal overflow, and teaching/summary text stays inside its own paragraph or column.
+   - Expected: Axe finds no configured WCAG violations, the page has no horizontal overflow, Danish content keeps its language tag, and teaching/summary text stays inside its own paragraph or column.
 
 ## Scenario: first steps preserve ambiguous ${correction.raw} casing without a wrong-person diagnosis
 
@@ -40,6 +40,16 @@
 3. Retry with two words in a one-word task, then finish the run.
    - Expected: the known shape failure permits advance while the grammar target stays unevaluable. First/latest outcomes retain that distinction, and the intermediate unknown response remains byte-identical.
 
+## Scenario: one-thing recall keeps case evidence while the latest unknown supersedes an eligible answer
+
+1. Enter the one-thing profile directly, save its required teaching and reach neuter `det` recall.
+2. Save a correct answer, then retry with capitalized `Det`.
+   - Expected: the reference target remains met, the known standalone-case constraint is recorded, the lowercase correction is tagged Danish, continuation remains available, and the narrow dark 200%-text feedback state passes Axe and reflow checks.
+3. Retry with unsupported `dem`, inspect the saved response, then reload.
+   - Expected: the latest unknown blocks continuation despite the eligible history, discloses no correction, its exact stored response is unchanged after reload, and its narrow enlarged feedback state passes Axe and reflow checks.
+4. Retry with `det er`, finish all four cards and inspect the two scoped summary rows.
+   - Expected: the one-word shape issue permits continuation without prefix grading; its narrow enlarged feedback passes Axe and reflow checks; selection and recall retain separate two-item first/latest outcomes, with no targeted review or S05 fallback.
+
 ## Scenario: first steps confirm required teaching only after ${committed ? "committed" : "uncommitted"} support replay
 
 1. Open a fresh first-step run and lose the first introduction-support response before or after its server commit.
@@ -47,11 +57,11 @@
 2. Reload and let the saved operation replay.
    - Expected: request bytes are identical, the same exercise remains current, confirmed teaching opens, and no attempt was manufactured.
 
-## Scenario: first steps replay the exact typed form after ${committed ? "committed" : "uncommitted"} answer loss
+## Scenario: first steps replay the exact typed form for ${replayProfile.focus} after ${committed ? "committed" : "uncommitted"} answer loss
 
-1. Reach typed recall and submit the correct introduced form with surrounding spaces.
+1. Reach typed recall in the retained pair-eight singular profile or the pair-nine one-thing profile and submit the correct introduced form with surrounding spaces.
 2. Lose the response before or after commit and reload.
-   - Expected: recovery sends the exact identity/body and raw spaces, confirms one saved attempt, and receives server permission to continue.
+   - Expected: recovery sends the exact identity/body and raw spaces, confirms one saved attempt, receives server permission to continue, and the final result bytes equal the attempt readback.
 
 ## Scenario: first steps retain creation identity through ${committed ? "committed" : "uncommitted"} response loss
 
@@ -62,13 +72,13 @@
 ## Scenario: first steps keep an unfinished typed form while lesson and hint support are saved
 
 1. Begin a typed answer, then open the item lesson and hint.
-   - Expected: both confirmed support operations retain the unfinished input.
+   - Expected: both confirmed support operations retain the unfinished input; focus moves to the newly opened lesson and then to the hint.
 2. Complete and submit the answer.
    - Expected: the saved attempt context records both support events.
 
 ## Scenario: first-step chooser keeps all profiles keyboard-accessible in ${theme} at ${viewport.width}
 
-1. Open the six-profile chooser in both themes, narrow portrait and short landscape, at 200% text.
+1. Open the seven-profile chooser in both themes, narrow portrait and short landscape, at 200% text.
    - Expected: its first-step grouping and every profile remain accessible, without page/text overflow or configured Axe violations.
 2. Focus the group-pronoun radio and select it with Space.
    - Expected: the choice is checked and Start practice is enabled; no session is created automatically.

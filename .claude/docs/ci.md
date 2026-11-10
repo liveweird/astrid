@@ -35,14 +35,18 @@ Triggers: push to `master`, pull requests, manual dispatch; `permissions: conten
 | `kubernetes` | kubeconform (checksum-verified binary, k8s 1.33.0 schemas pinned by commit) over the manifests and over `kubectl kustomize k8s`. |
 | `image` | `docker compose config`; `docker build -t astrid:local .`; e2e `npm ci && lint && knip && typecheck && check:scenarios && test:scripts && audit`; `playwright install --with-deps chromium webkit`; `docker compose --env-file .env.example up -d --wait` then `npm --prefix e2e test`; logs on failure; uploads `browser-reports`; Trivy scan of the packaged image (HIGH/CRITICAL, `--ignore-unfixed`); `compose down` (never `-v`). |
 
-The image job has a **35-minute** outer budget. Its unchanged 0.8.0 baseline on run
+The image job has a **40-minute** outer budget. Its unchanged 0.8.0 baseline on run
 `42709008358` took 1,476 seconds, including 1,205 seconds in the browser/startup step
 (312 journeys, no retries/flakies), leaving only 24 seconds under the former 25-minute budget.
 The selected first-step sessions add browser cases. The larger outer budget accommodates that
 work; browser timeouts, workers, retry settings, complete suite, scans and all quality floors
 are unchanged. The nightly already has a separate 40-minute budget.
 Post-release run `42737593818` passed all 372 Linux journeys without retries; its image job
-used **2,004 seconds**, leaving **96 seconds** under the current 35-minute ceiling. Recheck
+used **2,004 seconds**, leaving **96 seconds** under the former 35-minute ceiling. The selected S04 session adds both-browser teaching,
+reference grading, recovery and reflow cases; its 40-minute outer budget matches the nightly
+and preserves the full suite, scans, per-test timeouts, workers and retry policy. The later
+unchanged-baseline run `42773472174` used 1,726 seconds; this variation does not provide a
+reliable 96-second margin for an expanded batch. Recheck
 outer-budget headroom before adding another browser batch; retain the full suite and existing
 timeouts, retry policy and scans when sizing that envelope.
 

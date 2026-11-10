@@ -27,6 +27,15 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 
 private const val MAX_TARGET_KEY_LENGTH = 160
+private val SUPPORTED_PRACTICE_PLANS = setOf(
+    PRACTICE_FOCUS to PRACTICE_REVISION,
+    PRESENT_VERBS_FOCUS to PRESENT_VERBS_REVISION,
+    GUIDED_GAPS_FOCUS to GUIDED_GAPS_REVISION,
+    MODULE_ONE_SINGULAR_FOCUS to MODULE_ONE_SINGULAR_REVISION,
+    MODULE_ONE_GROUPS_FOCUS to MODULE_ONE_GROUPS_REVISION,
+    MODULE_ONE_ER_FOCUS to MODULE_ONE_ER_REVISION,
+    MODULE_ONE_THINGS_FOCUS to MODULE_ONE_THINGS_REVISION,
+)
 
 internal fun Route.practiceRoutes(
     practice: PracticeStore,
@@ -142,14 +151,7 @@ private fun Route.followUpRoute(
 
 private fun PracticeSessionRequest.validated(): PracticeSessionRequest {
     parseStrictUuid(practiceSessionId, "practiceSessionId")
-    val supported =
-        (focusId == PRACTICE_FOCUS && planRevision == PRACTICE_REVISION) ||
-            (focusId == PRESENT_VERBS_FOCUS && planRevision == PRESENT_VERBS_REVISION) ||
-            (focusId == GUIDED_GAPS_FOCUS && planRevision == GUIDED_GAPS_REVISION) ||
-            (focusId == MODULE_ONE_SINGULAR_FOCUS && planRevision == MODULE_ONE_SINGULAR_REVISION) ||
-            (focusId == MODULE_ONE_GROUPS_FOCUS && planRevision == MODULE_ONE_GROUPS_REVISION) ||
-            (focusId == MODULE_ONE_ER_FOCUS && planRevision == MODULE_ONE_ER_REVISION)
-    if (!supported) throw Conflict("Unsupported practice plan")
+    if (focusId to planRevision !in SUPPORTED_PRACTICE_PLANS) throw Conflict("Unsupported practice plan")
     if (seed < 0) throw BadRequest("Invalid practice seed")
     return this
 }

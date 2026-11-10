@@ -14,6 +14,7 @@ const TARGET_SCOPE_LABELS: Record<string, string> = {
   "human-singular": "One-person subject words",
   "human-group": "Group subject words",
   "vaere-present": "Present verb form",
+  "inanimate-singular-subject": "One-thing reference words",
 };
 
 function targetBadge(exercise: NonNullable<PracticeSession["currentExercise"]>) {

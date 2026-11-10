@@ -3,8 +3,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { choosePractice, ownerHeaders, readPractice, type PracticeState } from "../support/practice.js";
 
 type CourseExercise = {
-  id: string; formatId: string; targetScopeId: string;
-  prompt: { cue?: string; choices: string[] };
+  id: string; formatId: string; targetScopeId: string; context: string;
+  prompt: { cue?: string; cueLanguage?: string; answerLanguage?: string; choices: string[] };
 };
 type CourseItem = PracticeState["items"][number] & { canAdvance?: boolean; targetScopeId: string; assessmentMode: string };
 type CourseState = Omit<PracticeState, "items" | "currentExercise"> & {
@@ -13,9 +13,10 @@ type CourseState = Omit<PracticeState, "items" | "currentExercise"> & {
   currentExercise: CourseExercise | null; items: CourseItem[];
 };
 const PROFILES = [
-  { focus: "module-one-singular", title: "Talking about one person", scope: "human-singular", badge: "One-person subject words", selection: 4, recall: 2 },
-  { focus: "module-one-groups", title: "Talking to and about groups", scope: "human-group", badge: "Group subject words", selection: 3, recall: 3 },
-  { focus: "module-one-er", title: "Using the verb to be", scope: "vaere-present", badge: "Present verb form", selection: 2, recall: 4 },
+  { focus: "module-one-singular", title: "Talking about one person", scope: "human-singular", badge: "One-person subject words", selection: 4, recall: 2, itemCount: 6, pair: 8 },
+  { focus: "module-one-groups", title: "Talking to and about groups", scope: "human-group", badge: "Group subject words", selection: 3, recall: 3, itemCount: 6, pair: 8 },
+  { focus: "module-one-er", title: "Using the verb to be", scope: "vaere-present", badge: "Present verb form", selection: 2, recall: 4, itemCount: 6, pair: 8 },
+  { focus: "module-one-things", title: "Referring to one thing", scope: "inanimate-singular-subject", badge: "One-thing reference words", selection: 2, recall: 2, itemCount: 4, pair: 9 },
 ] as const;
 const SUBJECTS: Record<string, string> = {
   I: "jeg", "you (one person)": "du", he: "han", she: "hun", we: "vi",
@@ -26,6 +27,12 @@ async function stateFor(page: Page) {
 }
 function answerFor(exercise: CourseExercise) {
   if (exercise.targetScopeId === "vaere-present") return "er";
+  if (exercise.targetScopeId === "inanimate-singular-subject") {
+    if (exercise.prompt.cue === "en bog") return "den";
+    if (exercise.prompt.cue === "et brev") return "det";
+    expect(exercise.prompt.cue, "The literal Danish noun bundle identifies the supplied reference oracle").toMatch(/^(en bog|et brev)$/);
+    throw new Error(`Unsupported supplied noun bundle: ${exercise.prompt.cue ?? "missing"}`);
+  }
   const answer = SUBJECTS[exercise.prompt.cue!];
   expect(answer, "The literal authored English cue has an independent Danish-form oracle").toBeDefined();
   return answer!;
@@ -55,8 +62,8 @@ async function submit(page: Page, exercise: CourseExercise, text = answerFor(exe
 }
 async function next(page: Page, previous: CourseState) {
   await page.getByRole("button", { name: "Continue", exact: true }).click();
-  if (previous.cursor === 5) await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeFocused();
-  else await expect(page.getByText(`Part ${previous.cursor + 2} of 6`, { exact: true })).toBeVisible();
+  if (previous.cursor + 1 === previous.itemCount) await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeFocused();
+  else await expect(page.getByText(`Part ${previous.cursor + 2} of ${previous.itemCount}`, { exact: true })).toBeVisible();
   return await stateFor(page);
 }
 async function finishByApi(page: Page, state: CourseState) {
@@ -108,7 +115,7 @@ async function scan(page: Page) {
 for (const profile of PROFILES) {
   test(`first steps teach before assessment and retain scoped outcomes for ${profile.focus}`, async ({ page }) => {
     let state = await openCourse(page, profile.title);
-    expect(state).toMatchObject({ focusId: profile.focus, planRevision: `${profile.focus}-1`, contentRevision: "pilot-8", generatorRevision: "generator-8", introductionRequired: true, introductionOpened: false, itemCount: 6 });
+    expect(state).toMatchObject({ focusId: profile.focus, planRevision: `${profile.focus}-1`, contentRevision: `pilot-${profile.pair}`, generatorRevision: `generator-${profile.pair}`, introductionRequired: true, introductionOpened: false, itemCount: profile.itemCount });
     expect(state.items.every((item) => item.targetScopeId === profile.scope)).toBe(true);
     expect(state.items[state.cursor]!.canAdvance).toBe(false);
     expect(state.items.filter((item) => item.position !== state.cursor).every((item) => item.canAdvance == null)).toBe(true);
@@ -120,15 +127,27 @@ for (const profile of PROFILES) {
     expect((await stateFor(page)).summary.attemptCount).toBe(0);
     state = await beginCourse(page);
     const introduction = page.getByRole("region", { name: "Session introduction", exact: true });
-    await expect(introduction.getByRole("heading", { name: "Danish letters", exact: true })).toBeVisible();
-    await expect(introduction.getByText("æ · ø · å", { exact: true })).toHaveAttribute("lang", "da");
-    await expect(introduction.getByText("Jeg er Anna.", { exact: true })).toHaveAttribute("lang", "da");
-    await expect(introduction.getByText(/first word is a pronoun functioning as the subject/)).toBeVisible();
+    if (profile.focus === "module-one-things") {
+      await expect(introduction.getByText("en bog · et brev", { exact: true })).toHaveAttribute("lang", "da");
+      await expect(introduction.getByText("en bog → den · et brev → det", { exact: true })).toHaveAttribute("lang", "da");
+      await expect(introduction.getByText(/refers back to the same mentioned thing/i)).toBeVisible();
+    } else {
+      await expect(introduction.getByRole("heading", { name: "Danish letters", exact: true })).toBeVisible();
+      await expect(introduction.getByText("æ · ø · å", { exact: true })).toHaveAttribute("lang", "da");
+      await expect(introduction.getByText("Jeg er Anna.", { exact: true })).toHaveAttribute("lang", "da");
+      await expect(introduction.getByText(/first word is a pronoun functioning as the subject/)).toBeVisible();
+    }
     await expect(page.getByText(profile.badge, { exact: true }).and(page.locator("span"))).toBeVisible();
-    await expect(page.getByText(/^G00[34]$/)).toHaveCount(0);
+    await expect(page.getByText(/^G(?:00[34]|038)$/)).toHaveCount(0);
     const typed: string[] = [];
     while (state.state !== "completed") {
       const exercise = state.currentExercise!;
+      if (profile.focus === "module-one-things") {
+        expect(exercise.prompt.cueLanguage).toBe("da");
+        expect(exercise.prompt.answerLanguage).toBe("da");
+        expect(exercise.context).toMatch(/common gender|neuter/i);
+        await expect(page.getByText(exercise.prompt.cue!, { exact: true })).toHaveAttribute("lang", "da");
+      }
       if (!exercise.prompt.choices.length) typed.push(answerFor(exercise));
       await submit(page, exercise);
       await expect(page.getByRole("status").getByText("Good work", { exact: true })).toBeVisible();
@@ -138,7 +157,7 @@ for (const profile of PROFILES) {
       expect(saved.items[saved.cursor]!.lastAttemptContext!.priorExposure.some((event) => event.source === "introduction")).toBe(true);
       state = await next(page, saved);
     }
-    expect(state.summary).toMatchObject({ completedItems: 6, attemptedItems: 6, attemptCount: 6, retryCount: 0 });
+    expect(state.summary).toMatchObject({ completedItems: profile.itemCount, attemptedItems: profile.itemCount, attemptCount: profile.itemCount, retryCount: 0 });
     expect(state.summary.rows).toHaveLength(2);
     expect(state.summary.rows).toEqual(expect.arrayContaining([
       expect.objectContaining({ targetScopeId: profile.scope, assessmentMode: "selection", plannedItems: profile.selection, firstOutcomes: expect.objectContaining({ fullyMet: profile.selection }) }),
@@ -239,6 +258,57 @@ test("first steps let the latest unknown block advance while preserving earlier 
   expect(await (await page.request.get(`/api/v1/attempts/${latest(unknown).attemptId}`)).text()).toBe(unknownRaw);
 });
 
+test("one-thing recall keeps case evidence while the latest unknown supersedes an eligible answer", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.setViewportSize({ width: 320, height: 844 });
+  await openCourse(page, PROFILES[3].title); await beginCourse(page);
+  await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+  const state = await reachRecall(page, "det");
+  await submit(page, state.currentExercise!);
+  expect((await stateFor(page)).items[state.cursor]!.canAdvance).toBe(true);
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await submit(page, state.currentExercise!, "Det");
+  const cased = await stateFor(page);
+  expect(latest(cased)).toMatchObject({
+    targetSatisfaction: "met", linguisticStatus: "known-issue", responseConstraintStatus: "not-met",
+    issues: expect.arrayContaining([expect.objectContaining({ code: "STANDALONE_PRONOUN_CASE_REQUIRED" })]),
+  });
+  expect(cased.items[cased.cursor]!.canAdvance).toBe(true);
+  await expect(page.getByRole("status").getByText("det", { exact: true })).toHaveAttribute("lang", "da");
+  await scan(page);
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await submit(page, state.currentExercise!, "dem");
+  const unknown = await stateFor(page);
+  expect(latest(unknown)).toMatchObject({ targetSatisfaction: "unevaluable", linguisticStatus: "unknown" });
+  expect((latest(unknown).completedSentence ?? "").trim()).toBe("");
+  expect(unknown.items[unknown.cursor]!.canAdvance).toBe(false);
+  await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeDisabled();
+  await scan(page);
+  const unknownRaw = await (await page.request.get(`/api/v1/attempts/${latest(unknown).attemptId}`)).text();
+  expect(unknownRaw).not.toContain('"completedSentence":"det"');
+  await page.reload();
+  await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+  await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeDisabled();
+  expect(await (await page.request.get(`/api/v1/attempts/${latest(unknown).attemptId}`)).text()).toBe(unknownRaw);
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await submit(page, state.currentExercise!, "det er");
+  const shaped = await stateFor(page);
+  expect(latest(shaped)).toMatchObject({
+    targetSatisfaction: "unevaluable", responseConstraintStatus: "not-met",
+    issues: expect.arrayContaining([expect.objectContaining({ code: "ONE_WORD_RESPONSE_REQUIRED" })]),
+  });
+  expect(shaped.items[shaped.cursor]!.canAdvance).toBe(true);
+  await scan(page);
+  await next(page, shaped);
+  const completed = await finishByApi(page, await stateFor(page));
+  expect(completed.summary).toMatchObject({ completedItems: 4, attemptCount: 7, retryCount: 3 });
+  expect(completed.summary.rows).toEqual(expect.arrayContaining([expect.objectContaining({
+    targetScopeId: "inanimate-singular-subject", assessmentMode: "recall", plannedItems: 2,
+    firstOutcomes: expect.objectContaining({ fullyMet: 2 }),
+    latestOutcomes: expect.objectContaining({ fullyMet: 1, unevaluable: 1, responseConstraintNotMet: 1 }),
+  })]));
+});
+
 for (const committed of [false, true]) {
   test(`first steps confirm required teaching only after ${committed ? "committed" : "uncommitted"} support replay`, async ({ page }) => {
     const state = await openCourse(page, PROFILES[0].title);
@@ -268,31 +338,40 @@ for (const committed of [false, true]) {
     expect((await stateFor(page)).items[0]!.attemptCount).toBe(1);
   });
 
-  test(`first steps replay the exact typed form after ${committed ? "committed" : "uncommitted"} answer loss`, async ({ page }) => {
-    await openCourse(page, PROFILES[0].title); await beginCourse(page);
-    const state = await reachRecall(page), raw = `  ${answerFor(state.currentExercise!)}  `;
-    const bodies: string[] = [];
-    await page.route("**/api/v1/attempts", async (route) => {
-      bodies.push(route.request().postData()!);
-      if (bodies.length === 1) {
-        if (committed) {
-          await route.fetch();
+  for (const replayProfile of [PROFILES[0], PROFILES[3]]) {
+    test(`first steps replay the exact typed form for ${replayProfile.focus} after ${committed ? "committed" : "uncommitted"} answer loss`, async ({ page }) => {
+      await openCourse(page, replayProfile.title); await beginCourse(page);
+      const state = await reachRecall(page), raw = `  ${answerFor(state.currentExercise!)}  `;
+      const bodies: string[] = [], results: string[] = [];
+      await page.route("**/api/v1/attempts", async (route) => {
+        bodies.push(route.request().postData()!);
+        if (bodies.length === 1) {
+          if (committed) {
+            const response = await route.fetch();
+            results.push(await response.text());
+          }
+          await route.abort("connectionfailed");
+        } else {
+          const response = await route.fetch();
+          results.push(await response.text());
+          await route.fulfill({ response });
         }
-        await route.abort("connectionfailed");
-      } else {
-        await route.continue();
-      }
+      });
+      await page.getByRole("textbox").fill(raw);
+      await page.getByRole("button", { name: "Check answer", exact: true }).click();
+      await expect(page.getByRole("button", { name: "Retry saved operation", exact: true })).toBeVisible();
+      await page.reload();
+      await expect(page.getByRole("status").getByText("Good work", { exact: true })).toBeVisible();
+      expect(bodies).toHaveLength(2); expect(bodies[1]).toBe(bodies[0]);
+      const request = JSON.parse(bodies[0]!) as { attemptId: string; exerciseId: string; answer: { kind: string; text: string } };
+      expect(request).toMatchObject({ attemptId: expect.any(String), exerciseId: state.currentExercise!.id, answer: { kind: "text", text: raw } });
+      const recovered = await stateFor(page);
+      expect(recovered.items[recovered.cursor]!).toMatchObject({ attemptCount: 1, lastAnswer: { kind: "text", text: raw }, canAdvance: true });
+      expect(results).toHaveLength(committed ? 2 : 1);
+      expect(new Set(results)).toEqual(new Set([results.at(-1)!]));
+      expect(await (await page.request.get(`/api/v1/attempts/${request.attemptId}`)).text()).toBe(results.at(-1));
     });
-    await page.getByRole("textbox").fill(raw);
-    await page.getByRole("button", { name: "Check answer", exact: true }).click();
-    await expect(page.getByRole("button", { name: "Retry saved operation", exact: true })).toBeVisible();
-    await page.reload();
-    await expect(page.getByRole("status").getByText("Good work", { exact: true })).toBeVisible();
-    expect(bodies).toHaveLength(2); expect(bodies[1]).toBe(bodies[0]);
-    expect(JSON.parse(bodies[0]!) as unknown).toMatchObject({ exerciseId: state.currentExercise!.id, answer: { kind: "text", text: raw } });
-    const recovered = await stateFor(page);
-    expect(recovered.items[recovered.cursor]!).toMatchObject({ attemptCount: 1, lastAnswer: { kind: "text", text: raw }, canAdvance: true });
-  });
+  }
 
   test(`first steps retain creation identity through ${committed ? "committed" : "uncommitted"} response loss`, async ({ page }) => {
     const bodies: string[] = [];
@@ -324,8 +403,10 @@ test("first steps keep an unfinished typed form while lesson and hint support ar
   await page.getByRole("textbox").fill(draft);
   await page.getByRole("button", { name: "Learn this first", exact: true }).click();
   await expect(page.getByRole("textbox")).toHaveValue(draft);
+  await expect(page.locator("[data-practice-focus=lesson]")).toBeFocused();
   await page.getByRole("button", { name: "Show hint", exact: true }).click();
   await expect(page.getByRole("textbox")).toHaveValue(draft);
+  await expect(page.locator("[data-practice-focus=hint]")).toBeFocused();
   await submit(page, state.currentExercise!);
   expect((await stateFor(page)).items[state.cursor]!.lastAttemptContext).toMatchObject({ lessonOpened: true, hintOpened: true });
 });
@@ -338,7 +419,7 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/practice");
       await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
       await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-      await expect(page.getByRole("radio")).toHaveCount(6);
+      await expect(page.getByRole("radio")).toHaveCount(7);
       await scan(page);
       const groupSession = page.getByRole("radio", { name: PROFILES[1].title, exact: true });
       await groupSession.focus(); await page.keyboard.press("Space");

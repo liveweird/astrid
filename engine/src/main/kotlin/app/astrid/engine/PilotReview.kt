@@ -77,18 +77,22 @@ object PilotReview {
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
-                appendModuleOneProfileInventory()
+                appendModuleOneProfileInventory(snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION)
                 appendModuleOneInventory()
+            }
+            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+                appendInanimateReferenceInventory()
             }
         }
     }
 
     private fun reviewProvenance(snapshot: PilotContentSnapshot): String =
-        if (snapshot.contentRevision in setOf(
-                PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
-                PilotContent.CURRENT_CONTENT_REVISION,
-            )
-        ) {
+        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
+                "docs/knowledge/module-one-language-pack.md (L024 packet), " +
+                "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks), and " +
+                "docs/knowledge/inanimate-reference-activation.md (L026 and G038 reference tasks; 2026-11-10)"
+        } else if (snapshot.contentRevision == PilotContent.RETAINED_EIGHT_CONTENT_REVISION) {
             "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
                 "docs/knowledge/module-one-language-pack.md (L024 packet) and " +
                 "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks; 2026-11-09)"
@@ -105,11 +109,12 @@ object PilotReview {
         }
 
     private fun sourceReview(snapshot: PilotContentSnapshot): String =
-        if (snapshot.contentRevision in setOf(
-                PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
-                PilotContent.CURRENT_CONTENT_REVISION,
-            )
-        ) {
+        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
+                "2026-11-09 L025/C004/Module 1 source checks; 2026-11-10 L026/G038 source checks; see " +
+                "docs/knowledge/pilot-source-review.md, docs/knowledge/module-one-language-pack.md, " +
+                "docs/knowledge/module-one-activation.md and docs/knowledge/inanimate-reference-activation.md"
+        } else if (snapshot.contentRevision == PilotContent.RETAINED_EIGHT_CONTENT_REVISION) {
             "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
                 "2026-11-09 L025/C004/Module 1 source checks; see docs/knowledge/pilot-source-review.md, " +
                 "docs/knowledge/module-one-language-pack.md and docs/knowledge/module-one-activation.md"
@@ -446,13 +451,17 @@ object PilotReview {
         appendLine()
     }
 
-    private fun StringBuilder.appendModuleOneProfileInventory() {
+    private fun StringBuilder.appendModuleOneProfileInventory(includeInanimateReference: Boolean) {
         val planner = PracticePlanner()
         appendLine()
         appendLine("## Module 1 mandatory profile introductions")
         appendLine()
         appendLine(
-            "Each pinned profile below includes the complete mandatory introduction shown before its six planned items.",
+            if (includeInanimateReference) {
+                "Each pinned profile includes its complete mandatory introduction: six items for the earlier profiles, four for S04."
+            } else {
+                "Each pinned profile below includes the complete mandatory introduction shown before its six planned items."
+            },
         )
         appendLine()
         appendLine(
@@ -481,6 +490,65 @@ object PilotReview {
                     plan.exposurePolicyId.orEmpty(),
                     plan.introductionExposureKeys.orEmpty().joinToString(", "),
                     introduction,
+                ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+            )
+        }
+        if (!includeInanimateReference) {
+            appendLine()
+            return
+        }
+        val inanimatePlan = planner.plan(
+            InanimateReferencePracticePlanner.FOCUS_ID,
+            InanimateReferencePracticePlanner.PLAN_REVISION,
+            REVIEW_SEED,
+        )
+        appendLine(
+            listOf(
+                inanimatePlan.focusId,
+                inanimatePlan.planRevision,
+                inanimatePlan.title,
+                inanimatePlan.prerequisiteSkillIds.joinToString(", "),
+                inanimatePlan.items.map { item ->
+                    "${item.exercise.formatId}:${item.targetDescriptor.targetScopeId}"
+                }.distinct().joinToString(", "),
+                inanimatePlan.introductionRequired.toString(),
+                inanimatePlan.completionRuleId.orEmpty(),
+                inanimatePlan.exposurePolicyId.orEmpty(),
+                inanimatePlan.introductionExposureKeys.orEmpty().joinToString(", "),
+                inanimatePlan.introduction.joinToString("; ") { section ->
+                    "${section.title} [${section.bodyLanguage ?: "en"}]: ${section.body}"
+                },
+            ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+        )
+        appendLine()
+    }
+
+    private fun StringBuilder.appendInanimateReferenceInventory() {
+        appendLine()
+        appendLine("## Inanimate singular reference task inventory")
+        appendLine()
+        appendLine(
+            "| Task | Format | Target entry | Target sense | Expected | Antecedent sense | Article | Gender | Number | " +
+                "Requested role | Case policy | Context variant | Context | Choices and rationales |",
+        )
+        appendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+        InanimateReferenceContent.tasks.forEach { task ->
+            appendLine(
+                listOf(
+                    task.id,
+                    task.formatId,
+                    task.targetEntryId,
+                    task.targetSenseId,
+                    task.expectedForm,
+                    task.antecedentSenseId,
+                    task.antecedentArticle,
+                    task.antecedentGender,
+                    task.antecedentNumber,
+                    task.requestedRole,
+                    task.casePolicy,
+                    task.contextVariantId,
+                    task.context,
+                    task.choiceRationales.joinToString("; ") { "${it.choice}: ${it.rationale}" },
                 ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
             )
         }

@@ -24,6 +24,7 @@ class PilotEngine {
             PILOT_FIVE_REVISION_PAIR -> PilotContent.RETAINED_FIVE_EVALUATION_REVISION
             PILOT_SIX_REVISION_PAIR -> PilotContent.RETAINED_SIX_EVALUATION_REVISION
             PILOT_SEVEN_REVISION_PAIR -> PilotContent.RETAINED_SEVEN_EVALUATION_REVISION
+            PILOT_EIGHT_REVISION_PAIR -> PilotContent.RETAINED_EIGHT_EVALUATION_REVISION
             CURRENT_REVISION_PAIR -> PilotContent.CURRENT_EVALUATION_REVISION
             else -> null
         }
@@ -31,6 +32,7 @@ class PilotEngine {
     fun generate(request: GenerationRequest): GeneratedExercise {
         validate(request)
         return when {
+            request.formatId in INANIMATE_REFERENCE_FORMAT_IDS -> InanimateReferenceExerciseGenerator.create(request)
             request.formatId in MODULE_ONE_FORMAT_IDS -> ModuleOneExerciseGenerator.create(request)
             request.formatId == MULTIPLE_GAP_FORMAT_ID -> MultipleGapExerciseGenerator.create(request)
             request.formatId == MATCHING_FORMAT_ID -> MatchingExerciseGenerator.create(request)
@@ -92,21 +94,13 @@ class PilotEngine {
                 "E017" to "G003",
                 "E018" to "G004",
                 "E019" to "G004",
+                "E020" to "G038",
+                "E021" to "G038",
             )[request.formatId]
         require(expectedTarget != null || request.formatId in LEXICAL_FORMAT_IDS || request.formatId == READING_FORMAT_ID) {
             "Unsupported format: ${request.formatId}"
         }
-        val supportedFormats = when (pair) {
-            LEGACY_REVISION_PAIR -> LEGACY_FORMAT_IDS
-            PILOT_TWO_REVISION_PAIR -> PILOT_TWO_FORMAT_IDS
-            PILOT_THREE_REVISION_PAIR -> PILOT_THREE_FORMAT_IDS
-            PILOT_FOUR_REVISION_PAIR -> PILOT_FOUR_FORMAT_IDS
-            PILOT_FIVE_REVISION_PAIR -> PILOT_FIVE_FORMAT_IDS
-            PILOT_SIX_REVISION_PAIR -> PILOT_SIX_FORMAT_IDS
-            PILOT_SEVEN_REVISION_PAIR -> PILOT_SEVEN_FORMAT_IDS
-            CURRENT_REVISION_PAIR -> CURRENT_FORMAT_IDS
-            else -> emptySet()
-        }
+        val supportedFormats = supportedFormats(pair)
         require(request.formatId in supportedFormats) {
             "Format ${request.formatId} is unsupported by ${request.contentRevision}/${request.generatorRevision}"
         }
@@ -118,6 +112,20 @@ class PilotEngine {
             }
         }
     }
+
+    private fun supportedFormats(pair: RevisionPair): Set<String> =
+        when (pair) {
+            LEGACY_REVISION_PAIR -> LEGACY_FORMAT_IDS
+            PILOT_TWO_REVISION_PAIR -> PILOT_TWO_FORMAT_IDS
+            PILOT_THREE_REVISION_PAIR -> PILOT_THREE_FORMAT_IDS
+            PILOT_FOUR_REVISION_PAIR -> PILOT_FOUR_FORMAT_IDS
+            PILOT_FIVE_REVISION_PAIR -> PILOT_FIVE_FORMAT_IDS
+            PILOT_SIX_REVISION_PAIR -> PILOT_SIX_FORMAT_IDS
+            PILOT_SEVEN_REVISION_PAIR -> PILOT_SEVEN_FORMAT_IDS
+            PILOT_EIGHT_REVISION_PAIR -> PILOT_EIGHT_FORMAT_IDS
+            CURRENT_REVISION_PAIR -> CURRENT_FORMAT_IDS
+            else -> emptySet()
+        }
 
     private fun createExercise(
         request: GenerationRequest,
@@ -595,6 +603,8 @@ class PilotEngine {
             RevisionPair(PilotContent.RETAINED_SIX_CONTENT_REVISION, PilotContent.RETAINED_SIX_GENERATOR_REVISION)
         val PILOT_SEVEN_REVISION_PAIR =
             RevisionPair(PilotContent.RETAINED_SEVEN_CONTENT_REVISION, PilotContent.RETAINED_SEVEN_GENERATOR_REVISION)
+        val PILOT_EIGHT_REVISION_PAIR =
+            RevisionPair(PilotContent.RETAINED_EIGHT_CONTENT_REVISION, PilotContent.RETAINED_EIGHT_GENERATOR_REVISION)
         val CURRENT_REVISION_PAIR =
             RevisionPair(PilotContent.CURRENT_CONTENT_REVISION, PilotContent.CURRENT_GENERATOR_REVISION)
         val SUPPORTED_REVISION_PAIRS =
@@ -606,6 +616,7 @@ class PilotEngine {
                 PILOT_FIVE_REVISION_PAIR,
                 PILOT_SIX_REVISION_PAIR,
                 PILOT_SEVEN_REVISION_PAIR,
+                PILOT_EIGHT_REVISION_PAIR,
                 CURRENT_REVISION_PAIR,
             )
         val LEGACY_FORMAT_IDS = setOf("E001", "E002", "E003")
@@ -618,7 +629,9 @@ class PilotEngine {
         val PILOT_SIX_FORMAT_IDS = PILOT_FIVE_FORMAT_IDS + MATCHING_FORMAT_ID
         val PILOT_SEVEN_FORMAT_IDS = PILOT_SIX_FORMAT_IDS + MULTIPLE_GAP_FORMAT_ID
         val MODULE_ONE_FORMAT_IDS = setOf("E016", "E017", "E018", "E019")
-        val CURRENT_FORMAT_IDS = PILOT_SEVEN_FORMAT_IDS + MODULE_ONE_FORMAT_IDS
+        val PILOT_EIGHT_FORMAT_IDS = PILOT_SEVEN_FORMAT_IDS + MODULE_ONE_FORMAT_IDS
+        val INANIMATE_REFERENCE_FORMAT_IDS = setOf("E020", "E021")
+        val CURRENT_FORMAT_IDS = PILOT_EIGHT_FORMAT_IDS + INANIMATE_REFERENCE_FORMAT_IDS
         val TILE_FORMAT_IDS = setOf("E012", "E013")
         val NEW_FORMAT_IDS = setOf("E004", "E005", "E006")
         const val MAX_INDEX = 1_000_000

@@ -47,6 +47,8 @@ internal const val MODULE_ONE_GROUPS_FOCUS = "module-one-groups"
 internal const val MODULE_ONE_GROUPS_REVISION = "module-one-groups-1"
 internal const val MODULE_ONE_ER_FOCUS = "module-one-er"
 internal const val MODULE_ONE_ER_REVISION = "module-one-er-1"
+internal const val MODULE_ONE_THINGS_FOCUS = "module-one-things"
+internal const val MODULE_ONE_THINGS_REVISION = "module-one-things-1"
 private const val TARGETED_REVIEW_FOCUS = "targeted-review"
 private const val INTRODUCTION_POSITION = -1
 

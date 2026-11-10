@@ -68,7 +68,11 @@ class GeneratedExercise internal constructor(
     val readingTarget: ReadingTask? = null,
     val lexicalTargets: List<LexicalTarget>? = null,
 ) {
-    val targetScopeId: String? get() = (source as? ModuleOneExerciseSource)?.task?.targetScopeId
+    val targetScopeId: String? get() = when (val exerciseSource = source) {
+        is ModuleOneExerciseSource -> exerciseSource.task.targetScopeId
+        is InanimateReferenceExerciseSource -> exerciseSource.task.targetScopeId
+        else -> null
+    }
     val instruction: String get() = presentation.instruction
     val context: String get() = presentation.context
     val prompt: ExercisePrompt get() = presentation.prompt
@@ -158,6 +162,24 @@ data class ExerciseInspector(
     val matchingSource: MatchingSourceDetails? = null,
     val gapSource: GapSourceDetails? = null,
     val moduleOneSource: ModuleOneSourceDetails? = null,
+    val inanimateReferenceSource: InanimateReferenceSourceDetails? = null,
+)
+
+data class InanimateReferenceSourceDetails(
+    val taskId: String,
+    val targetEntryId: String,
+    val targetSenseId: String,
+    val expectedForm: String,
+    val knownAlternativeForms: List<String>,
+    val antecedentEntryId: String,
+    val antecedentSenseId: String,
+    val antecedentArticle: String,
+    val antecedentGender: String,
+    val antecedentNumber: String,
+    val requestedRole: String,
+    val casePolicy: String,
+    val contextVariantId: String,
+    val choiceRationales: List<ModuleOneChoiceRationale>,
 )
 
 data class ModuleOneSourceDetails(
@@ -379,6 +401,12 @@ internal data class MultipleGapExerciseSource(
 
 internal data class ModuleOneExerciseSource(
     val task: ModuleOneTask,
+    override val answerKey: AnswerKey,
+    override val blockRoles: Map<String, String> = emptyMap(),
+) : ExerciseSource
+
+internal data class InanimateReferenceExerciseSource(
+    val task: InanimateReferenceTask,
     override val answerKey: AnswerKey,
     override val blockRoles: Map<String, String> = emptyMap(),
 ) : ExerciseSource

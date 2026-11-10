@@ -120,3 +120,20 @@ permission, E007/E008 pool or published C001–C003 combination is silently broa
 Names remain supplied literals rather than independently assessed lexical entries. Reference
 plural/definite forms above are not activated by the S03 teacher frame. Teaching review remains
 open; the source supports compact linguistic facts, not a claim of learner effectiveness.
+
+
+## Pair-nine inanimate-reference addition
+
+**10 November 2026 — Selected S04:** the [activation contract](inanimate-reference-activation.md)
+allocates a new entry for `den` and a separate reference sense for existing L008 `det`.
+
+| ID | Lemma and English gloss | Active standalone form | Scope and source |
+| --- | --- | --- | --- |
+| L026 | den, it (same mentioned common-gender thing) | den | L026-S01, singular subject reference with the antecedent's meaning/article/gender supplied; [DDO den², sense 1](https://ordnet.dk/ddo/ordbog/den). |
+
+L008-S02 is the corresponding neuter reference sense, supported by
+[DDO det³, sense 1](https://ordnet.dk/ddo/ordbog/det). Its identifying L008 record stays
+unchanged. Neither reference sense enters `humanPronouns` or older lexical/sentence pools.
+The current inventory has 26 distinct lexical entries and 109 complete clauses; the separate
+S04 source inventory contains two reference senses, not two new lexical entries. The engine
+does not expose an exhaustive global sense count. Teaching review remains pending.

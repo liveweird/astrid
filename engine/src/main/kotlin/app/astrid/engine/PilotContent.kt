@@ -35,8 +35,8 @@ internal object PilotContent {
     const val RETAINED_SEVEN_GENERATOR_REVISION = "generator-7"
     const val RETAINED_EIGHT_CONTENT_REVISION = "pilot-8"
     const val RETAINED_EIGHT_GENERATOR_REVISION = "generator-8"
-    const val CURRENT_CONTENT_REVISION = "pilot-8"
-    const val CURRENT_GENERATOR_REVISION = "generator-8"
+    const val CURRENT_CONTENT_REVISION = "pilot-9"
+    const val CURRENT_GENERATOR_REVISION = "generator-9"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
     const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
@@ -45,7 +45,7 @@ internal object PilotContent {
     const val RETAINED_SIX_EVALUATION_REVISION = "evaluation-6"
     const val RETAINED_SEVEN_EVALUATION_REVISION = "evaluation-7"
     const val RETAINED_EIGHT_EVALUATION_REVISION = "evaluation-8"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-8"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-9"
 
     val humanPronouns =
         listOf(
@@ -59,6 +59,7 @@ internal object PilotContent {
         )
 
     val identifyingPronoun = PronounEntry("L008", "det", "it or that")
+    val inanimateReferencePronouns = listOf(PronounEntry("L026", "den", "it for one common-gender thing"))
 
     val have = Verb("L009", "have", "har", "have")
     val be = Verb("L010", "være", "er", "be")
@@ -193,6 +194,13 @@ internal object PilotContent {
                 ExerciseFormat("E019", "Recall the present form of være", "G004"),
             )
 
+    val inanimateReferenceFormats =
+        moduleOneFormats +
+            listOf(
+                ExerciseFormat("E020", "Choose a reference word for one thing", "G038"),
+                ExerciseFormat("E021", "Recall a reference word for one thing", "G038"),
+            )
+
     val snapshot =
         PilotContentSnapshot(
             contentRevision = CONTENT_REVISION,
@@ -315,7 +323,28 @@ internal object PilotContent {
             ),
         )
 
-    val currentSnapshot = pilotEightSnapshot
+    val currentSnapshot =
+        pilotEightSnapshot.copy(
+            contentRevision = CURRENT_CONTENT_REVISION,
+            generatorRevision = CURRENT_GENERATOR_REVISION,
+            skills = skills + Skill(
+                "G038",
+                "Refer to one inanimate thing",
+                "Use den or det for one previously mentioned thing when its grammatical gender is supplied.",
+                listOf("G001", "G002", "G003", "G006"),
+            ),
+            formats = inanimateReferenceFormats,
+            lexicalReview = PilotReviewMetadata.records(
+                humanPronouns,
+                identifyingPronoun,
+                verbs,
+                moduleOneNouns,
+                matching = true,
+                moduleOne = true,
+                referencePronouns = inanimateReferencePronouns,
+            ),
+            referencePronouns = inanimateReferencePronouns,
+        )
 
     init {
         PilotContentValidator.requireValid(snapshot)

@@ -17,7 +17,10 @@ class ModuleOnePracticeTest {
             Triple("module-one-groups", "module-one-groups-1", "Talking to and about groups"),
             Triple("module-one-er", "module-one-er-1", "Using the verb to be"),
         )
-        assertEquals(expected.map { it.first }, planner.profiles().takeLast(3).map { it.focusId })
+        assertEquals(
+            expected.map { it.first },
+            planner.profiles().filter { profile -> expected.any { it.first == profile.focusId } }.map { it.focusId },
+        )
         expected.forEach { (focus, revision, title) ->
             val plan = planner.plan(focus, revision, 47)
             assertEquals(title, plan.title)

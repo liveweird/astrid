@@ -275,8 +275,8 @@ internal object ModuleOnePracticeCompatibilityFixture {
     ) = PracticeCompletionAttemptObservation(target, linguistic, constraint, issues)
 
     private fun requireLiteralPairEight() {
-        require(PilotContent.CURRENT_CONTENT_REVISION == "pilot-8")
-        require(PilotContent.CURRENT_GENERATOR_REVISION == "generator-8")
+        require(PilotContent.pilotEightSnapshot.contentRevision == "pilot-8")
+        require(PilotContent.pilotEightSnapshot.generatorRevision == "generator-8")
         require(engine.evaluationRevision("pilot-8", "generator-8") == "evaluation-8")
     }
 

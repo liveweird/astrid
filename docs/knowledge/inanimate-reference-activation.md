@@ -63,6 +63,17 @@ unknown feedback exposes none. Use `module-one:reference-sense:L026-S01` / `L008
 including identical `det` spelling across identifying/reference senses, without treating
 exposure as learning or knowledge. Cross-run experience remains unknown.
 
+## Finite variation boundary
+
+The standalone pool has four authored task identities: book/letter selection and
+book/letter recall, with two English context variants per antecedent across operations.
+Each format cycles through its two tasks before repeating. The profile preserves the
+selection-then-recall scaffold and has two ordered task sequences: even seeds select
+book then letter and recall letter then book; odd seeds do the reverse. Choice placement
+may vary without creating another linguistic task or unseen transfer. Both expected words
+must appear in both choice positions across seeds; task selection must not make the correct
+answer always first. Required teaching exposes both forms before assessment.
+
 ## Bounded linguistic source check
 
 **10 November 2026 — Source check, not teaching approval:** DDO's pronoun entries
@@ -99,6 +110,21 @@ Recheck CI's outer image-job headroom as the browser suite grows; preserve full 
 scans and per-test timeouts. Verify the exact master SHA before tagging/releasing; verify
 backup readability and an isolated restore before app-only promotion, preserving existing
 rows and the main PostgreSQL process/mounts. Remove only owned QA resources.
+
+## Implementation decisions
+
+- Den's new entry is L026/L026-S01; reference `det` is L008-S02. Identifying L008's
+  published metadata, human-pronoun list and old lexical-assessment pools stay unchanged.
+- Direct-entry prerequisites are `[G001,G002,G003,G006]`, supplied as support rather than
+  locked progression. The two summary keys are
+  `grammar:G038:inanimate-singular-subject:selection` and the corresponding `:recall` key.
+- The image CI job's outer allowance rises from 35 to 40 minutes, matching the nightly.
+  The 372-journey run `42737593818` took 2,004 seconds (96 seconds spare); later unchanged
+  run `42773472174` took 1,726. Added S04 browser cases need room for that observed variation.
+  Full tests/scans, per-test timeouts, workers, coverage floors and retry rules are retained.
+- No column/schema change is planned. Pair-nine payloads need a compatible reader/evaluator;
+  rolling the binary back to 0.9.0 after new writes is unsafe. Deploy the server and bundled
+  client together because their supported profile catalogs must agree.
 
 ## Delivery status
 

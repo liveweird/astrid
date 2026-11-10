@@ -7,6 +7,7 @@ internal object PilotEvaluator {
         exercise: GeneratedExercise,
         answer: Answer,
     ): Evaluation = when (exercise.formatId) {
+        "E020", "E021" -> InanimateReferenceExerciseEvaluator.evaluate(exercise, answer)
         "E016", "E017", "E018", "E019" -> ModuleOneExerciseEvaluator.evaluate(exercise, answer)
         "E015" -> MultipleGapExerciseEvaluator.evaluate(
             exercise,

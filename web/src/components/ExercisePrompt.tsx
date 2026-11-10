@@ -33,6 +33,22 @@ function hasLexicalTarget(exercise: Exercise) {
   return "lexicalTarget" in exercise && Boolean(exercise.lexicalTarget);
 }
 
+function choiceGroupLabel(formatId: Exercise["formatId"]) {
+  return formatId === "E020"
+    ? "Danish standalone reference word choices"
+    : "Danish sentence with answer choices";
+}
+
+function choiceGroupLanguage(formatId: Exercise["formatId"]) {
+  return formatId === "E020" ? "en" : "da";
+}
+
+function responseGroupLabel(formatId: Exercise["formatId"]) {
+  return formatId === "E021"
+    ? "Danish standalone reference word response"
+    : "Danish sentence cloze";
+}
+
 function DanishCharacterButtons({ disabled, insertCharacter }: {
   disabled: boolean;
   insertCharacter: (character: string) => void;
@@ -251,7 +267,12 @@ export default function ExercisePrompt({
     return (
       <Stack gap="sm">
         {prompt.cue && <Text lang={prompt.cueLanguage ?? "en"} size="lg" fw={650}>{prompt.cue}</Text>}
-        <Group gap="sm" aria-label="Danish sentence with answer choices" lang="da">
+        <Group
+          gap="sm"
+          role="group"
+          aria-label={choiceGroupLabel(formatId)}
+          lang={choiceGroupLanguage(formatId)}
+        >
           {prompt.before && <Text>{prompt.before}</Text>}
           <Group gap="xs" aria-label="Answer choices">
             {prompt.choices.map((choice) => (
@@ -289,7 +310,13 @@ export default function ExercisePrompt({
   return (
     <Stack gap="sm">
       {prompt.cue && <Text lang={prompt.cueLanguage ?? "en"} size="lg" fw={650}>{prompt.cue}</Text>}
-      <Group gap="xs" align="end" wrap="wrap" aria-label="Danish sentence cloze">
+      <Group
+        gap="xs"
+        align="end"
+        wrap="wrap"
+        role="group"
+        aria-label={responseGroupLabel(formatId)}
+      >
         {prompt.before && <Text lang="da" pb={9}>{prompt.before}</Text>}
         <DanishTextInput
           label={inputLabel ?? "Missing word"}
