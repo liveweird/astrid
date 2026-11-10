@@ -109,3 +109,15 @@ Gradle), uid 10001, `ASTRID_DEVELOPMENT_MODE=false`, `ASTRID_BIND_HOST=0.0.0.0`,
 with `kubectl -n astrid port-forward service/astrid 8088:8088`. The Secret is created by hand from `.env` and is not part of the kustomization (`security.md`). The image
 `astrid:local` must exist in the cluster's image store; for a remote cluster publish a uniquely tagged image and change `k8s/app.yaml` — never rely on a mutable shared tag.
 Check the kube context before applying; all commands touch only the `astrid` namespace. Changing probes or timeouts means re-running `check-startup-budget.py`.
+
+
+## Agent-owned Compose verification stacks
+
+Pin every temporary-stack command with `docker compose -p <owned-project> -f <absolute-file>`.
+Use that same argument vector to resolve and check the project before any mutation or cleanup;
+never rely only on a compose file's top-level `name`, because an ambient `COMPOSE_PROJECT_NAME`
+can override it. Keep existing ownership-label, container-ID, volume and network checks.
+For main Astrid app-only promotion, pin `-p astrid`, the repository project directory and
+the absolute `docker-compose.yaml`; keep the database process and mounts intact. Parse resolved
+configuration internally: it contains secrets and must not be printed. S04 delivery verified
+these scopes against conflicting ambient names using read-only resolution.

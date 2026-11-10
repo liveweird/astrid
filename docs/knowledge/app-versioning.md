@@ -83,3 +83,6 @@ source `8913dea`, is the current private preview after all five [exact-source CI
 actual isolated backup restore, app-only promotion, 160 live checks and owned cleanup.
 This supersedes the historical running-version statement for 0.8.0. App version 0.9.0 and
 learning pair eight remain distinct; old notes, tags, evaluators and plans are retained.
+
+
+**Subsequent release — 10 November 2026:** app [0.10.0](https://github.com/liveweird/astrid/releases/tag/v0.10.0), source `3d87b4d`, is the current private preview after all five [exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/42898557511), 388 native and 388 Linux journeys without retries/flakies, actual restart/replay, isolated backup restore and app-only promotion. All 176 live checks and owned cleanup passed. The [S04 delivery](inanimate-reference-activation.md#observed-runtime-delivery--10-november-2026) supersedes earlier running-version statements. Pair nine and the four-item S04 plan are additive; older notes, tags, evaluators and plans remain retained.

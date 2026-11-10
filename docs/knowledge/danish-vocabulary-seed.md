@@ -124,7 +124,7 @@ open; the source supports compact linguistic facts, not a claim of learner effec
 
 ## Pair-nine inanimate-reference addition
 
-**10 November 2026 — Selected S04:** the [activation contract](inanimate-reference-activation.md)
+**10 November 2026 — Delivered at 0.10.0:** the [activation contract](inanimate-reference-activation.md)
 allocates a new entry for `den` and a separate reference sense for existing L008 `det`.
 
 | ID | Lemma and English gloss | Active standalone form | Scope and source |

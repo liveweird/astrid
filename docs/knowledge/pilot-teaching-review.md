@@ -4,7 +4,7 @@
 
 This is a **proposed review process**, not a user-approved rubric, an arranged specialist
 engagement, or evidence that a specialist has reviewed or approved the content. It covers the
-current S04 implementation packet for app **0.10.0**, content `pilot-9`, generator `generator-9`
+released private beginner preview at app **0.10.0**, content `pilot-9`, generator `generator-9`
 and evaluation `evaluation-9`; delivery state is recorded in the [S04 contract](inanimate-reference-activation.md). Its language state remains `draft-not-teacher-reviewed`.
 
 The current bounded inventory is 26 lexical records, 109 complete licensed clauses and twenty-one

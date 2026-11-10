@@ -126,8 +126,52 @@ rows and the main PostgreSQL process/mounts. Remove only owned QA resources.
   rolling the binary back to 0.9.0 after new writes is unsafe. Deploy the server and bundled
   client together because their supported profile catalogs must agree.
 
-## Delivery status
+## Observed runtime delivery — 10 November 2026
 
-Selected; implementation and verification are in progress. No release or preview promotion
-has yet been performed for S04. Further implementation decisions and observed evidence
-will be recorded here before completion is reported.
+Released app [0.10.0](https://github.com/liveweird/astrid/releases/tag/v0.10.0), source `3d87b4d`, after all five
+[exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/42898557511) passed with **388 Linux browser journeys and no retries/flakies**.
+The full local gate passed **205 engine tests**, the same **205 in a fresh Arabic locale**,
+**165 server tests including PostgreSQL**, and **207 frontend tests**, plus strict dependencies,
+API drift/lint, static analysis and deployment rendering. Measured coverage retained the existing
+floors: engine 98.14% lines / 85.76% branches, server 98.22% / 81.48%, web 95.12% statements /
+89.49% branches / 97.84% functions / 97.85% lines.
+
+All **388 native Chromium/WebKit journeys** passed without retries against immutable image
+`sha256:fd083a92d59879883ef1b4a85094664416325d34d5214266ab6986e3e879d2e8`. Independent engine, API and interface reviews were completed and findings
+resolved: choice placement no longer predicts the answer, inherited matching/gap attempt schemas
+accept evaluation nine, retained recovery cases remain covered, and standalone word labels use
+appropriate task/language semantics. Forty source/image-bound views were independently inspected
+across both themes and desktop/narrow enlarged layouts, including supplementary summary
+card bodies and lower feedback actions. Four narrow card element captures had their upper
+title/subtitle region obscured by the sticky header/focused skip link; those regions were not
+directly verified in those frames. Desktop titles and automated reflow checks provide separate
+evidence. No actionable defect was found in the reviewed regions. Static captures do not prove
+interaction, scrolling or teaching approval; the browser journeys provide separate interaction
+evidence. These engineering checks do not establish learning efficacy.
+
+The initial `3dcfe9d` candidate completed 384 native journeys with four failures from stale
+introduction-wording/profile-count assertions (two cases in both browsers). The test-only
+correction was verified in all four affected cases before the successful full run. Failed
+logs/traces and the rejected candidate remain preserved separately; no release or preview
+promotion used that candidate.
+
+Actual QA upgrade/restart preserved public/private wire, reads, exact attempt replay and fresh
+grading for all eight retained evaluators, six saved profiles and the three completed pair-eight
+first-step summaries. S04's saved teaching, two scoped rows, case/shape outcomes and latest-unknown
+blocking survived the observed restart with exact creation/read/attempt replay. All frozen
+archives and the retained-eight review hash remained unchanged; no migration was added.
+
+A private **3,915,363-byte**, mode-0600 backup was restored into an isolated scratch
+database and every captured row matched before app-only promotion (development_sessions: 3556, exercises: 19157, attempts: 8999, practice_sessions: 1997, practice_items: 13248, practice_attempt_context: 6126). Main PostgreSQL's
+process and mounts and schema versions **1/2/3** were preserved, as were pre-promotion rows.
+All **176 live-preview smoke journeys** passed without retries, including S04 and retained flows.
+Ownership-checked cleanup removed only the QA containers, volume and network.
+
+Local packaging hit three 10-second Gradle distribution-download read stalls. A 60-second
+experiment also stalled and was reverted; the unchanged original Dockerfile and clean tagged
+source then built using a controlled host-network build connection. Strict distribution/dependency
+verification and the original timeout/retry configuration remained in place. This successful path
+does not establish a network root cause; the proposed verified-ZIP fallback was not used.
+The main preview serves the exact verified image/source. Private logs, captures, hashes and backup
+remain ignored under `.local/s04/`. BL-053 is complete; S05–S06, broader reference, teaching review,
+and the separate WebKit/resource investigation remain unselected or open as previously recorded.
