@@ -123,3 +123,103 @@ Delivered the documentation packet: 21 ordered draft sessions, 17 reused seed id
 Two substantive review corrections were applied: S03 explicitly introduces fixed identifying L008 `det` before the different S04 referential use; the reading/time and duplicate-token propositions have explicit bounded frame permissions. The latter uses `Jeg arbejder i Aarhus i dag` as a separately taught technical fixture rather than silently broadening all circumstance combinations.
 
 `./scripts/check.sh` passed, including the configured Gradle/server/Postgres gate, web/API/build checks, E2E static/scenario-script checks and manifest rendering. Knowledge/link checks passed with 58 grammar skills, 30 constructions, 23 runtime vocabulary entries and 58 Markdown files. Only documentation changed: no new runtime content, revisions, migrations, public APIs, app version or preview rollout. No browser run is claimed for this authoring-only change. Q27/Q28, specialist teaching validation and broader course authoring remain open. BL-047 records the proposed first implementation batch; it is not selected by delivery of this packet.
+
+## Proposed next activation — S04
+
+**10 November 2026 — Assistant proposal, runtime not selected:** after the three first-step
+profiles in the [0.9.0 contract](module-one-activation.md), activate **S04: Referring to one
+thing** separately. It closes the remaining bounded reference work in parent Topic 1.
+S05–S06 remain the following connected package. Four S04 activities are an authoring default,
+not an established optimal dose; do not pad two introduced forms to six near-identical tasks.
+
+### Target and supplied knowledge
+
+Use **G038 / `inanimate-singular-subject`**, with separate selection and recall evidence.
+Supply the singular antecedent, its meaning, article and grammatical gender: `en bog`
+(book, common gender) or `et brev` (letter, neuter). Teach referential `den/det`, one standalone
+subject-reference word at a time. Direct entry must reintroduce word/subject terminology,
+standalone capitalization and these mappings before assessment. This is a narrow G038 variant;
+its broader definite/plural/object prerequisites remain unchanged in the grammar map.
+
+The prompts use explicit **English reference situations with Danish noun bundles**. They do
+not introduce a Danish predicate, adjective agreement or definite noun merely to demonstrate
+reference. Evidence concerns the supplied subject-reference form; it does not establish that
+the learner can analyze a complete Danish clause or distinguish singular subject/object
+pronouns, whose displayed forms coincide. Human reference, plural/object reference,
+demonstratives, dummy subjects and identifying `Det er …` remain outside assessment.
+
+| Activity | Explicit reference situation | Response |
+| --- | --- | --- |
+| Selection 1 | A previously mentioned single book: `en bog`; common gender; refer to that same thing as the subject of the next statement. | Choose `den` from `den/det`. |
+| Selection 2 | A previously mentioned single letter: `et brev`; neuter; refer to that same thing as the subject of the next statement. | Choose `det` from `den/det`. |
+| Recall 1 | Continue discussing the same book in a separately enumerated English situation; its article, gender and meaning remain supplied. | Type `den`. |
+| Recall 2 | Continue discussing the same letter in another enumerated English situation; its article, gender and meaning remain supplied. | Type `det`. |
+
+Seeds may vary item/bank order and authored reference contexts while preserving two selections
+and two recalls, one of each per form. Different English wording or another book is contextual
+repetition, not unseen linguistic transfer. Do not infer gender, humanity or reference from an
+image or English gloss. No new complete Danish clause is licensed by these standalone tasks.
+
+### Reference identity and grading
+
+Keep referential `det` distinct from L008's currently fixed identifying sense. Before runtime
+selection, settle a new sense identity for referential `det` and the entry/sense identity for
+`den`; these are not allocated by this proposal. Do not append `den` to `humanPronouns` or
+broaden old L008 metadata. New private source fields must identify the antecedent sense,
+singular number, supplied gender, requested role, case policy and exact context variant.
+
+| Answer in the supplied context | Proposed bounded result |
+| --- | --- |
+| `en bog` → `den`; `et brev` → ` det ` | Target met, acceptable form, one-word constraint met; retain raw input and existing NFC/whitespace normalization. |
+| `en bog` → `det` | Target not met, acceptable introduced word; explain reference mismatch, not invalid Danish. |
+| Matching standalone `Den` or `Det` | Preserve unambiguous reference evidence; known standalone-capitalization issue and constraint not met. Sentence-initial capitalization in complete Danish remains valid. |
+| `det er` | Target unevaluable; known one-word shape failure, without accepting a correct prefix or claiming the whole phrase is invalid Danish. |
+| `dem` or another unsupported word | Target unevaluable, language unknown; no invented judgment about later Danish uses; continuation unavailable. |
+| Choice outside the displayed bank | Reject the malformed choice before persisting an attempt. |
+| Eligible attempt followed by an unsupported retry | Latest saved attempt blocks continuation; first/latest results stay separately frozen. |
+| Committed response is lost | Replay the exact saved operation/body/result; create no second attempt. |
+
+Reuse existing case/shape, completion and exposure policies only where semantics are identical.
+A changed eligibility rule or issue-code meaning needs a new policy revision. Record both the
+reference sense and visible-form exposure when `det` is shown: identical spelling can cue a
+form across senses without proving knowledge of the new reference use. Cross-run experience
+remains unknown. Exact correction displays the standalone form; unknown answers disclose none.
+
+### Proposed implementation boundary
+
+1. Freeze published pair-eight generation/grading, wire/fingerprints, teaching review and all
+   three first-step plans/exposure/summary/replay cases from unchanged released source, in new
+   immutable fixtures with provenance. Existing goldens and migrations remain untouched.
+2. Allocate two G038 formats after checking the catalogue; reuse the choice/text controls and
+   transport. Preserve E016/E017's human-G003 contract. Use a new learning pair (provisionally
+   `pilot-9/generator-9/evaluation-9`) and literally pinned four-item profile, provisionally
+   `module-one-things-1`; old profiles remain pinned to pair eight.
+3. Extend revision-specific validation and reference-source dispatch deliberately. The current
+   evaluator distinguishes verbs through L010, and scope is carried by `ModuleOneExerciseSource`;
+   neither is a general reference-sense model. Fingerprint every new private field and keep
+   solutions/sense-analysis metadata out of learner DTOs. Update closed OpenAPI correlations,
+   generated types, real HTTP conformance and fake/Postgres contracts together.
+4. Reuse mandatory saved teaching, reentry, latest-attempt eligibility, two scoped summary rows
+   and explicit Repeat/Next chooser behavior. Add S03→S04 only when S04 exists; add no S04→S05
+   link until S05 is available. Replace fixed chooser-group slicing as needed and update exact
+   catalogue/count expectations and scenarios in the same change. No targeted-review fallback,
+   prerequisite lock, accounts or scheduler is selected. No SQL migration is expected for a
+   four-item JSON-backed plan; verify persisted-reader/rollback compatibility before deciding.
+5. Require literal grading/coverage oracles, exact exposure, deterministic finite cycles,
+   unknown/case/shape boundaries, required-teaching and lifecycle/race/replay tests, retained
+   fixtures, both-browser accessibility/reflow checks and normal independently reviewed,
+   versioned delivery if runtime implementation is selected. Teaching approval remains separate.
+
+### Following package — S05 and S06
+
+S05 proposes six items: selection and recall for each named `arbejde → arbejder`,
+`læse → læser` and reviewed `sove → sover`. Introduce `en avis`; supply subjects/noun bundles.
+S06 proposes three constituent-block arrangements followed by three all-word-tile responses
+with changed licensed combinations. Use human subjects with `arbejder/sover`, and `læser`
+with supplied `en bog/en avis/et brev`; omit optional eating/apple material.
+
+This package needs a new work frame and deliberately scoped reuse of E001/E004/E003/E012,
+whose shared 99-sentence pools are frozen. Keep block-order and word-tile operation evidence
+distinct. Reuse their interactions and sentence machinery through new-revision bounded pools;
+do not append to shared inventories or assume old graders already teach these session scopes.
+S05–S06, broader grammar progression, Q27/Q28 and vocabulary quotas remain separate decisions.
