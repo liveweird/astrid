@@ -130,7 +130,7 @@ for (const profile of PROFILES) {
     if (profile.focus === "module-one-things") {
       await expect(introduction.getByText("en bog · et brev", { exact: true })).toHaveAttribute("lang", "da");
       await expect(introduction.getByText("en bog → den · et brev → det", { exact: true })).toHaveAttribute("lang", "da");
-      await expect(introduction.getByText(/refers back to the same mentioned thing/i)).toBeVisible();
+      await expect(introduction.getByText(/refer back to the same mentioned thing/i)).toBeVisible();
     } else {
       await expect(introduction.getByRole("heading", { name: "Danish letters", exact: true })).toBeVisible();
       await expect(introduction.getByText("æ · ø · å", { exact: true })).toHaveAttribute("lang", "da");
