@@ -79,6 +79,8 @@ class OpenApiContractTest {
             "module-one-groups" to "module-one-groups-1",
             "module-one-er" to "module-one-er-1",
             "module-one-things" to "module-one-things-1",
+            "module-one-present" to "module-one-present-1",
+            "module-one-order" to "module-one-order-1",
         )
         for (focus in supportedPairs.map { it.first }) {
             for (revision in supportedPairs.map { it.second }) {
@@ -145,6 +147,13 @@ class OpenApiContractTest {
             exerciseRequest("E019", "G004", "pilot-9", "generator-9"),
             exerciseRequest("E020", "G038", "pilot-9", "generator-9"),
             exerciseRequest("E021", "G038", "pilot-9", "generator-9"),
+            exerciseRequest("E001", "G004", "pilot-10", "generator-10"),
+            exerciseRequest("E014", null, "pilot-10", "generator-10"),
+            exerciseRequest("E020", "G038", "pilot-10", "generator-10"),
+            exerciseRequest("E022", "G004", "pilot-10", "generator-10"),
+            exerciseRequest("E023", "G004", "pilot-10", "generator-10"),
+            exerciseRequest("E024", "G005", "pilot-10", "generator-10"),
+            exerciseRequest("E025", "G005", "pilot-10", "generator-10"),
         )
         val rejected = listOf(
             exerciseRequest("E009", null, "pilot-4", "generator-4"),
@@ -173,6 +182,10 @@ class OpenApiContractTest {
             exerciseRequest("E018", "G003", "pilot-8", "generator-8"),
             exerciseRequest("E019", "G004", "pilot-7", "generator-7"),
             exerciseRequest("E020", "G003", "pilot-9", "generator-9"),
+            exerciseRequest("E022", "G004", "pilot-9", "generator-9"),
+            exerciseRequest("E023", "G004", "pilot-10", "generator-9"),
+            exerciseRequest("E024", "G004", "pilot-10", "generator-10"),
+            exerciseRequest("E025", null, "pilot-10", "generator-10"),
             exerciseRequest("E021", null, "pilot-9", "generator-9"),
             exerciseRequest("E020", "G038", "pilot-8", "generator-8"),
             exerciseRequest("E020", "G038", "pilot-9", "generator-8"),
@@ -238,6 +251,8 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E019", "G004", "vaere-present"),
             moduleOneExerciseResponse("E020", "G038", "inanimate-singular-subject", "pilot-9"),
             moduleOneExerciseResponse("E021", "G038", "inanimate-singular-subject", "pilot-9"),
+            moduleOneExerciseResponse("E022", "G004", "named-three-verbs-present", "pilot-10"),
+            moduleOneExerciseResponse("E024", "G005", "subject-first-supplied", "pilot-10"),
         )
         val rejected = listOf(
             exerciseResponse("E009", "pilot-4", "generator-4"),
@@ -326,6 +341,9 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E018", "G004", "human-group"),
             moduleOneExerciseResponse("E020", "G003", "inanimate-singular-subject", "pilot-9"),
             moduleOneExerciseResponse("E021", "G038", "human-singular", "pilot-9"),
+            moduleOneExerciseResponse("E023", "G004", "vaere-present", "pilot-10"),
+            moduleOneExerciseResponse("E024", "G005", "subject-first-supplied", "pilot-9"),
+            moduleOneExerciseResponse("E025", "G004", "subject-first-supplied", "pilot-10"),
         )
 
         accepted.forEach { assertExerciseResponseValidity(it, expected = true) }
@@ -430,7 +448,7 @@ class OpenApiContractTest {
         )
         validate(HttpMethod.Post, "/api/v1/attempts", matchingAttempt)
         assertEquals(
-            "evaluation-9",
+            "evaluation-10",
             wireJson.parseToJsonElement(matchingAttempt.bodyAsText()).jsonObject
                 .getValue("evaluationRevision").jsonPrimitive.content,
         )
@@ -449,7 +467,7 @@ class OpenApiContractTest {
         val gapAttempt = submitAttempt(cookie, gapId, AttemptAnswerDto.Gaps(gapSelections))
         validate(HttpMethod.Post, "/api/v1/attempts", gapAttempt)
         assertEquals(
-            "evaluation-9",
+            "evaluation-10",
             wireJson.parseToJsonElement(gapAttempt.bodyAsText()).jsonObject
                 .getValue("evaluationRevision").jsonPrimitive.content,
         )
@@ -972,6 +990,7 @@ class OpenApiContractTest {
             Triple("module-one-singular", "module-one-singular-1", "human-singular"),
             Triple("module-one-groups", "module-one-groups-1", "human-group"),
             Triple("module-one-er", "module-one-er-1", "vaere-present"),
+            Triple("module-one-present", "module-one-present-1", "named-three-verbs-present"),
         )
         val observedFormats = mutableSetOf<String>()
 
@@ -1043,7 +1062,7 @@ class OpenApiContractTest {
                 val source = wireJson.parseToJsonElement(inspector.bodyAsText()).jsonObject
                     .getValue("moduleOneSource").jsonObject
                 val expected = source.getValue("expectedForm").jsonPrimitive.content
-                val isRecall = formatId in setOf("E017", "E019")
+                val isRecall = formatId in setOf("E017", "E019", "E023")
                 val answer = when {
                     isRecall && !checkedCaseOutcome -> expected.replaceFirstChar {
                         if (it.isUpperCase()) it.lowercase() else it.uppercase()
@@ -1102,7 +1121,7 @@ class OpenApiContractTest {
                 it.jsonObject.getValue("targetScopeId").jsonPrimitive.content == expectedScope
             })
         }
-        assertEquals(setOf("E016", "E017", "E018", "E019"), observedFormats)
+        assertEquals(setOf("E016", "E017", "E018", "E019", "E022", "E023"), observedFormats)
     }
 
     @Test
@@ -1252,6 +1271,167 @@ class OpenApiContractTest {
         }
     }
 
+    @Test
+    fun `pair ten rejects forged forms and invalid orders before saving attempts`() = testApplication {
+        val inspectorKey = "m".repeat(32)
+        application { astridModule(config(inspectorKey = inspectorKey), InMemoryStores()) }
+        val cookie = moduleOneCookie()
+        val selection = createCurrentExercise(cookie, "E022", "G004")
+        val selectionId = selection.getValue("id").jsonPrimitive.content
+        val choices = selection.getValue("prompt").jsonObject.getValue("choices").jsonArray
+            .map { it.jsonPrimitive.content }
+        val forged = listOf("arbejder", "læser", "sover").first { it !in choices }
+        val badChoice = submitAttempt(cookie, selectionId, AttemptAnswerDto.Text(forged))
+        assertEquals(400, badChoice.status.value)
+        validate(HttpMethod.Post, "/api/v1/attempts", badChoice)
+        val correctForm = inspectExercise(cookie, inspectorKey, selectionId)
+            .getValue("moduleOneSource").jsonObject.getValue("expectedForm").jsonPrimitive.content
+        val checkedForm = submitAttempt(cookie, selectionId, AttemptAnswerDto.Text(correctForm))
+        assertEquals(200, checkedForm.status.value)
+        validate(HttpMethod.Post, "/api/v1/attempts", checkedForm)
+
+        for (format in listOf("E024", "E025")) {
+            val exercise = createCurrentExercise(cookie, format, "G005")
+            val exerciseId = exercise.getValue("id").jsonPrimitive.content
+            val order = canonicalPairTenOrder(cookie, inspectorKey, exerciseId)
+            val malformed = listOf(
+                AttemptAnswerDto.Text("Jeg læser."),
+                AttemptAnswerDto.Order(emptyList()),
+                AttemptAnswerDto.Order(listOf("foreign")),
+                AttemptAnswerDto.Order(listOf(order.first(), order.first())),
+            ) + if (format == "E024") listOf(AttemptAnswerDto.Order(order.dropLast(1))) else emptyList()
+            for (answer in malformed) {
+                val rejected = submitAttempt(cookie, exerciseId, answer)
+                assertEquals(400, rejected.status.value, "$format $answer")
+                validate(HttpMethod.Post, "/api/v1/attempts", rejected)
+            }
+            val accepted = submitAttempt(cookie, exerciseId, AttemptAnswerDto.Order(order))
+            assertEquals(200, accepted.status.value)
+            validate(HttpMethod.Post, "/api/v1/attempts", accepted)
+            assertEquals(1, accepted.bodyAsText().asObject().getValue("retryNumber").jsonPrimitive.content.toInt())
+        }
+    }
+
+    @Test
+    fun `pair ten guided order saves a partial response and replays its original outcome`() = testApplication {
+        val inspectorKey = "m".repeat(32)
+        application { astridModule(config(inspectorKey = inspectorKey), InMemoryStores()) }
+        val cookie = moduleOneCookie()
+        val owner = client.get("/api/v1/practice-context") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+        }.bodyAsText().asObject().getValue("ownerSessionId").jsonPrimitive.content
+        val practiceId = UUID.randomUUID()
+        val created = pairTenPracticePost(cookie, owner, "/api/v1/practice-sessions",
+            """{"practiceSessionId":"$practiceId","focusId":"module-one-order","planRevision":"module-one-order-1","seed":47}""",
+        )
+        assertEquals(201, created.status.value)
+        validate(HttpMethod.Post, "/api/v1/practice-sessions", created)
+        var state = created.bodyAsText().asObject()
+        val firstExerciseId = currentExerciseId(state)
+        val firstOrder = canonicalPairTenOrder(cookie, inspectorKey, firstExerciseId)
+        assertEquals(409, submitAttempt(cookie, firstExerciseId, AttemptAnswerDto.Order(firstOrder)).status.value)
+
+        val supportPath = "/api/v1/practice-sessions/$practiceId/support"
+        val supported = pairTenPracticePost(cookie, owner, supportPath, """{"kind":"introduction"}""")
+        assertEquals(200, supported.status.value)
+        validate(HttpMethod.Post, supportPath, supported)
+        state = supported.bodyAsText().asObject()
+        repeat(3) { state = completePairTenOrder(cookie, owner, practiceId, inspectorKey, state) }
+
+        val exerciseId = currentExerciseId(state)
+        val order = canonicalPairTenOrder(cookie, inspectorKey, exerciseId)
+        val request = AttemptRequest(UUID.randomUUID().toString(), exerciseId, AttemptAnswerDto.Order(order.take(2)), false)
+        val body = wireJson.encodeToString(request)
+        val partial = pairTenPracticePost(cookie, owner, "/api/v1/attempts", body)
+        assertEquals(200, partial.status.value)
+        validate(HttpMethod.Post, "/api/v1/attempts", partial)
+        val partialText = partial.bodyAsText()
+        val grade = partialText.asObject()
+        assertEquals("unevaluable", grade.getValue("targetSatisfaction").jsonPrimitive.content)
+        assertEquals("unknown", grade.getValue("linguisticStatus").jsonPrimitive.content)
+        assertEquals("not-met", grade.getValue("responseConstraintStatus").jsonPrimitive.content)
+        assertTrue(grade.getValue("issues").jsonArray.any {
+            it.jsonObject.getValue("code").jsonPrimitive.content == "REQUIRED_WORDS_MISSING"
+        })
+
+        val advanced = advanceModuleOne(cookie, owner, practiceId, 3)
+        assertEquals(200, advanced.status.value)
+        validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/advance", advanced)
+        assertEquals(partialText, pairTenPracticePost(cookie, owner, "/api/v1/attempts", body).bodyAsText())
+        state = advanced.bodyAsText().asObject()
+        repeat(2) { state = completePairTenOrder(cookie, owner, practiceId, inspectorKey, state) }
+        assertEquals("completed", state.getValue("state").jsonPrimitive.content)
+        assertPairTenOrderSummary(state)
+    }
+
+    private suspend fun ApplicationTestBuilder.completePairTenOrder(
+        cookie: String,
+        owner: String,
+        practiceId: UUID,
+        inspectorKey: String,
+        state: JsonObject,
+    ): JsonObject {
+        val exerciseId = currentExerciseId(state)
+        val order = canonicalPairTenOrder(cookie, inspectorKey, exerciseId)
+        val attempt = submitAttempt(cookie, exerciseId, AttemptAnswerDto.Order(order))
+        assertEquals(200, attempt.status.value)
+        validate(HttpMethod.Post, "/api/v1/attempts", attempt)
+        val advanced = advanceModuleOne(cookie, owner, practiceId, state.getValue("cursor").jsonPrimitive.content.toInt())
+        assertEquals(200, advanced.status.value)
+        validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/advance", advanced)
+        return advanced.bodyAsText().asObject()
+    }
+
+    private fun assertPairTenOrderSummary(state: JsonObject) {
+        val summary = state.getValue("summary").jsonObject
+        val rows = summary.getValue("rows").jsonArray.map { it.jsonObject }
+        assertEquals(setOf("constituent-order", "word-order"), rows.map {
+            it.getValue("assessmentMode").jsonPrimitive.content
+        }.toSet())
+        assertTrue(rows.all { it.getValue("targetScopeId").jsonPrimitive.content == "subject-first-supplied" })
+        for ((field, value) in listOf("targetSkillId" to "G004", "assessmentMode" to "recall")) {
+            val badRows = JsonArray(listOf(JsonObject(rows.first() + (field to JsonPrimitive(value)))) + rows.drop(1))
+            val badSummary = JsonObject(summary + ("rows" to badRows))
+            assertPracticeResponseValidity(JsonObject(state + ("summary" to badSummary)).toString(), expected = false)
+        }
+    }
+
+    private suspend fun ApplicationTestBuilder.moduleOneCookie(): String =
+        client.post("/api/v1/development-session") {
+            trustedHost()
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }.headers[HttpHeaders.SetCookie]!!.substringAfter("astrid_session=").substringBefore(';')
+
+    private suspend fun ApplicationTestBuilder.pairTenPracticePost(
+        cookie: String,
+        owner: String,
+        path: String,
+        body: String,
+    ) = client.post(path) {
+        trustedHost()
+        cookie("astrid_session", cookie)
+        header("X-Astrid-Client", "playground")
+        header("X-Astrid-Practice-Owner", owner)
+        contentType(ContentType.Application.Json)
+        setBody(body)
+    }
+
+    private suspend fun ApplicationTestBuilder.canonicalPairTenOrder(
+        cookie: String,
+        inspectorKey: String,
+        exerciseId: String,
+    ) = inspectExercise(cookie, inspectorKey, exerciseId)
+        .getValue("tileSource").jsonObject.getValue("licensedOrders").jsonArray.single()
+        .jsonObject.getValue("blockIds").jsonArray.map { it.jsonPrimitive.content }
+
+    private fun currentExerciseId(state: JsonObject) =
+        state.getValue("currentExercise").jsonObject.getValue("id").jsonPrimitive.content
+
+    private fun String.asObject() = wireJson.parseToJsonElement(this).jsonObject
+
     private suspend fun ApplicationTestBuilder.createCurrentExercise(
         cookie: String,
         formatId: String,
@@ -1264,7 +1444,7 @@ class OpenApiContractTest {
             header("X-Astrid-Client", "playground")
             contentType(ContentType.Application.Json)
             setBody(
-                """{"formatId":"$formatId",$target"seed":47,"index":0,"contentRevision":"pilot-9","generatorRevision":"generator-9"}""",
+                """{"formatId":"$formatId",$target"seed":47,"index":0,"contentRevision":"pilot-10","generatorRevision":"generator-10"}""",
             )
         }
         validate(HttpMethod.Post, "/api/v1/exercises", response)
@@ -1497,7 +1677,7 @@ class OpenApiContractTest {
     ): String {
         val choices = if (format in setOf("E016", "E018", "E020")) "[\"den\",\"det\"]" else "[]"
         val prompt = """{"before":"","after":"","choices":$choices,"blocks":[],"punctuation":"","inputLabel":"Danish word","cue":"English cue","cueLanguage":"en","answerLanguage":"da"}"""
-        val generator = if (content == "pilot-9") "generator-9" else "generator-8"
+        val generator = content.replace("pilot-", "generator-")
         return """{"id":"00000000-0000-0000-0000-000000000001","formatId":"$format","targetSkillId":"$target","targetScopeId":"$scope","supportSkillIds":[],"contentRevision":"$content","generatorRevision":"$generator","instruction":"Instruction","context":"Context","prompt":$prompt,"introduction":[],"hint":"Hint"}"""
     }
 

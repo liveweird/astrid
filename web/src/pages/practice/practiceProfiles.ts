@@ -30,6 +30,16 @@ const PRESENTATION_PROFILES = [
     itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G006"],
   },
   {
+    focusId: "module-one-present", planRevision: "module-one-present-1", title: "Using present verb forms",
+    description: "Choose and type present forms of three Danish verbs.",
+    itemCount: 6, prerequisiteSkillIds: ["G001", "G002", "G003"],
+  },
+  {
+    focusId: "module-one-order", planRevision: "module-one-order-1", title: "Building subject-first statements",
+    description: "Put Danish sentence parts and words in order.",
+    itemCount: 6, prerequisiteSkillIds: ["G001", "G002", "G003", "G004"],
+  },
+  {
     focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
     description: "Practise familiar words, sentence order and articles in eight varied parts.",
     itemCount: 8, prerequisiteSkillIds: [],
@@ -51,11 +61,13 @@ export const MODULE_ONE_PROFILES = [
   PRESENTATION_PROFILES[1]!,
   PRESENTATION_PROFILES[2]!,
   PRESENTATION_PROFILES[3]!,
-];
-export const EXISTING_PRACTICE_PROFILES = [
   PRESENTATION_PROFILES[4]!,
   PRESENTATION_PROFILES[5]!,
+];
+export const EXISTING_PRACTICE_PROFILES = [
   PRESENTATION_PROFILES[6]!,
+  PRESENTATION_PROFILES[7]!,
+  PRESENTATION_PROFILES[8]!,
 ];
 
 export function profileKey(profile: Pick<PracticeProfile, "focusId" | "planRevision">) {
@@ -126,6 +138,10 @@ function creationRequestFor(
       return { practiceSessionId, focusId: "module-one-er", planRevision: "module-one-er-1", seed };
     case "module-one-things/module-one-things-1":
       return { practiceSessionId, focusId: "module-one-things", planRevision: "module-one-things-1", seed };
+    case "module-one-present/module-one-present-1":
+      return { practiceSessionId, focusId: "module-one-present", planRevision: "module-one-present-1", seed };
+    case "module-one-order/module-one-order-1":
+      return { practiceSessionId, focusId: "module-one-order", planRevision: "module-one-order-1", seed };
     default:
       throw new PracticeCatalogError("The selected practice profile has an unsupported revision.");
   }

@@ -22,8 +22,8 @@ and [first-step activation contract](module-one-activation.md).
 ## Prepare the current review packet
 
 - From the repository root, run `./gradlew :engine:exportPilotReview`. The current output is
-  `engine/build/review/pilot-9.md`; confirm its header says content `pilot-9`, generator
-  `generator-9` and review state `draft-not-teacher-reviewed`. Record the exact source commit,
+  `engine/build/review/pilot-10.md`. Confirm content `pilot-10`, generator
+  `generator-10` and review state `draft-not-teacher-reviewed`. Record the exact source commit,
   application version and command result with the review.
 - Give the reviewer that export together with the [vocabulary seed](danish-vocabulary-seed.md),
   [Module 1 language pack](module-one-language-pack.md), [beginner-slice specification](beginner-slice-spec.md),

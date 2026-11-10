@@ -71,6 +71,7 @@ class GeneratedExercise internal constructor(
     val targetScopeId: String? get() = when (val exerciseSource = source) {
         is ModuleOneExerciseSource -> exerciseSource.task.targetScopeId
         is InanimateReferenceExerciseSource -> exerciseSource.task.targetScopeId
+        is PresentOrderExerciseSource -> exerciseSource.task.targetScopeId
         else -> null
     }
     val instruction: String get() = presentation.instruction
@@ -407,6 +408,12 @@ internal data class ModuleOneExerciseSource(
 
 internal data class InanimateReferenceExerciseSource(
     val task: InanimateReferenceTask,
+    override val answerKey: AnswerKey,
+    override val blockRoles: Map<String, String> = emptyMap(),
+) : ExerciseSource
+
+internal data class PresentOrderExerciseSource(
+    val task: PresentOrderTask,
     override val answerKey: AnswerKey,
     override val blockRoles: Map<String, String> = emptyMap(),
 ) : ExerciseSource

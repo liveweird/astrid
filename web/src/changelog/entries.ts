@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.11.0",
+    date: "2026-11-10",
+    body: `**Use present verbs and build Danish statements.**
+
+- **Using present verb forms** adds six activities for choosing and typing the present forms of arbejde, læse and sove in supplied situations.
+- **Building subject-first statements** adds six ordering activities with supplied Danish sentence parts, then individual word tiles.
+- Read each required introduction before practice. The statements explain the subject as the first constituent and the finite verb as the second constituent in this bounded pattern.
+- Continue from **Referring to one thing** through both sessions, enter either session directly, or repeat it from its summary.
+- The material remains a draft awaiting Danish teaching review. Earlier exercises and saved practice keep their original behavior.`,
+  },
+  {
     version: "0.10.0",
     date: "2026-11-10",
     body: `**Refer to one thing with den and det.**

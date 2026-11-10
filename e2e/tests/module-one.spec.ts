@@ -4,7 +4,10 @@ import { choosePractice, ownerHeaders, readPractice, type PracticeState } from "
 
 type CourseExercise = {
   id: string; formatId: string; targetScopeId: string; context: string;
-  prompt: { cue?: string; cueLanguage?: string; answerLanguage?: string; choices: string[] };
+  prompt: {
+    before?: string; after?: string; cue?: string; cueLanguage?: string; answerLanguage?: string;
+    choices: string[]; blocks?: { id: string; text: string }[]; tileMode?: string;
+  };
 };
 type CourseItem = PracticeState["items"][number] & { canAdvance?: boolean; targetScopeId: string; assessmentMode: string };
 type CourseState = Omit<PracticeState, "items" | "currentExercise"> & {
@@ -22,10 +25,27 @@ const SUBJECTS: Record<string, string> = {
   I: "jeg", "you (one person)": "du", he: "han", she: "hun", we: "vi",
   "you (several people)": "I", "they (several people)": "de",
 };
+const PRESENT_FORMS: Record<string, string> = {
+  "Jeg |.": "arbejder", "Hun | en avis.": "læser", "Vi |.": "sover",
+  "De |.": "arbejder", "I | en bog.": "læser", "Han |.": "sover",
+};
+const SUBJECT_FIRST_ORDERS: Record<string, string[]> = {
+  "We work.": ["vi", "arbejder"],
+  "You sleep.": ["du", "sover"],
+  "He reads a book.": ["han", "læser", "en bog"],
+  "I read a newspaper.": ["jeg", "læser", "en", "avis"],
+  "You read a letter.": ["I", "læser", "et", "brev"],
+  "They read a book.": ["de", "læser", "en", "bog"],
+};
 async function stateFor(page: Page) {
   return await readPractice(page.request, new URL(page.url()).searchParams.get("session")!) as unknown as CourseState;
 }
 function answerFor(exercise: CourseExercise) {
+  if (exercise.targetScopeId === "named-three-verbs-present") {
+    const answer = PRESENT_FORMS[`${exercise.prompt.before ?? ""}|${exercise.prompt.after ?? ""}`];
+    expect(answer, "The literal supplied sentence frame identifies the named present form").toBeDefined();
+    return answer!;
+  }
   if (exercise.targetScopeId === "vaere-present") return "er";
   if (exercise.targetScopeId === "inanimate-singular-subject") {
     if (exercise.prompt.cue === "en bog") return "den";
@@ -36,6 +56,17 @@ function answerFor(exercise: CourseExercise) {
   const answer = SUBJECTS[exercise.prompt.cue!];
   expect(answer, "The literal authored English cue has an independent Danish-form oracle").toBeDefined();
   return answer!;
+}
+
+async function submitOrder(page: Page, exercise: CourseExercise, properSubset = false) {
+  const expected = SUBJECT_FIRST_ORDERS[exercise.prompt.cue ?? ""];
+  expect(expected, "The English proposition identifies one literal Danish order").toBeDefined();
+  const selected = properSubset ? expected!.slice(0, 1) : expected!;
+  for (const text of selected) {
+    await page.getByRole("group", { name: /Available/ }).getByRole("button", { name: text, exact: true }).press("Enter");
+  }
+  await page.getByRole("button", { name: "Check answer", exact: true }).click();
+  await expect(page.getByRole("status")).toBeFocused();
 }
 async function openCourse(page: Page, title: string, enlarged = false) {
   await page.goto("/practice");
@@ -112,6 +143,69 @@ async function scan(page: Page) {
   expect(overflow, "Teaching and summary text stays inside its own column").toEqual([]);
 }
 
+test("named present forms teach three verbs and retain selection and recall", async ({ page }) => {
+  await openCourse(page, "Using present verb forms");
+  let state = await beginCourse(page);
+  const introduction = page.getByRole("region", { name: "Session introduction", exact: true });
+  for (const form of ["arbejde", "arbejder", "læse", "læser", "sove", "sover"]) {
+    await expect(introduction.getByText(new RegExp(`\\b${form}\\b`)).first()).toHaveAttribute("lang", "da");
+  }
+  await scan(page);
+  while (state.state !== "completed") {
+    const exercise = state.currentExercise!;
+    expect(exercise.targetScopeId).toBe("named-three-verbs-present");
+    await submit(page, exercise);
+    await expect(page.getByRole("status").getByText("Good work", { exact: true })).toBeVisible();
+    state = await next(page, await stateFor(page));
+  }
+  expect(state.summary.rows).toEqual(expect.arrayContaining([
+    expect.objectContaining({ targetScopeId: "named-three-verbs-present", assessmentMode: "selection", plannedItems: 3 }),
+    expect.objectContaining({ targetScopeId: "named-three-verbs-present", assessmentMode: "recall", plannedItems: 3 }),
+  ]));
+  await page.getByRole("button", { name: "Next: Building subject-first statements", exact: true }).click();
+  await expect(page.getByRole("radio", { name: "Building subject-first statements", exact: true })).toBeChecked();
+  expect(new URL(page.url()).searchParams.get("session")).toBe(state.id);
+});
+
+test("subject-first assembly checks constituents and partial word tiles with saved order recovery", async ({ page }) => {
+  await openCourse(page, "Building subject-first statements");
+  let state = await beginCourse(page);
+  await scan(page);
+  let partialChecked = false;
+  while (state.state !== "completed") {
+    const exercise = state.currentExercise!;
+    expect(exercise.targetScopeId).toBe("subject-first-supplied");
+    const partial = exercise.formatId === "E025" && !partialChecked;
+    if (partial) {
+      partialChecked = true;
+      await submitOrder(page, exercise, true);
+      const saved = await stateFor(page);
+      const firstExpected = SUBJECT_FIRST_ORDERS[exercise.prompt.cue!]![0]!;
+      const firstBlock = exercise.prompt.blocks!.find((block) => block.text === firstExpected);
+      expect(firstBlock).toBeDefined();
+      expect(saved.items[saved.cursor]!.lastAnswer).toMatchObject({ kind: "order", blockIds: [firstBlock!.id] });
+      expect(saved.items[saved.cursor]!.canAdvance).toBe(true);
+      await expect(page.getByRole("status").getByText("Response constraint to revisit", { exact: true })).toBeVisible();
+      await page.reload();
+      await expect(page.getByRole("status")).toBeVisible();
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await page.getByRole("button", { name: new RegExp(`^Remove ${firstExpected} from position 1$`) }).click();
+    }
+    await submitOrder(page, exercise);
+    await expect(page.getByRole("status").getByText("Good work", { exact: true })).toBeVisible();
+    state = await next(page, await stateFor(page));
+  }
+  expect(partialChecked).toBe(true);
+  await expect(page.getByRole("button", { name: /^Next:/ })).toHaveCount(0);
+  expect(state.summary.rows).toEqual(expect.arrayContaining([
+    expect.objectContaining({ targetScopeId: "subject-first-supplied", assessmentMode: "constituent-order", plannedItems: 3 }),
+    expect.objectContaining({ targetScopeId: "subject-first-supplied", assessmentMode: "word-order", plannedItems: 3 }),
+  ]));
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+  await scan(page);
+});
+
 for (const profile of PROFILES) {
   test(`first steps teach before assessment and retain scoped outcomes for ${profile.focus}`, async ({ page }) => {
     let state = await openCourse(page, profile.title);
@@ -177,15 +271,14 @@ for (const profile of PROFILES) {
     expect(unexpectedCreations).toBe(0);
     await page.getByRole("button", { name: "Cancel", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
-    const nextProfile = PROFILES[PROFILES.findIndex((candidate) => candidate.focus === profile.focus) + 1];
-    if (nextProfile) {
-      await page.getByRole("button", { name: `Next: ${nextProfile.title}`, exact: true }).click();
-      await expect(page.getByRole("radio", { name: nextProfile.title, exact: true })).toBeFocused();
-      await expect(page.getByRole("radio", { name: nextProfile.title, exact: true })).toBeChecked();
-      expect(unexpectedCreations).toBe(0);
-      await page.getByRole("button", { name: "Cancel", exact: true }).click();
-      await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
-    }
+    const nextTitle = PROFILES[PROFILES.findIndex((candidate) => candidate.focus === profile.focus) + 1]?.title
+      ?? "Using present verb forms";
+    await page.getByRole("button", { name: `Next: ${nextTitle}`, exact: true }).click();
+    await expect(page.getByRole("radio", { name: nextTitle, exact: true })).toBeFocused();
+    await expect(page.getByRole("radio", { name: nextTitle, exact: true })).toBeChecked();
+    expect(unexpectedCreations).toBe(0);
+    await page.getByRole("button", { name: "Cancel", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
     expect((await stateFor(page)).id).toBe(state.id);
   });
 }
@@ -419,7 +512,7 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/practice");
       await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
       await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-      await expect(page.getByRole("radio")).toHaveCount(7);
+      await expect(page.getByRole("radio")).toHaveCount(9);
       await scan(page);
       const groupSession = page.getByRole("radio", { name: PROFILES[1].title, exact: true });
       await groupSession.focus(); await page.keyboard.press("Space");

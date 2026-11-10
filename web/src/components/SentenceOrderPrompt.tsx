@@ -34,7 +34,7 @@ export default function SentenceOrderPrompt({ prompt, order, disabled, tileMode,
 
   return (
     <Stack gap="sm">
-      {tileExercise && prompt.cue && (
+      {prompt.cue && (
         <Text lang={prompt.cueLanguage ?? "en"} size="xl" fw={650}>{prompt.cue}</Text>
       )}
       {tileExercise && (

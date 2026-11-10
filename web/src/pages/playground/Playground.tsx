@@ -46,6 +46,10 @@ function tileMode(exercise: Exercise) {
   return "tileMode" in exercise.prompt ? exercise.prompt.tileMode : undefined;
 }
 
+function isOrder(exercise: Exercise) {
+  return ["E003", "E024", "E025"].includes(exercise.formatId) || tileMode(exercise) != null;
+}
+
 function isMatching(exercise: Exercise) {
   return exercise.formatId === "E014";
 }
@@ -59,7 +63,7 @@ function answerFor(
 ): AttemptAnswer {
   if (isMatching(exercise)) return { kind: "matching", pairs: matchingPairs };
   if (isGaps(exercise)) return { kind: "gaps", selections: gapSelections };
-  return exercise.formatId === "E003" || tileMode(exercise)
+  return isOrder(exercise)
     ? { kind: "order", blockIds: order }
     : { kind: "text", text };
 }
@@ -70,7 +74,7 @@ function answerIsReady(
   if (!exercise) return false;
   if (isMatching(exercise)) return matchingPairs.length > 0;
   if (isGaps(exercise)) return gapSelections.length > 0;
-  if (exercise.formatId === "E003") return order.length === exercise.prompt.blocks.length;
+  if (["E003", "E024"].includes(exercise.formatId)) return order.length === exercise.prompt.blocks.length;
   if (tileMode(exercise)) return order.length > 0;
   return text.trim().length > 0;
 }
@@ -292,7 +296,7 @@ export default function Playground() {
               />
               {hintVisible && <Alert color="gray" icon={<IconBulb size={18} />}>{exercise.hint}</Alert>}
               {attempt && (
-                <FeedbackPanel attempt={attempt} exercise={exercise} focusRef={feedbackRef} tileResponse={tileMode(exercise) != null} />
+                <FeedbackPanel attempt={attempt} exercise={exercise} focusRef={feedbackRef} tileResponse={isOrder(exercise)} />
               )}
               <Group justify="space-between" className={classes.exerciseActions}>
                 <Button

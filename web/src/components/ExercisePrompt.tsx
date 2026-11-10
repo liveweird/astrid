@@ -36,6 +36,7 @@ function hasLexicalTarget(exercise: Exercise) {
 function choiceGroupLabel(formatId: Exercise["formatId"]) {
   return formatId === "E020"
     ? "Danish standalone reference word choices"
+    : formatId === "E022" ? "Danish present verb choices"
     : "Danish sentence with answer choices";
 }
 
@@ -257,7 +258,7 @@ export default function ExercisePrompt({
     );
   }
 
-  if (formatId === "E003" || tileMode) {
+  if (["E003", "E024", "E025"].includes(formatId) || tileMode) {
     return (
       <SentenceOrderPrompt prompt={prompt} order={order} disabled={disabled} tileMode={tileMode} onOrder={onOrder} />
     );

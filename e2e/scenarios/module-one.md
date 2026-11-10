@@ -15,7 +15,7 @@
    - Expected: the S04 cue and all Danish answer controls carry Danish language tags; correct saved answers include the introduction exposure, selection and recall remain distinct, and the profile's exact item budget is preserved.
 4. Reload the completed run.
    - Expected: summary outcomes remain exact; no unsupported targeted-review controls appear.
-5. Open repeat and, where offered, the next-session chooser; cancel each.
+5. Open repeat and the next-session chooser, including S04 → S05. Cancel each.
    - Expected: the appropriate profile is selected without a new creation request, and the completed source run is retained.
 
 ## Scenario: first steps reflow teaching and scoped summaries for ${profile.focus} in ${theme} at ${viewport.width}
@@ -23,6 +23,24 @@
 1. Open each profile in light and dark themes, at narrow portrait and short landscape viewports, with 200% text.
 2. Inspect the required-introduction state, saved teaching, exercise feedback and completed scoped summary.
    - Expected: Axe finds no configured WCAG violations, the page has no horizontal overflow, Danish content keeps its language tag, and teaching/summary text stays inside its own paragraph or column.
+
+## Scenario: named present forms teach three verbs and retain selection and recall
+
+1. Enter Using present verb forms directly and save its required introduction.
+   - Expected: the six named infinitive and present forms are exposed as Danish teaching before assessment.
+2. Complete the three supplied-choice and three typed-form activities from their literal sentence frames.
+   - Expected: every answer is graded as the named present form and the summary retains separate three-item selection and recall rows.
+3. Open the next-session chooser.
+   - Expected: Building subject-first statements is preselected and the completed session remains in the URL.
+
+## Scenario: subject-first assembly checks constituents and partial word tiles with saved order recovery
+
+1. Enter Building subject-first statements directly, save the required teaching and complete the three constituent-bank activities using the keyboard.
+   - Expected: the English proposition is visible, every supplied constituent is required, and the canonical subject-first order succeeds.
+2. On the first individual-word activity, check one selected word and reload the saved outcome.
+   - Expected: the ordered block identity is stored, the precise missing-words constraint permits continuation, feedback identifies the response constraint, and the result survives reload.
+3. Retry the saved partial selection, edit the retained tile and complete all three individual-word activities.
+   - Expected: constituent-order and word-order have separate three-item summary rows. The completed state passes Axe at 320 px and 200% text.
 
 ## Scenario: first steps preserve ambiguous ${correction.raw} casing without a wrong-person diagnosis
 
@@ -48,7 +66,7 @@
 3. Retry with unsupported `dem`, inspect the saved response, then reload.
    - Expected: the latest unknown blocks continuation despite the eligible history, discloses no correction, its exact stored response is unchanged after reload, and its narrow enlarged feedback state passes Axe and reflow checks.
 4. Retry with `det er`, finish all four cards and inspect the two scoped summary rows.
-   - Expected: the one-word shape issue permits continuation without prefix grading; its narrow enlarged feedback passes Axe and reflow checks; selection and recall retain separate two-item first/latest outcomes, with no targeted review or S05 fallback.
+   - Expected: the one-word shape issue permits continuation without prefix grading; its narrow enlarged feedback passes Axe and reflow checks; selection and recall retain separate two-item first/latest outcomes. S05 can be opened through the explicit next-session chooser.
 
 ## Scenario: first steps confirm required teaching only after ${committed ? "committed" : "uncommitted"} support replay
 
@@ -78,7 +96,7 @@
 
 ## Scenario: first-step chooser keeps all profiles keyboard-accessible in ${theme} at ${viewport.width}
 
-1. Open the seven-profile chooser in both themes, narrow portrait and short landscape, at 200% text.
+1. Open the nine-profile chooser in both themes, narrow portrait and short landscape, at 200% text.
    - Expected: its first-step grouping and every profile remain accessible, without page/text overflow or configured Axe violations.
 2. Focus the group-pronoun radio and select it with Space.
    - Expected: the choice is checked and Start practice is enabled; no session is created automatically.

@@ -35,8 +35,10 @@ internal object PilotContent {
     const val RETAINED_SEVEN_GENERATOR_REVISION = "generator-7"
     const val RETAINED_EIGHT_CONTENT_REVISION = "pilot-8"
     const val RETAINED_EIGHT_GENERATOR_REVISION = "generator-8"
-    const val CURRENT_CONTENT_REVISION = "pilot-9"
-    const val CURRENT_GENERATOR_REVISION = "generator-9"
+    const val RETAINED_NINE_CONTENT_REVISION = "pilot-9"
+    const val RETAINED_NINE_GENERATOR_REVISION = "generator-9"
+    const val CURRENT_CONTENT_REVISION = "pilot-10"
+    const val CURRENT_GENERATOR_REVISION = "generator-10"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
     const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
@@ -45,7 +47,8 @@ internal object PilotContent {
     const val RETAINED_SIX_EVALUATION_REVISION = "evaluation-6"
     const val RETAINED_SEVEN_EVALUATION_REVISION = "evaluation-7"
     const val RETAINED_EIGHT_EVALUATION_REVISION = "evaluation-8"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-9"
+    const val RETAINED_NINE_EVALUATION_REVISION = "evaluation-9"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-10"
 
     val humanPronouns =
         listOf(
@@ -201,6 +204,15 @@ internal object PilotContent {
                 ExerciseFormat("E021", "Recall a reference word for one thing", "G038"),
             )
 
+    val presentOrderFormats =
+        inanimateReferenceFormats +
+            listOf(
+                ExerciseFormat("E022", "Choose a named present form", "G004"),
+                ExerciseFormat("E023", "Recall a named present form", "G004"),
+                ExerciseFormat("E024", "Arrange supplied constituents", "G005"),
+                ExerciseFormat("E025", "Arrange supplied words", "G005"),
+            )
+
     val snapshot =
         PilotContentSnapshot(
             contentRevision = CONTENT_REVISION,
@@ -323,10 +335,10 @@ internal object PilotContent {
             ),
         )
 
-    val currentSnapshot =
+    val pilotNineSnapshot =
         pilotEightSnapshot.copy(
-            contentRevision = CURRENT_CONTENT_REVISION,
-            generatorRevision = CURRENT_GENERATOR_REVISION,
+            contentRevision = RETAINED_NINE_CONTENT_REVISION,
+            generatorRevision = RETAINED_NINE_GENERATOR_REVISION,
             skills = skills + Skill(
                 "G038",
                 "Refer to one inanimate thing",
@@ -346,6 +358,23 @@ internal object PilotContent {
             referencePronouns = inanimateReferencePronouns,
         )
 
+    val currentSnapshot =
+        pilotNineSnapshot.copy(
+            contentRevision = CURRENT_CONTENT_REVISION,
+            generatorRevision = CURRENT_GENERATOR_REVISION,
+            formats = presentOrderFormats,
+            verbs = verbs + PresentOrderContent.work,
+            lexicalReview = PilotReviewMetadata.records(
+                humanPronouns,
+                identifyingPronoun,
+                verbs + PresentOrderContent.work,
+                moduleOneNouns,
+                matching = true,
+                moduleOne = true,
+                referencePronouns = inanimateReferencePronouns,
+            ),
+        )
+
     init {
         PilotContentValidator.requireValid(snapshot)
         PilotContentValidator.requireValid(pilotTwoSnapshot)
@@ -355,6 +384,7 @@ internal object PilotContent {
         PilotContentValidator.requireValid(pilotSixSnapshot)
         PilotContentValidator.requireValid(pilotSevenSnapshot)
         PilotContentValidator.requireValid(pilotEightSnapshot)
+        PilotContentValidator.requireValid(pilotNineSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

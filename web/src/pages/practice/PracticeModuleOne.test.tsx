@@ -81,6 +81,8 @@ it.each([
   ["human-group", "G003", "Group subject words"],
   ["vaere-present", "G004", "Present verb form"],
   ["inanimate-singular-subject", "G038", "One-thing reference words"],
+  ["named-three-verbs-present", "G004", "Present forms of three verbs"],
+  ["subject-first-supplied", "G005", "Subject-first statement order"],
 ] as const)("shows a learning label instead of the %s implementation scope", async (targetScopeId, targetSkillId, label) => {
   saveModuleOneRun();
   const scopedExercise = { ...subjectExercise, targetScopeId, targetSkillId };
@@ -107,6 +109,8 @@ it.each([
   ["Talking to and about groups", "module-one-groups", "module-one-groups-1"],
   ["Using the verb to be", "module-one-er", "module-one-er-1"],
   ["Referring to one thing", "module-one-things", "module-one-things-1"],
+  ["Using present verb forms", "module-one-present", "module-one-present-1"],
+  ["Building subject-first statements", "module-one-order", "module-one-order-1"],
 ] as const)("creates %s only after its exact catalog choice", async (title, focusId, planRevision) => {
   let body = "";
   vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
@@ -290,7 +294,7 @@ it("offers S04 after S03 and preserves the completed S03 run when cancelled", as
   expect(localStorage.getItem(`astrid.practice.v1.run.${practiceId}`)).not.toBeNull();
 });
 
-it("does not claim S05 or a targeted review after S04", async () => {
+it("offers S05 after S04 without claiming a targeted review", async () => {
   saveRunRecovery({
     ownerSessionId: owner, practiceSessionId: practiceId,
     focusId: "module-one-things", planRevision: "module-one-things-1", seed: 47,
@@ -320,6 +324,6 @@ it("does not claim S05 or a targeted review after S04", async () => {
   expect(screen.getByText("One-thing reference word selection")).toBeVisible();
   expect(screen.getByText("One-thing reference word recall")).toBeVisible();
   expect(screen.getAllByText("2/2 continued · 2 answers · 0 retries")).toHaveLength(2);
-  expect(screen.queryByRole("button", { name: /^Next:/ })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Next: Using present verb forms" })).toBeVisible();
   expect(screen.queryByRole("button", { name: "Start selected review" })).not.toBeInTheDocument();
 });

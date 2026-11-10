@@ -16,7 +16,7 @@ object PilotNineCompatibilityGoldenExportMain {
 }
 
 internal fun publishedPairNineReviewBytes(): ByteArray {
-    return PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
+    return PilotReview.renderPilotNineMarkdown().toByteArray(Charsets.UTF_8)
 }
 
 internal object PilotNineCompatibilityGolden {
@@ -275,8 +275,8 @@ internal object PilotNineCompatibilityGolden {
     }
 
     private fun requireLiteralPairNine() {
-        require(PilotContent.currentSnapshot.contentRevision == CONTENT_REVISION)
-        require(PilotContent.currentSnapshot.generatorRevision == GENERATOR_REVISION)
+        require(PilotContent.pilotNineSnapshot.contentRevision == CONTENT_REVISION)
+        require(PilotContent.pilotNineSnapshot.generatorRevision == GENERATOR_REVISION)
         require(engine.evaluationRevision(CONTENT_REVISION, GENERATOR_REVISION) == EVALUATION_REVISION)
     }
 

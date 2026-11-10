@@ -244,9 +244,10 @@ private fun AttemptRequest.validated(): AttemptRequest {
 private fun AttemptAnswerDto.validateFor(engine: PilotEngine, exercise: GeneratedExercise) {
     val suppliedBlocks = exercise.prompt.blocks.map { it.id }.toSet()
     when (exercise.formatId) {
-        "E003" -> validateCompleteOrderAnswer(this, suppliedBlocks)
+        "E003", "E024" -> validateCompleteOrderAnswer(this, suppliedBlocks)
         "E012", "E013" -> validateTileOrderAnswer(this, suppliedBlocks)
-        "E011", "E016", "E018", "E020" -> validateSuppliedChoiceAnswer(this, engine, exercise)
+        "E025" -> validateTileOrderAnswer(this, suppliedBlocks, requireNonempty = true)
+        "E011", "E016", "E018", "E020", "E022" -> validateSuppliedChoiceAnswer(this, engine, exercise)
         "E014" -> validateMatchingAnswer(this, exercise)
         "E015" -> validateGapAnswer(this, exercise)
         else -> validateTextAnswer(this)
@@ -259,9 +260,10 @@ private fun validateCompleteOrderAnswer(answer: AttemptAnswerDto, suppliedBlocks
     if (!valid) throw BadRequest("The answer must contain every supplied block exactly once")
 }
 
-private fun validateTileOrderAnswer(answer: AttemptAnswerDto, suppliedBlocks: Set<String>) {
+private fun validateTileOrderAnswer(answer: AttemptAnswerDto, suppliedBlocks: Set<String>, requireNonempty: Boolean = false) {
     val order = answer as? AttemptAnswerDto.Order ?: throw BadRequest("This exercise requires an order answer")
     val valid = listOf(
+        !requireNonempty || order.blockIds.isNotEmpty(),
         order.blockIds.size == order.blockIds.toSet().size,
         suppliedBlocks.containsAll(order.blockIds),
     ).all { it }

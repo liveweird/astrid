@@ -23,7 +23,8 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-6` / `generator-6` | `evaluation-6` | + E014 (four-pair vocabulary matching) | published, frozen |
 | `pilot-7` / `generator-7` | `evaluation-7` | + E015 (primary present-verb/supporting-article gaps) | published, frozen; guided-gap plans stay pinned here |
 | `pilot-8` / `generator-8` | `evaluation-8` | + E016–E019 (scoped subject-word and stored-present selection/recall) | published and frozen; three first-step plans pin this pair |
-| `pilot-9` / `generator-9` | `evaluation-9` | + E020/E021 (singular inanimate subject-reference selection/recall) | CURRENT, published; four-item S04 plan pins this pair |
+| `pilot-9` / `generator-9` | `evaluation-9` | + E020/E021 (singular inanimate subject-reference selection/recall) | published and frozen; four-item S04 plan pins this pair |
+| `pilot-10` / `generator-10` | `evaluation-10` | + E022/E023 (named present forms), E024/E025 (subject-first assembly) | CURRENT; S05 and S06 pin this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
@@ -32,6 +33,8 @@ The three `module-one-singular-1`, `module-one-groups-1` and `module-one-er-1` p
 eight, with explicit required-teaching, completion and exposure policy metadata. Their scoped
 targets do not enter an older follow-up planner. The four-item `module-one-things-1` plan pins
 pair nine and reuses unchanged first-step completion/exposure policies.
+The six-item `module-one-present-1` and `module-one-order-1` plans pin pair ten.
+S06 has its own completion and exposure policies for order corrections and partial word banks.
 Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 
 ## What is stored, and what that implies
@@ -123,7 +126,8 @@ Rules:
 
 | Task | Output |
 | --- | --- |
-| `:engine:exportPilotReview` | `engine/build/review/pilot-9.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotReview` | `engine/build/review/pilot-10.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotNineReview` | `engine/build/review/pilot-9-retained.md` |
 | `:engine:exportPilotEightReview` | `engine/build/review/pilot-8-retained.md` |
 | `:engine:exportPilotSevenReview` / `exportPilotSixReview` / `exportPilotFiveReview` / `exportPilotFourReview` / `exportPilotThreeReview` / `exportPilotTwoReview` / `exportLegacyPilotReview` | `pilot-7.md` / `pilot-6.md` / `pilot-5.md` / `pilot-4.md` / `pilot-3.md` / `pilot-2.md` / `pilot-1.md` |
 | `:engine:exportPilotFourCompatibility` / `:server:exportPilotFourWireCompatibility` | write **new** pair-four evidence and provenance only (refuse overwrite) |

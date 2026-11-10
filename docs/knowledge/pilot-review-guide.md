@@ -101,7 +101,7 @@ The [first-step inventory](practice-variation-audit.md#first-step-finite-invento
 separately records the bounded one-person, group and `er` sequences. A new seed does not guarantee
 new content; the required teaching and answer banks make later recall potentially supported.
 
-For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-9.md`. Retained revision eight is available with `:engine:exportPilotEightReview` at
+For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-10.md`. Use `:engine:exportPilotNineReview` for `pilot-9-retained.md`. Retained revision eight is available with `:engine:exportPilotEightReview` at
 `engine/build/review/pilot-8-retained.md`; revision seven is available with `:engine:exportPilotSevenReview` at `engine/build/review/pilot-7.md`; revision six is available with `:engine:exportPilotSixReview` at `engine/build/review/pilot-6.md`; revision five with `:engine:exportPilotFiveReview` at `engine/build/review/pilot-5.md`; revision four with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
 
 ## Record feedback

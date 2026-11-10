@@ -25,6 +25,7 @@ class PilotEngine {
             PILOT_SIX_REVISION_PAIR -> PilotContent.RETAINED_SIX_EVALUATION_REVISION
             PILOT_SEVEN_REVISION_PAIR -> PilotContent.RETAINED_SEVEN_EVALUATION_REVISION
             PILOT_EIGHT_REVISION_PAIR -> PilotContent.RETAINED_EIGHT_EVALUATION_REVISION
+            PILOT_NINE_REVISION_PAIR -> PilotContent.RETAINED_NINE_EVALUATION_REVISION
             CURRENT_REVISION_PAIR -> PilotContent.CURRENT_EVALUATION_REVISION
             else -> null
         }
@@ -32,6 +33,7 @@ class PilotEngine {
     fun generate(request: GenerationRequest): GeneratedExercise {
         validate(request)
         return when {
+            request.formatId in PRESENT_ORDER_FORMAT_IDS -> PresentOrderExerciseGenerator.generate(request)
             request.formatId in INANIMATE_REFERENCE_FORMAT_IDS -> InanimateReferenceExerciseGenerator.create(request)
             request.formatId in MODULE_ONE_FORMAT_IDS -> ModuleOneExerciseGenerator.create(request)
             request.formatId == MULTIPLE_GAP_FORMAT_ID -> MultipleGapExerciseGenerator.create(request)
@@ -66,6 +68,8 @@ class PilotEngine {
         val normalized = normalizeText(rawText)
         return when (val key = exercise.source.answerKey) {
             is AnswerKey.SuppliedChoice -> normalized in key.suppliedChoices
+            is AnswerKey.ModuleOneForm if exercise.source is PresentOrderExerciseSource ->
+                key.selection && normalized in exercise.prompt.choices.map(::normalizeText)
             is AnswerKey.ModuleOneForm -> key.selection && normalized in (key.knownAlternatives + key.expected)
             else -> false
         }
@@ -96,6 +100,10 @@ class PilotEngine {
                 "E019" to "G004",
                 "E020" to "G038",
                 "E021" to "G038",
+                "E022" to "G004",
+                "E023" to "G004",
+                "E024" to "G005",
+                "E025" to "G005",
             )[request.formatId]
         require(expectedTarget != null || request.formatId in LEXICAL_FORMAT_IDS || request.formatId == READING_FORMAT_ID) {
             "Unsupported format: ${request.formatId}"
@@ -123,6 +131,7 @@ class PilotEngine {
             PILOT_SIX_REVISION_PAIR -> PILOT_SIX_FORMAT_IDS
             PILOT_SEVEN_REVISION_PAIR -> PILOT_SEVEN_FORMAT_IDS
             PILOT_EIGHT_REVISION_PAIR -> PILOT_EIGHT_FORMAT_IDS
+            PILOT_NINE_REVISION_PAIR -> PILOT_NINE_FORMAT_IDS
             CURRENT_REVISION_PAIR -> CURRENT_FORMAT_IDS
             else -> emptySet()
         }
@@ -605,6 +614,8 @@ class PilotEngine {
             RevisionPair(PilotContent.RETAINED_SEVEN_CONTENT_REVISION, PilotContent.RETAINED_SEVEN_GENERATOR_REVISION)
         val PILOT_EIGHT_REVISION_PAIR =
             RevisionPair(PilotContent.RETAINED_EIGHT_CONTENT_REVISION, PilotContent.RETAINED_EIGHT_GENERATOR_REVISION)
+        val PILOT_NINE_REVISION_PAIR =
+            RevisionPair(PilotContent.RETAINED_NINE_CONTENT_REVISION, PilotContent.RETAINED_NINE_GENERATOR_REVISION)
         val CURRENT_REVISION_PAIR =
             RevisionPair(PilotContent.CURRENT_CONTENT_REVISION, PilotContent.CURRENT_GENERATOR_REVISION)
         val SUPPORTED_REVISION_PAIRS =
@@ -617,6 +628,7 @@ class PilotEngine {
                 PILOT_SIX_REVISION_PAIR,
                 PILOT_SEVEN_REVISION_PAIR,
                 PILOT_EIGHT_REVISION_PAIR,
+                PILOT_NINE_REVISION_PAIR,
                 CURRENT_REVISION_PAIR,
             )
         val LEGACY_FORMAT_IDS = setOf("E001", "E002", "E003")
@@ -631,7 +643,9 @@ class PilotEngine {
         val MODULE_ONE_FORMAT_IDS = setOf("E016", "E017", "E018", "E019")
         val PILOT_EIGHT_FORMAT_IDS = PILOT_SEVEN_FORMAT_IDS + MODULE_ONE_FORMAT_IDS
         val INANIMATE_REFERENCE_FORMAT_IDS = setOf("E020", "E021")
-        val CURRENT_FORMAT_IDS = PILOT_EIGHT_FORMAT_IDS + INANIMATE_REFERENCE_FORMAT_IDS
+        val PILOT_NINE_FORMAT_IDS = PILOT_EIGHT_FORMAT_IDS + INANIMATE_REFERENCE_FORMAT_IDS
+        val PRESENT_ORDER_FORMAT_IDS = setOf("E022", "E023", "E024", "E025")
+        val CURRENT_FORMAT_IDS = PILOT_NINE_FORMAT_IDS + PRESENT_ORDER_FORMAT_IDS
         val TILE_FORMAT_IDS = setOf("E012", "E013")
         val NEW_FORMAT_IDS = setOf("E004", "E005", "E006")
         const val MAX_INDEX = 1_000_000

@@ -5,6 +5,8 @@ object PilotReview {
 
     fun renderPilotEightMarkdown(): String = renderSnapshot(PilotContent.pilotEightSnapshot)
 
+    fun renderPilotNineMarkdown(): String = renderSnapshot(PilotContent.pilotNineSnapshot)
+
     fun renderPilotSevenMarkdown(): String = renderSnapshot(PilotContent.pilotSevenSnapshot)
 
     fun renderPilotSixMarkdown(): String = renderSnapshot(PilotContent.pilotSixSnapshot)
@@ -39,6 +41,7 @@ object PilotReview {
                     PilotContent.RETAINED_SIX_CONTENT_REVISION,
                     PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
                     PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
+                    PilotContent.RETAINED_NINE_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
@@ -50,6 +53,7 @@ object PilotReview {
                     PilotContent.RETAINED_SIX_CONTENT_REVISION,
                     PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
                     PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
+                    PilotContent.RETAINED_NINE_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
@@ -61,6 +65,7 @@ object PilotReview {
                     PilotContent.RETAINED_SIX_CONTENT_REVISION,
                     PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
                     PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
+                    PilotContent.RETAINED_NINE_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
@@ -69,25 +74,36 @@ object PilotReview {
             if (snapshot.contentRevision in setOf(
                     PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
                     PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
+                    PilotContent.RETAINED_NINE_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) appendGapInventory(snapshot)
             if (snapshot.contentRevision in setOf(
                     PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
+                    PilotContent.RETAINED_NINE_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
-                appendModuleOneProfileInventory(snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION)
+                appendModuleOneProfileInventory(
+                    snapshot.contentRevision in setOf(PilotContent.RETAINED_NINE_CONTENT_REVISION, PilotContent.CURRENT_CONTENT_REVISION),
+                )
                 appendModuleOneInventory()
             }
-            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            if (snapshot.contentRevision in setOf(PilotContent.RETAINED_NINE_CONTENT_REVISION, PilotContent.CURRENT_CONTENT_REVISION)) {
                 appendInanimateReferenceInventory()
             }
+            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) appendPresentOrderInventory()
         }
     }
 
     private fun reviewProvenance(snapshot: PilotContentSnapshot): String =
         if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
+                "docs/knowledge/module-one-language-pack.md (L024 packet), " +
+                "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks), " +
+                "docs/knowledge/inanimate-reference-activation.md (L026 and G038 reference tasks), and " +
+                "docs/knowledge/module-one-course-slice.md (L027 and S05-S06 tasks; 2026-11-10)"
+        } else if (snapshot.contentRevision == PilotContent.RETAINED_NINE_CONTENT_REVISION) {
             "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
                 "docs/knowledge/module-one-language-pack.md (L024 packet), " +
                 "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks), and " +
@@ -110,6 +126,12 @@ object PilotReview {
 
     private fun sourceReview(snapshot: PilotContentSnapshot): String =
         if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
+                "2026-11-09 L025/C004/Module 1 source checks; 2026-11-10 L026/G038 and L027/S05-S06 source checks; see " +
+                "docs/knowledge/pilot-source-review.md, docs/knowledge/module-one-language-pack.md, " +
+                "docs/knowledge/module-one-activation.md, docs/knowledge/inanimate-reference-activation.md and " +
+                "docs/knowledge/module-one-course-slice.md"
+        } else if (snapshot.contentRevision == PilotContent.RETAINED_NINE_CONTENT_REVISION) {
             "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
                 "2026-11-09 L025/C004/Module 1 source checks; 2026-11-10 L026/G038 source checks; see " +
                 "docs/knowledge/pilot-source-review.md, docs/knowledge/module-one-language-pack.md, " +
@@ -549,6 +571,39 @@ object PilotReview {
                     task.contextVariantId,
                     task.context,
                     task.choiceRationales.joinToString("; ") { "${it.choice}: ${it.rationale}" },
+                ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
+            )
+        }
+        appendLine()
+    }
+
+    private fun StringBuilder.appendPresentOrderInventory() {
+        appendLine()
+        appendLine("## Named present and supplied-order task inventory")
+        appendLine()
+        appendLine("| Task | Format | Scope | Canonical sentence | Answer exposure | Prompt exposure |")
+        appendLine("| --- | --- | --- | --- | --- | --- |")
+        listOf("E022", "E023", "E024", "E025").flatMap(PresentOrderContent::tasks).forEach { task ->
+            val exercise = (0 until PresentOrderContent.tasks(task.formatId).size).asSequence().map { index ->
+                PilotEngine().generate(
+                    GenerationRequest(
+                        task.formatId,
+                        if (task is NamedPresentTask) "G004" else "G005",
+                        REVIEW_SEED,
+                        index,
+                        PilotContent.CURRENT_CONTENT_REVISION,
+                        PilotContent.CURRENT_GENERATOR_REVISION,
+                    ),
+                )
+            }.first { (it.source as PresentOrderExerciseSource).task.id == task.id }
+            appendLine(
+                listOf(
+                    task.id,
+                    task.formatId,
+                    task.targetScopeId,
+                    exercise.inspector.canonicalSentence.orEmpty(),
+                    task.answerExposureKeys.joinToString(", "),
+                    task.promptExposureKeys.joinToString(", "),
                 ).joinToString(prefix = "| ", separator = " | ", postfix = " |", transform = ::escapeCell),
             )
         }

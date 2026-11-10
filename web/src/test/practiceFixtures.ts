@@ -126,6 +126,12 @@ export function profiles(ownerSessionId = owner) {
         description: "The present form er.", itemCount: 6, prerequisiteSkillIds: ["G001", "G002", "G003"] },
       { focusId: "module-one-things", planRevision: "module-one-things-1", title: "Referring to one thing",
         description: "Reference words for one thing.", itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G006"] },
+      { focusId: "module-one-present", planRevision: "module-one-present-1", title: "Using present verb forms",
+        description: "Choose and type present forms of three Danish verbs.", itemCount: 6,
+        prerequisiteSkillIds: ["G001", "G002", "G003"] },
+      { focusId: "module-one-order", planRevision: "module-one-order-1", title: "Building subject-first statements",
+        description: "Put Danish sentence parts and words in order.", itemCount: 6,
+        prerequisiteSkillIds: ["G001", "G002", "G003", "G004"] },
       { focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
         description: "Mixed existing skills.", itemCount: 8, prerequisiteSkillIds: [] },
       { focusId: "present-verbs", planRevision: "present-verbs-1", title: "Present verb forms",
@@ -139,7 +145,7 @@ export function profiles(ownerSessionId = owner) {
 
 export async function choosePractice(
   user: ReturnType<typeof userEvent.setup>,
-  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" = "Mixed practice",
+  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" = "Mixed practice",
 ) {
   await screen.findByRole("heading", { name: "Choose your practice" });
   await user.click(screen.getByRole("radio", { name }));

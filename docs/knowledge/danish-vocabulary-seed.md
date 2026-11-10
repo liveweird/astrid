@@ -134,6 +134,16 @@ allocates a new entry for `den` and a separate reference sense for existing L008
 L008-S02 is the corresponding neuter reference sense, supported by
 [DDO det³, sense 1](https://ordnet.dk/ddo/ordbog/det). Its identifying L008 record stays
 unchanged. Neither reference sense enters `humanPronouns` or older lexical/sentence pools.
-The current inventory has 26 distinct lexical entries and 109 complete clauses; the separate
+Pair nine has 26 distinct lexical entries and 109 complete clauses. The separate
 S04 source inventory contains two reference senses, not two new lexical entries. The engine
 does not expose an exhaustive global sense count. Teaching review remains pending.
+
+## Pair-ten present-form addition
+
+| ID | Lemma and English gloss | Teaching bundle | Scope and source |
+| --- | --- | --- | --- |
+| L027 | arbejde, work | at arbejde → arbejder | L027-S01, intransitive human work in the authored S05–S06 tasks. [DDO verb entry, sense 1](https://ordnet.dk/ddo/ordbog/arbejde). |
+
+Pair ten contains 27 lexical entries and the same 109 catalogue sentences. The work frames
+are confined to the selected tasks and use a human subject with no object or circumstance.
+The six named-form and six subject-first activities use the [course contract](module-one-course-slice.md#following-package--s05-and-s06).

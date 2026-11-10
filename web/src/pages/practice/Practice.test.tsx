@@ -410,6 +410,73 @@ it("submits an ordering answer and advances without completing early", async () 
   expect(screen.queryByRole("heading", { name: "Practice complete" })).not.toBeInTheDocument();
 });
 
+it("submits a partial guided word-tile answer and preserves it through support", async () => {
+  const ordering = {
+    ...exercise, id: "77777777-7777-4777-8777-777777777777", formatId: "E025", lexicalTarget: undefined,
+    targetSkillId: "G005", targetScopeId: "subject-first-supplied", instruction: "Build the supplied statement.",
+    context: "Put the supplied Danish words in subject-first order.",
+    introduction: [{ title: "Statement pattern", body: "subject | finite verb | supplied object" }],
+    prompt: {
+      before: "", after: "", choices: [], punctuation: ".", cue: "I read a newspaper.",
+      cueLanguage: "en", answerLanguage: "da", tileMode: "use-all", requiredTileCount: 4,
+      blocks: [
+        { id: "s", text: "jeg" }, { id: "v", text: "læser" },
+        { id: "a", text: "en" }, { id: "n", text: "avis" },
+      ],
+    },
+  };
+  const run = {
+    ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "module-one-order", planRevision: "module-one-order-1", seed: 47,
+  };
+  saveRunRecovery(run);
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const item = {
+    ...state().items[0]!, exerciseId: ordering.id, formatId: "E025", lexicalTarget: undefined,
+    targetSkillId: "G005", targetScopeId: "subject-first-supplied", assessmentMode: "word-order",
+  };
+  let serverState = state({
+    focusId: run.focusId, planRevision: run.planRevision, title: "Building subject-first statements",
+    contentRevision: "pilot-10", generatorRevision: "generator-10", evaluationRevision: "evaluation-10",
+    itemCount: 6, introductionOpened: true, currentExercise: ordering, items: [item],
+  });
+  let submitted = "";
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("/support")) {
+      serverState = { ...serverState, items: [{ ...serverState.items[0]!, lessonOpened: true }] };
+      return json(serverState);
+    }
+    if (path.endsWith("/attempts")) {
+      submitted = String(init?.body);
+      const request = JSON.parse(submitted);
+      const partialAttempt = {
+        ...wrongAttempt, exerciseId: ordering.id, attemptId: request.attemptId,
+        targetSatisfaction: "unevaluable", linguisticStatus: "unknown", linguisticScope: "danish-sentence",
+        responseConstraintStatus: "not-met", meaningSatisfaction: "unknown",
+        issues: [{ code: "REQUIRED_WORDS_MISSING", message: "Use every supplied word." }],
+      };
+      serverState = state({ ...serverState, items: [{ ...serverState.items[0]!,
+        lastAttempt: partialAttempt, lastAnswer: request.answer, canAdvance: true,
+      }] });
+      return json(partialAttempt);
+    }
+    if (path.includes("/practice-sessions/")) return json(serverState);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  renderWithProviders(<Practice />);
+
+  await user.click(await screen.findByRole("button", { name: "jeg" }));
+  expect(screen.getByRole("button", { name: "Check answer" })).toBeEnabled();
+  await user.click(screen.getByRole("button", { name: "Learn this first" }));
+  expect(await screen.findByRole("button", { name: "Remove jeg from position 1" })).toBeVisible();
+  await user.click(screen.getByRole("button", { name: "Check answer" }));
+  expect(JSON.parse(submitted)).toMatchObject({ answer: { kind: "order", blockIds: ["s"] } });
+  await user.click(await screen.findByRole("button", { name: "Try again" }));
+  expect(screen.getByRole("button", { name: "Remove jeg from position 1" })).toBeEnabled();
+});
+
 it("reports source-practice exposure separately from exposure inside the current run", async () => {
   saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "targeted-review", planRevision: "follow-up-1", seed: 47,
     sourcePracticeSessionId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", selectedTargetKeys: ["lexical:L014:L014-S01:meaning:da-en"] });

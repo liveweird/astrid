@@ -16,7 +16,7 @@ export function answerFor(
   order: string[],
   gapSelections: GapSelection[],
 ): AttemptAnswer {
-  if (exercise.formatId === "E003") return { kind: "order", blockIds: order };
+  if (["E003", "E024", "E025"].includes(exercise.formatId)) return { kind: "order", blockIds: order };
   if (exercise.formatId === "E015") return { kind: "gaps", selections: gapSelections };
   return { kind: "text", text };
 }

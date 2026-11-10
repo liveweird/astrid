@@ -225,7 +225,7 @@ internal fun GeneratedExercise.reproductionFingerprint(
             targetScopeIdForFingerprint,
             inspectorForFingerprint.moduleOneSource,
         )
-        "pilot-9" to "generator-9" -> pairNineFingerprintCanonical(
+        "pilot-9" to "generator-9", "pilot-10" to "generator-10" -> pairNineFingerprintCanonical(
             promptForFingerprint,
             lexicalTargetForFingerprint,
             inspectorForFingerprint,
@@ -234,7 +234,7 @@ internal fun GeneratedExercise.reproductionFingerprint(
             introductionForFingerprint,
             lexicalTargetsForFingerprint,
             targetScopeIdForFingerprint,
-        )
+        ).let { if (contentRevision == "pilot-10") framedList(listOf("pair-ten", it)) else it }
         else -> error("Unsupported fingerprint revision pair: $contentRevision/$generatorRevision")
     }
     return MessageDigest.getInstance("SHA-256").digest(canonical.toByteArray(Charsets.UTF_8))

@@ -224,6 +224,19 @@ The twelve activities below define the implementation scope. Danish teaching rev
 outstanding. Implementation targets app 0.11.0 and learning pair ten. The published pair-nine
 and S04 compatibility archives are added before the production revision changes.
 
+| Session | Pinned plan | Format and evidence | Persisted policies |
+| --- | --- | --- | --- |
+| S05 | `module-one-present-1` | E022 selection and E023 recall, G004 scope `named-three-verbs-present` | `module-one-known-outcome-1`, `module-one-exposure-1` |
+| S06 | `module-one-order-1` | E024 constituent order and E025 word order, G005 scope `subject-first-supplied` | `module-one-order-outcome-1`, `module-one-order-exposure-1` |
+
+Both plans use `pilot-10` / `generator-10` / `evaluation-10`. Work is L027 in pair ten only.
+The three present-selection prompts and the banks with three or four units vary their presentation
+by seed. The two-unit banks show their single noncanonical arrangement. The legacy sentence
+and verb pools remain pinned. The isolated ordering policy recognizes
+`REQUESTED_ORDER_CONSTRAINT` for noncanonical complete banks and `REQUIRED_WORDS_MISSING` for
+valid nonempty proper word selections. When feedback discloses the canonical sentence, the
+ordering exposure policy records its exact order even if the language judgment is unknown.
+
 #### Literal activity cards
 
 S05 supplies the subject's English reference, named infinitive and meaning, and any
@@ -358,9 +371,9 @@ For implementation, finalize content and outcomes, add four scoped operations re
 choice/text/block/tile machinery with new-revision data; integrate closed API correlations,
 fingerprints and pinned plans/policies; extend the support/outbox/summary shell; independently
 review and release. Follow the [compatibility procedure](../../.claude/docs/compatibility.md),
-including retaining the pair-eight review renderer before CURRENT moves and freezing any
-subsequently published boundary first. No SQL migration is expected for two six-item JSON-backed
-plans; verify persisted readers and rollback compatibility before deciding.
+including retaining the pair-nine review renderer before CURRENT moves. Both six-item plans
+use the existing JSON-backed schema. After a pair-ten write, rollback requires a reader
+that supports pair ten and the two new policy IDs.
 
 Acceptance: independent literal twelve-activity oracles; infinitive/present, case, shape,
 unknown and malformed boundaries; all complete order permutations and valid partial tile

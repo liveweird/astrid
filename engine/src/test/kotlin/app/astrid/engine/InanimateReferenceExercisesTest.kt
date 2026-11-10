@@ -14,12 +14,13 @@ class InanimateReferenceExercisesTest {
     fun `pair nine adds two bounded formats while retaining pair eight literally`() {
         assertEquals(
             RevisionPair("pilot-8", "generator-8"),
-            engine.supportedRevisionPairs()[engine.supportedRevisionPairs().lastIndex - 1],
+            engine.supportedRevisionPairs()[engine.supportedRevisionPairs().lastIndex - 2],
         )
-        assertEquals(RevisionPair("pilot-9", "generator-9"), engine.supportedRevisionPairs().last())
+        assertEquals(RevisionPair("pilot-9", "generator-9"), engine.supportedRevisionPairs()[engine.supportedRevisionPairs().lastIndex - 1])
+        assertEquals(RevisionPair("pilot-10", "generator-10"), engine.supportedRevisionPairs().last())
         assertEquals("evaluation-8", engine.evaluationRevision("pilot-8", "generator-8"))
         assertEquals("evaluation-9", engine.evaluationRevision("pilot-9", "generator-9"))
-        assertEquals((1..21).map { "E${it.toString().padStart(3, '0')}" }, engine.catalog().formats.map { it.id })
+        assertEquals((1..25).map { "E${it.toString().padStart(3, '0')}" }, engine.catalog().formats.map { it.id })
         assertEquals(109, engine.catalog().sentenceCount)
         assertEquals(setOf("E020", "E021"), engine.catalog().formats.filter { it.targetSkillId == "G038" }.map { it.id }.toSet())
         assertEquals(

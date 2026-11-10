@@ -53,6 +53,9 @@ Native development binds to `127.0.0.1:8088`; `ASTRID_BIND_HOST` and `ASTRID_POR
 - **Short reading:** read three Danish sentences, then choose the English answer matching the asked participant and action. Related alternatives require following the stated facts.
 - **Subject words:** choose or type a singular/group subject pronoun from an explicit English reference situation; standalone spelling and uppercase plural `I` are explained.
 - **The present form of to be:** choose or type the introduced stored form in bounded identifying/name/profession contexts, with other vocabulary supplied.
+- **Referring to one thing:** choose or type `den` or `det` with the antecedent and its gender supplied.
+- **Named present forms:** choose or type the present of `arbejde`, `læse` or `sove` with the rest of the statement supplied.
+- **Subject-first assembly:** arrange whole constituents or individual words to express the supplied statement.
 
 Feedback reports both the requested target and the supported linguistic judgment. An acceptable fronted statement can miss the subject-first target. Unknown writing is not automatically invalid Danish. Vocabulary feedback also separates knowing the headword from supplying the requested one-word response; `en avis` can identify the word while needing correction to the response format. Hints and retries are recorded; there is no mastery or adaptive scheduling claim.
 
@@ -83,6 +86,13 @@ answer or known written-form/response-shape correction may continue. Recognition
 recall have separate bounded summaries. Repeat and next-session controls open the chooser
 without automatically creating a run. These three pair-eight plans offer no targeted-review
 fallback and do not complete the whole module. See the [activation contract](docs/knowledge/module-one-activation.md).
+
+The sequence continues with **Referring to one thing** (four items), **Using present verb forms**
+(six items), and **Building subject-first statements** (six items). Each opens directly with required
+teaching. Assembly starts with whole sentence parts and moves to individual words. The summary keeps
+the two ordering operations separate. The app distinguishes a missing-word or requested-order correction
+from its assessment of the Danish. See the [S04 contract](docs/knowledge/inanimate-reference-activation.md)
+and the [S05–S06 activity cards](docs/knowledge/module-one-course-slice.md#following-package--s05-and-s06).
 
 Practice saves operation identities in this browser before sending them. Refresh resumes the URL-bound session and replays uncertain operations with their original identities; confirmed grades are read back without regrading. Recovery requires the original valid development cookie and browser storage. If either is unavailable, use **Start new practice**; old server history remains intact. Unsent drafts need not survive refresh. The standalone playground retains its existing in-tab recovery behavior.
 
@@ -151,7 +161,7 @@ CI repeats the gates on pull requests and master, validates Kubernetes schemas a
 ./gradlew :engine:exportPilotReview
 ```
 
-The deterministic report is written to `engine/build/review/pilot-9.md`. It includes the 26 lexical records, sources and draft review status, all 109 licensed sentences and reproducible exercise examples. The production engine remains free of file I/O; the export adapter runs only as a local build tool. Run `./gradlew :engine:exportLegacyPilotReview`, `:engine:exportPilotTwoReview`, `:engine:exportPilotThreeReview`, `:engine:exportPilotFourReview`, `:engine:exportPilotFiveReview`, `:engine:exportPilotSixReview` `:engine:exportPilotSevenReview` or `:engine:exportPilotEightReview` for the retained `pilot-1`–`pilot-8` reports (`pilot-8-retained.md` for pair eight). Compatibility fixtures preserve 335 original cases, 952 revision-2 generation/evaluation cases, 978 published fingerprint cases and the frozen pilot-3 through pilot-8 engine/wire fixtures, published 0.8.0 guided plans and recursive review wire, and 0.9.0 first-step teaching, scoped summaries, exposure and eligibility (see `.claude/docs/compatibility.md`). Their generated origin establishes compatibility, while the independently specified worked examples and eventual Danish teaching review address linguistic correctness.
+The current deterministic report is `engine/build/review/pilot-10.md`. It covers 27 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotNineReview` for `pilot-9-retained.md` and `:engine:exportPilotEightReview` for `pilot-8-retained.md`. See the [export and compatibility inventory](.claude/docs/compatibility.md).
 
 Vocabulary introduces a forward migration permitting a null grammar target; its separate lexical target lives in the stored presentation. After vocabulary writes, rollback requires a reader compatible with new metadata and nullable targets; a bare older image is unsafe. See the [contract](docs/knowledge/vocabulary-assessment.md).
 

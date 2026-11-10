@@ -46,10 +46,9 @@ export default function Practice() {
   // bindUrl is captured once by the mount-time recovery, so it reads the fragment through a ref.
   const hashRef = useRef(location.hash);
   useEffect(() => { hashRef.current = location.hash; }, [location.hash]);
-  const bindUrl = (practiceSessionId: string) => navigate(
-    { search: new URLSearchParams({ session: practiceSessionId }).toString(), hash: hashRef.current },
-    { replace: true },
-  );
+  const bindUrl = (practiceSessionId: string) => navigate({
+    search: new URLSearchParams({ session: practiceSessionId }).toString(), hash: hashRef.current,
+  }, { replace: true });
   const [run, setRun] = useState<PracticeRunRecovery | null>(null);
   const [session, setSession] = useState<PracticeSession | null>(null);
   const [text, setText] = useState("");
@@ -305,6 +304,7 @@ export default function Practice() {
         onRetry={() => {
           setAttempt(null);
           if (exercise?.formatId === "E015") requestFocus("gaps");
+          else if (exercise?.formatId === "E024" || exercise?.formatId === "E025") requestFocus("item");
           else { setText(""); setOrder([]); setGapSelections([]); requestFocus("item"); }
         }}
       />}

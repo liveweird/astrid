@@ -72,6 +72,88 @@ describe("ExercisePrompt", () => {
     expect(onText).toHaveBeenCalledWith("du");
   });
 
+});
+
+describe("ExercisePrompt present and order formats", () => {
+
+  it("labels named present-form choices and keeps the cue in English", async () => {
+    const onText = vi.fn();
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E022" as Exercise["formatId"], {
+              before: "Jeg ", after: ".", cue: "I work.", cueLanguage: "en", answerLanguage: "da",
+              choices: ["arbejde", "arbejder"], blocks: [],
+            }),
+            targetSkillId: "G004", targetScopeId: "named-three-verbs-present",
+          } as Exercise}
+          text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("I work.")).toHaveAttribute("lang", "en");
+    const choices = screen.getByRole("group", { name: "Danish present verb choices" });
+    expect(choices).toHaveAttribute("lang", "da");
+    await userEvent.click(screen.getByRole("button", { name: "arbejder" }));
+    expect(onText).toHaveBeenCalledWith("arbejder");
+  });
+
+  it("renders supplied constituents for the subject-first ordering task", async () => {
+    const onOrder = vi.fn();
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E024" as Exercise["formatId"], {
+              before: "", after: "", cue: "He reads a book.", cueLanguage: "en", answerLanguage: "da",
+              choices: [], blocks: [
+                { id: "s", text: "han" }, { id: "v", text: "læser" }, { id: "o", text: "en bog" },
+              ],
+            }),
+            contentRevision: "pilot-10", generatorRevision: "generator-10",
+            targetSkillId: "G005", targetScopeId: "subject-first-supplied",
+          } as Exercise}
+          text="" order={[]} disabled={false} onText={vi.fn()} onOrder={onOrder}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("He reads a book.")).toHaveAttribute("lang", "en");
+    expect(screen.queryByText("Use every word tile.")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "han" }));
+    expect(onOrder).toHaveBeenCalledWith(["s"]);
+  });
+
+  it("allows a proper subset of supplied word tiles to remain checkable", () => {
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E025" as Exercise["formatId"], {
+              before: "", after: "", cue: "I read a newspaper.", cueLanguage: "en", answerLanguage: "da",
+              tileMode: "use-all", requiredTileCount: 4, choices: [], blocks: [
+                { id: "s", text: "jeg" }, { id: "v", text: "læser" },
+                { id: "a", text: "en" }, { id: "n", text: "avis" },
+              ],
+            }),
+            contentRevision: "pilot-10", generatorRevision: "generator-10",
+            targetSkillId: "G005", targetScopeId: "subject-first-supplied",
+          } as Exercise}
+          text="" order={["s"]} disabled={false} onText={vi.fn()} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByLabelText("Your Danish sentence")).toHaveTextContent("Jeg.");
+    expect(screen.getByRole("group", { name: "Available Danish word tiles" })).toHaveTextContent("læserenavis");
+  });
+
+});
+
+describe("ExercisePrompt", () => {
+
   it.each([
     ["E017", "Danish subject word", "Several people are being addressed.", "en"],
     ["E019", "Present verb form", "Complete the Danish statement meaning ‘It is a letter.’", "en"],

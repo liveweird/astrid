@@ -16,6 +16,7 @@ object PracticeCompletionPolicy {
         return when (completionRuleId) {
             null -> true
             MODULE_ONE_RULE -> latestAttempt.hasKnownTargetOutcome() || latestAttempt.hasKnownConstraintOutcome()
+            MODULE_ONE_ORDER_RULE -> latestAttempt.hasKnownOrderConstraintOutcome()
             else -> false
         }
     }
@@ -28,9 +29,18 @@ object PracticeCompletionPolicy {
         responseConstraintStatus == ResponseConstraintStatus.NOT_MET &&
             issueCodes.any { it in COMPLETION_ISSUE_CODES }
 
+    private fun PracticeCompletionAttemptObservation.hasKnownOrderConstraintOutcome(): Boolean =
+        targetStatus == TargetStatus.MET &&
+            linguisticStatus == LinguisticStatus.ACCEPTABLE &&
+            responseConstraintStatus == ResponseConstraintStatus.MET ||
+            responseConstraintStatus == ResponseConstraintStatus.NOT_MET &&
+            issueCodes.any { it in ORDER_COMPLETION_ISSUE_CODES }
+
     private const val MODULE_ONE_RULE = "module-one-known-outcome-1"
+    private const val MODULE_ONE_ORDER_RULE = "module-one-order-outcome-1"
     private val COMPLETION_ISSUE_CODES = setOf(
         "STANDALONE_PRONOUN_CASE_REQUIRED",
         "ONE_WORD_RESPONSE_REQUIRED",
     )
+    private val ORDER_COMPLETION_ISSUE_CODES = setOf("REQUESTED_ORDER_CONSTRAINT", "REQUIRED_WORDS_MISSING")
 }

@@ -89,6 +89,7 @@ internal object PilotReviewMetadata {
                 "L011" to ("read written text" to "C002 with bog, avis, or brev only."),
                 "L012" to ("eat" to "C002 with æble only; intransitive and other food uses excluded."),
                 "L013" to ("sleep" to "C001 human subject with no object."),
+                "L027" to ("work" to "Pair ten authored human intransitive work clauses with no object or circumstance only."),
             )
         return verbs.map { verb ->
             val detail = details.getValue(verb.lexicalId)
@@ -186,6 +187,7 @@ internal object PilotReviewMetadata {
             "L011" to "https://ordnet.dk/ddo/ordbog/l%C3%A6se",
             "L012" to "https://ordnet.dk/ddo/ordbog/spise",
             "L013" to "https://ordnet.dk/ddo/ordbog/sove",
+            "L027" to "https://ordnet.dk/ddo/ordbog/arbejde",
         )
     private val NOUN_SOURCES =
         mapOf(

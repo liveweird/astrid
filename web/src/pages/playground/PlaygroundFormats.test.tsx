@@ -363,6 +363,54 @@ async function verifyEnglishToDanishChoice() {
   expect(screen.queryByText(/L024/)).not.toBeInTheDocument();
 }
 
+async function verifySuppliedConstituentOrder() {
+  const tenthSession = {
+    ...session, contentRevision: "pilot-10", generatorRevision: "generator-10", evaluationRevision: "evaluation-10",
+  };
+  const tenthCatalog = {
+    ...catalog,
+    contentRevision: "pilot-10", generatorRevision: "generator-10", evaluationRevision: "evaluation-10",
+    formats: [{ id: "E024", title: "Arrange supplied sentence parts", targetSkillId: "G005" }],
+  };
+  const orderExercise = {
+    ...exercise,
+    id: "87777777-7777-4777-8777-777777777777", formatId: "E024", targetSkillId: "G005",
+    targetScopeId: "subject-first-supplied", contentRevision: "pilot-10", generatorRevision: "generator-10",
+    instruction: "Build the supplied statement.", context: "Begin with the subject and put the finite verb second.",
+    prompt: {
+      before: "", after: "", choices: [], punctuation: ".", cue: "He reads a book.",
+      cueLanguage: "en", answerLanguage: "da", blocks: [
+        { id: "s", text: "han" }, { id: "v", text: "læser" }, { id: "o", text: "en bog" },
+      ],
+    },
+    introduction: [],
+  };
+  let attemptBody = "";
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json(tenthSession);
+    if (path.endsWith("catalog")) return json(tenthCatalog);
+    if (path.endsWith("exercises")) return json(orderExercise);
+    attemptBody = String(init?.body);
+    return json({
+      ...attempt, exerciseId: orderExercise.id, targetSatisfaction: "met", meaningSatisfaction: "met",
+      responseConstraintStatus: "met", linguisticStatus: "acceptable", linguisticScope: "danish-sentence",
+      evaluationRevision: "evaluation-10", completedSentence: "Han læser en bog.",
+    });
+  }));
+
+  await renderPlayground();
+  await userEvent.click(await screen.findByRole("button", { name: "han" }));
+  const check = screen.getByRole("button", { name: "Check answer" });
+  await userEvent.click(screen.getByRole("button", { name: "læser" }));
+  expect(check).toBeDisabled();
+  await userEvent.click(screen.getByRole("button", { name: "en bog" }));
+  expect(check).toBeEnabled();
+  await userEvent.click(check);
+
+  expect(JSON.parse(attemptBody)).toMatchObject({ answer: { kind: "order", blockIds: ["s", "v", "o"] } });
+  expect(await screen.findByText("Good work")).toBeVisible();
+}
+
 describe("Playground formats", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -378,6 +426,8 @@ describe("Playground formats", () => {
   it("submits a nonempty tile subset and replays the exact pending order", verifyTileSelectionRecovery);
 
   it("renders English-to-Danish meaning choice without exposing lexical identities", verifyEnglishToDanishChoice);
+
+  it("requires every supplied constituent before submitting standalone subject-first order", verifySuppliedConstituentOrder);
 
   it("commits the auto-highlighted exact search with Enter", () => verifyKeyboardFormatSelection(false));
 
