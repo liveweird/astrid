@@ -74,3 +74,12 @@ records independent reviews, actual restart, isolated backup restore, app-only p
 102 live checks and owned cleanup. This supersedes the historical running-version statement
 for 0.7.0. Published notes/tags remain immutable; pair seven stays unchanged, new practice plans
 pin it explicitly, and old plans/reviews retain pair three.
+
+
+**Subsequent release — 10 November 2026:** app [0.9.0](https://github.com/liveweird/astrid/releases/tag/v0.9.0),
+source `8913dea`, is the current private preview after all five [exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/42722013690),
+370 native and 370 Linux browser journeys passed without retries/flakies. The
+[first-step delivery record](module-one-activation.md#observed-runtime-delivery--10-november-2026) records independent reviews, exact restart/replay,
+actual isolated backup restore, app-only promotion, 160 live checks and owned cleanup.
+This supersedes the historical running-version statement for 0.8.0. App version 0.9.0 and
+learning pair eight remain distinct; old notes, tags, evaluators and plans are retained.

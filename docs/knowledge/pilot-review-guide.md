@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This proposed walkthrough helps evaluate the engine before expanding content or producing media. Open `http://localhost:8088`. It is a private developer preview, with fifteen entries and draft Danish content rather than a complete beginner course.
+This proposed walkthrough helps evaluate the engine before expanding content or producing media. Open `http://localhost:8088`. It is a private developer preview, with nineteen entries, three beginner sessions and draft Danish content rather than a complete beginner course.
 
-## Try the fifteen entries
+## Try the nineteen entries
 
 1. **Present form:** open “Learn this first,” then choose the finite present form. The alternatives deliberately use the same verb. Check the answer, inspect feedback, retry, then advance. Opening the lesson or hint records supported practice; that evidence stays attached to retries of the same exercise.
 2. **Article:** expand “Generation controls” and select “Supply the indefinite article.” Type `en` or `et`. Try the wrong gender, then retry with the matching form. A matching accented numeral such as `én` has a different target interpretation from the requested unstressed article; feedback should distinguish that from a gender error.
@@ -30,6 +30,11 @@ This proposed walkthrough helps evaluate the engine before expanding content or 
 missing article, and the reverse. Compare each slot's feedback with the whole-response status.
 Retry with both choices retained, change/clear either selection, and compare the selected sentence.
 
+16. **Subject selection:** select “Choose a Danish subject word.” Match the explicit English person/group reference with an introduced Danish subject word; compare related forms.
+17. **Subject recall:** select “Recall a Danish subject word.” Type only the standalone word. In a group-reference task, compare `I`, `i`, `de` and `De`: ambiguous capitalization should request the taught form without diagnosing a wrong person.
+18. **Present er selection:** select “Choose the present form of være.” Choose the introduced finite form rather than the infinitive, using supplied name/identity/profession vocabulary.
+19. **Present er recall:** select “Recall the present form of være.” Type `er`. Compare `Er`, a known wrong form and an unsupported word; target, written form and unknown outcomes stay separate.
+
 Use Tab/Enter throughout and try the narrow layout and both themes. If a result cannot be confirmed after a connection problem, “Check the same attempt” safely replays the original submission.
 
 ## Try guided practice
@@ -48,6 +53,24 @@ First/Latest columns and the totals must remain separately readable inside their
 4. Complete the run and compare first versus latest outcomes. Retries and earlier answer exposure remain visible; completion does not establish mastery. Use **Start new practice** to compare another focus. Opening the chooser and cancelling should preserve the current URL, draft and pending operation; starting another run retains the earlier recovery record.
 
 Assess pacing, exercise transitions, explanation clarity and whether the summary helps decide what to revisit. The [variation audit](practice-variation-audit.md) distinguishes 294 meaningful mixed plans from additional choice/block shuffles; more reviewed language content remains necessary for lasting variety.
+
+## Try the first beginner sessions
+
+Under **Module 1: First steps**, try **Talking about one person**, **Talking to and about groups**,
+then **Using the verb to be**. Each has six activities. Try entering the second or third directly:
+required teaching should introduce the needed words and references before answers appear.
+Assess whether the explanation length and examples work for a complete beginner.
+
+Choose and type answers; compare a known mistake, ambiguous `i`/`De` spelling and an unsupported
+word. An unknown answer must remain available for support/retry, with Continue disabled.
+A known correction may continue. Opening a lesson/hint must preserve an unfinished answer.
+Refresh an answered item and compare the saved response. On completion, compare recognition
+and written-recall cards, first/latest answers and earlier teaching exposure.
+
+Use **Repeat this session** or the suggested **Next** to open the chooser; cancelling should
+retain the completed run. These sessions offer no target-selection review. Completion is
+practice evidence after teaching, not independent mastery. The [activation contract](module-one-activation.md)
+records the limited content and remaining course scope.
 
 ## Try targeted follow-up practice
 

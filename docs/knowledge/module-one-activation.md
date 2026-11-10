@@ -5,7 +5,7 @@
 **9 November 2026 — Runtime implementation authorized (BL-052):** the user's subsequent
 “go forth” selects implementation of this bounded three-session contract and the standing
 verified 0.9.0 commit/merge/push, tag/GitHub Release and backed-up private-preview delivery.
-The planning-only boundary below is historical; runtime work is now in progress. Wider
+The planning-only boundary below is historical; runtime delivery is verified below at 0.9.0. Wider
 Module 1 content, targeted-review expansion and teaching approval remain outside this selection.
 
 **9 November 2026 — User-authorized planning milestone (BL-051):** “go-go” selects the
@@ -358,3 +358,65 @@ replay and all retained compatibility guards passed. The coordinator's full
 `./scripts/check.sh` passed, including Docker-backed PostgreSQL tests. Earlier fixtures and
 migrations are unchanged. This capture is compatibility evidence, not teaching approval or
 delivery of the new runtime sessions.
+
+## Observed runtime delivery — 10 November 2026
+
+Released app [0.9.0](https://github.com/liveweird/astrid/releases/tag/v0.9.0), tagged source
+`8913dea`, after all five [exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/42722013690) passed. All **370 native** and
+**370 Linux CI** Chromium/WebKit journeys passed without retries or flaky results. The
+release tag, authored changelog notes and remote GitHub Release were read back at that source.
+The running private preview uses exact image `sha256:2577e50b2058b20c05bde0dbedf2c5b539a9370f7b306f3b0f8947eba858c5b6`; its build stamp identifies the tagged
+source. The documentation-only completion commit does not retag or rebuild that image.
+
+The three independent six-item first-step profiles require saved teaching before assessment,
+keep all six scoped recognition/recall outcomes separate and apply the new-plan-only known
+outcome completion rule. E016–E019 are also available standalone. Direct-entry support covers
+written words/statements, Danish letters, subject/pronoun roles, standalone capitalization,
+reference meanings and supplied noun/verb forms. Current pair eight contains 25 lexical
+records and 109 complete licensed clauses; the original 99 shared combinations, older
+format pools, all seven retained evaluators and prior plans remain unchanged. No new schema
+migration, dependency, course graph, targeted-review family or mastery policy was introduced.
+
+`./scripts/check.sh` passed with real Docker-backed PostgreSQL: **186 engine tests**, a fresh
+**186-test Arabic-locale run**, **149 server tests** and **202 web tests**, with zero failed or
+skipped tests. Final engine coverage was 98.08% lines / 85.33% branches (branch floor raised
+84→85); server 98.11% / 80.52%; web 95.12% statements / 89.57% branches / 97.82% functions /
+97.85% lines. All other floors stayed unchanged. Full regression also corrected a stale
+three-profile chooser assertion to the six intended profiles; no app behavior changed for
+that correction. API lint/generated-type drift, actual
+new-profile HTTP conformance, detekt, lint, knip, builds, scenario parity and manifest gates
+passed. All eight deterministic review exports passed. Pilot-8 review has 708 lines,
+SHA-256 `341d0b1a798331397ec1c199ad86dbb17cbb02fd515a4574da472a23a6a488f0`;
+retained pilot-7 is byte-identical at
+`0a1caa4c367e8408ac8e35cbffa0249b524493d5c4122c8361be8081b4a3d0d2`.
+
+Independent engine, API, UI behavior, rendered UI and release-safety reviews are closed.
+Corrections included exact visible-surface exposure, complete foundation teaching/review
+metadata, old noun-pool isolation, canonical standalone `I`/`de` feedback, scoped operation
+validation and focus after creation/replay/resume/chooser cancellation. All 44 working-image
+views were independently inspected; the exact release image produced another 44 captures
+with final-source spot checks. Browser checks additionally cover keyboard/focus, Axe,
+320px/200% text, short-window reflow, lost-response creation/support/answer replay, drafts,
+latest-unknown blocking and supported response-shape continuation. Screenshot review alone
+does not establish assistive-technology behavior or Danish teaching approval.
+
+Final verification of all seven retained/new history sets followed the same actual owned QA
+app restart. Capture/proof hashes and app ID/PID/start time bind that sequence. Old exercise and
+practice reads, creation/attempt replay, recursive reviews and fresh retained grading remained
+exact. New captures include all three completed scoped summaries, an active latest-unknown
+answer with later support, and an unopened required introduction; their saved responses,
+frozen contexts and fresh evaluation-eight submission survived the restart.
+
+A **3,254,586-byte mode-0600 backup** was captured before promotion and actually
+restored into a uniquely owned isolated database. Full development-session, exercise,
+attempt, practice-session/item and attempt-context rows plus Flyway 1/2/3 matched. The scratch
+database was removed. App-only promotion preserved full pre-promotion rows, PostgreSQL
+identity/process/mounts and schema 1/2/3. All **160 live-preview smoke journeys** passed without
+retries; ownership-checked cleanup removed only this QA stack and kept main processes/mounts.
+The exact image passed the pinned HIGH/CRITICAL vulnerability policy and non-root/read-only,
+capability-drop and no-runtime-Git checks. Private backups, captures and proofs remain ignored
+under `.local/first-steps/`; no credentials were committed.
+
+BL-052 is complete. Learner pacing/clarity review (BL-035), Danish teaching validation (BL-022),
+Q27/Q28 and wider curriculum/progression remain open. These first three sessions do not
+complete Module 1 or establish independent mastery, retention or CEFR attainment.

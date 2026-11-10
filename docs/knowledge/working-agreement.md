@@ -226,3 +226,24 @@ verified focused commits merged/pushed, app 0.9.0 with changelog, an annotated t
 Release at the verified source, and backed-up app-only private-preview promotion. Full course
 progression, further module content, new targeted reviews and Danish teaching approval remain
 separate. No new overnight cutoff or OS power-management action is implied.
+
+
+**10 November 2026 — First beginner sessions delivered:** [0.9.0](https://github.com/liveweird/astrid/releases/tag/v0.9.0),
+source `8913dea`, passed all five [exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/42722013690), 370 native and 370 Linux
+browser journeys without retries/flakies. Three six-item profiles and four standalone formats
+use new pair eight; required teaching, scoped outcomes and completion policy leave old runs
+unchanged. Independent review, actual restart, isolated backup restore, app-only promotion,
+160 live checks and owned cleanup passed. The [delivery record](module-one-activation.md#observed-runtime-delivery--10-november-2026) closes BL-052.
+This completion commit changes documentation only; the preview retains the tagged source.
+Learner and Danish teaching reviews, later sessions and broader progression remain separate.
+
+
+## Continuation window — 10 November 2026
+
+The user asked whether useful work could continue until **07:30 Europe/Warsaw**. The assistant
+confirmed a bounded plan: finish 0.9.0 release verification, review/harden its beginner content,
+grading, recovery and accessibility, and prepare the next curriculum slice for review. Keep
+focused verified commits/pushes and a clear handoff by that time. This is a new work window,
+separate from the completed 0.7.0 cutoff. The additional review/planning queue is an assistant
+proposal within the existing product direction; it does not select another runtime feature,
+full-course activation or operating-system power action.

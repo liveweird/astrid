@@ -102,7 +102,7 @@ No sentence allowlist or older E007/E008 pool expands, and teaching approval rem
 
 ## Pair-eight first-step addition
 
-**9 November 2026 — Selected implementation, verification in progress:** BL-052 assigns
+**10 November 2026 — Implementation delivered at 0.9.0:** BL-052 assigns
 **L025 / L025-S01** to the teacher noun in the [first-step contract](module-one-activation.md).
 It is introduced with its article and supplied in the narrowly licensed occupational frame;
 neither article nor noun recall is assessed by these verb tasks.

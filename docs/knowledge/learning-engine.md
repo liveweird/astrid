@@ -167,3 +167,17 @@ Full Module 1 activation remains separate. Delivery evidence follows below.
 per-slot evidence/summaries and selected-only verb/article reviews. The [verified delivery](guided-gap-practice.md#observed-delivery--9-november-2026)
 closes BL-050 without changing the fifteen-format catalog, published pair-seven grading,
 legacy pair-three plans or language inventory. Broader course activation remains separate.
+
+
+## First beginner sessions delivered
+
+**10 November 2026 — User-authorized BL-052 delivered:** [0.9.0](https://github.com/liveweird/astrid/releases/tag/v0.9.0)
+adds three six-item profiles for singular/group human subjects and stored present `er`, plus
+E016–E019 standalone selection/recall. New pair eight has 25 lexical records and 109 licensed
+complete clauses; old format pools, all seven retained evaluators and existing plans stay
+unchanged. Required teaching and exact exposure precede scoped recognition/recall evidence;
+a latest unknown blocks continuation, while known target/form/shape outcomes may continue.
+Repeat/next opens the chooser without automatically starting a run; these profiles offer no
+targeted-review fallback. The [contract and verified delivery](module-one-activation.md#observed-runtime-delivery--10-november-2026) record bounds,
+recovery, independent review and release evidence. Broader Module 1 activation, scheduling,
+mastery, learner review and Danish teaching validation remain separate work.
