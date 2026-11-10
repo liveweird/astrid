@@ -420,3 +420,45 @@ under `.local/first-steps/`; no credentials were committed.
 BL-052 is complete. Learner pacing/clarity review (BL-035), Danish teaching validation (BL-022),
 Q27/Q28 and wider curriculum/progression remain open. These first three sessions do not
 complete Module 1 or establish independent mastery, retention or CEFR attainment.
+
+## Post-release compatibility and lifecycle verification — 10 November 2026
+
+Post-release hardening source `5cdfc0d` passed all five [CI jobs](https://github.com/liveweird/astrid/actions/runs/42730180851),
+including **372 Linux browser journeys without retries/flakies**. The matching **372 native
+Chromium/WebKit journeys** passed against the released image without changing the app or
+PostgreSQL processes. Local `./scripts/check.sh` passed **195 engine tests**, the fresh
+**195-test Arabic-locale suite**, **160 server tests** including PostgreSQL, and **202 web
+tests**, with no failures/errors/skips. The app remains tagged `0.9.0` at `8913dea`;
+these test, quality-gate and planning changes introduce no runtime feature or new release.
+
+Published pair eight and all three first-step plans now have immutable, independently
+reviewed compatibility archives captured from unchanged release source `8913dea`:
+
+| Archive | Rows | SHA-256 |
+| --- | --- | --- |
+| Engine pair eight | 2,674 | `2c7d1851cf84a71cfbecd04da0d332cb01b509904431e60a0646e89a9f058b48` |
+| Server pair-eight wire | 3,518 | `d580c5a296ead61fcfd712705e866cedac1956b2896355175a13ffbf8856bb01` |
+| Engine first-step practice | 23 | `cf4b90e8eadf468a3b475c363b98cf794d7c8f4e6018816b3ae7219e3a96bdd6` |
+| Server first-step practice wire | 100 | `9f09be95bd8f3356e8e1cabbe9b3980829f001674157712454d4131730dba5ec` |
+
+These cover all nineteen formats, thirty first-step tasks, private answer keys, nested
+fingerprints, actual review bytes, policy/teaching data, scoped first/latest outcomes,
+exposure and continuation eligibility. Capture review added private-key alternatives and
+independent nested-value/order mutations before acceptance. Earlier tracked fixtures and
+all production sources/dependencies/deployment files remain unchanged. Exporters refuse
+overwrite. Before a future CURRENT move, retain the pair-eight review renderer and rewire
+the test-source adapter while preserving the pinned review bytes and archive provenance.
+
+The three new lifecycle tests prove fixed expiry after midpoint authenticated use,
+all six scoped outcome rows with seven literal first/latest counters, and cross-pool
+serialization. The concurrency test holds an external PostgreSQL owner-row lock until
+both support and attempt operations are visibly waiting on that lock; it separately
+proves an unknown retry blocks a competing advance. The browser case proves missing-cookie
+recovery retains the exact old run/outbox, reads ownership before replay, and creates a
+new owner/run only after explicit choice. Missing-cookie recovery and injected-clock expiry boundaries
+are separate tests; neither reassociates old evidence with a new owner.
+
+Independent review findings are closed. Engine coverage is 98.12% lines / 85.64% branches;
+server coverage is 98.17% / 81.34%, raising its branch floor from 80 to **81**. Other floors
+remain unchanged. The [S04 proposal](module-one-course-slice.md#proposed-next-activation--s04)
+is reviewed but unselected (BL-053); wider curriculum and teaching validation remain open.
