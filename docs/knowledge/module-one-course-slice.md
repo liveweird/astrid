@@ -381,3 +381,26 @@ selections; exact support/correction exposure; distinct summary modes; latest-at
 teaching and retry/advance races; exact replay; unchanged archives; Docker-backed repository
 gates and both-browser keyboard, language, accessibility and enlarged-text checks.
 Q27/Q28, vocabulary quotas, specialist approval and broader course activation remain separate.
+
+## Observed delivery for S05 and S06
+
+App 0.11.0 was released on 10 November 2026 at source `8934fb1`. Commit `1d037b8` froze
+6,367 pair-nine and S04 engine and wire rows from released source `3d87b4d`. The pair-nine
+review export retains its published SHA-256. The release tag, source and authored notes were
+read back from GitHub. [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.11.0)
+
+All five exact-source CI jobs passed, including 392 Linux Chromium and WebKit journeys with
+zero retries or flakies. The same 392 journeys passed against the exact local image. The full
+local gate passed 222 engine tests, the same 222 under an Arabic locale, 177 server tests
+including PostgreSQL, and 216 web tests. Independent review led to seed-varied choice
+positions, separate pattern and exact-order exposure, editable restored tiles and closed
+summary identities. [Release CI](https://github.com/liveweird/astrid/actions/runs/42915205179)
+
+The isolated stack captured S04 on 0.10.0 and S05–S06 on 0.11.0. All three sessions and 18
+attempts replayed byte for byte after an observed app restart. The local release image
+`sha256:5e1e1d02daa568ceba2a662d163f99461071b98d1e21b0dc020e7c6eaedd98bc` passed the
+repository Trivy policy. Before app-only preview promotion, a 4,136,449-byte backup with
+mode `0600` restored successfully into an isolated database. Verification covered all six
+history tables, the original PostgreSQL process and mounts, and Flyway versions 1–3.
+All 106 live-preview browser checks passed without retries on 11 November. Cleanup removed
+the QA run's own containers, volume and network. Danish teaching review remains open.
