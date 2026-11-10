@@ -41,6 +41,10 @@ The image job has a **35-minute** outer budget. Its unchanged 0.8.0 baseline on 
 The selected first-step sessions add browser cases. The larger outer budget accommodates that
 work; browser timeouts, workers, retry settings, complete suite, scans and all quality floors
 are unchanged. The nightly already has a separate 40-minute budget.
+Post-release run `42737593818` passed all 372 Linux journeys without retries; its image job
+used **2,004 seconds**, leaving **96 seconds** under the current 35-minute ceiling. Recheck
+outer-budget headroom before adding another browser batch; retain the full suite and existing
+timeouts, retry policy and scans when sizing that envelope.
 
 Unlike Flow there is no path filter (`changes` job): browser journeys run on every push and PR inside `image`, and the nightly below repeats them.
 A new gate lands in `scripts/check.sh` **and** the matching job in the same commit; the two lists above must stay equal.

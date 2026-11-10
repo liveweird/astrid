@@ -187,9 +187,11 @@ remains unknown. Exact correction displays the standalone form; unknown answers 
 
 ### Proposed implementation boundary
 
-1. Freeze published pair-eight generation/grading, wire/fingerprints, teaching review and all
-   three first-step plans/exposure/summary/replay cases from unchanged released source, in new
-   immutable fixtures with provenance. Existing goldens and migrations remain untouched.
+1. Preserve the published pair-eight and three first-step compatibility archives, now
+   [frozen from unchanged release source](module-one-activation.md#post-release-compatibility-and-lifecycle-verification--10-november-2026).
+   Verify their generation/grading, wire/fingerprints, review, plan/exposure/summary/replay
+   evidence before editing production. Freeze any subsequently published boundary first;
+   existing goldens and migrations remain untouched.
 2. Allocate two G038 formats after checking the catalogue; reuse the choice/text controls and
    transport. Preserve E016/E017's human-G003 contract. Use a new learning pair (provisionally
    `pilot-9/generator-9/evaluation-9`) and literally pinned four-item profile, provisionally
@@ -208,18 +210,159 @@ remains unknown. Exact correction displays the standalone form; unknown answers 
 5. Require literal grading/coverage oracles, exact exposure, deterministic finite cycles,
    unknown/case/shape boundaries, required-teaching and lifecycle/race/replay tests, retained
    fixtures, both-browser accessibility/reflow checks and normal independently reviewed,
-   versioned delivery if runtime implementation is selected. Teaching approval remains separate.
+   versioned delivery if runtime implementation is selected. Recheck CI headroom: the 372-journey
+   image job in [run 42737593818](https://github.com/liveweird/astrid/actions/runs/42737593818)
+   took 2,004 seconds, leaving 96 seconds under its 35-minute ceiling. Preserve the full suite
+   and scans when sizing any expanded batch. Teaching approval remains separate.
 
 ### Following package — S05 and S06
 
-S05 proposes six items: selection and recall for each named `arbejde → arbejder`,
-`læse → læser` and reviewed `sove → sover`. Introduce `en avis`; supply subjects/noun bundles.
-S06 proposes three constituent-block arrangements followed by three all-word-tile responses
-with changed licensed combinations. Use human subjects with `arbejder/sover`, and `læser`
-with supplied `en bog/en avis/et brev`; omit optional eating/apple material.
+**10 November 2026 — Assistant proposal only:** S05–S06 remain a separate possible package
+after S04, not an expansion of its milestone or a selected runtime release. The twelve
+activities below are authoring defaults for review. No lexical/format identifiers, learning
+revisions or plan revisions are allocated here. Danish teaching review remains outstanding.
 
-This package needs a new work frame and deliberately scoped reuse of E001/E004/E003/E012,
-whose shared 99-sentence pools are frozen. Keep block-order and word-tile operation evidence
-distinct. Reuse their interactions and sentence machinery through new-revision bounded pools;
-do not append to shared inventories or assume old graders already teach these session scopes.
-S05–S06, broader grammar progression, Q27/Q28 and vocabulary quotas remain separate decisions.
+#### Literal activity cards
+
+S05 supplies the subject's English reference, named infinitive and meaning, and any
+article+noun bundle. Selection contrasts only the named infinitive and present; recall
+requests one lowercase verb form without punctuation.
+
+| S05 | Operation and supplied material | Expected response |
+| --- | --- | --- |
+| 1 | Select present `arbejde` (“work”): `Jeg ___.` “I work.” Bank `arbejde / arbejder`. | `arbejder` |
+| 2 | Select present `læse` (“read”): `Hun ___ en avis.` “She reads a newspaper.” Bank `læse / læser`. | `læser` |
+| 3 | Select present `sove` (“sleep”): `Vi ___.` “We sleep.” Bank `sove / sover`. | `sover` |
+| 4 | Recall present `arbejde`: `De ___.` “They—several people—work.” | `arbejder` |
+| 5 | Recall present `læse`: `I ___ en bog.` “You—several addressees—read a book.” | `læser` |
+| 6 | Recall present `sove`: `Han ___.` “He sleeps.” | `sover` |
+
+S05 teaching examples: `Du arbejder.`, `Jeg læser et brev.`, `Hun sover.`, with English
+meanings and annotated roles. They differ from its assessed propositions.
+
+S06 supplies the English proposition and all Danish material, requesting a statement beginning
+with the subject. Brackets identify bank units, not their deterministically shuffled order.
+
+| S06 | Supplied English proposition/reference | Operation and supplied bank | Expected realization |
+| --- | --- | --- | --- |
+| 1 | “We work.” The speaker and another person. | Constituents: `[vi] [arbejder]` | `Vi arbejder.` |
+| 2 | “You sleep.” One addressee. | Constituents: `[du] [sover]` | `Du sover.` |
+| 3 | “He reads a book.” One explicitly mentioned man. | Constituents: `[han] [læser] [en bog]` | `Han læser en bog.` |
+| 4 | “I read a newspaper.” The speaker. | Individual words: `[jeg] [læser] [en] [avis]` | `Jeg læser en avis.` |
+| 5 | “You read a letter.” Several addressees. | Individual words: `[I] [læser] [et] [brev]` | `I læser et brev.` |
+| 6 | “They read a book.” Several other people. | Individual words: `[de] [læser] [en] [bog]` | `De læser en bog.` |
+
+S06 teaching examples: `Han arbejder.`, `De sover.`, `Du læser et brev.` Explain the last as
+three constituents and four words. Every final activity splits article from noun, making the
+scaffold change meaningful. Neither ordering operation is form recall. All twelve assessment
+propositions differ. Seed variants must preserve six-position coverage; rewording English or
+shuffling the same sentence is presentation variation, not unseen linguistic transfer.
+
+#### Licensed language, direct entry and early V2
+
+Use human L001–L007 subjects with explicit reference and uppercase lexical `I`. Reuse L011
+reading, L013 sleep, L014 book, L015 newspaper and L018 written-message senses. Introduce
+`en avis`; review `en bog` and `et brev`. The new `arbejde → arbejder` packet permits only
+human intransitive work without object or circumstance. Machinery/material meanings,
+`med/på/for` complements, magazine objects and optional eating/apple material remain excluded.
+These limits narrow the [language pack](module-one-language-pack.md), rather than activating
+all its proposed permissions.
+
+Both profiles support independent entry. S05 teaching explains word versus sentence, subject
+versus finite verb, dictionary `at + infinitive` versus one-word present, the three verb
+bundles, and supplied pronoun/noun meanings. Teach the observed `-r` pattern for these verbs
+without claiming unrestricted productive inflection. S06 reintroduces the required forms and
+article+noun as a supplied constituent. Gender, article choice and noun recall are not assessed.
+
+Early V2 explanation: “In these statements the subject fills the first constituent position;
+the finite verb comes second. A constituent can contain several words. Other constituents can
+begin Danish statements; later practice studies those patterns.” Show
+`subject | finite verb | supplied object`, with no object for work/sleep. This follows the
+[user's V2 principle](grammar-course-blueprint.md#users-architectural-principles) and
+[constituent model](danish-sentence-catalogue.md#how-to-read-the-patterns); it does not claim
+all Danish is SVO, assess G021, activate fronting/questions, or reorder S12/S13/S14 prerequisites.
+
+#### Grading, completion and evidence
+
+S05 uses word-form evidence. Exact expected forms pass after NFC/whitespace normalization;
+retain raw input. The named infinitive is a known present-form failure. Another introduced
+present is a known named-verb mismatch; recognizing that word does not establish that the
+completed clause is acceptable. A case-only deviation gets a known mid-sentence written-form
+correction. Multiword input gets a known one-word shape failure without correct-prefix
+acceptance. Unsupported forms, including unintroduced past or punctuation-attached answers
+outside authored cases, remain bounded unknowns. Blank input cannot advance. Forged choices
+and wrong answer kinds are malformed requests, not saved learner grades.
+
+S05 may reuse the 0.9 completion policy only with unchanged issue meanings and eligibility.
+S06 needs a **new, separately persisted completion policy**:
+
+| S06 response | Proposed outcome and continuation |
+| --- | --- |
+| Canonical arrangement | Target, meaning and constraints met; acceptable; eligible. |
+| Object-fronted candidate, e.g. `En avis læser jeg.` | Requested subject-first target not met. Preserve pragmatic/language uncertainty without a reviewed topical context; eligible only through the new mechanical task-constraint rule, never as a known Danish error. |
+| Complete valid bank outside reviewed patterns | Preserve linguistic/meaning uncertainty and, where necessary, unevaluable grammar. A precisely defined requested-order constraint failure permits advance under the new policy. |
+| Nonempty distinct proper subset of a word bank, e.g. `Jeg læser avis` | Known missing-required-words constraint; grammar/meaning unevaluable. Eligible only through the new shape exception, without inferring noun/gender ignorance. |
+| Empty selection, invalid/duplicate IDs, wrong answer kind, transport failure or generic unknown code | Never qualifies through those exceptions. Malformed requests create no learner grade. |
+
+Object fronting is not licensed for these neutral prompts. The catalogue requires topical or
+contrastive context; any future positive acceptability claim needs an explicit bounded
+context/license and review, rather than inheriting the worked-example shorthand.
+
+Keep complete-set validation for constituent blocks; word tiles may accept valid subsets for
+ordinary shape grading. Do not expand the frozen 0.9 allowlist or reuse a generic tile code
+that also covers empty/malformed selections. Completion records a recognized activity outcome,
+not necessarily evaluated grammar or success. Latest saved attempt governs eligibility.
+
+For each four-word bank, author literal facet expectations for all 24 complete permutations
+and all 40 nonempty ordered proper subsets (4 one-word + 12 two-word + 24 three-word responses).
+Test empty/malformed selections separately. Keep subject/finite placement distinct from
+article–noun order: `Jeg læser avis en` must not become a known G005 placement failure merely
+because its noun bundle is scrambled. Verify the narrowly modeled placement where supported,
+otherwise retain uncertainty; canonical-task mismatch is a separate constraint. Supplied
+articles do not test G006 gender knowledge.
+
+Proposed summary identities distinguish G004's bounded three-verb scope with `selection` and
+`recall`, and G005's bounded subject-first scope with `constituent-order` and `word-order`.
+These are proposed correlations, not allocated identifiers or changes to old keys. Retain
+first/latest unknowns, retry/support counts and advanced-but-unevaluable outcomes.
+
+Persist required teaching before display/assessment. Separate form, grammar-pattern and
+exact-proposition/order exposure: S05 choices expose forms used later in recall; S06 banks
+supply components without necessarily showing completed order. Corrections showing a solution
+record its exact-order exposure even when language diagnosis remains unknown. Changed
+disclosure semantics require a new exposure policy. Cross-run experience remains unknown;
+support preserves drafts. No targeted review, score lock or automatic next-run creation.
+
+#### Inspected reuse and implementation dependencies
+
+- [E001](../../engine/src/main/kotlin/app/astrid/engine/PilotEngine.kt) already contrasts only
+  infinitive/present. Its shared 99-sentence pool and the five-verb profile are broader than S05.
+- [ModuleOneExercises](../../engine/src/main/kotlin/app/astrid/engine/ModuleOneExercises.kt)
+  identifies verbs through L010 in both grading and exposure-key construction. Add explicit
+  assessment-kind handling; new verbs must never enter pronoun grading or subject-form keys.
+- [Content validation](../../engine/src/main/kotlin/app/astrid/engine/PilotContentSnapshot.kt)
+  permits only sleep in C001. Add work only in a future revision; preserve old licensing/pools.
+- [Target keys](../../engine/src/main/kotlin/app/astrid/engine/PracticeModels.kt) currently
+  have no G005 operation modes. Add only the selected scope/mode correlations.
+- [Ordering routes](../../server/src/main/kotlin/app/astrid/server/exercises/ExerciseRoutes.kt)
+  distinguish complete E003 blocks from valid E012 subsets.
+  [Tile grading](../../engine/src/main/kotlin/app/astrid/engine/TileExercises.kt) retains
+  uncertainty for unsupported orders; neither supplies the proposed completion policy.
+- Rendering supports tiles, but guided [answer dispatch](../../web/src/pages/practice/practiceOperations.ts)
+  and [readiness](../../web/src/pages/practice/ActivePractice.tsx) currently recognize E003
+  ordering only. Guided word tiles need transport, readiness, feedback and recovery integration.
+
+If selected later: finalize content/outcomes; add four scoped operations reusing existing
+choice/text/block/tile machinery with new-revision data; integrate closed API correlations,
+fingerprints and pinned plans/policies; extend the support/outbox/summary shell; independently
+review and release. Follow the [compatibility procedure](../../.claude/docs/compatibility.md),
+including retaining the pair-eight review renderer before CURRENT moves and freezing any
+subsequently published boundary first. No SQL migration is expected for two six-item JSON-backed
+plans; verify persisted readers and rollback compatibility before deciding.
+
+Acceptance: independent literal twelve-activity oracles; infinitive/present, case, shape,
+unknown and malformed boundaries; all complete order permutations and valid partial tile
+selections; exact support/correction exposure; distinct summary modes; latest-attempt,
+teaching and retry/advance races; exact replay; unchanged archives; Docker-backed repository
+gates and both-browser keyboard, language, accessibility and enlarged-text checks.
+Q27/Q28, vocabulary quotas, specialist approval and broader course activation remain separate.

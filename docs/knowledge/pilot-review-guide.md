@@ -90,7 +90,11 @@ Check whether selecting targets feels useful and whether source exposure is unde
 
 Record the format, seed and index under “Generation controls.” Reusing those coordinates and revisions reproduces the exercise presentation; the API's persisted UUID is a separate identity. Change the index or use “Next exercise” to sample variation. The finite pools contain 99 sentences for present/order and 92 for articles, while E007/E008 each cycle through three selected senses and E011 cycles through four. Matching reuses those four E011 senses with independently shuffled columns; occasional correctly aligned rows are possible. Long-term variety needs more reviewed content.
 
-For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-7.md`. Retained revision six is available with `:engine:exportPilotSixReview` at `engine/build/review/pilot-6.md`; revision five with `:engine:exportPilotFiveReview` at `engine/build/review/pilot-5.md`; revision four with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
+The [first-step inventory](practice-variation-audit.md#first-step-finite-inventory--10-november-2026)
+separately records the bounded one-person, group and `er` sequences. A new seed does not guarantee
+new content; the required teaching and answer banks make later recall potentially supported.
+
+For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-8.md`. Retained revision seven is available with `:engine:exportPilotSevenReview` at `engine/build/review/pilot-7.md`; revision six is available with `:engine:exportPilotSixReview` at `engine/build/review/pilot-6.md`; revision five with `:engine:exportPilotFiveReview` at `engine/build/review/pilot-5.md`; revision four with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
 
 ## Record feedback
 

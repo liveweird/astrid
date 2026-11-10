@@ -40,3 +40,52 @@ cmp docs/knowledge/data/practice-variation-audit.json "$practice_audit_dir/resul
 The final JSON SHA-256 is `5b7fb9d999bbd612c7f29e42bea840a09edd078fc588020df8d4da5acaa6ede0`. Repeated runs are byte-identical. This archived method is an analysis artifact, not an additional runtime dependency or automatically enforced CI gate.
 
 The broader [pilot inventory](pilot-variation-audit.md) and [session contract](practice-sessions.md) explain the current boundary. Enlarging meaningful variation requires a separately reviewed plan/content change; this audit does not activate more vocabulary, grammar or adaptive scheduling.
+
+
+## First-step finite inventory — 10 November 2026
+
+**Observed static engineering inventory of released 0.9.0, not a sampled learning study.**
+The earlier `practice-1` measurement and its frozen Java/JSON artifacts above are unchanged.
+This section inspects the literally pinned pair-eight first-step planner and task definitions;
+it does not extend the 294-plan bound to other profiles or count new clause constructions.
+
+A sequence here is the ordered list of `(format, authored task identity)` for a profile.
+It excludes seed/index/request identities and initial choice ordering. Direct inspection of
+[the planner](../../engine/src/main/kotlin/app/astrid/engine/ModuleOnePracticePlanner.kt)
+gives these complete finite bounds:
+
+| Profile | Items/run | Distinct ordered task sequences | Reachable task identities across seeds | Assessed answer forms |
+| --- | ---: | ---: | ---: | --- |
+| One person | 6 | 4 | 8 | `jeg`, `du`, `han`, `hun` |
+| Groups | 6 | 1 | 6 | `vi`, `I`, `de` |
+| Present `er` | 6 | 4 | 10 | `er` |
+
+One-person selection always covers its four forms in that order. Recall takes two adjacent
+forms from the four-item cyclic rotation: `jeg/du`, `du/han`, `han/hun`, or `hun/jeg`.
+Groups always select then recall `vi/I/de` in that order. The `er` profile has two selections
+and four recalls: even seeds select book/first-person identity, odd seeds letter/second-person
+identity; recall always includes book/letter and two adjacent teacher frames. Parity and
+rotation both derive from `seed mod 4`, so they do not multiply into eight sequences.
+
+Across the profiles, the union is **24 task identities and eight expected forms**. Within
+`er`, ten task identities cover eight supplied frames, because book/letter occur in both
+operations. The four teacher frames occur only in recall; the two identity frames only in
+selection. The [standalone task catalogue](../../engine/src/main/kotlin/app/astrid/engine/ModuleOneExercises.kt)
+has 30 identities: seven each for E016/E017, eight each for E018/E019. Six standalone identities
+are not reached by these plans. Task counts distinguish operations and authored contexts;
+they are not counts of different complete Danish sentences or meanings.
+
+Generation maps `(seed,index)` to the finite task list with `floorMod(31*seed + 17*index, size)`.
+The planner scans indices `0..31` and chooses the first task matching the requested form/frame.
+Choice banks contain the same scope-specific alternatives; the generator preserves or reverses
+them using seed/index parity. A different seed or reproduction identity therefore does not by itself guarantee a new
+task or bank order, or establish unseen linguistic transfer. Presentation counts are
+not measured here. Changed people in English contexts can still request the same Danish form.
+
+All three profiles require saved teaching. It displays their assessed forms before recall;
+selection banks and canonical corrections can disclose them again. Group entry supplies the
+sleep verb; `er` entry supplies infinitive/present, identifying `det`, and noun/article bundles.
+The stored keys record **possible prior exposure**, not proof that a learner read, retained
+or independently produced a form. Recognition and recall outcomes remain separate. No new
+content, sampling weights, adaptive scheduler or repetition guarantee is introduced by this
+audit. Broader meaningful variation requires a separately selected plan/content revision.

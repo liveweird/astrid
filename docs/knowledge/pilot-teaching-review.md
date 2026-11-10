@@ -2,43 +2,206 @@
 
 ## Status and boundary
 
-This is a **proposed review process**, not a user-approved rubric, an arranged specialist engagement, or evidence that the content is approved. It covers the existing private beginner pilot only. It does not activate corrections, expand the curriculum, set a pass threshold, make a CEFR commitment, or establish learning efficacy.
+This is a **proposed review process**, not a user-approved rubric, an arranged specialist
+engagement, or evidence that a specialist has reviewed or approved the content. It covers the
+released private beginner preview at app **0.9.0**, content `pilot-8`, generator `generator-8`
+and evaluation `evaluation-8`. Its language state remains `draft-not-teacher-reviewed`.
 
-Software checks have already exercised IDs, deterministic generation, prerequisite references, and the bounded inventory. Those checks cannot decide whether the Danish is natural, whether the explanations are pedagogically appropriate, or whether learners understand and transfer the material. See the distinction recorded in the [beginner slice](beginner-slice-spec.md#initial-draft-review-and-checks) and [beginner outcome reference](beginner-outcome-reference.md#what-the-pilot-currently-demonstrates).
+The current bounded inventory is 25 lexical records, 109 complete licensed clauses and nineteen
+standalone exercise formats. It also includes three independent six-activity **Module 1: First
+steps** profiles. This handoff does not activate corrections, expand the curriculum, set a pass
+threshold, make a CEFR commitment, establish mastery, or demonstrate learning efficacy.
 
-## Prepare the review packet
+Software and source checks cover identifiers, deterministic generation, references, frozen
+compatibility and bounded inventories. They cannot decide whether Danish is natural, explanations
+are suitable for complete beginners, feedback is helpful, or learners understand and transfer the
+material. See the [beginner slice](beginner-slice-spec.md#initial-draft-review-and-checks),
+[beginner outcome reference](beginner-outcome-reference.md#what-the-pilot-currently-demonstrates)
+and [first-step activation contract](module-one-activation.md).
 
-- From the repository root, run `./gradlew :engine:exportPilotReview`. Record the command result and identify the revisions printed at the top of `engine/build/review/pilot-5.md`; the current expected identifiers are content `pilot-5` and generator `generator-5`, with review state `draft-not-teacher-reviewed`.
-- Give the specialist that generated report together with the [vocabulary seed and choice-only addition](danish-vocabulary-seed.md), [beginner-slice specification](beginner-slice-spec.md), and [variation audit](pilot-variation-audit.md). The export is the item-by-item review surface; the linked documents explain intended senses, constraints, targets, and observed distribution.
-- Confirm all 24 lexical records and 99 canonical sentences. The export contains bounded prompt examples, including all four E011 senses and tile examples; it does **not** contain complete instructions, context, lessons, hints or feedback. Include access to the matching private preview and the [live review guide](pilot-review-guide.md). At fixed seed `20261107`, inspect indices 0–98 for E001/E003/E004/E005 and 0–91 for E002/E006 to traverse each grammar cycle. Inspect indices 0–2 for each of E007/E008 to cover their three selected vocabulary senses. Inspect E011 indices 0–3 for all four meanings and E012/E013 indices 0–98 for all tile propositions, including short two-word statements, finite/infinitive selection, incomplete banks and licensed fronting. Capture the visible teaching unit and relevant correct, off-target and unsupported-answer feedback with its revisions/coordinates. Do not approve uninspected prompt contexts from canonical sentences alone. Use the audit’s counts to notice imbalance, not as a teaching-balance target.
+## Prepare the current review packet
+
+- From the repository root, run `./gradlew :engine:exportPilotReview`. The current output is
+  `engine/build/review/pilot-8.md`; confirm its header says content `pilot-8`, generator
+  `generator-8` and review state `draft-not-teacher-reviewed`. Record the exact source commit,
+  application version and command result with the review.
+- Give the reviewer that export together with the [vocabulary seed](danish-vocabulary-seed.md),
+  [Module 1 language pack](module-one-language-pack.md), [beginner-slice specification](beginner-slice-spec.md),
+  [first-step activation contract](module-one-activation.md), [variation audit](pilot-variation-audit.md),
+  [first-step finite inventory](practice-variation-audit.md#first-step-finite-inventory--10-november-2026)
+  and [live review guide](pilot-review-guide.md). The export is an inventory and reproducible
+  source-review surface; the contracts explain intended senses, teaching, scope and behavior.
+- Review the matching private preview as part of the packet. The export includes the complete
+  lexical and clause inventories, deterministic prompt samples, the fuller format-specific
+  inventories listed below, all three mandatory profile introductions and all thirty authored
+  first-step tasks. It does **not** render every field exactly as the learner sees it or enumerate
+  every evaluation result, feedback card, retry state, saved exposure state, summary or
+  continuation decision. Do not approve an uninspected visible teaching unit from an export row.
+- Capture every finding with its exact format, revision pair, seed/index or practice-session URL
+  and position, visible context and answer. For a UI finding also record which introduction,
+  lesson or hint had been opened, the displayed feedback, latest saved result, `canAdvance`
+  behavior and summary state.
+
+### What the current export covers
+
+| Review surface | Current exported coverage |
+| --- | --- |
+| Lexicon and clauses | All 25 lexical records and all 109 complete licensed clauses |
+| Reproducible examples | Two seed-47 prompt summaries for each E001–E019 |
+| E009 writing | 99 complete cue/reference/hint units |
+| E010 reading | 24 complete passages, questions, choice sets and private answers |
+| E011 word choice | All four selected meanings, choices and answers |
+| E012/E013 tiles | 99 units per format, including licensed orders and distractors |
+| E014 matching | Four boards and their private correspondences |
+| E015 two gaps | 92 units with displayed slots and private expected choices |
+| First-step profiles | All three full required introductions and pinned policy metadata |
+| E016–E019 | All 30 standalone authored tasks: 7 E016, 7 E017, 8 E018 and 8 E019 |
+
+For standalone first-step traversal at fixed seed `47`, use indices `0..6` for each
+E016/E017 with G003, and `0..7` for each E018/E019 with G004. Each range traverses its
+complete finite task cycle; record the resulting authored task and visible teaching unit.
+Profile traversal is separate and still requires the sequence coverage below.
+
+The three profiles each plan six activities. Across seeds they reach 24 distinct authored task
+identities: eight in one-person practice, six in group practice and ten in `er` practice. Six of
+the thirty standalone identities are not selected by those plans. Review both surfaces: all
+thirty tasks remain independently generatable, while the profile review must cover every one of
+the 24 reachable identities and each complete ordered sequence (four one-person sequences, one
+group sequence and four `er` sequences). These counts identify authored operations and contexts,
+not thirty different Danish meanings or evidence of unseen transfer.
 
 ## Specialist checklist
 
-For each lexical entry, judge the selected Danish form and sense, English gloss, gender/article where applicable, usage constraint, and suitability for an English-speaking complete beginner. Flag misleading exclusions, ambiguous reference—especially pronouns—and cases where an introduction or gloss would encourage the wrong generalization.
+For each lexical entry, judge the selected Danish form and sense, English gloss, gender/article
+where applicable, usage constraint and suitability for an English-speaking complete beginner.
+Flag misleading exclusions, ambiguous reference—especially pronouns—and any introduction or
+gloss likely to encourage the wrong generalization.
 
-For each of the 99 sentences, judge grammaticality, idiomatic naturalness in the stated everyday sense, semantic plausibility, and whether the prompt supplies enough context for pronoun reference or `Det er …`. Check that the allowlists remain suitably narrow without implying that excluded Danish is ungrammatical.
+For each of the 109 clauses, judge grammaticality, idiomatic naturalness in the stated everyday
+sense, semantic plausibility and whether the context adequately establishes pronoun reference,
+fixed identifying `Det er …`, names and bare occupation complements. Check that allowlists stay
+suitably narrow without implying excluded Danish is ungrammatical.
 
-For each format, inspect instructions, prompt, choices or blocks, introduction, hint, expected response, and feedback as one teaching unit:
+For each format, inspect instruction, context, prompt, cue/gloss, choices or blocks, required or
+optional introduction, lesson, hint, expected response, accepted alternatives and visible
+feedback as one teaching unit. Review correct, known-wrong, off-target, response-shape and
+unsupported answers rather than only the answer key. In particular:
 
-- **E001:** Does it isolate finite-present recognition while keeping the lemma, meaning, and surrounding sentence supported?
-- **E002:** Does it isolate the introduced noun’s unstressed indefinite article without confusing it with numeral `en/én` or `et/ét`?
-- **E003:** Does it clearly request subject-first order while keeping the noun phrase intact and acknowledging grammatical fronting as acceptable Danish but off target?
+- **E001–E003:** finite-present recognition, unstressed indefinite article, and requested
+  subject-first order must remain isolated without teaching the infinitive, numeral `en/én` or
+  `et/ét`, or valid Danish fronting as globally wrong.
+- **E004–E006:** named-verb one-word recall, single-word verb repair and article repair must keep
+  their narrow response and licensed-alternative diagnoses.
+- **E007–E008:** review the selected meaning relationships, noun-only recall, optional answer
+  disclosure and separate headword/response-constraint feedback.
+- **E009–E010:** inspect every writing cue/reference/hint and every passage/question/distractor;
+  check pronoun number/reference, meaning preservation, fronted alternatives and participant/action
+  binding. Supported reading or writing is not a proficiency judgment.
+- **E011–E014:** review the four selected senses, article+noun bundles, optional mappings, tile
+  references, licensed orders, distractors and per-pair matching feedback. Incomplete banks and
+  finite/infinitive selection must not collapse meaning, grammar and response shape.
+- **E015:** review all verb/article combinations and per-slot feedback, including one correct and
+  one wrong or missing slot. Primary verb and supporting article outcomes must remain separate.
+- **E016–E019:** apply the Module 1 checklist below in addition to reviewing the standalone entry.
 
-Across all formats, ask whether G001–G003 support G004–G006 in a sensible prerequisite order; whether answer disclosure is intentional, proportionate, optional and recorded as supported practice; whether examples, English meanings, and hints are accurate and proportionate; and whether feedback distinguishes **target not met** from **linguistically acceptable**. Current lessons and hints intentionally reveal answers; that alone is not a defect or evidence of independent performance. Use the worked off-target cases in the [slice specification](beginner-slice-spec.md#concrete-worked-cases) as explicit review cases. Include the selected [recall/repair extension](exercise-extension-proposal.md): review named-verb constraints, single-word corruptions and the narrow licensed-alternative diagnosis. Include the [vocabulary contract](vocabulary-assessment.md): selected English senses, related choices, noun-only recall, optional disclosure, and separate headword/response-constraint feedback require review.
+Across all formats, ask whether prerequisites are introduced in a sensible order, whether answer
+disclosure is intentional and recorded as supported practice, whether English meanings and hints
+are proportionate, and whether feedback separates **target not met**, **known form/shape issue**,
+**linguistically acceptable**, and **unknown**. A revealed answer, passing automated check or
+completed activity is not independent performance or mastery.
+
+## Module 1: First steps review checklist
+
+Review each of the three profiles both by direct entry and in the recommended sequence. For every
+profile and reachable task:
+
+- Confirm the complete required introduction appears and is saved before assessment. Check the
+  full foundation teaching: written word versus complete statement, `æ/ø/å` entry, roles in
+  `Jeg er Anna.`, subject/pronoun terminology, sentence meaning and standalone capitalization.
+  For groups also check `vi/I/de/du`, plural reference and supplied `sover`; for `er` also check
+  noun/article bundles, `at være → er`, fixed `det`, bare `lærer`, names and what is not assessed.
+- Read the actual learner-facing instruction, English situation, cue, Danish frame, gloss,
+  choices/input label, lesson and hint together. Check that speaker, addressee or referent is
+  explicit; E016 selection and E017 recall use deliberately changed English situations; capital
+  `I` is taught without misdiagnosing lowercase `i`; and `de`/`De` feedback does not invent
+  formal-address meaning or a wrong person.
+- For E018/E019, inspect book, letter, four teacher and two identity frames across standalone
+  tasks. In the profiles, cover both book/letter selection parity, both identity selections,
+  book/letter recall and all four rotating teacher recalls. Confirm only `er` is assessed and the
+  supplied article, noun, subject, name or profession is not silently scored. Assess whether the
+  intentional book/letter context overlap between E018 selection and E019 recall, followed by the
+  identity/teacher context and operation transition, forms a clear and useful teaching sequence.
+- Exercise correct, related-wrong, casing-only, multiword, blank and unsupported responses.
+  Inspect the actual UI feedback and completed sentence, not only export metadata. Unknown latest
+  answers must keep support/retry available and block Continue; a revision-defined known
+  form/shape issue may continue without becoming a success. A newer unknown must supersede an
+  earlier eligible result.
+- On the summary, keep the six scoped identities separate: singular/group/`er` ×
+  selection/recall. Check first versus latest outcomes, earlier teaching/support exposure and
+  completion wording. Completion means six completion-eligible saved activities after required
+  teaching; it does not mean all of G003/G004, mastery, retention or independent recall.
+- Check **Repeat this session** and the suggested **Next** chooser boundary. The next profile must
+  not be created silently. First-step profiles have no target-selection review and must not fall
+  back to an older follow-up planner; leaving or cancelling must retain the completed run.
+
+The profile export records full required introductions, exposure keys, scopes and completion
+policy IDs, and the authored-task table records contexts and teaching metadata. The live UI/API
+state is still required to review saved teaching enforcement, actual feedback, first/latest
+summary prose, continuation eligibility, recovery and repeat/next behavior.
 
 ## Record issues and outcomes
 
-Use stable IDs such as `DTR-001`. Each record should include export revisions, lexical/canonical/format IDs, exact seed and index when applicable, the visible reproducer, affected field, severity (`blocking`, `substantive`, or `editorial`), teaching rationale, proposed correction, reviewer, date, and status (`open`, `needs-discussion`, `accepted-for-correction`, `rejected`, or `verified`). Severity labels organize follow-up; they are not learner-performance thresholds.
+Use stable IDs such as `DTR-001`. Each record should include application/source version, export
+revisions, lexical/clause/task/format IDs, seed/index or session position, visible reproducer,
+affected field, severity (`blocking`, `substantive`, or `editorial`), teaching rationale, proposed
+correction, reviewer, date and status (`open`, `needs-discussion`, `accepted-for-correction`,
+`rejected`, or `verified`). Severity organizes follow-up; it is not a learner threshold.
 
-Approval must be explicit and scoped: record separately whether the reviewer accepts the lexical inventory, sentence inventory, each format’s teaching treatment, and any exceptions. Silence, corrected software, or “no engineering defect” is not teaching approval.
+Approval must be explicit and scoped. Record separately whether the reviewer accepts the lexical
+inventory, clause inventory, each format's teaching treatment, each first-step profile's required
+teaching and reachable tasks, and any exceptions. Silence, corrected software, source checking or
+“no engineering defect” is not teaching approval. Specialist review also does not establish CEFR
+level, comprehensibility, transfer, retention or efficacy; those require appropriately designed
+learner evidence.
 
-Published snapshots and all **335 archived `pilot-1/generator-1` outputs and their provenance remain immutable**. Apply accepted corrections to new authored revisions and separate fixtures; preserve original stored attempt responses and replay them before revision checks. Content, prompt, support or sampling changes require appropriate new content/generator revisions. Grading changes also require an evaluation revision and an explicit decision to retire affected old instances or retain their original evaluator; a version number alone is insufficient. Follow the [revision policy](exercise-extension-proposal.md#revision-decision-before-release), regenerate the review packet, link issues to new reproducers, and obtain specialist verification before changing review status. Learning comprehensibility and transfer still require learner trials; specialist approval alone does not establish efficacy.
+## Corrections, revisions and retained history
 
+Published instances must remain readable, replayable and regradable under their retained revision
+semantics. Never delete a snapshot, plan, review export or evaluator branch that stored data still
+references, and never edit, regenerate or reformat a frozen fixture or provenance file. In
+particular, the original 335 `pilot-1/generator-1` outputs and provenance remain immutable, as do
+every later published golden/provenance file. This compatibility requirement does not define how
+long user data must be retained; user-data retention policy is outside this handoff.
 
-## Writing and reading extension review
+Apply an accepted content, prompt, teaching, support or sampling correction only in a new authored
+content/generator or plan revision as applicable. A grading change also needs a new evaluation
+revision; the old evaluator remains executable for its published pair. Preserve original attempt
+responses and replay semantics, add new evidence rather than altering old fixtures, regenerate the
+new review packet, link issues to new reproducers, and obtain explicit specialist verification
+before changing review state. Follow the binding [compatibility policy](../../.claude/docs/compatibility.md)
+and the relevant implementation contract.
 
-The selected standalone extension adds E009 sentence writing over the same 99 licensed statements and E010 short-text comprehension over 24 three-fact units. Inspect the complete unit: English cue/context, optional language reference, hints, expected sentence and bounded known/unknown/meaning/shape feedback for writing; every passage, question, choice, correct relation and distractor for reading. Check English cue naturalness, pronoun number/reference, lexical senses, fair grammar isolation and accepted fronted alternatives. Three nouns each occur once in reading; participant/action binding must identify exactly one stated answer. Use the [implementation contract](writing-reading-contract.md) for worked cases and the generator's fixed seed/index coordinates. The pilot-four export and live UI support review; earlier published review snapshots remain available under their retained export tasks. Review status remains draft.
+## Historical extension packets and boundaries
 
-## Word-choice and tile extension review
+Retained exports are historical review surfaces, not the current packet and not evidence of
+approval. Use `exportPilotSevenReview`, `exportPilotSixReview`, `exportPilotFiveReview`,
+`exportPilotFourReview`, `exportPilotThreeReview`, `exportPilotTwoReview` and
+`exportLegacyPilotReview` for `pilot-7.md` through `pilot-1.md` when reviewing what a published
+revision actually contained. Do not infer later fields or tasks into those packets.
 
-The [pair-five contract](word-choice-tiles-contract.md) adds the choice-only printed-magazine sense and individual-word translation with all/spare tiles. Review the four cues and their related article+noun alternatives for distinct selected senses. Examine all optional mappings as recorded answer-revealing support, and tile references without preassembled sentence order. Check separate meaning, grammar and shape outcomes, especially incomplete selections and E013 finite fronting. The 99 sentence allowlists remain unchanged. Use `exportPilotFourReview` for the retained pre-extension packet; neither packet establishes teaching approval.
+- Pair four introduced E009 sentence writing over the retained 99-clause pool and E010 reading
+  over 24 three-fact units. Its review boundary includes complete cues, references, hints,
+  passages, questions, distractors and bounded feedback.
+- Pair five introduced E011 word choice and E012/E013 tiles, including the choice-only printed
+  magazine sense, selected meanings, article+noun alternatives, tile references, licensed orders
+  and distractors.
+- Pair six introduced E014 four-pair bilingual matching; review individual correspondences,
+  incomplete/duplicate interaction states and per-pair versus whole-board feedback.
+- Pair seven introduced E015 present-verb/supporting-article gaps over 92 units; review each slot
+  independently and the combined response. The separate guided-gap profile remains literally
+  pinned to pair seven.
+- Pair eight introduced E016–E019, ten additional C004 clauses, L025 and the three first-step
+  plans described above. Older plans and follow-ups remain pinned to their published pairs.
+
+Historical exports, compatibility archives and automated source review preserve evidence; none
+of them changes `draft-not-teacher-reviewed` into specialist approval.
