@@ -93,3 +93,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Multiple-gap exercises](multiple-gap-contract.md): delivered two-gap 0.7.0 release, primary/supporting grammar evidence, compatibility, actual backup restore and verified preview promotion.
 
 - [Guided multiple-gap practice](guided-gap-practice.md): delivered 0.8.0 four-item session, separate slot evidence, selected-only reviews and verified compatibility/promotion.
+
+- [Inanimate-reference activation](inanimate-reference-activation.md): selected S04 subject-reference session, supplied gender, scoped evidence and compatibility/release acceptance.

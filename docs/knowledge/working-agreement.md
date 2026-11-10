@@ -247,3 +247,8 @@ focused verified commits/pushes and a clear handoff by that time. This is a new 
 separate from the completed 0.7.0 cutoff. The additional review/planning queue is an assistant
 proposal within the existing product direction; it does not select another runtime feature,
 full-course activation or operating-system power action.
+
+
+## S04 inanimate-reference activation
+
+**10 November 2026 — Confirmed:** the user selected “S04: referring to things with den and det” after the recommendation to implement four activities with supplied noun gender, required teaching and separate selection/recall results. Implement BL-053 under the [activation contract](inanimate-reference-activation.md). Preserve published generators, grading, saved runs and owner-bound replay; add S03→S04 continuation, with no S05 link. Standing independently reviewed, verified focused commit/merge/push, versioned release and backed-up app-only preview delivery apply. App 0.10.0 and learning pair nine are implementation defaults. S05–S06, broader grammar activation and the separate WebKit/JVM investigation remain unselected; no overnight or power-management action is implied.

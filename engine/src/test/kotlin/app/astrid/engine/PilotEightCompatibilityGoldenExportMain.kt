@@ -16,10 +16,7 @@ object PilotEightCompatibilityGoldenExportMain {
 }
 
 internal fun publishedPairEightReviewBytes(): ByteArray {
-    require(PilotContent.currentSnapshot.contentRevision == "pilot-8") {
-        "Pair-eight review rendering must be rewired to a retained snapshot before CURRENT advances"
-    }
-    return PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
+    return PilotReview.renderPilotEightMarkdown().toByteArray(Charsets.UTF_8)
 }
 
 internal object PilotEightCompatibilityGolden {
@@ -236,8 +233,8 @@ internal object PilotEightCompatibilityGolden {
     }
 
     private fun requireLiteralPairEight() {
-        require(PilotContent.CURRENT_CONTENT_REVISION == CONTENT_REVISION)
-        require(PilotContent.CURRENT_GENERATOR_REVISION == GENERATOR_REVISION)
+        require(PilotContent.pilotEightSnapshot.contentRevision == CONTENT_REVISION)
+        require(PilotContent.pilotEightSnapshot.generatorRevision == GENERATOR_REVISION)
         require(engine.evaluationRevision(CONTENT_REVISION, GENERATOR_REVISION) == EVALUATION_REVISION)
     }
 

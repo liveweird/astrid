@@ -132,6 +132,8 @@ thing** separately. It closes the remaining bounded reference work in parent Top
 S05–S06 remain the following connected package. Four S04 activities are an authoring default,
 not an established optimal dose; do not pad two introduced forms to six near-identical tasks.
 
+**10 November 2026 — Runtime selection:** the user selected “S04: referring to things with den and det”. The [activation contract](inanimate-reference-activation.md) now governs implementation of this bounded session. S05–S06 remain unselected.
+
 ### Target and supplied knowledge
 
 Use **G038 / `inanimate-singular-subject`**, with separate selection and recall evidence.

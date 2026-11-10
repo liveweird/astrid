@@ -3,6 +3,8 @@ package app.astrid.engine
 object PilotReview {
     fun renderMarkdown(): String = renderSnapshot(PilotContent.currentSnapshot)
 
+    fun renderPilotEightMarkdown(): String = renderSnapshot(PilotContent.pilotEightSnapshot)
+
     fun renderPilotSevenMarkdown(): String = renderSnapshot(PilotContent.pilotSevenSnapshot)
 
     fun renderPilotSixMarkdown(): String = renderSnapshot(PilotContent.pilotSixSnapshot)
@@ -36,6 +38,7 @@ object PilotReview {
                     PilotContent.RETAINED_FIVE_CONTENT_REVISION,
                     PilotContent.RETAINED_SIX_CONTENT_REVISION,
                     PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
+                    PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
@@ -46,6 +49,7 @@ object PilotReview {
                     PilotContent.RETAINED_FIVE_CONTENT_REVISION,
                     PilotContent.RETAINED_SIX_CONTENT_REVISION,
                     PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
+                    PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
@@ -56,6 +60,7 @@ object PilotReview {
             if (snapshot.contentRevision in setOf(
                     PilotContent.RETAINED_SIX_CONTENT_REVISION,
                     PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
+                    PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) {
@@ -63,10 +68,15 @@ object PilotReview {
             }
             if (snapshot.contentRevision in setOf(
                     PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
+                    PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) appendGapInventory(snapshot)
-            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            if (snapshot.contentRevision in setOf(
+                    PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
+                    PilotContent.CURRENT_CONTENT_REVISION,
+                )
+            ) {
                 appendModuleOneProfileInventory()
                 appendModuleOneInventory()
             }
@@ -74,7 +84,11 @@ object PilotReview {
     }
 
     private fun reviewProvenance(snapshot: PilotContentSnapshot): String =
-        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+        if (snapshot.contentRevision in setOf(
+                PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
+                PilotContent.CURRENT_CONTENT_REVISION,
+            )
+        ) {
             "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
                 "docs/knowledge/module-one-language-pack.md (L024 packet) and " +
                 "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks; 2026-11-09)"
@@ -91,7 +105,11 @@ object PilotReview {
         }
 
     private fun sourceReview(snapshot: PilotContentSnapshot): String =
-        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+        if (snapshot.contentRevision in setOf(
+                PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
+                PilotContent.CURRENT_CONTENT_REVISION,
+            )
+        ) {
             "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
                 "2026-11-09 L025/C004/Module 1 source checks; see docs/knowledge/pilot-source-review.md, " +
                 "docs/knowledge/module-one-language-pack.md and docs/knowledge/module-one-activation.md"

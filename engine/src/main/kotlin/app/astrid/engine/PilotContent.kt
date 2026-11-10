@@ -33,6 +33,8 @@ internal object PilotContent {
     const val RETAINED_SIX_GENERATOR_REVISION = "generator-6"
     const val RETAINED_SEVEN_CONTENT_REVISION = "pilot-7"
     const val RETAINED_SEVEN_GENERATOR_REVISION = "generator-7"
+    const val RETAINED_EIGHT_CONTENT_REVISION = "pilot-8"
+    const val RETAINED_EIGHT_GENERATOR_REVISION = "generator-8"
     const val CURRENT_CONTENT_REVISION = "pilot-8"
     const val CURRENT_GENERATOR_REVISION = "generator-8"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
@@ -42,6 +44,7 @@ internal object PilotContent {
     const val RETAINED_FIVE_EVALUATION_REVISION = "evaluation-5"
     const val RETAINED_SIX_EVALUATION_REVISION = "evaluation-6"
     const val RETAINED_SEVEN_EVALUATION_REVISION = "evaluation-7"
+    const val RETAINED_EIGHT_EVALUATION_REVISION = "evaluation-8"
     const val CURRENT_EVALUATION_REVISION = "evaluation-8"
 
     val humanPronouns =
@@ -295,10 +298,10 @@ internal object PilotContent {
 
     val moduleOneSentences: List<Sentence> = buildModuleOneSentences()
 
-    val currentSnapshot =
+    val pilotEightSnapshot =
         pilotSevenSnapshot.copy(
-            contentRevision = CURRENT_CONTENT_REVISION,
-            generatorRevision = CURRENT_GENERATOR_REVISION,
+            contentRevision = RETAINED_EIGHT_CONTENT_REVISION,
+            generatorRevision = RETAINED_EIGHT_GENERATOR_REVISION,
             formats = moduleOneFormats,
             nouns = moduleOneNouns,
             sentences = sentences + moduleOneSentences,
@@ -312,6 +315,8 @@ internal object PilotContent {
             ),
         )
 
+    val currentSnapshot = pilotEightSnapshot
+
     init {
         PilotContentValidator.requireValid(snapshot)
         PilotContentValidator.requireValid(pilotTwoSnapshot)
@@ -320,6 +325,7 @@ internal object PilotContent {
         PilotContentValidator.requireValid(pilotFiveSnapshot)
         PilotContentValidator.requireValid(pilotSixSnapshot)
         PilotContentValidator.requireValid(pilotSevenSnapshot)
+        PilotContentValidator.requireValid(pilotEightSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

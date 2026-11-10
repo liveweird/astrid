@@ -21,6 +21,10 @@ listOf(
         "Writes the deterministic current pilot content review to engine/build/review/pilot-8.md",
     ),
     PilotReview(
+        "exportPilotEightReview", "pilot-8-retained.md", "--pilot-eight",
+        "Writes the retained pilot-8 content review to engine/build/review/pilot-8-retained.md",
+    ),
+    PilotReview(
         "exportPilotSevenReview", "pilot-7.md", "--pilot-seven",
         "Writes the retained pilot-7 content review to engine/build/review/pilot-7.md",
     ),
