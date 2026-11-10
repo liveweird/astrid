@@ -22,7 +22,7 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-5` / `generator-5` | `evaluation-5` | + E011 (Danish word choice), E012/E013 (all/spare word tiles) | published, frozen |
 | `pilot-6` / `generator-6` | `evaluation-6` | + E014 (four-pair vocabulary matching) | published, frozen |
 | `pilot-7` / `generator-7` | `evaluation-7` | + E015 (primary present-verb/supporting-article gaps) | published, frozen; guided-gap plans stay pinned here |
-| `pilot-8` / `generator-8` | `evaluation-8` | + E016–E019 (scoped subject-word and stored-present selection/recall) | CURRENT (catalog, new playground exercises); three first-step plans pin this pair |
+| `pilot-8` / `generator-8` | `evaluation-8` | + E016–E019 (scoped subject-word and stored-present selection/recall) | CURRENT, published and frozen; three first-step plans pin this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
@@ -63,6 +63,10 @@ Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 | `server/.../pilot-7-generator-7-wire.tsv` (3,134) | `PilotSevenWireCompatibilityTest` (SHA-256 pinned) | pair-seven public/private gap wire, attempt results and reproduction fingerprints |
 | `engine/.../guided-gap-practice-0.8.0.tsv` (21) | `GuidedGapPracticeCompatibilityTest` (SHA-256 pinned) | published guided-gap plans, seed boundaries, slot outcomes/exposure, first/latest unknowns and recursive reviews |
 | `server/.../guided-gap-practice-0.8.0-wire.tsv` (22) | `GuidedGapPracticeWireCompatibilityTest` (SHA-256 pinned) | initial/supported/attempted/completed guided wire, private plans, existing profile, request serialization and recursive review lineage |
+| `engine/.../pilot-8-generator-8-evaluation-8.tsv` (2,674) | `PilotEightCompatibilityGoldenTest` (SHA-256 pinned) | all nineteen format cycles/boundaries, all thirty first-step tasks, real private answer keys, grading boundaries and byte-exact review |
+| `server/.../pilot-8-generator-8-wire.tsv` (3,518) | `PilotEightWireCompatibilityTest` (SHA-256 pinned) | pair-eight public/private wire, grading/replay, nested fingerprint values and ordering |
+| `engine/.../module-one-practice-0.9.0.tsv` (23) | `ModuleOnePracticeCompatibilityTest` (SHA-256 pinned) | three first-step plans, teaching/policy/scoped outcomes, exposure, first/latest unknowns and completion eligibility |
+| `server/.../module-one-practice-0.9.0-wire.tsv` (100) | `ModuleOnePracticeWireCompatibilityTest` (SHA-256 pinned) | initial/supported/attempted/completed first-step wire, saved request/plan/context, eligibility and no review fallback |
 | `server/.../published-fingerprints.tsv` (978) | `PublishedFingerprintCompatibilityTest` (SHA-256 pinned) | original reproduction fingerprints of pilot-1/2 |
 
 Plus `PracticeWireCompatibilityTest` (legacy plan payload and practice item/response stay byte-stable when new optional fields are absent).
@@ -75,6 +79,11 @@ Published 0.8.0 guided practice was additionally frozen from unchanged baseline 
 before the selected first-steps implementation changed shared target/support/completion models.
 Its canonical projection lists legacy fields explicitly; adding omitted defaults must not change
 an archive through a data class's object representation.
+Pair eight and the three 0.9.0 first-step plans were frozen from released source `8913dea`,
+without production changes. Their projections include the real private answer key as well as
+inspector/task metadata. The test-source review adapter checks literal CURRENT pair eight and
+hashes actual review bytes. Before CURRENT moves, add the retained-eight renderer and rewire
+that adapter to it; keep the review hash, fixtures and provenance unchanged.
 
 Rules:
 
@@ -114,6 +123,8 @@ Rules:
 | `:engine:exportPilotSixCompatibility` / `:server:exportPilotSixWireCompatibility` | write **new** pair-six evidence and provenance only (refuse overwrite) |
 | `:engine:exportPilotSevenCompatibility` / `:server:exportPilotSevenWireCompatibility` | write **new** pair-seven evidence and provenance only (refuse overwrite) |
 | `:engine:exportGuidedGapPracticeCompatibility` / `:server:exportGuidedGapPracticeWireCompatibility` | add the published 0.8.0 practice archive and provenance only (refuse overwrite; existing files are immutable) |
+| `:engine:exportPilotEightCompatibility` / `:server:exportPilotEightWireCompatibility` | add published pair-eight evidence and provenance only (refuse overwrite) |
+| `:engine:exportModuleOnePracticeCompatibility` / `:server:exportModuleOnePracticeWireCompatibility` | add the published 0.9.0 first-step practice archives and provenance only (refuse overwrite) |
 | `:server:exportPilotThreeWireCompatibility` | writes a **new** wire fixture + provenance (refuses to overwrite) |
 
 Review exports are deterministic evidence for teaching review; they are not approval. The production engine does no file I/O.

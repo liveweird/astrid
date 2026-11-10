@@ -1,0 +1,10 @@
+baselineCommit=8913dea94a6c3bc0332f464e56952b9a126118a3
+captureDate=2026-11-10
+contentRevision=pilot-8
+generatorRevision=generator-8
+evaluationRevision=evaluation-8
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=2674
+fixtureSha256=2c7d1851cf84a71cfbecd04da0d332cb01b509904431e60a0646e89a9f058b48
+reviewSha256=341d0b1a798331397ec1c199ad86dbb17cbb02fd515a4574da472a23a6a488f0
+description=All inherited pair-eight format cycles and seed/index boundaries plus every authored E016-E019 task, private Module One source and exposure metadata, and canonical, known-wrong, case, normalization, blank, unknown, multiword and wrong-kind evaluations.

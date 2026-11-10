@@ -175,6 +175,50 @@ tasks.register<JavaExec>("exportGuidedGapPracticeCompatibility") {
     outputs.files(guidedGapPracticeCompatibilityFixture, guidedGapPracticeCompatibilityProvenance)
 }
 
+val pilotEightCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-8-generator-8-evaluation-8.tsv")
+val pilotEightCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-8-generator-8-evaluation-8.provenance")
+
+tasks.register<JavaExec>("exportPilotEightCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-8 engine generation and evaluation compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PilotEightCompatibilityGoldenExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                pilotEightCompatibilityFixture.asFile.absolutePath,
+                pilotEightCompatibilityProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(pilotEightCompatibilityFixture, pilotEightCompatibilityProvenance)
+}
+
+val moduleOnePracticeCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/module-one-practice-0.9.0.tsv")
+val moduleOnePracticeCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/module-one-practice-0.9.0.provenance")
+
+tasks.register<JavaExec>("exportModuleOnePracticeCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.9.0 Module One practice compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.ModuleOnePracticeCompatibilityExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                moduleOnePracticeCompatibilityFixture.asFile.absolutePath,
+                moduleOnePracticeCompatibilityProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(moduleOnePracticeCompatibilityFixture, moduleOnePracticeCompatibilityProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

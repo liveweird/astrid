@@ -47,6 +47,9 @@ Guard tests that must stay green and are never loosened to fit a change:
 - `GuidedGapPracticeCompatibilityTest` (engine) and `GuidedGapPracticeWireCompatibilityTest`
   (server) — published 0.8.0 guided plan, summary, exposure, request and recursive-review evidence;
   intentionally preserve existing profiles while allowing additive catalogue entries.
+- `PilotEightCompatibilityGoldenTest`, `PilotEightWireCompatibilityTest`,
+  `ModuleOnePracticeCompatibilityTest` and `ModuleOnePracticeWireCompatibilityTest` — pair-eight
+  private keys, review bytes, scoped teaching/exposure/outcomes, eligibility and exact wire.
 - `ServerConfigTest`, `DatabaseBootstrapTest` — env validation, bounded migration connect/login deadlines.
 
 ## Web (`web/`)

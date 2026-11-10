@@ -1,0 +1,11 @@
+baselineCommit=8913dea94a6c3bc0332f464e56952b9a126118a3
+releaseVersion=0.9.0
+captureDate=2026-11-10
+contentRevision=pilot-8
+generatorRevision=generator-8
+evaluationRevision=evaluation-8
+planRevisions=module-one-singular-1,module-one-groups-1,module-one-er-1
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=23
+fixtureSha256=cf4b90e8eadf468a3b475c363b98cf794d7c8f4e6018816b3ae7219e3a96bdd6
+description=All three published Module One plans at seeds 0, 1, 47 and Int.MAX_VALUE, full teaching and policy metadata, deterministic six-item scoped assessments, feedback exposure, first/latest non-success summaries and latest-unknown completion eligibility.

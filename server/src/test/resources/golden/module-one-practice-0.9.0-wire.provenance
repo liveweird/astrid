@@ -1,0 +1,12 @@
+baselineCommit=8913dea94a6c3bc0332f464e56952b9a126118a3
+releaseSourceCommit=8913dea94a6c3bc0332f464e56952b9a126118a3
+releaseVersion=0.9.0
+captureDate=2026-11-10
+planRevisions=module-one-singular-1,module-one-groups-1,module-one-er-1
+contentRevision=pilot-8
+generatorRevision=generator-8
+evaluationRevision=evaluation-8
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=100
+fixtureSha256=9f09be95bd8f3356e8e1cabbe9b3980829f001674157712454d4131730dba5ec
+description=Three six-item Module 1 plans at four seeds; exact profile/request/private-plan and public initial/introduction-required/supported/attempted/completed wire, first/latest outcomes, latest-unknown eligibility, frozen attempt exposure/context, and request/response replay. No follow-up fallback.
