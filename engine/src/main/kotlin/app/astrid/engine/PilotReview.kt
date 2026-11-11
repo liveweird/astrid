@@ -14,6 +14,8 @@ object PilotReview {
 
     fun renderPilotThirteenMarkdown(): String = renderSnapshot(PilotContent.pilotThirteenSnapshot)
 
+    fun renderPilotFourteenMarkdown(): String = renderSnapshot(PilotContent.pilotFourteenSnapshot)
+
     fun renderPilotEightMarkdown(): String = renderSnapshot(PilotContent.pilotEightSnapshot)
 
     fun renderPilotNineMarkdown(): String = renderSnapshot(PilotContent.pilotNineSnapshot)
@@ -70,18 +72,27 @@ object PilotReview {
         if (PilotReviewVersions.hasPresentOrder(snapshot)) appendPresentOrderInventory(snapshot)
         if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
             append(AbilityReviewRenderer.render(snapshot, REVIEW_SEED))
         }
-        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+        if (snapshot.contentRevision in setOf(
+                PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+                PilotContent.CURRENT_CONTENT_REVISION,
+            )
+        ) {
             append(ModalRoundReviewRenderer.render(snapshot, REVIEW_SEED))
+        }
+        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            CircumstanceReviewRenderer.appendTo(this, snapshot, REVIEW_SEED)
         }
         if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_ELEVEN_CONTENT_REVISION,
                 PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
                 PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -99,6 +110,7 @@ object PilotReview {
         val profiles = if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
                 PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -111,6 +123,7 @@ object PilotReview {
         }
         val reviewedProfiles = if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -118,16 +131,27 @@ object PilotReview {
         } else {
             profiles
         }
-        val allProfiles = if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+        val modalProfiles = if (snapshot.contentRevision in setOf(
+                PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+                PilotContent.CURRENT_CONTENT_REVISION,
+            )
+        ) {
             reviewedProfiles + ModalRoundContent.definitions.map { definition ->
                 definition.focusId to ModalRoundPracticePlanner.planRevision(definition)
             }
         } else {
             reviewedProfiles
         }
+        val allProfiles = if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            modalProfiles + (CircumstancePracticePlanner.FOCUS_ID to CircumstancePracticePlanner.PLAN_REVISION)
+        } else {
+            modalProfiles
+        }
         appendLine(
             when {
-                snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION -> "## S05–S11 required teaching"
+                snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION -> "## S05–S12 required teaching"
+                snapshot.contentRevision == PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION ->
+                    "## S05–S11 required teaching"
                 snapshot.contentRevision == PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION ->
                     "## S05–S10 required teaching"
                 allProfiles.size == retainedProfiles.size -> "## S05–S07 required teaching"
@@ -585,14 +609,19 @@ object PilotReview {
             PilotContent.RETAINED_ELEVEN_CONTENT_REVISION,
             PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
             PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
+            PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
             PilotContent.CURRENT_CONTENT_REVISION,
         )
         val includePersonal = snapshot.contentRevision in setOf(
             PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
             PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
+            PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
             PilotContent.CURRENT_CONTENT_REVISION,
         )
-        val includeModalConstruction = snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION
+        val includeModalConstruction = snapshot.contentRevision in setOf(
+            PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+            PilotContent.CURRENT_CONTENT_REVISION,
+        )
         listOf("E022", "E023", "E024", "E025").flatMap { formatId ->
             PresentOrderContent.tasks(formatId, includePossession, includePersonal, includeModalConstruction)
         }.forEach { task ->

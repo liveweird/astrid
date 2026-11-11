@@ -51,6 +51,12 @@ class PilotContentValidatorTest {
             recognition.id,
             "expected lexical task meaning/da-en",
         )
+        val circumstance = current.formats.single { it.id == "E029" }
+        assertIssue(
+            current.copy(formats = current.formats.replace(circumstance, circumstance.copy(targetSkillId = "G005"))),
+            circumstance.id,
+            "expected target G016",
+        )
     }
 
     @Test

@@ -257,6 +257,7 @@ private val SCOPED_FINGERPRINT_PAIRS = setOf(
     "pilot-12" to "generator-12",
     "pilot-13" to "generator-13",
     "pilot-14" to "generator-14",
+    "pilot-15" to "generator-15",
 )
 
 private fun scopedFingerprintFrame(
@@ -268,18 +269,25 @@ private fun scopedFingerprintFrame(
     "pilot-11" -> framedList(listOf("pair-eleven", canonical))
     "pilot-12" -> framedList(listOf("pair-twelve", canonical))
     "pilot-13" -> framedList(listOf("pair-thirteen", canonical))
-    "pilot-14" -> framedList(listOf(
-        "pair-fourteen",
-        canonical,
-        framedNullable(modalSource?.let { source ->
-            framedList(listOf(
-                source.taskId, source.modalEntryId, source.modalSenseId, source.expectedInterpretation,
-                source.frameVariantId, source.contextVariantId,
-            ))
-        }),
-    ))
+    "pilot-14" -> scopedFingerprintFrameWithModal("pair-fourteen", canonical, modalSource)
+    "pilot-15" -> scopedFingerprintFrameWithModal("pair-fifteen", canonical, modalSource)
     else -> canonical
 }
+
+private fun scopedFingerprintFrameWithModal(
+    label: String,
+    canonical: String,
+    modalSource: app.astrid.engine.ModalSourceDetails?,
+): String = framedList(listOf(
+    label,
+    canonical,
+    framedNullable(modalSource?.let { source ->
+        framedList(listOf(
+            source.taskId, source.modalEntryId, source.modalSenseId, source.expectedInterpretation,
+            source.frameVariantId, source.contextVariantId,
+        ))
+    }),
+))
 
 private fun pairThreeFingerprintCanonical(
     pairTwoCanonical: List<String>,

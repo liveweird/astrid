@@ -190,6 +190,33 @@ describe("ExercisePrompt present and order formats", () => {
     expect(onOrder).toHaveBeenCalledWith(["s"]);
   });
 
+  it("renders a final circumstance as one supplied constituent", async () => {
+    const onOrder = vi.fn();
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E029" as Exercise["formatId"], {
+              before: "", after: "", cue: "Jeg arbejder.",
+              cueLanguage: "da", answerLanguage: "da", choices: [], blocks: [
+                { id: "s", text: "jeg" }, { id: "v", text: "arbejder" }, { id: "c", text: "i dag" },
+              ],
+            }),
+            contentRevision: "pilot-15", generatorRevision: "generator-15",
+            targetSkillId: "G016", targetScopeId: "one-final-circumstance",
+          } as Exercise}
+          text="" order={[]} disabled={false} onText={vi.fn()} onOrder={onOrder}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("Jeg arbejder.", { exact: true })).toHaveAttribute("lang", "da");
+    expect(screen.getByRole("group", { name: "Available sentence parts" })).toHaveTextContent("jegarbejderi dag");
+    expect(screen.queryByText("Use every word tile.")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "i dag" }));
+    expect(onOrder).toHaveBeenCalledWith(["c"]);
+  });
+
   it("allows a proper subset of supplied word tiles to remain checkable", () => {
     render(
       <MantineProvider env="test">

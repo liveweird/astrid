@@ -71,9 +71,15 @@ const MODAL_ROUNDS = [
     focus: "module-one-permission", title: "Understanding permission", scope: "modal-permission-meaning",
     statement: "Du må læse et brev.", form: "at måtte → må", example: "Han må læse en avis.",
     correct: MODAL_CHOICES[2], wrong: MODAL_CHOICES[0], order: ["hun", "må", "læse", "en", "bog"],
-    next: null, orderVariant: "canonical",
+    next: "Adding when and where", orderVariant: "canonical",
   },
 ] as const;
+const CIRCUMSTANCE_ORDERS = {
+  "Jeg arbejder.": { context: "Supplied clause: I work. Supplied circumstance: today.", canonical: ["jeg", "arbejder", "i dag"] },
+  "Hun læser et brev.": { context: "Supplied clause: She reads a letter. Supplied circumstance: now.", canonical: ["hun", "læser", "et brev", "nu"] },
+  "Vi arbejder.": { context: "Supplied clause: We work. Supplied circumstance: in Aarhus.", canonical: ["vi", "arbejder", "i Aarhus"] },
+  "De læser en avis.": { context: "Supplied clause: They read a newspaper. Supplied circumstance: today.", canonical: ["de", "læser", "en avis", "i dag"] },
+} as const;
 const SUBJECT_FIRST_ORDERS: Record<string, string[]> = {
   "We work.": ["vi", "arbejder"],
   "You sleep.": ["du", "sover"],
@@ -143,6 +149,27 @@ async function submitModalOrder(page: Page, exercise: CourseExercise, words: rea
   await page.getByRole("button", { name: "Check answer", exact: true }).click();
   await expect(page.getByRole("status")).toBeFocused();
   expect(exercise.formatId).toBe("E025");
+}
+async function chooseCircumstanceOrder(page: Page, exercise: CourseExercise, parts: readonly string[]) {
+  expect(exercise.formatId).toBe("E029");
+  const available = page.getByRole("group", { name: "Available sentence parts", exact: true });
+  for (const part of parts) await available.getByRole("button", { name: part, exact: true }).press("Enter");
+}
+async function submitCircumstanceOrder(page: Page, exercise: CourseExercise, parts: readonly string[]) {
+  await chooseCircumstanceOrder(page, exercise, parts);
+  await page.getByRole("button", { name: "Check answer", exact: true }).click();
+  await expect(page.getByRole("status")).toBeFocused();
+}
+async function clearChosenOrder(page: Page) {
+  const chosen = page.getByLabel("Your sentence", { exact: true }).getByRole("button");
+  while (await chosen.count()) await chosen.first().click();
+}
+async function expectChosenOrder(page: Page, parts: readonly string[]) {
+  for (const [position, part] of parts.entries()) {
+    await expect(page.getByRole("button", {
+      name: `Remove ${part} from position ${position + 1}`, exact: true,
+    })).toBeVisible();
+  }
 }
 async function openCourse(page: Page, title: string, enlarged = false) {
   await page.goto("/practice");
@@ -772,6 +799,195 @@ for (const round of MODAL_ROUNDS) {
   });
 }
 
+test("final circumstances retain clause-core and requested-end evidence", async ({ page }) => {
+  let state = await openCourse(page, "Adding when and where");
+  expect(state).toMatchObject({
+    focusId: "module-one-circumstances", planRevision: "module-one-circumstances-1",
+    contentRevision: "pilot-15", generatorRevision: "generator-15",
+    introductionRequired: true, introductionOpened: false, itemCount: 4,
+    prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  });
+  expect(state.items.every((item) => item.targetScopeId === "one-final-circumstance")).toBe(true);
+  expect(state.items.every((item) => item.assessmentMode === "constituent-order")).toBe(true);
+  const early = await page.request.post("/api/v1/attempts", {
+    headers: { "X-Astrid-Client": "playground" },
+    data: {
+      attemptId: crypto.randomUUID(), exerciseId: state.currentExercise!.id,
+      answer: { kind: "order", blockIds: [] }, hintUsed: false,
+    },
+  });
+  expect(early.status()).toBe(409);
+  expect((await stateFor(page)).summary.attemptCount).toBe(0);
+
+  state = await beginCourse(page);
+  const introduction = page.getByRole("region", { name: "Session introduction", exact: true });
+  await expect(introduction.getByText(
+    "Keep the supplied clause core in its original order and add the supplied time or place circumstance at the end.",
+    { exact: true },
+  )).toBeVisible();
+  for (const form of ["i dag", "nu", "i Aarhus"]) {
+    await expect(introduction.getByText(form, { exact: true })).toHaveAttribute("lang", "da");
+  }
+  await expect(introduction.getByText(
+    "The expression meaning today contains two written words and fills one sentence constituent.",
+    { exact: true },
+  )).toBeVisible();
+  for (const example of ["Du arbejder nu.", "Han læser en bog i dag.", "Jeg arbejder i Aarhus."]) {
+    await expect(introduction.getByText(example, { exact: true })).toHaveAttribute("lang", "da");
+  }
+  await expect(page.getByText("Time or place at the end", { exact: true }).and(page.locator("span"))).toBeVisible();
+  await scan(page);
+
+  const seen = new Set<string>();
+  while (state.state !== "completed") {
+    const exercise = state.currentExercise!;
+    const task = CIRCUMSTANCE_ORDERS[exercise.prompt.cue as keyof typeof CIRCUMSTANCE_ORDERS];
+    expect(task, "The exact Danish core identifies one supplied English context and requested order").toBeDefined();
+    expect(exercise).toMatchObject({ formatId: "E029", targetScopeId: "one-final-circumstance" });
+    expect(exercise.prompt.answerLanguage).toBe("da");
+    expect(exercise.prompt.cueLanguage).toBe("da");
+    expect(exercise.prompt).not.toHaveProperty("tileMode");
+    expect(exercise.prompt).not.toHaveProperty("requiredTileCount");
+    expect(exercise.context).toBe(task.context);
+    expect(exercise.prompt.blocks!.map(({ text }) => text).sort()).toEqual([...task.canonical].sort());
+    expect(seen.has(exercise.prompt.cue!)).toBe(false);
+    seen.add(exercise.prompt.cue!);
+    await expect(page.getByText(exercise.prompt.cue!, { exact: true })).toHaveAttribute("lang", "da");
+    await expect(page.getByText(task.context, { exact: true })).toBeVisible();
+    await expect(page.getByRole("group", { name: "Available sentence parts", exact: true })).toBeVisible();
+    await expect(page.getByText("Use every word tile.", { exact: true })).toHaveCount(0);
+
+    if (state.cursor === 0) {
+      await chooseCircumstanceOrder(page, exercise, task.canonical.slice(0, 1));
+      await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeDisabled();
+      await clearChosenOrder(page);
+      const firstOrder = [task.canonical[1]!, task.canonical[0]!, ...task.canonical.slice(2)];
+      await submitCircumstanceOrder(page, exercise, firstOrder);
+      const saved = await stateFor(page);
+      expect(latest(saved)).toMatchObject({
+        targetSatisfaction: "met", meaningSatisfaction: "unknown", linguisticStatus: "unknown",
+        responseConstraintStatus: "not-met", issues: [{ code: "REQUESTED_ORDER_CONSTRAINT" }],
+      });
+      expect(saved.items[saved.cursor]!.canAdvance).toBe(true);
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await expectChosenOrder(page, firstOrder);
+      await clearChosenOrder(page);
+      await submitCircumstanceOrder(page, exercise, task.canonical);
+    } else if (state.cursor === 1) {
+      const firstOrder = [task.canonical.at(-1)!, ...task.canonical.slice(0, -1)];
+      await submitCircumstanceOrder(page, exercise, firstOrder);
+      const saved = await stateFor(page);
+      expect(latest(saved)).toMatchObject({
+        targetSatisfaction: "not-met", meaningSatisfaction: "unknown", linguisticStatus: "unknown",
+        responseConstraintStatus: "not-met", issues: [{ code: "REQUESTED_ORDER_CONSTRAINT" }],
+      });
+      expect(saved.items[saved.cursor]!.canAdvance).toBe(true);
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await expectChosenOrder(page, firstOrder);
+      await clearChosenOrder(page);
+      await submitCircumstanceOrder(page, exercise, task.canonical);
+    } else if (state.cursor === 2) {
+      await submitCircumstanceOrder(page, exercise, task.canonical);
+      const saved = await stateFor(page);
+      const expectedIds = task.canonical.map((text) => exercise.prompt.blocks!.find((block) => block.text === text)!.id);
+      expect(saved.items[saved.cursor]!.lastAnswer).toEqual({ kind: "order", blockIds: expectedIds });
+      await page.reload();
+      for (const [position, text] of task.canonical.entries()) {
+        await expect(page.getByRole("button", { name: `Remove ${text} from position ${position + 1}`, exact: true })).toBeVisible();
+      }
+      expect((await stateFor(page)).items[state.cursor]!.lastAnswer).toEqual({ kind: "order", blockIds: expectedIds });
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await expectChosenOrder(page, task.canonical);
+      await clearChosenOrder(page);
+      await submitCircumstanceOrder(page, exercise, task.canonical);
+    } else {
+      await submitCircumstanceOrder(page, exercise, task.canonical);
+    }
+    expect(latest(await stateFor(page))).toMatchObject({
+      targetSatisfaction: "met", meaningSatisfaction: "met", linguisticStatus: "acceptable",
+      responseConstraintStatus: "met", issues: [],
+    });
+    state = await next(page, await stateFor(page));
+  }
+
+  expect(seen).toEqual(new Set(Object.keys(CIRCUMSTANCE_ORDERS)));
+  expect(state.summary).toMatchObject({ completedItems: 4, attemptedItems: 4, attemptCount: 7, retryCount: 3 });
+  expect(state.summary.rows).toEqual([expect.objectContaining({
+    targetSkillId: "G016", targetScopeId: "one-final-circumstance", assessmentMode: "constituent-order", plannedItems: 4,
+    firstOutcomes: expect.objectContaining({
+      fullyMet: 2, targetMet: 3, targetNotMet: 1, languageUnknown: 2, responseConstraintNotMet: 2,
+    }),
+    latestOutcomes: expect.objectContaining({ fullyMet: 4, targetMet: 4 }),
+  })]);
+  await expect(page.getByRole("button", { name: /^Next:/ })).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+  const reloaded = await stateFor(page);
+  expect(reloaded.introductionOpened).toBe(true);
+  expect(reloaded.summary).toEqual(state.summary);
+  await scan(page);
+});
+
+test("a final-circumstance order replays byte-identically after committed response loss", async ({ page }) => {
+  await openCourse(page, "Adding when and where");
+  const state = await beginCourse(page);
+  const exercise = state.currentExercise!;
+  const task = CIRCUMSTANCE_ORDERS[exercise.prompt.cue as keyof typeof CIRCUMSTANCE_ORDERS];
+  expect(task).toBeDefined();
+  const bodies: string[] = [];
+  await page.route("**/api/v1/attempts", async (route) => {
+    bodies.push(route.request().postData()!);
+    if (bodies.length === 1) {
+      await route.fetch();
+      await route.abort("connectionfailed");
+    } else await route.continue();
+  });
+
+  await chooseCircumstanceOrder(page, exercise, task.canonical);
+  await page.getByRole("button", { name: "Check answer", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Retry saved operation", exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("status").getByText("Good work", { exact: true })).toBeVisible();
+  expect(bodies).toHaveLength(2);
+  expect(bodies[1]).toBe(bodies[0]);
+  const request = JSON.parse(bodies[0]!) as {
+    attemptId: string; exerciseId: string; answer: { kind: string; blockIds: string[] };
+  };
+  expect(request).toMatchObject({ exerciseId: exercise.id, answer: { kind: "order" } });
+  expect(request.answer.blockIds).toEqual(task.canonical.map(
+    (text) => exercise.prompt.blocks!.find((block) => block.text === text)!.id,
+  ));
+  const recovered = await stateFor(page);
+  expect(recovered.items[recovered.cursor]!).toMatchObject({
+    attemptCount: 1, lastAnswer: request.answer, canAdvance: true,
+  });
+});
+
+for (const theme of ["light", "dark"] as const) {
+  test(`final-circumstance teaching feedback and summary reflow in ${theme} at 320`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.setViewportSize({ width: 320, height: 844 });
+    await openCourse(page, "Adding when and where", true);
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize)).toBe("32px");
+    let state = await beginCourse(page);
+    await scan(page);
+    let scannedFeedback = false;
+    while (state.state !== "completed") {
+      const exercise = state.currentExercise!;
+      const task = CIRCUMSTANCE_ORDERS[exercise.prompt.cue as keyof typeof CIRCUMSTANCE_ORDERS];
+      expect(task).toBeDefined();
+      await submitCircumstanceOrder(page, exercise, task.canonical);
+      if (!scannedFeedback) {
+        await scan(page);
+        scannedFeedback = true;
+      }
+      state = await next(page, await stateFor(page));
+    }
+    await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+    await scan(page);
+  });
+}
+
 for (const profile of PROFILES) {
   test(`first steps teach before assessment and retain scoped outcomes for ${profile.focus}`, async ({ page }) => {
     let state = await openCourse(page, profile.title);
@@ -1078,7 +1294,7 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/practice");
       await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
       await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-      await expect(page.getByRole("radio")).toHaveCount(16);
+      await expect(page.getByRole("radio")).toHaveCount(17);
       await scan(page);
       const groupSession = page.getByRole("radio", { name: PROFILES[1].title, exact: true });
       await groupSession.focus(); await page.keyboard.press("Space");

@@ -51,8 +51,10 @@ internal object PilotContent {
     const val RETAINED_TWELVE_GENERATOR_REVISION = "generator-12"
     const val RETAINED_THIRTEEN_CONTENT_REVISION = "pilot-13"
     const val RETAINED_THIRTEEN_GENERATOR_REVISION = "generator-13"
-    const val CURRENT_CONTENT_REVISION = "pilot-14"
-    const val CURRENT_GENERATOR_REVISION = "generator-14"
+    const val RETAINED_FOURTEEN_CONTENT_REVISION = "pilot-14"
+    const val RETAINED_FOURTEEN_GENERATOR_REVISION = "generator-14"
+    const val CURRENT_CONTENT_REVISION = "pilot-15"
+    const val CURRENT_GENERATOR_REVISION = "generator-15"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
     const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
@@ -66,7 +68,8 @@ internal object PilotContent {
     const val RETAINED_ELEVEN_EVALUATION_REVISION = "evaluation-11"
     const val RETAINED_TWELVE_EVALUATION_REVISION = "evaluation-12"
     const val RETAINED_THIRTEEN_EVALUATION_REVISION = "evaluation-13"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-14"
+    const val RETAINED_FOURTEEN_EVALUATION_REVISION = "evaluation-14"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-15"
 
     val humanPronouns =
         listOf(
@@ -95,6 +98,10 @@ internal object PilotContent {
     val personalIntroductionFixedWords = listOf(
         FixedWordEntry("L031", "dansk", "Danish language"),
         FixedWordEntry("L032", "i", "in at a city location"),
+    )
+    val circumstanceFixedWords = listOf(
+        FixedWordEntry("L037", "i dag", "today on the current calendar day"),
+        FixedWordEntry("L038", "nu", "now at the stated time"),
     )
 
     val nouns =
@@ -248,6 +255,9 @@ internal object PilotContent {
 
     val modalRoundFormats =
         abilityFormats + ExerciseFormat("E028", "Interpret a modal in context", "G030")
+
+    val circumstanceFormats =
+        modalRoundFormats + ExerciseFormat("E029", "Add a supplied final circumstance", "G016")
 
     val snapshot =
         PilotContentSnapshot(
@@ -459,10 +469,10 @@ internal object PilotContent {
             ),
         )
 
-    val currentSnapshot =
+    val pilotFourteenSnapshot =
         pilotThirteenSnapshot.copy(
-            contentRevision = CURRENT_CONTENT_REVISION,
-            generatorRevision = CURRENT_GENERATOR_REVISION,
+            contentRevision = RETAINED_FOURTEEN_CONTENT_REVISION,
+            generatorRevision = RETAINED_FOURTEEN_GENERATOR_REVISION,
             skills = pilotThirteenSnapshot.skills.map { skill ->
                 if (skill.id == "G030") {
                     skill.copy(
@@ -489,6 +499,30 @@ internal object PilotContent {
             ),
         )
 
+    val currentSnapshot =
+        pilotFourteenSnapshot.copy(
+            contentRevision = CURRENT_CONTENT_REVISION,
+            generatorRevision = CURRENT_GENERATOR_REVISION,
+            skills = pilotFourteenSnapshot.skills + Skill(
+                "G016",
+                "Time, place, and manner adverbials",
+                "Add one reviewed time or place circumstance after a supplied clause core in the introduced frames.",
+                listOf("G005"),
+            ),
+            formats = circumstanceFormats,
+            fixedWords = personalIntroductionFixedWords + circumstanceFixedWords,
+            lexicalReview = PilotReviewMetadata.records(
+                humanPronouns,
+                identifyingPronoun,
+                pilotFourteenSnapshot.verbs,
+                moduleOneNouns,
+                matching = true,
+                moduleOne = true,
+                referencePronouns = inanimateReferencePronouns,
+                fixedWords = personalIntroductionFixedWords + circumstanceFixedWords,
+            ),
+        )
+
     init {
         PilotContentValidator.requireValid(snapshot)
         PilotContentValidator.requireValid(pilotTwoSnapshot)
@@ -503,6 +537,7 @@ internal object PilotContent {
         PilotContentValidator.requireValid(pilotElevenSnapshot)
         PilotContentValidator.requireValid(pilotTwelveSnapshot)
         PilotContentValidator.requireValid(pilotThirteenSnapshot)
+        PilotContentValidator.requireValid(pilotFourteenSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

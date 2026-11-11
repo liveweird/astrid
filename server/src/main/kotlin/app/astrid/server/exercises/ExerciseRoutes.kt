@@ -244,7 +244,7 @@ private fun AttemptRequest.validated(): AttemptRequest {
 private fun AttemptAnswerDto.validateFor(engine: PilotEngine, exercise: GeneratedExercise) {
     val suppliedBlocks = exercise.prompt.blocks.map { it.id }.toSet()
     when (exercise.formatId) {
-        "E003", "E024" -> validateCompleteOrderAnswer(this, suppliedBlocks)
+        "E003", "E024", "E029" -> validateCompleteOrderAnswer(this, suppliedBlocks)
         "E012", "E013" -> validateTileOrderAnswer(this, suppliedBlocks)
         "E025" -> validateTileOrderAnswer(this, suppliedBlocks, requireNonempty = true)
         "E011", "E016", "E018", "E020", "E022", "E026", "E028" -> validateSuppliedChoiceAnswer(this, engine, exercise)

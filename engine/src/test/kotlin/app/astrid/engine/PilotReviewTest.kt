@@ -6,17 +6,17 @@ import kotlin.test.assertTrue
 
 class PilotReviewTest {
     @Test
-    fun `pair fourteen review adds modal inventory while retained pair thirteen stays bounded`() {
+    fun `pair fifteen review adds circumstance inventory while retained pair fourteen stays bounded`() {
         val current = PilotReview.renderMarkdown()
-        val retained = PilotReview.renderPilotThirteenMarkdown()
+        val retained = PilotReview.renderPilotFourteenMarkdown()
 
-        assertTrue("Content revision: `pilot-14`" in current)
-        assertTrue("Generator revision: `generator-14`" in current)
-        assertTrue("## Contextual modal round inventory" in current)
-        assertTrue("### Expressing an intention" in current)
-        assertTrue("Content revision: `pilot-13`" in retained)
-        assertTrue("Contextual modal round" !in retained)
-        assertTrue("Expressing an intention" !in retained)
+        assertTrue("Content revision: `pilot-15`" in current)
+        assertTrue("Generator revision: `generator-15`" in current)
+        assertTrue("## Final-circumstance constituent-order inventory" in current)
+        assertTrue("### Adding when and where" in current)
+        assertTrue("Content revision: `pilot-14`" in retained)
+        assertTrue("Final circumstance" !in retained)
+        assertTrue("Adding when and where" !in retained)
     }
 
     @Test

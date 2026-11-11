@@ -304,7 +304,7 @@ export default function Practice() {
         onRetry={() => {
           setAttempt(null);
           if (exercise?.formatId === "E015") requestFocus("gaps");
-          else if (exercise?.formatId === "E024" || exercise?.formatId === "E025") requestFocus("item");
+          else if (["E024", "E025", "E029"].includes(exercise?.formatId ?? "")) requestFocus("item");
           else { setText(""); setOrder([]); setGapSelections([]); requestFocus("item"); }
         }}
       />}

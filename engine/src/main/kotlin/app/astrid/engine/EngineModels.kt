@@ -74,6 +74,7 @@ class GeneratedExercise internal constructor(
         is PresentOrderExerciseSource -> exerciseSource.task.targetScopeId
         is AbilityExerciseSource -> exerciseSource.task.targetScopeId
         is ModalInterpretationExerciseSource -> exerciseSource.task.targetScopeId
+        is CircumstanceExerciseSource -> exerciseSource.task.targetScopeId
         else -> null
     }
     val instruction: String get() = presentation.instruction

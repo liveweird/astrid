@@ -75,6 +75,11 @@ const PRESENTATION_PROFILES = [
     itemCount: 2, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
   },
   {
+    focusId: "module-one-circumstances", planRevision: "module-one-circumstances-1", title: "Adding when and where",
+    description: "Keep a supplied clause core in order and add one supplied time or place circumstance at the end.",
+    itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  },
+  {
     focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
     description: "Practise familiar words, sentence order and articles in eight varied parts.",
     itemCount: 8, prerequisiteSkillIds: [],
@@ -105,11 +110,12 @@ export const MODULE_ONE_PROFILES = [
   PRESENTATION_PROFILES[10]!,
   PRESENTATION_PROFILES[11]!,
   PRESENTATION_PROFILES[12]!,
+  PRESENTATION_PROFILES[13]!,
 ];
 export const EXISTING_PRACTICE_PROFILES = [
-  PRESENTATION_PROFILES[13]!,
   PRESENTATION_PROFILES[14]!,
   PRESENTATION_PROFILES[15]!,
+  PRESENTATION_PROFILES[16]!,
 ];
 
 export function profileKey(profile: Pick<PracticeProfile, "focusId" | "planRevision">) {
@@ -198,6 +204,8 @@ function creationRequestFor(
       return { practiceSessionId, focusId: "module-one-obligation", planRevision: "module-one-obligation-1", seed };
     case "module-one-permission/module-one-permission-1":
       return { practiceSessionId, focusId: "module-one-permission", planRevision: "module-one-permission-1", seed };
+    case "module-one-circumstances/module-one-circumstances-1":
+      return { practiceSessionId, focusId: "module-one-circumstances", planRevision: "module-one-circumstances-1", seed };
     default:
       throw new PracticeCatalogError("The selected practice profile has an unsupported revision.");
   }

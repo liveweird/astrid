@@ -41,11 +41,11 @@ class PilotGenerationTest {
     fun `catalog exposes current skills formats and bounded sentence count`() {
         val catalog = engine.catalog()
 
-        assertEquals((1..6).map { "G${it.toString().padStart(3, '0')}" } + listOf("G038", "G030"), catalog.skills.map { it.id })
-        assertEquals((1..28).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
+        assertEquals((1..6).map { "G${it.toString().padStart(3, '0')}" } + listOf("G038", "G030", "G016"), catalog.skills.map { it.id })
+        assertEquals((1..29).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
         assertEquals(109, catalog.sentenceCount)
-        assertEquals("pilot-14", catalog.contentRevision)
-        assertEquals("generator-14", catalog.generatorRevision)
+        assertEquals("pilot-15", catalog.contentRevision)
+        assertEquals("generator-15", catalog.generatorRevision)
     }
 
     @Test

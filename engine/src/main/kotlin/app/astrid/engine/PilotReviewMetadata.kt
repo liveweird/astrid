@@ -28,8 +28,11 @@ internal object PilotReviewMetadata {
         pronounRecords(
             pronouns, identifyingPronoun, moduleOne,
             verbs.any { it.lexicalId == "L033" },
+            fixedWords.any { it.id == "L037" },
         ) +
-            referencePronounRecords(referencePronouns) + verbRecords(verbs, moduleOne) + nounRecords(nouns, matching) +
+            referencePronounRecords(referencePronouns) +
+            verbRecords(verbs, moduleOne, fixedWords.any { it.id == "L037" }) +
+            nounRecords(nouns, matching) +
             articleRecords() + fixedWordRecords(fixedWords, verbs.any { it.lexicalId == "L033" })
 
     private fun referencePronounRecords(pronouns: List<PronounEntry>): List<LexicalReviewRecord> =
@@ -49,6 +52,7 @@ internal object PilotReviewMetadata {
         identifyingPronoun: PronounEntry,
         moduleOne: Boolean,
         includesAbilityFrames: Boolean,
+        includesCircumstanceFrames: Boolean,
     ): List<LexicalReviewRecord> {
         val pronounDetails =
             mapOf(
@@ -70,7 +74,7 @@ internal object PilotReviewMetadata {
         val records = pronouns.map { entry ->
             val detail = pronounDetails.getValue(entry.id)
             val extension = pronounScopeExtension(
-                entry.id, includesAbilityFrames,
+                entry.id, includesAbilityFrames, includesCircumstanceFrames,
             )
             val constraints = detail.second + (if (moduleOne) moduleOneConstraints[entry.id].orEmpty() else "") + extension.first
             record(
@@ -94,20 +98,30 @@ internal object PilotReviewMetadata {
     private fun pronounScopeExtension(
         lexicalId: String,
         includesAbilityFrames: Boolean,
+        includesCircumstanceFrames: Boolean,
     ): Pair<String, List<String>> {
         val ability = includesAbilityFrames && lexicalId in MODAL_SUBJECT_IDS
+        val circumstance = includesCircumstanceFrames && lexicalId in CIRCUMSTANCE_SUBJECT_IDS
         val constraints = buildString {
             if (ability) append(" Pair thirteen additionally licenses the reviewed C014 modal subjects.")
+            if (circumstance) append(" Pair fifteen additionally licenses the reviewed C007 circumstance subjects.")
         }
         val sources = buildList {
             if (ability) addAll(listOf(INFINITIVE_SOURCE, VERB_SOURCES.getValue("L033")))
+            if (circumstance) add(FINAL_CIRCUMSTANCE_SOURCE)
         }.distinct()
         return constraints to sources
     }
 
-    private fun verbRecords(verbs: List<Verb>, moduleOne: Boolean): List<LexicalReviewRecord> {
+    private fun verbRecords(
+        verbs: List<Verb>,
+        moduleOne: Boolean,
+        includesCircumstanceFrames: Boolean,
+    ): List<LexicalReviewRecord> {
         val includesAbilityFrame = verbs.any { it.lexicalId == AbilityContent.MODAL_LEXICAL_ID }
         val includesModalRound = verbs.any { it.lexicalId == "L034" }
+        val readFrameExtensionLexicalIds =
+            readFrameExtensionLexicalIds(includesAbilityFrame, includesModalRound, includesCircumstanceFrames)
         val details =
             mapOf(
                 "L009" to ("possess or have available" to "C002 with a human subject and licensed count noun; auxiliary uses excluded."),
@@ -145,7 +159,7 @@ internal object PilotReviewMetadata {
                     detail.second.removeSuffix(" only; other copular and auxiliary uses excluded.") +
                         "; pair eight additionally licenses the ten enumerated C004 name and occupation clauses. " +
                         "Other copular and auxiliary uses remain excluded."
-                verb.lexicalId == AbilityContent.READ_LEXICAL_ID && (includesAbilityFrame || includesModalRound) -> buildString {
+                verb.lexicalId in readFrameExtensionLexicalIds -> buildString {
                     append(detail.second.removeSuffix(" only."))
                     if (includesAbilityFrame) {
                         append("; pair thirteen additionally licenses the C014 written-language ability frames")
@@ -153,8 +167,17 @@ internal object PilotReviewMetadata {
                     if (includesModalRound) {
                         append("; pair fourteen additionally licenses three contextual C014 written-language modal frames")
                     }
+                    if (includesCircumstanceFrames) {
+                        append(
+                            "; pair fifteen additionally licenses the two authored C007 reading propositions " +
+                                "and the separate worked reading example",
+                        )
+                    }
                     append(".")
                 }
+                includesCircumstanceFrames && verb.lexicalId == "L027" ->
+                    detail.second.removeSuffix(" only.") +
+                        "; pair fifteen additionally licenses the two authored C007 reading propositions."
                 else -> detail.second
             }
             record(
@@ -164,10 +187,26 @@ internal object PilotReviewMetadata {
                 mapOf("infinitive" to verb.lemma, "finite-present" to verb.present),
                 constraints,
                 VERB_SOURCES.getValue(verb.lexicalId),
-                additionalSources = if (verb.lexicalId == "L033") listOf(INFINITIVE_SOURCE) else emptyList(),
+                additionalSources = buildList {
+                    if (verb.lexicalId == "L033") add(INFINITIVE_SOURCE)
+                    if (includesCircumstanceFrames && verb.lexicalId in setOf("L011", "L027")) {
+                        add(FINAL_CIRCUMSTANCE_SOURCE)
+                    }
+                },
             )
         }
     }
+
+    private fun readFrameExtensionLexicalIds(
+        includesAbilityFrame: Boolean,
+        includesModalRound: Boolean,
+        includesCircumstanceFrames: Boolean,
+    ): Set<String> =
+        if (includesAbilityFrame || includesModalRound || includesCircumstanceFrames) {
+            setOf(AbilityContent.READ_LEXICAL_ID)
+        } else {
+            emptySet()
+        }
 
     private fun nounRecords(nouns: List<NounEntry>, matching: Boolean): List<LexicalReviewRecord> {
         val details =
@@ -237,7 +276,22 @@ internal object PilotReviewMetadata {
             "L032" to Triple(
                 "in at a city location",
                 mapOf("location-preposition" to "i"),
-                "Fixed supplied preposition before Aarhus or Odense in the pair-twelve residence frame only.",
+                if (words.any { it.id == "L037" }) {
+                    "Supplied location preposition in the reviewed residence frames and the scoped C007 " +
+                        "final-place work frame with Aarhus."
+                } else {
+                    "Fixed supplied preposition before Aarhus or Odense in the pair-twelve residence frame only."
+                },
+            ),
+            "L037" to Triple(
+                "L037-S01: current calendar day",
+                mapOf("time-circumstance" to "i dag"),
+                "Pair fifteen scoped C007 final-time frames only; the meaning ‘nowadays’ is excluded.",
+            ),
+            "L038" to Triple(
+                "L038-S01: temporal now",
+                mapOf("time-circumstance" to "nu"),
+                "Pair fifteen scoped C007 final-time frame only; discourse and conjunction uses are excluded.",
             ),
         )
         return words.map { word ->
@@ -279,11 +333,17 @@ internal object PilotReviewMetadata {
             "L036" to "https://ordnet.dk/ddo/ordbog/m%C3%A5tte",
         )
     private const val INFINITIVE_SOURCE = "https://lex.dk/infinitiv"
+    private const val FINAL_CIRCUMSTANCE_SOURCE =
+        "https://sproget.dk/sprogviden/spoergsmaal-og-svar/dansk-sprognaevn/sv00006990/"
     private val MODAL_SUBJECT_IDS = setOf("L001", "L002", "L003", "L004", "L005", "L007")
+    private val CIRCUMSTANCE_SUBJECT_IDS = MODAL_SUBJECT_IDS
     private val FIXED_WORD_SOURCES = mapOf(
         "L031" to "https://ordnet.dk/ddo/ordbog/dansk",
         "L032" to "https://ordnet.dk/ddo/ordbog/i",
+        "L037" to "https://ordnet.dk/ddo/ordbog/59001379",
+        "L038" to "https://ordnet.dk/ddo/ordbog/nu",
     )
+
     private val NOUN_SOURCES =
         mapOf(
             "L014" to "https://ordnet.dk/ddo/ordbog/bog",

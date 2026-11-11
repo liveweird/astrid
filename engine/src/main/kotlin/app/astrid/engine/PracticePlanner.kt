@@ -80,7 +80,7 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
             description = AbilityPracticePlanner.DESCRIPTION,
             itemCount = AbilityPracticePlanner.ITEM_COUNT,
             prerequisiteSkillIds = AbilityPracticePlanner.PREREQUISITES,
-        ) + ModalRoundPracticePlanner.profiles()
+        ) + ModalRoundPracticePlanner.profiles() + CircumstancePracticePlanner.profile()
 
     fun plan(
         focusId: String,
@@ -113,6 +113,8 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
             "module-one-obligation" to "module-one-obligation-1",
             "module-one-permission" to "module-one-permission-1",
             -> ModalRoundPracticePlanner(engine).plan(focusId, seed)
+            CircumstancePracticePlanner.FOCUS_ID to CircumstancePracticePlanner.PLAN_REVISION ->
+                CircumstancePracticePlanner(engine).plan(focusId, seed)
             else -> throw IllegalArgumentException("Unsupported practice profile: $focusId/$planRevision")
         }
     }

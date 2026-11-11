@@ -67,6 +67,8 @@ internal const val MODULE_ONE_OBLIGATION_FOCUS = "module-one-obligation"
 internal const val MODULE_ONE_OBLIGATION_REVISION = "module-one-obligation-1"
 internal const val MODULE_ONE_PERMISSION_FOCUS = "module-one-permission"
 internal const val MODULE_ONE_PERMISSION_REVISION = "module-one-permission-1"
+internal const val MODULE_ONE_CIRCUMSTANCES_FOCUS = "module-one-circumstances"
+internal const val MODULE_ONE_CIRCUMSTANCES_REVISION = "module-one-circumstances-1"
 private const val TARGETED_REVIEW_FOCUS = "targeted-review"
 private const val INTRODUCTION_POSITION = -1
 

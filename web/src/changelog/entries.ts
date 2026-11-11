@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.17.0",
+    date: "2026-11-11",
+    body: `**Add when and where to a familiar clause.**
+
+- **Adding when and where** adds four activities with a supplied clause core and one time or place circumstance.
+- Read the required introduction for i dag, nu and i Aarhus, then keep the familiar core in order and put the requested circumstance last.
+- Use every supplied constituent. The full stop is already supplied, and complete phrases such as i dag stay together.
+- See separate structural-target and requested-order evidence, retry saved work, reload the summary, or enter the session directly.
+- Continue from **Understanding permission**. The material remains a draft awaiting Danish teaching review. Other Danish placements and earlier exercises keep their original behavior.`,
+  },
+  {
     version: "0.16.0",
     date: "2026-11-11",
     body: `**Understand intention, requirement and permission.**

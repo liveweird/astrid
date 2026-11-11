@@ -46,6 +46,11 @@ const SCOPED_TARGET_KINDS: Record<string, string> = {
   "vaere-present:recall": "Present er recall",
   "inanimate-singular-subject:selection": "One-thing reference word selection",
   "inanimate-singular-subject:recall": "One-thing reference word recall",
+  "modal-volition-meaning:selection": "Meaning selection",
+  "modal-obligation-meaning:selection": "Meaning selection",
+  "modal-permission-meaning:selection": "Meaning selection",
+  "supplied-modal-order:word-order": "Word order",
+  "one-final-circumstance:constituent-order": "Constituent order",
 };
 
 function targetKind(row: PracticeSummaryRow) {

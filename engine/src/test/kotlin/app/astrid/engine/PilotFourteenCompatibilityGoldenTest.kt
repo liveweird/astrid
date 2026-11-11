@@ -93,7 +93,7 @@ class PilotFourteenCompatibilityGoldenTest {
         assertEquals(ModalRoundContent.meaningChoices, interpretation.map { it.definition.selectedMeaning })
         assertEquals(
             PAIR_FOURTEEN_IDS,
-            PilotContent.currentSnapshot.lexicalReview.map { it.id }.filter { it in PAIR_FOURTEEN_IDS }.toSet(),
+            PilotContent.pilotFourteenSnapshot.lexicalReview.map { it.id }.filter { it in PAIR_FOURTEEN_IDS }.toSet(),
         )
         assertEquals("C014", ModalRoundContent.CONSTRUCTION_ID)
         val retainedE025 = PresentOrderContent.tasks("E025").map { it.id }
@@ -106,7 +106,7 @@ class PilotFourteenCompatibilityGoldenTest {
         )
         assertEquals(
             (1..28).map { "E${it.toString().padStart(3, '0')}" }.toSet(),
-            PilotContent.currentSnapshot.formats.map { it.id }.toSet(),
+            PilotContent.pilotFourteenSnapshot.formats.map { it.id }.toSet(),
         )
         assertEquals(
             (1..27).map { "E${it.toString().padStart(3, '0')}" }.toSet(),

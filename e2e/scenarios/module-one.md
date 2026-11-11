@@ -105,7 +105,7 @@
 4. In the supplied construction, place `vi vil læse avis en`.
    - Expected: subject, finite modal and nonfinite verb order meet G005 while the complete requested order constraint is unmet and the Danish is unknown. The policy permits continuation. Clear the retained word tiles and retry with `vi vil læse en avis`.
 5. Inspect the two primary summary rows, open **Understanding a requirement**, cancel the chooser, reload and inspect the same summary.
-   - Expected: contextual interpretation and supplied-modal order stay separate, first/latest evidence and four-answer/two-retry totals survive, and the next round is explicitly selected without starting it.
+   - Expected: contextual **Meaning selection** and supplied-modal order stay separate, first/latest evidence and four-answer/two-retry totals survive, and the next round is explicitly selected without starting it.
 
 ### Obligation round
 
@@ -127,7 +127,40 @@
 3. Build `hun må læse en bog` with all five supplied word occurrences.
    - Expected: the canonical order meets the supplied-modal-order target and requested response constraint.
 4. Inspect and reload the completed summary.
-   - Expected: the two primary results and three-answer/one-retry totals survive reload. The sequence ends without offering an unimplemented session.
+   - Expected: the two primary results and three-answer/one-retry totals survive reload. **Adding when and where** is explicitly selected without starting it.
+
+## Scenario: final circumstances retain clause-core and requested-end evidence
+
+1. Enter **Adding when and where** directly and try an empty order before opening the required introduction.
+   - Expected: the pair-fifteen four-item run exposes the expanded Module 1 prerequisites G001–G005, blocks assessment before teaching, records no attempt and keeps every item under G016 / **One final circumstance — constituent order**.
+2. Open the introduction and inspect the clause-core rule, separate **Today** → `i dag`, **Now** → `nu`, and **In Aarhus** → `i Aarhus` forms, the English word-unit explanation and the three worked statements.
+   - Expected: each introduced form and worked Danish statement has Danish language metadata. The teaching says that the expression meaning today contains two written words and fills one constituent, limits the rule to this round, and the target badge reads **Time or place at the end**.
+3. Inspect the four exact cards for `Jeg arbejder.`, `Hun læser et brev.`, `Vi arbejder.` and `De læser en avis.`.
+   - Expected: each original Danish clause is the Danish cue; its English translation and the English circumstance gloss today, now or in Aarhus stay in context. Subject, finite verb, optional intact object and intact circumstance are separate Danish sentence parts. Public word-tile metadata is absent, `i dag`, `i Aarhus`, `et brev` and `en avis` are not split, and **Check answer** remains disabled until all supplied constituents are chosen.
+4. On the first card, put the circumstance last but swap the clause core, then retry canonically.
+   - Expected: the target is met, while meaning and Danish remain unknown and the requested-order constraint is not met with `REQUESTED_ORDER_CONSTRAINT`. The corrected response is fully met.
+5. On the second card, put the circumstance before the clause core, then retry canonically.
+   - Expected: target and constraint are both not met, meaning and Danish remain unknown, and retrying saves the fully met latest outcome.
+6. Save the canonical third answer, reload it, retry the restored constituent order, and finish the fourth card.
+   - Expected: raw block identity and visible order survive reload. The summary has one four-item G016 constituent-order row, seven attempts, three retries, distinct first target/constraint evidence and four fully met latest outcomes.
+7. Reload the completed run.
+   - Expected: teaching confirmation and summary are unchanged, accessibility/reflow checks still pass, and no later session is offered.
+
+## Scenario: a final-circumstance order replays byte-identically after committed response loss
+
+1. Open the required teaching, arrange the first final-circumstance card canonically and lose the attempt response after server commit.
+   - Expected: recovery remains available and retains the exact ordered block IDs.
+2. Reload and let the saved operation replay.
+   - Expected: the second request is byte-identical, one attempt is stored, the restored answer is fully met and continuation is available.
+
+## Scenario: final-circumstance teaching feedback and summary reflow in ${theme} at 320
+
+1. Open **Adding when and where** in the selected colour scheme at 320 px with 200% text, then open its required introduction.
+   - Expected: the final-circumstance teaching has no horizontal overflow, clipped teaching text or configured Axe violations.
+2. Complete the first constituent order and inspect its confirmed feedback before completing the remaining cards.
+   - Expected: the complete-bank controls and feedback remain readable and accessible at the bounded viewport.
+3. Inspect the completed four-item summary.
+   - Expected: the G016 constituent-order result, counts and terminal actions reflow without horizontal overflow, clipped summary text or configured Axe violations.
 
 ## Scenario: first steps preserve ambiguous ${correction.raw} casing without a wrong-person diagnosis
 
@@ -183,7 +216,7 @@
 
 ## Scenario: first-step chooser keeps all profiles keyboard-accessible in ${theme} at ${viewport.width}
 
-1. Open the chooser with sixteen profiles, including 13 Module 1 sessions, in both themes, narrow portrait and short landscape, at 200% text.
+1. Open the chooser with seventeen profiles, including 14 Module 1 sessions, in both themes, narrow portrait and short landscape, at 200% text.
    - Expected: its first-step grouping and every profile remain accessible, without page/text overflow or configured Axe violations.
 2. Focus the group-pronoun radio and select it with Space.
    - Expected: the choice is checked and Start practice is enabled; no session is created automatically.

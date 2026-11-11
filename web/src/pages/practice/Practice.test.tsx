@@ -6,7 +6,7 @@ import {
 } from "../../test/practiceFixtures";
 import { renderWithProviders } from "../../test/render";
 import Practice from "./Practice";
-import { saveRunRecovery } from "./practiceRecovery";
+import { listOutbox, saveRunRecovery } from "./practiceRecovery";
 
 beforeEach(resetPracticeBrowser);
 
@@ -475,6 +475,77 @@ it("submits a partial guided word-tile answer and preserves it through support",
   expect(JSON.parse(submitted)).toMatchObject({ answer: { kind: "order", blockIds: ["s"] } });
   await user.click(await screen.findByRole("button", { name: "Try again" }));
   expect(screen.getByRole("button", { name: "Remove jeg from position 1" })).toBeEnabled();
+});
+
+it("saves and submits an E029 order, then retains every constituent for retry", async () => {
+  const ordering = {
+    ...exercise, id: "88888888-8888-4888-8888-888888888888", formatId: "E029", lexicalTarget: undefined,
+    targetSkillId: "G016", targetScopeId: "one-final-circumstance",
+    contentRevision: "pilot-15", generatorRevision: "generator-15",
+    instruction: "Keep the supplied clause core in order and add the supplied circumstance at the end.",
+    context: "Supplied clause: I work. Supplied circumstance: today.", introduction: [],
+    prompt: {
+      before: "", after: "", choices: [], punctuation: ".", cue: "Jeg arbejder.",
+      cueLanguage: "da", answerLanguage: "da", blocks: [
+        { id: "s", text: "jeg" }, { id: "v", text: "arbejder" }, { id: "c", text: "i dag" },
+      ],
+    },
+  };
+  const run = {
+    ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "module-one-circumstances", planRevision: "module-one-circumstances-1", seed: 47,
+  };
+  saveRunRecovery(run);
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const item = {
+    ...state().items[0]!, exerciseId: ordering.id, formatId: "E029", lexicalTarget: undefined,
+    targetSkillId: "G016", targetScopeId: "one-final-circumstance", assessmentMode: "constituent-order",
+  };
+  let serverState = state({
+    focusId: run.focusId, planRevision: run.planRevision, title: "Adding when and where",
+    contentRevision: "pilot-15", generatorRevision: "generator-15", evaluationRevision: "evaluation-15",
+    itemCount: 4, introductionOpened: true, currentExercise: ordering as never, items: [item as never],
+  });
+  let submitted = "";
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("/attempts")) {
+      submitted = String(init?.body);
+      const pending = listOutbox(practiceId);
+      expect(pending).toHaveLength(1);
+      expect(pending[0]).toMatchObject({ kind: "attempt", body: submitted });
+      const request = JSON.parse(submitted);
+      const saved = {
+        ...wrongAttempt, exerciseId: ordering.id, attemptId: request.attemptId,
+        targetSatisfaction: "met", meaningSatisfaction: "met", linguisticStatus: "acceptable",
+        responseConstraintStatus: "met", issues: [], completedSentence: "Jeg arbejder i dag.",
+        evaluationRevision: "evaluation-15",
+      };
+      serverState = state({ ...serverState, items: [{
+        ...serverState.items[0]!, attemptCount: 1, firstAttempt: saved, lastAttempt: saved,
+        firstAnswer: request.answer, lastAnswer: request.answer, canAdvance: true,
+      } as never] });
+      return json(saved);
+    }
+    if (path.includes("/practice-sessions/")) return json(serverState);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  renderWithProviders(<Practice />);
+
+  for (const part of ["jeg", "arbejder", "i dag"]) {
+    await user.click(await screen.findByRole("button", { name: part }));
+  }
+  await user.click(screen.getByRole("button", { name: "Check answer" }));
+
+  expect(JSON.parse(submitted)).toMatchObject({
+    answer: { kind: "order", blockIds: ["s", "v", "c"] },
+  });
+  expect(listOutbox(practiceId)).toEqual([]);
+  await user.click(await screen.findByRole("button", { name: "Try again" }));
+  for (const [position, part] of ["jeg", "arbejder", "i dag"].entries()) {
+    expect(screen.getByRole("button", { name: `Remove ${part} from position ${position + 1}` })).toBeEnabled();
+  }
 });
 
 it("reports source-practice exposure separately from exposure inside the current run", async () => {

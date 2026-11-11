@@ -880,3 +880,45 @@ For every package, integrate into a fresh predecessor-based branch, rerun the fu
 Docker-backed gate and independent review, verify real browser recovery and replay,
 and complete versioned release, backup/restore, app-only promotion and owned cleanup
 before recording delivery. Isolated rehearsal results alone do not establish delivery.
+
+## S12 adding when and where
+
+App 0.17.0 adds the four-item `module-one-circumstances-1` plan pinned to pair fifteen.
+Require saved teaching and retain the supplied Danish core while placing one intact time
+or place constituent at the end. E029 targets G016 scope `one-final-circumstance` with
+`constituent-order` evidence. Direct entry and explicit continuation from permission use
+the chooser.
+
+| Supplied core | Supplied addition | Requested result |
+| --- | --- | --- |
+| `Jeg arbejder.` | `i dag` | `Jeg arbejder i dag.` |
+| `Hun læser et brev.` | `nu` | `Hun læser et brev nu.` |
+| `Vi arbejder.` | `i Aarhus` | `Vi arbejder i Aarhus.` |
+| `De læser en avis.` | `i dag` | `De læser en avis i dag.` |
+
+Supply all Danish constituents, the complete English core and the meaning of the addition.
+Keep article+noun objects, `i dag` and `i Aarhus` intact. Mark the source cue and answer
+language Danish. The requested position is a bounded task rule. Source checking distinguishes
+final circumstances from central sentence adverbs and fronting. [DSN](https://sproget.dk/sprogviden/spoergsmaal-og-svar/dansk-sprognaevn/sv00006990/)
+
+Required teaching introduces separate Danish forms for today, now and in Aarhus, with English
+meanings. Explain that the expression meaning today contains two written words and fills
+one constituent. Give three separate worked examples `Du arbejder nu.`,
+`Han læser en bog i dag.` and `Jeg arbejder i Aarhus.` with their full meanings.
+L037 selects current-day `i dag`; L038 selects temporal `nu`. Reuse L032 and the supplied
+city. Current C007 permissions cover exact authored/worked subjects, reading propositions
+and work frames. Earlier catalogue licensing remains intact. [DDO i dag, sense 1](https://ordnet.dk/ddo/ordbog/59001379) · [DDO temporal nu, sense 1](https://ordnet.dk/ddo/ordbog/nu)
+
+The canonical order meets all facets. A final circumstance with a scrambled supplied core
+meets the narrow target and fails the response constraint, with language and meaning unknown.
+A circumstance elsewhere misses the target. Every complete off-request order carries
+`REQUESTED_ORDER_CONSTRAINT` and discloses the requested order. Reuse the existing order
+outcome and exposure policies. Keep support, introduced meanings, the structural pattern
+and exact construction exposure separate. The API rejects incomplete, duplicate, foreign
+or wrong-kind submissions before persistence. Preserve raw supplied IDs.
+
+The dedicated internal task/source uses existing private inspector fields and a literal
+pair-fifteen fingerprint frame. Public prompts omit word-tile mode/count fields. Preserve
+all previous pools, plans, review bytes and 109 catalogue clauses. The new lexical inventory
+contains 38 records. Software validation and saved supported practice remain separate from
+Danish teaching review and learner proficiency.

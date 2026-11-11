@@ -277,7 +277,9 @@ internal object PresentOrderExerciseGenerator {
             PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
             PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
             -> Triple(true, true, false)
-            PilotContent.CURRENT_CONTENT_REVISION -> Triple(true, true, true)
+            PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+            PilotContent.CURRENT_CONTENT_REVISION,
+            -> Triple(true, true, true)
             else -> Triple(false, false, false)
         }
         val tasks = PresentOrderContent.tasks(request.formatId, flags.first, flags.second, flags.third)
@@ -300,6 +302,7 @@ internal object PresentOrderExerciseGenerator {
                 request.contentRevision in setOf(
                     PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
                     PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
+                    PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 ),
             )

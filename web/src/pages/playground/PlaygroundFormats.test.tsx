@@ -411,6 +411,67 @@ async function verifySuppliedConstituentOrder() {
   expect(await screen.findByText("Good work")).toBeVisible();
 }
 
+async function verifyFinalCircumstanceOrder() {
+  const fifteenthSession = {
+    ...session, contentRevision: "pilot-15", generatorRevision: "generator-15", evaluationRevision: "evaluation-15",
+  };
+  const fifteenthCatalog = {
+    ...catalog,
+    contentRevision: "pilot-15", generatorRevision: "generator-15", evaluationRevision: "evaluation-15",
+    formats: [{ id: "E029", title: "Add a supplied final circumstance", targetSkillId: "G016" }],
+  };
+  const orderExercise = {
+    ...exercise,
+    id: "99999999-9999-4999-8999-999999999999", formatId: "E029", targetSkillId: "G016",
+    targetScopeId: "one-final-circumstance", contentRevision: "pilot-15", generatorRevision: "generator-15",
+    instruction: "Keep the supplied clause core in order and add the supplied circumstance at the end.",
+    context: "Supplied clause: I work. Supplied circumstance: today.",
+    prompt: {
+      before: "", after: "", choices: [], punctuation: ".", cue: "Jeg arbejder.",
+      cueLanguage: "da", answerLanguage: "da", blocks: [
+        { id: "s", text: "jeg" }, { id: "v", text: "arbejder" }, { id: "c", text: "i dag" },
+      ],
+    },
+    introduction: [],
+  };
+  const attemptBodies: string[] = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json(fifteenthSession);
+    if (path.endsWith("catalog")) return json(fifteenthCatalog);
+    if (path.endsWith("exercises")) return json(orderExercise);
+    attemptBodies.push(String(init?.body));
+    if (attemptBodies.length === 1) throw new TypeError("response connection closed");
+    const request = JSON.parse(attemptBodies[1]!);
+    return json({
+      ...attempt, attemptId: request.attemptId, exerciseId: orderExercise.id,
+      targetSatisfaction: "met", meaningSatisfaction: "met", responseConstraintStatus: "met",
+      linguisticStatus: "acceptable", linguisticScope: "danish-sentence",
+      evaluationRevision: "evaluation-15", feedback: "The supplied circumstance is final.",
+      completedSentence: "Jeg arbejder i dag.",
+    });
+  }));
+
+  await renderPlayground();
+  const check = await screen.findByRole("button", { name: "Check answer" });
+  await userEvent.click(screen.getByRole("button", { name: "jeg" }));
+  await userEvent.click(screen.getByRole("button", { name: "arbejder" }));
+  expect(check).toBeDisabled();
+  await userEvent.click(screen.getByRole("button", { name: "i dag" }));
+  expect(check).toBeEnabled();
+  await userEvent.click(check);
+
+  expect(await screen.findByText("The result is not confirmed")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Remove i dag from position 3" })).toBeDisabled();
+  await userEvent.click(screen.getByRole("button", { name: "Check the same attempt" }));
+
+  expect(await screen.findByText("Good work", { exact: true })).toBeVisible();
+  expect(attemptBodies[1]).toBe(attemptBodies[0]);
+  expect(JSON.parse(attemptBodies[1]!)).toMatchObject({
+    exerciseId: orderExercise.id,
+    answer: { kind: "order", blockIds: ["s", "v", "c"] },
+  });
+}
+
 describe("Playground formats", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -428,6 +489,8 @@ describe("Playground formats", () => {
   it("renders English-to-Danish meaning choice without exposing lexical identities", verifyEnglishToDanishChoice);
 
   it("requires every supplied constituent before submitting standalone subject-first order", verifySuppliedConstituentOrder);
+
+  it("submits and exactly replays a complete standalone final-circumstance order", verifyFinalCircumstanceOrder);
 
   it("commits the auto-highlighted exact search with Enter", () => verifyKeyboardFormatSelection(false));
 

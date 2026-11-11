@@ -7,6 +7,7 @@ internal object PilotEvaluator {
         exercise: GeneratedExercise,
         answer: Answer,
     ): Evaluation = when (exercise.formatId) {
+        "E029" -> FinalCircumstanceExerciseEvaluator.evaluate(exercise, answer)
         "E028" -> ModalRoundExerciseEvaluator.evaluateInterpretation(exercise, answer)
         "E026", "E027" -> AbilityExerciseEvaluator.evaluate(exercise, answer)
         "E022", "E023", "E024", "E025" -> PresentOrderExerciseEvaluator.evaluate(exercise, answer)

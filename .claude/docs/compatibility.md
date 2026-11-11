@@ -28,7 +28,8 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-11` / `generator-11` | `evaluation-11` | E022/E023 add scoped possession tasks | published and frozen; S07 pins this pair |
 | `pilot-12` / `generator-12` | `evaluation-12` | E022/E023 add scoped name, residence and language tasks | published and frozen; S09 pins this pair |
 | `pilot-13` / `generator-13` | `evaluation-13` | + E026/E027 bare infinitive after supplied ability modal | published and frozen; S10 pins this pair |
-| `pilot-14` / `generator-14` | `evaluation-14` | + E028 contextual modal meaning and E025 modal construction | CURRENT; S11 pins this pair |
+| `pilot-14` / `generator-14` | `evaluation-14` | + E028 contextual modal meaning and E025 modal construction | published and frozen; S11 pins this pair |
+| `pilot-15` / `generator-15` | `evaluation-15` | + E029 supplied core with final time/place constituent | CURRENT; S12 pins this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
@@ -48,6 +49,8 @@ The six-item `module-one-personal-1` plan pins pair twelve. The four-item
 The two-item `module-one-volition-1`, `module-one-obligation-1` and
 `module-one-permission-1` plans pin pair fourteen. Separate versioned modal-round policies
 record meaning selection and supplied word order.
+The four-item `module-one-circumstances-1` plan pins pair fifteen and retains the existing
+order outcome and exposure policies.
 Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 
 ## What is stored, and what that implies
@@ -148,11 +151,16 @@ Pair thirteen and S10 were frozen from the released 0.15.0 source in `d7724dc`
 before S11 production changes. The new archive guards include private ability keys,
 all twenty-seven format pools and byte-exact teaching and lifecycle exposure.
 
+Pair fourteen and the three S11 modal rounds were frozen from released 0.16.0
+source in `aca3c5d` before S12 production changes. The projection covers complete modal
+private inputs, the full previous ability source and all 28 format pools.
+
 ## Export tasks
 
 | Task | Output |
 | --- | --- |
-| `:engine:exportPilotReview` | `engine/build/review/pilot-14.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotReview` | `engine/build/review/pilot-15.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotFourteenReview` | `engine/build/review/pilot-14-retained.md` |
 | `:engine:exportPilotThirteenReview` | `engine/build/review/pilot-13-retained.md` |
 | `:engine:exportPilotTwelveReview` | `engine/build/review/pilot-12-retained.md` |
 | `:engine:exportPilotElevenReview` | `engine/build/review/pilot-11-retained.md` |
@@ -177,6 +185,8 @@ all twenty-seven format pools and byte-exact teaching and lifecycle exposure.
 | `:engine:exportPersonalPracticeCompatibility` / `:server:exportPersonalPracticeWireCompatibility` | add published S09 plan evidence and provenance only (refuse overwrite) |
 | `:engine:exportPilotThirteenCompatibility` / `:server:exportPilotThirteenWireCompatibility` | add pair-thirteen evidence and provenance only (refuse overwrite) |
 | `:engine:exportAbilityPracticeCompatibility` / `:server:exportAbilityPracticeWireCompatibility` | add published S10 plan evidence and provenance only (refuse overwrite) |
+| `:engine:exportPilotFourteenCompatibility` / `:server:exportPilotFourteenWireCompatibility` | add pair-fourteen evidence and provenance only (refuse overwrite) |
+| `:engine:exportModalRoundPracticeCompatibility` / `:server:exportModalRoundPracticeWireCompatibility` | add published S11 plan evidence and provenance only (refuse overwrite) |
 | `:server:exportPilotThreeWireCompatibility` | writes a **new** wire fixture + provenance (refuses to overwrite) |
 
 Review exports are deterministic evidence for teaching review; they are not approval. The production engine does no file I/O.

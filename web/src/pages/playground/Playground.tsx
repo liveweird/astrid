@@ -47,7 +47,7 @@ function tileMode(exercise: Exercise) {
 }
 
 function isOrder(exercise: Exercise) {
-  return ["E003", "E024", "E025"].includes(exercise.formatId) || tileMode(exercise) != null;
+  return ["E003", "E024", "E025", "E029"].includes(exercise.formatId) || tileMode(exercise) != null;
 }
 
 function isMatching(exercise: Exercise) {
@@ -74,7 +74,7 @@ function answerIsReady(
   if (!exercise) return false;
   if (isMatching(exercise)) return matchingPairs.length > 0;
   if (isGaps(exercise)) return gapSelections.length > 0;
-  if (["E003", "E024"].includes(exercise.formatId)) return order.length === exercise.prompt.blocks.length;
+  if (["E003", "E024", "E029"].includes(exercise.formatId)) return order.length === exercise.prompt.blocks.length;
   if (tileMode(exercise)) return order.length > 0;
   return text.trim().length > 0;
 }

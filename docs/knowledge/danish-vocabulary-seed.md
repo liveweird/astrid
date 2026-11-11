@@ -194,3 +194,16 @@ licenses the selected modal count-noun reading frames. Subject permissions cover
 six assessed and three worked propositions. Prior lexical records and pools retain their
 published interpretation. The [S11 contract](module-one-course-slice.md#s11-contextual-modal-meanings)
 records contextual support, meaning selection and supplied-order evidence.
+
+## Pair-fifteen time-expression additions
+
+| ID | Selected meaning | Teaching form | Active scope and source |
+| --- | --- | --- | --- |
+| L037 | current calendar day | i dag | L037-S01, supplied current-day expression in the authored/worked C007 frames. [DDO, sense 1](https://ordnet.dk/ddo/ordbog/59001379). |
+| L038 | at the current time | nu | L038-S01, temporal adverb in the authored/worked C007 frames. [DDO, temporal sense 1](https://ordnet.dk/ddo/ordbog/nu). |
+
+Pair fifteen contains 38 records and the same 109 catalogue clauses. L032 adds supplied
+locative support in the work frame. L011 covers the two authored C007 reading propositions
+and the separate worked reading example. Scope subject permissions to the exact assessed
+and taught frames. Prior records remain literal. The [S12 contract](module-one-course-slice.md#s12-adding-when-and-where)
+records the supplied core, constituent units, final placement and exposure boundaries.

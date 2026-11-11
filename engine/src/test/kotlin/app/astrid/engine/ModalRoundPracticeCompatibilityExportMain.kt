@@ -353,8 +353,8 @@ internal object ModalRoundPracticeCompatibilityFixture {
     ) = PracticeCompletionAttemptObservation(target, linguistic, constraint, issues)
 
     private fun requireLiteralPairs() {
-        require(PilotContent.currentSnapshot.contentRevision == "pilot-14")
-        require(PilotContent.currentSnapshot.generatorRevision == "generator-14")
+        require(PilotContent.pilotFourteenSnapshot.contentRevision == "pilot-14")
+        require(PilotContent.pilotFourteenSnapshot.generatorRevision == "generator-14")
         require(engine.evaluationRevision("pilot-14", "generator-14") == "evaluation-14")
     }
 

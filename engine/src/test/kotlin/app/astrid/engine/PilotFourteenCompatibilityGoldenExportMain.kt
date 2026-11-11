@@ -16,9 +16,7 @@ object PilotFourteenCompatibilityGoldenExportMain {
 }
 
 internal fun publishedPairFourteenReviewBytes(): ByteArray {
-    // Capture from 0.16.0 with renderMarkdown(); switch to renderPilotFourteenMarkdown() as soon as
-    // the freeze commit retains pair fourteen and before S12 advances the moving current snapshot.
-    return PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
+    return PilotReview.renderPilotFourteenMarkdown().toByteArray(Charsets.UTF_8)
 }
 
 internal object PilotFourteenCompatibilityGolden {
@@ -123,7 +121,7 @@ internal object PilotFourteenCompatibilityGolden {
     }.finish()
 
     private fun CanonicalHasher.pairFourteenMetadata() {
-        val skills = PilotContent.currentSnapshot.skills.filter { it.id in setOf("G005", "G030") }.sortedBy { it.id }
+        val skills = PilotContent.pilotFourteenSnapshot.skills.filter { it.id in setOf("G005", "G030") }.sortedBy { it.id }
         integer("pairFourteenSkills.count", skills.size)
         skills.forEachIndexed { index, skill ->
             field("pairFourteenSkills[$index].id", skill.id)
@@ -131,7 +129,7 @@ internal object PilotFourteenCompatibilityGolden {
             field("pairFourteenSkills[$index].explanation", skill.explanation)
             strings("pairFourteenSkills[$index].prerequisiteIds", skill.prerequisiteIds)
         }
-        val formats = PilotContent.currentSnapshot.formats.filter { it.id in setOf("E025", "E028") }.sortedBy { it.id }
+        val formats = PilotContent.pilotFourteenSnapshot.formats.filter { it.id in setOf("E025", "E028") }.sortedBy { it.id }
         integer("pairFourteenFormats.count", formats.size)
         formats.forEachIndexed { index, format ->
             field("pairFourteenFormats[$index].id", format.id)
@@ -148,7 +146,7 @@ internal object PilotFourteenCompatibilityGolden {
             }
         }
         strings("pairFourteenMeaningChoices", ModalRoundContent.meaningChoices)
-        val records = PilotContent.currentSnapshot.lexicalReview.filter { it.id in PAIR_FOURTEEN_METADATA_IDS }
+        val records = PilotContent.pilotFourteenSnapshot.lexicalReview.filter { it.id in PAIR_FOURTEEN_METADATA_IDS }
             .sortedBy { it.id }
         integer("pairFourteenLexicalMetadata.count", records.size)
         records.forEachIndexed { index, record -> lexicalRecord("pairFourteenLexicalMetadata[$index]", record) }
@@ -457,10 +455,8 @@ internal object PilotFourteenCompatibilityGolden {
     }
 
     private fun requireLiteralPairFourteen() {
-        // Capture against currentSnapshot at released 0.16.0, then replace this moving hook with
-        // pilotFourteenSnapshot in the freeze commit before S12 advances current.
-        require(PilotContent.currentSnapshot.contentRevision == CONTENT_REVISION)
-        require(PilotContent.currentSnapshot.generatorRevision == GENERATOR_REVISION)
+        require(PilotContent.pilotFourteenSnapshot.contentRevision == CONTENT_REVISION)
+        require(PilotContent.pilotFourteenSnapshot.generatorRevision == GENERATOR_REVISION)
         require(engine.evaluationRevision(CONTENT_REVISION, GENERATOR_REVISION) == EVALUATION_REVISION)
     }
 

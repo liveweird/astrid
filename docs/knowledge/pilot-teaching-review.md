@@ -4,13 +4,13 @@
 
 This is a **proposed review process**, not a user-approved rubric, an arranged specialist
 engagement, or evidence that a specialist has reviewed or approved the content. It covers the
-private beginner preview at app **0.16.0**, content `pilot-14`, generator `generator-14`
-and evaluation `evaluation-14`. Its language state remains `draft-not-teacher-reviewed`.
-See the [course slice](module-one-course-slice.md#s11-contextual-modal-meanings).
+private beginner preview at app **0.17.0**, content `pilot-15`, generator `generator-15`
+and evaluation `evaluation-15`. Its language state remains `draft-not-teacher-reviewed`.
+See the [course slice](module-one-course-slice.md#s12-adding-when-and-where).
 
-The current bounded inventory is 36 lexical records, 109 licensed catalogue clauses and
-twenty-eight standalone exercise formats. Thirteen Module 1 profiles cover first steps through
-contextual modal meanings and supplied construction. The proposed review covers their teaching and visible feedback.
+The current bounded inventory is 38 lexical records, 109 licensed catalogue clauses and
+twenty-nine standalone exercise formats. Fourteen Module 1 profiles cover first steps through
+final time/place placement. The proposed review covers their teaching and visible feedback.
 
 Software and source checks cover identifiers, deterministic generation, references, frozen
 compatibility and bounded inventories. They cannot decide whether Danish is natural, explanations
@@ -22,8 +22,8 @@ and [first-step activation contract](module-one-activation.md).
 ## Prepare the current review packet
 
 - From the repository root, run `./gradlew :engine:exportPilotReview`. The current output is
-  `engine/build/review/pilot-14.md`. Confirm content `pilot-14`, generator
-  `generator-14` and review state `draft-not-teacher-reviewed`. Record the exact source commit,
+  `engine/build/review/pilot-15.md`. Confirm content `pilot-15`, generator
+  `generator-15` and review state `draft-not-teacher-reviewed`. Record the exact source commit,
   application version and command result with the review.
 - Give the reviewer that export together with the [vocabulary seed](danish-vocabulary-seed.md),
   [Module 1 language pack](module-one-language-pack.md), [beginner-slice specification](beginner-slice-spec.md),
@@ -44,21 +44,22 @@ and [first-step activation contract](module-one-activation.md).
 
 | Review surface | Current exported coverage |
 | --- | --- |
-| Lexicon and clauses | All 36 lexical records and all 109 licensed catalogue clauses |
-| Reproducible examples | Two seed-47 prompt summaries for each E001–E028 |
+| Lexicon and clauses | All 38 lexical records and all 109 licensed catalogue clauses |
+| Reproducible examples | Two seed-47 prompt summaries for each E001–E029 |
 | E009 writing | 99 complete cue/reference/hint units |
 | E010 reading | 24 complete passages, questions, choice sets and private answers |
 | E011 word choice | All four selected meanings, choices and answers |
 | E012/E013 tiles | 99 units per format, including licensed orders and distractors |
 | E014 matching | Four boards and their private correspondences |
 | E015 two gaps | 92 units with displayed slots and private expected choices |
-| First-step profiles | Thirteen full required introductions and pinned policy metadata. Review each profile's feedback live. |
+| First-step profiles | Fourteen full required introductions and pinned policy metadata. Review each profile's feedback live. |
 | E016–E019 | All 30 standalone authored tasks: 7 E016, 7 E017, 8 E018 and 8 E019 |
 | E020/E021 | Four inanimate-reference tasks, two selection and two recall, including antecedent/sense/context metadata; inspect per-item lessons and hints live |
 | E022/E023 | Sixteen named-present tasks, including four possession and six personal-statement tasks, with scoped form targets and exact teaching exposure |
 | E024/E025 | Six subject-first ordering tasks and three supplied modal constructions |
 | E026/E027 | Four ability-frame tasks with exact bare-infinitive alternatives, selected/typed constraints and teaching |
 | E028 | Three contextual modal-meaning selections with all English alternatives and separate required teaching |
+| E029 | Four supplied-core final-circumstance tasks with intact constituent banks and separate requested-order evidence |
 
 For standalone first-step traversal at fixed seed `47`, use indices `0..6` for each
 E016/E017 with G003, and `0..7` for each E018/E019 with G004. Each range traverses its
@@ -115,7 +116,7 @@ unsupported answers rather than only the answer key. In particular:
   finite/infinitive selection must not collapse meaning, grammar and response shape.
 - **E015:** review all verb/article combinations and per-slot feedback, including one correct and
   one wrong or missing slot. Primary verb and supporting article outcomes must remain separate.
-- **E016–E028:** apply the Module 1 checklist below in addition to reviewing the standalone entry.
+- **E016–E029:** apply the Module 1 checklist below in addition to reviewing the standalone entry.
 
 Across all formats, ask whether prerequisites are introduced in a sensible order, whether answer
 disclosure is intentional and recorded as supported practice, whether English meanings and hints
@@ -125,7 +126,7 @@ completed activity is not independent performance or mastery.
 
 ## Module 1: First steps review checklist
 
-Review each of the thirteen Module 1 profiles both by direct entry and in the recommended sequence. For every
+Review each of the fourteen Module 1 profiles both by direct entry and in the recommended sequence. For every
 profile and reachable task:
 
 - Confirm the complete required introduction appears and is saved before assessment. Check the
@@ -164,6 +165,9 @@ profile and reachable task:
   introduction, related meaning alternatives, feedback disclosure and the separate supplied-order
   activity. Verify that noun-order errors retain the narrow structural target and that meaning
   selection and construction have distinct summaries and exposure.
+- For S12, inspect all four supplied cores and the three worked examples. Check the English
+  meanings, Danish expression tags, intact multiword blocks and narrow final-position target.
+  A scrambled core with a final circumstance must preserve target-vs-constraint separation.
 - Exercise correct, related-wrong, casing-only, multiword, blank and unsupported responses.
   Inspect the actual UI feedback and completed sentence, not only export metadata. Unknown latest
   answers must keep support/retry available and block Continue; a revision-defined known

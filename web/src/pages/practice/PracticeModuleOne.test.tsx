@@ -90,6 +90,7 @@ it.each([
   ["modal-obligation-meaning", "G030", "Requirement in context"],
   ["modal-permission-meaning", "G030", "Permission in context"],
   ["supplied-modal-order", "G005", "Supplied-modal statement order"],
+  ["one-final-circumstance", "G016", "Time or place at the end"],
 ] as const)("shows a learning label instead of the %s implementation scope", async (targetScopeId, targetSkillId, label) => {
   saveModuleOneRun();
   const scopedExercise = { ...subjectExercise, targetScopeId, targetSkillId };
@@ -125,6 +126,7 @@ it.each([
   ["Expressing an intention", "module-one-volition", "module-one-volition-1"],
   ["Understanding a requirement", "module-one-obligation", "module-one-obligation-1"],
   ["Understanding permission", "module-one-permission", "module-one-permission-1"],
+  ["Adding when and where", "module-one-circumstances", "module-one-circumstances-1"],
 ] as const)("creates %s only after its exact catalog choice", async (title, focusId, planRevision) => {
   let body = "";
   vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
@@ -491,7 +493,7 @@ it.each([
   expect(screen.getByRole("radio", { name: nextTitle })).toBeChecked();
 });
 
-it("stops the explicit sequence after the permission round", async () => {
+it("offers circumstances after the permission round", async () => {
   saveRunRecovery({
     ownerSessionId: owner, practiceSessionId: practiceId,
     focusId: "module-one-permission", planRevision: "module-one-permission-1", seed: 47,
@@ -509,6 +511,41 @@ it("stops the explicit sequence after the permission round", async () => {
   }));
   renderWithProviders(<Practice />);
 
+  expect(await screen.findByRole("button", { name: "Next: Adding when and where" })).toBeVisible();
+  await userEvent.setup().click(screen.getByRole("button", { name: "Next: Adding when and where" }));
+  expect(screen.getByRole("radio", { name: "Adding when and where" })).toBeChecked();
+});
+
+it("stops the explicit sequence after circumstances", async () => {
+  saveRunRecovery({
+    ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "module-one-circumstances", planRevision: "module-one-circumstances-1", seed: 47,
+  });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const completed = moduleOneState({
+    focusId: "module-one-circumstances", planRevision: "module-one-circumstances-1", title: "Adding when and where",
+    state: "completed", cursor: 4, itemCount: 4, currentExercise: null, introductionOpened: true,
+    summary: {
+      ...completedState().summary, plannedItems: 4, completedItems: 4, attemptedItems: 4,
+      rows: [{
+        label: "One final circumstance — constituent order", targetSkillId: "G016",
+        targetScopeId: "one-final-circumstance", assessmentMode: "constituent-order", assessmentRole: "primary",
+        plannedItems: 4, attemptedItems: 4, advancedItems: 4, attemptCount: 4, retryCount: 0,
+        firstOutcomes: { ...outcomes, fullyMet: 4, targetMet: 4, targetNotMet: 0 },
+        latestOutcomes: { ...outcomes, fullyMet: 4, targetMet: 4, targetNotMet: 0 },
+        firstWithSupport: 4, firstWithPriorExposure: 4,
+        lessonOpenedItems: 0, hintOpenedItems: 0,
+      }],
+    },
+  });
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.includes("/practice-sessions/")) return json(completed);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Practice />);
+
   expect(await screen.findByRole("button", { name: "Repeat this session" })).toBeVisible();
+  expect(screen.getByText("Constituent order", { exact: true })).toBeVisible();
   expect(screen.queryByRole("button", { name: /^Next:/ })).not.toBeInTheDocument();
 });
