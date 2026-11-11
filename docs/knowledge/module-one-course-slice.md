@@ -442,6 +442,27 @@ S05 and S06 introductions displayed roughly 124 and 104 words, including heading
 examples. For S07, keep the introduction focused on a single stored form, one worked example and
 the supplied noun bundles. This engineering walkthrough did not measure learner reading time.
 
+### Observed S07 delivery
+
+App 0.12.0 at source `369308a` adds the four guided possession activities and the
+S06 → S07 transition. Freeze `4128b7c` captured 6,766 compatibility rows for pair ten and
+S05–S06. The pair-ten review export remains byte-exact, and the pair-eleven export includes
+the complete teaching for S05 through S07. The annotated tag, source and authored release
+notes were read back from GitHub. [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.12.0)
+
+The complete local repository gate passed, including PostgreSQL integration and the engine
+branch coverage floor of 86%. All five exact-source CI jobs passed. The packaged Linux
+and local browser runs each passed 394 Chromium and WebKit journeys without retries or
+flakies. The exact image passed Trivy. [Release CI](https://github.com/liveweird/astrid/actions/runs/42933792760)
+
+The isolated upgrade verified exact replay of saved S05 and S06 on the new binary. Those
+sessions and the new S07 run replayed byte for byte after an observed app restart. A
+4,304,271-byte backup with mode `0600` restored into an isolated database before
+app-only promotion. Verification preserved the original PostgreSQL process and mounts,
+Flyway versions 1–3, and prior rows in all six history tables. The live preview passed
+108 browser checks without retries. The isolated stack was removed. Danish teaching
+review remains open.
+
 ## S08 reading-material vocabulary bridge
 
 **Implementation plan for the overnight continuation:** After verifying S07, add four meaning
