@@ -132,8 +132,8 @@ remained unchanged.
 
 The larger first-step contract reproduced a heap failure in `OpenApiContractTest`.
 The pinned validator expands schema references and injects a copy of all definitions
-into each compiled-schema cache entry. Its default maximum is 100. Astrid now uses
-Flow's `ValidationConfiguration.setMaxCacheSize` pattern, with four entries for all
+into each compiled-schema cache entry. Its default maximum is 100. The S10 integration
+adopted Flow's `ValidationConfiguration.setMaxCacheSize` pattern, with four entries for all
 strict, response-only and request-matrix builders. The donor is
 `server/src/test/kotlin/OpenApiConformance.kt` at Flow commit
 `4e43e48069cd5781c96332c2e660505ea358f644`.
@@ -153,3 +153,20 @@ first use retained the same builder, parser settings, four-entry cache and asser
 The full 219-test server suite passed, including all 18 OpenAPI methods in 23.152 test
 seconds, with 98.26% line and 81.83% branch coverage. This is a test-lifecycle correction.
 Production JVM settings and public contracts retain their existing configuration.
+
+
+### Two-entry bound for the expanded S12 contract
+
+Candidate `21d3f9c` passed the complete local gate, but [Linux CI run
+43018549675](https://github.com/liveweird/astrid/actions/runs/43018549675) exhausted the
+unchanged 512 MiB server-test heap in four `OpenApiContractTest` methods. The log records
+`OutOfMemoryError` while expanding/copying schemas and in cache maintenance; 231 tests
+ran and four failed. This is distinct from the earlier schema-correlation corrections.
+
+S12 reduces the compiled-schema bound from four entries to two through the same
+Flow-derived builder, retaining lazy strict-validator initialization, parser settings,
+all positive/negative assertions and the existing heap and coverage floors. Production
+JVM settings and application behavior are unchanged. On the current source, all 19
+OpenAPI methods passed locally in 107.90 seconds and the full 231-test server check
+passed in 141.61 seconds, including detekt and Kover. The final Linux gate is required
+before release; its outcome belongs in the [S12 delivery record](module-one-course-slice.md#s12-adding-when-and-where).

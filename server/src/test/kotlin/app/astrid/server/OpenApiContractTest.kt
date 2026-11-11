@@ -47,8 +47,8 @@ import kotlinx.serialization.json.jsonPrimitive
 
 class OpenApiContractTest {
     private val rawSpec = checkNotNull(javaClass.getResource("/openapi/documentation.yaml")).readText()
-    // Each cached schema copies the expanded definitions. Four entries pass the S10 journey
-    // at the unchanged 512 MiB test heap; Flow uses the same bounded-cache pattern.
+    // Each cached schema copies the expanded definitions. The expanded S12 contract uses two
+    // entries to bound those copies at the unchanged 512 MiB heap, following Flow's pattern.
     private fun validatorBuilder() =
         OpenApiInteractionValidator.createForInlineApiSpecification(rawSpec)
             .withSchemaValidationConfiguration(ValidationConfiguration().setMaxCacheSize(SCHEMA_CACHE_ENTRIES))
@@ -2089,7 +2089,7 @@ class OpenApiContractTest {
     )
 
     private companion object {
-        const val SCHEMA_CACHE_ENTRIES = 4
+        const val SCHEMA_CACHE_ENTRIES = 2
         const val EXERCISE_REQUEST =
             """{"formatId":"E001","targetSkillId":"G004","seed":7,"index":0,"contentRevision":"pilot-1","generatorRevision":"generator-1"}"""
     }
