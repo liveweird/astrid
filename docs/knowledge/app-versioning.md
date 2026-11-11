@@ -112,3 +112,10 @@ bare-infinitive selection and typing after ability `kan`. Five exact-source CI j
 and 400 journeys in each browser suite passed. A verified backup restore preceded
 app-only promotion, and the preview passed 114 checks.
 [Delivery record](module-one-course-slice.md#observed-s10-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.15.0)
+
+**Subsequent release — 11 November 2026:** App 0.16.0, source `9dd787c`, is the current
+private preview and adds three short contextual modality rounds. Five exact-source CI jobs and 406
+CI journeys passed; the unchanged image also passed 410 packaged-Linux
+journeys with the reviewed harness, all without retries or flakies. A verified backup
+restore preceded app-only promotion, and the preview passed 120 packaged-Linux checks.
+[Delivery record](module-one-course-slice.md#observed-s11-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.16.0)

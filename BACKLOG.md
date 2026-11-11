@@ -23,7 +23,6 @@ assistant's design proposals.
 ## Exercises and engine
 
 
-- [blocked] **BL-060 — Finish S11 contextual modality delivery.** Implementation is merged and pushed at `9dd787c`; the reviewed accessibility correction is merged locally at `2c3f577`. The complete repository gate and 410 packaged Chromium/WebKit tests pass without retries. Unblock by restoring GitHub DNS and existing-credential access in the agent's execution environment; the user's normal Terminal authentication works. Then push pending commits, retrieve exact-source CI browser logs, release 0.16.0, and complete verified backup/restore, app-only promotion, smoke checks and owned cleanup. The preview remains 0.15.0. Follow the [verification handoff](docs/knowledge/module-one-course-slice.md#s11-verification-handoff--11-november-2026), including the warning about the unexecuted session helper's stale HEAD guard.
 
 - [new] **BL-061 — Activate S12 final time and place constituents.** Supply a complete Danish core and familiar time/place expressions, then place one intact circumstance last. Keep G016 final placement separate from the supplied core order, record teaching/exposure and preserve saved evidence. An isolated implementation draft exists. Follow the [continuation contract](docs/knowledge/module-one-course-slice.md#prepared-s12s15-continuation--11-november-2026).
 

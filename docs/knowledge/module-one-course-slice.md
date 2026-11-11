@@ -671,6 +671,11 @@ and omit the optional private object from older wire payloads.
 
 ### S11 verification handoff — 11 November 2026
 
+**Superseded by the [observed S11 delivery](#observed-s11-delivery).** The remainder
+of this subsection preserves the pre-release handoff and failed-run history. Its
+GitHub-access, release-candidate, old-preview and remaining-operation statements
+are historical.
+
 Source `9dd787c14b3a5d4a414da763b4ef28ce511e63be` is committed, merged and
 pushed to `master`. App 0.16.0 remains a release candidate. The private preview
 still serves released 0.15.0 at `43e9726`. No 0.16.0 tag, GitHub release or
@@ -753,6 +758,57 @@ user to run it unchanged:** its first-publication guard requires HEAD exactly
 review any adaptation before use; prefer restoring ordinary Git/gh execution.
 Its underlying delivery helpers and `.local/s11/RELEASE-RESUME.md` preserve the
 remaining operations. No credential was copied or exported.
+
+### Observed S11 delivery
+
+The current private preview, app 0.16.0 at source `9dd787c`, adds three separate two-item rounds for selected
+intention, requirement and permission meanings. Each requires saved teaching, then one
+G030 contextual meaning selection and one G005 supplied-modal construction. Selection
+and word-order evidence stay separate. The annotated release tag, exact source and
+authored notes were read back from GitHub. [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.16.0)
+
+After the machine restart and login, ordinary authenticated GitHub access returned.
+The reviewed master descendant was pushed directly and the exact-source image-job
+log was retrieved. The optional Terminal bridge was not used. The underlying cause
+of the earlier environment difference remains unconfirmed.
+
+Freeze `d7724dc` captured 7,226 pair-thirteen and ability-practice engine, plan and wire
+rows from released 0.15.0. The retained teaching export stays byte-exact. Before
+publication, a deterministic choice-order bias was corrected and regression-tested for
+standalone tasks and all three profiles. The image preflight also corrected a browser
+retry helper to clear restored word tiles. The app's saved-response behavior remains
+covered. The full local gate passed, including PostgreSQL and all frozen records.
+Engine coverage measured 98.29% line and 86.30% branch, with server 98.26% and 81.83%.
+The strict request validator initializes on first use at the existing 512 MiB test heap
+and bounded cache. Every strict assertion and parser setting is preserved.
+
+All five authenticated exact-source CI jobs passed for `9dd787c`; the image-job log
+records 406 Linux browser journeys without retries or flakies. The
+unchanged app image `sha256:9762ed05860ac41a39d670a4dcdab313745f6d34a7a13be027ed6cb118839b15` then passed all 410 packaged-Linux
+journeys without retries or flakies using reviewed harness `2c3f577` and
+its pinned E2E tree. The harness descendant changes only delivery documentation and the
+reviewed accessibility test/scenario split; it does not claim another app build or a
+native-browser pass. Desktop/light and mobile/dark teaching and feedback were inspected.
+The exact image passed Trivy. [Release CI](https://github.com/liveweird/astrid/actions/runs/42960995220)
+
+Saved S09 and S10 runs replayed exactly after upgrade. Those runs and the three modal
+rounds replayed byte for byte after an observed app restart, including wrong and corrected
+choices, partial banks, noun-order constraints and hinted construction. The pre-machine-restart
+run, restart and runtime proofs were archived byte-identically. A separate mode-`0600`
+post-boot baseline verified the original main and QA container, image, mount and label
+identities against their new healthy processes. All five sessions replayed exactly before
+and after a fresh QA-only app restart, with QA PostgreSQL unchanged.
+
+A bounded server-free native WebKit launch and page probe passed after login recovery.
+This was startup diagnosis, not a native-suite pass; the earlier failed native full run
+remains recorded as failed.
+
+A 4,964,200-byte mode-`0600` backup restored into an isolated database before app-only
+promotion. From the post-boot baseline through backup/restore, promotion, smoke and
+cleanup, the main PostgreSQL process and mounts were preserved. Promotion retained all
+prior rows in six history tables and Flyway versions 1–3. All 120 packaged-Linux
+live-preview checks passed without retries. Owned QA resources were removed. Danish
+teaching review remains open.
 
 ### Prepared S12–S15 continuation — 11 November 2026
 
