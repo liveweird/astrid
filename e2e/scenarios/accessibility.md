@@ -8,7 +8,7 @@
 Every scan is axe with the `wcag2a`, `wcag2aa`, `wcag21a` and `wcag21aa` tags and must report zero
 violations.
 
-## Scenario: pilot formats, feedback and recovery states have no WCAG A/AA violations
+## Scenario: pilot formats and feedback states have no WCAG A/AA violations
 
 1. The learner opens the playground.
    - *Expected*: the "Danish engine playground" heading shows; the first exercise scans clean.
@@ -20,25 +20,40 @@ violations.
 4. For **Supply the present form**, **Repair the verb form** and **Repair the indefinite article**
    they open the format, scan, type "unknown" into its text field and check.
    - *Expected*: the unfamiliar-writing feedback status scans clean for each.
-5. The next exercise request is answered with a mocked `409 revision_conflict`
+
+## Scenario: pilot formats and feedback states have no WCAG A/AA violations in dark mode
+
+1. The browser emulates a dark colour scheme, then the learner repeats every step of the previous
+   scenario (formats and feedback).
+   - *Expected*: all scans stay clean in dark.
+2. They check the document.
+   - *Expected*: `<html data-mantine-color-scheme="dark">` — the emulated preference was honoured.
+
+## Scenario: revision conflict and uncertain result recovery states have no WCAG A/AA violations
+
+1. In a fresh browser context, the learner opens the playground and selects
+   **Repair the indefinite article**, enters "unknown" as the replacement article and checks it.
+   - *Expected*: the feedback status is visible, recreating the confirmed feedback immediately before
+     the recovery transition; this state is not scanned again because the format scenario already scans it.
+2. The next exercise request is answered with a mocked `409 revision_conflict`
    (`application/problem+json`) while they choose **Choose the present form**.
    - *Expected*: a **Reload engine** button appears and the recovery state scans clean.
-6. They press **Reload engine**, pick an answer, and the attempt request is aborted
+3. They press **Reload engine**, pick an answer, and the attempt request is aborted
    (`connectionfailed`) when they check.
    - *Expected*: "The result is not confirmed" shows and scans clean.
 
-## Scenario: pilot formats, feedback and recovery states have no WCAG A/AA violations in dark mode
+## Scenario: revision conflict and uncertain result recovery states have no WCAG A/AA violations in dark mode
 
 1. The browser emulates a dark colour scheme, then the learner repeats every step of the previous
-   scenario (formats, feedback, revision conflict, uncertain result).
-   - *Expected*: all scans stay clean in dark.
+   recovery scenario in a fresh browser context.
+   - *Expected*: the revision-conflict and uncertain-result states both scan clean in dark.
 2. They check the document.
    - *Expected*: `<html data-mantine-color-scheme="dark">` — the emulated preference was honoured.
 
 ## Scenario: open ${title} format list remains accessible with enlarged text
 
-The test is instantiated once for each of the thirteen playground format titles. Every instance uses a fresh
-browser context and performs the complete list, keyboard, scroll and accessibility checks for its `title`.
+The test is instantiated once for each title in the current `PILOT_FORMAT_TITLES` list. Every instance uses
+a fresh browser context and performs the complete list, keyboard, scroll and accessibility checks for its `title`.
 
 1. At a 320px-wide viewport with root text enlarged to 200% (computed font size 32px), the learner
    opens the playground and the generation controls.
@@ -67,4 +82,4 @@ The test runs once with `theme` = light and once with dark (emulated colour sche
 4. They press **Try again**, type "unfamiliar" and check.
    - *Expected*: the unfamiliar-writing feedback scans clean.
 
-Format options are matched by their exact accessible titles: the original present-form task and the new present-form tile task share a prefix. The list sweeps include all thirteen entries.
+Format options are matched by their exact accessible titles: the original present-form task and the new present-form tile task share a prefix. The list sweeps include every entry in the current format list.

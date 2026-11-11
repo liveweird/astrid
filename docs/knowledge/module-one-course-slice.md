@@ -697,12 +697,25 @@ credential after logout. A fresh desktop login and credential-access retry are n
 
 Resume by restoring credential access, reading the exact-source CI browser log,
 and completing Chromium/WebKit checks in a working native or packaged environment.
-An additional full packaged Linux run against the exact local image completed all
-203 Chromium tests successfully. Its first two WebKit accessibility sweeps exceeded
-the existing 30-second test timeout while the browser remained alive. The remaining
-run is still in progress. No full-suite pass is claimed, and the timeout cause is
-unconfirmed. Logs and traces remain under `.local/s11/linux-all.log` and its
-owned `linux-*` output directory. Preserve this evidence for BL-055 diagnosis. A successful native macOS run is an additional
+The additional packaged Linux run finished with 404 of 406 tests passing, two
+WebKit accessibility-sweep timeouts, and no skipped tests, retries or flakies.
+All 203 Chromium tests passed. Trace inspection shows that both sweeps reached
+the final uncertain-result state at about 29 seconds; their twelfth Axe scan
+exceeded the existing 30-second test deadline. Eleven scans had completed, with
+each Axe blank-page aggregation phase taking about 1.6 seconds. The browser
+remained alive and every subsequent WebKit test completed. This identifies a
+cumulative test-budget overrun; the performance difference between native and
+packaged Linux WebKit is not isolated to a particular cause. No full-suite pass
+is claimed. Logs, traces and the final result remain under `.local/s11/`.
+The bounded correction separates format/feedback and recovery sweeps in each
+theme, preserving every scan and transition, timeout and retry policy. Keep its
+verification separate from the original failed run and the earlier BL-055 issue.
+Independent review found no remaining actionable defect. All eight split sweeps
+passed in packaged Chromium and WebKit against the unchanged S11 image, with
+zero retries. The revised full suite lists 410 tests; a full run is still pending.
+The repository gate passed, including PostgreSQL tests. GitHub credential
+retrieval and native server-free WebKit startup still fail on resumption.
+A successful native macOS run is an additional
 local check chosen during implementation. Preserve required both-engine coverage
 and report the platform actually tested. Then create and read back the versioned
 release, restore a restricted-permission backup in isolation, promote only the app,

@@ -39,7 +39,7 @@ async function chooseFormat(page: Page, title: string) {
   await expect(selector).toHaveValue(title);
 }
 
-async function scanLearningStates(page: Page) {
+async function scanFormatAndFeedbackStates(page: Page) {
   await openPlayground(page);
   await scan(page);
 
@@ -62,7 +62,15 @@ async function scanLearningStates(page: Page) {
     await expect(page.getByRole("status")).toBeVisible();
     await scan(page);
   }
+}
 
+async function scanRecoveryStates(page: Page) {
+  await openPlayground(page);
+  // Recreate the confirmed feedback immediately preceding the recovery transition in the combined sweep.
+  await chooseFormat(page, "Repair the indefinite article");
+  await page.getByRole("textbox", { name: "Replacement article", exact: true }).fill("unknown");
+  await page.getByRole("button", { name: "Check answer" }).click();
+  await expect(page.getByRole("status")).toBeVisible();
   let reject = true;
   await page.route("**/api/v1/exercises", async (route) => {
     if (reject) {
@@ -88,13 +96,23 @@ async function scanLearningStates(page: Page) {
   await scan(page);
 }
 
-test("pilot formats, feedback and recovery states have no WCAG A/AA violations", async ({ page }) => {
-  await scanLearningStates(page);
+test("pilot formats and feedback states have no WCAG A/AA violations", async ({ page }) => {
+  await scanFormatAndFeedbackStates(page);
 });
 
-test("pilot formats, feedback and recovery states have no WCAG A/AA violations in dark mode", async ({ page }) => {
+test("pilot formats and feedback states have no WCAG A/AA violations in dark mode", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "dark" });
-  await scanLearningStates(page);
+  await scanFormatAndFeedbackStates(page);
+  await expect(page.locator("html")).toHaveAttribute("data-mantine-color-scheme", "dark");
+});
+
+test("revision conflict and uncertain result recovery states have no WCAG A/AA violations", async ({ page }) => {
+  await scanRecoveryStates(page);
+});
+
+test("revision conflict and uncertain result recovery states have no WCAG A/AA violations in dark mode", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await scanRecoveryStates(page);
   await expect(page.locator("html")).toHaveAttribute("data-mantine-color-scheme", "dark");
 });
 
