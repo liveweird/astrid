@@ -1,6 +1,7 @@
 import { Box, Button, Checkbox, Divider, Group, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import type { RefObject } from "react";
 import type { PracticeSession, PracticeSummaryRow } from "../api/models";
+import classes from "../theme.module.css";
 
 const OUTCOME_LABELS = [
   ["targetMet", "target met"],
@@ -100,13 +101,14 @@ export default function PracticeSummary({
           <Paper
             component="article"
             aria-label={row.label}
+            className={classes.summaryCard}
             key={`${row.targetSkillId ?? "lexical"}-${row.targetScopeId ?? ""}-${row.assessmentMode ?? ""}-${row.assessmentRole ?? ""}-${row.lexicalTarget?.entryId ?? ""}-${row.lexicalTarget?.senseId ?? ""}-${row.lexicalTarget?.facet ?? ""}-${row.lexicalTarget?.direction ?? ""}`}
             withBorder
             p="lg"
           >
             <Stack gap="sm">
               <Box>
-                <Title order={3} size="h4">{row.label}</Title>
+                <Title className={classes.summaryTitle} order={3} size="h4">{row.label}</Title>
                 <Text size="sm" fw={650}>{targetKind(row)}</Text>
                 {row.assessmentRole && (
                   <Text size="sm" c="dimmed">

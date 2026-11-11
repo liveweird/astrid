@@ -44,6 +44,16 @@
   padding: min(1rem, 16px);
 }
 
+.summaryCard,
+.summaryTitle {
+  min-width: 0;
+}
+
+.summaryTitle {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 .repairSentence {
   font-size: var(--mantine-font-size-lg);
   line-height: 1.7;
