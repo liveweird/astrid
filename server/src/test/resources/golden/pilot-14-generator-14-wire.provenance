@@ -1,0 +1,10 @@
+releaseSourceCommit=9dd787c14b3a5d4a414da763b4ef28ce511e63be
+releaseVersion=0.16.0
+captureDate=2026-11-11
+contentRevision=pilot-14
+generatorRevision=generator-14
+evaluationRevision=evaluation-14
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=4005
+fixtureSha256=df1ae392474b1f7d3bf6cb34b99104bfca2e998dea76dbe6103d4d7bce19d4d6
+description=All twenty-eight pair-fourteen formats: finite cycles and boundaries, bounded E014 samples, all E016-E028 tasks/scopes/private modal metadata, all E028 choice positions, retained and modal E025 order behavior, public and inspector wire, fingerprints, adverse grades and replay.

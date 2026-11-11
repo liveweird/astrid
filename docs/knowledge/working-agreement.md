@@ -261,3 +261,16 @@ full-course activation or operating-system power action.
 **11 November 2026 — S05 and S06 delivered:** App 0.11.0 serves both six-item sessions, with independent entry and explicit continuation from S04. The selected package passed independent review, exact-source CI, native browser checks and backed-up app-only promotion. The [delivery record](module-one-course-slice.md#observed-delivery-for-s05-and-s06) closes BL-054.
 
 **11 November 2026 — S07 and overnight continuation authorized:** The user approved the four-item possession session and asked for continued building until 08:00–08:30. Use Europe/Warsaw for the window, aim to finish active changes by 08:00, and use the final half-hour for verification and handoff. Follow the authored Module 1 sequence, with S08 as the next bounded package once S07 is verified. The standing focused commit, GitHub, release and private-preview delivery approvals apply. Danish teaching approval remains a separate review.
+
+
+## S12 final-circumstance activation
+
+**11 November 2026 — Confirmed:** after verified S11 delivery, the user's “go go” selects
+BL-061, S12 **Adding when and where**. Implement the four supplied-core time/place tasks
+in the [continuation contract](module-one-course-slice.md#prepared-s12s15-continuation--11-november-2026),
+with required teaching, intact constituents, narrow G016 evidence, separate requested-order
+constraints and exact saved replay. Freeze released pair fourteen before advancing CURRENT.
+The standing independent review, full Docker-backed gates, focused commit/merge/push,
+versioned release and backed-up app-only private-preview workflow apply. App 0.17.0 and
+pair fifteen are the prepared implementation assignments. S13–S15 remain separate future
+packages; Danish teaching review remains open.

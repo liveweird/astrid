@@ -22,9 +22,7 @@ assistant's design proposals.
 
 ## Exercises and engine
 
-
-
-- [new] **BL-061 — Activate S12 final time and place constituents.** Supply a complete Danish core and familiar time/place expressions, then place one intact circumstance last. Keep G016 final placement separate from the supplied core order, record teaching/exposure and preserve saved evidence. An isolated implementation draft exists. Follow the [continuation contract](docs/knowledge/module-one-course-slice.md#prepared-s12s15-continuation--11-november-2026).
+- [next] **BL-061 — Activate S12 final time and place constituents.** Supply a complete Danish core and familiar time/place expressions, then place one intact circumstance last. Keep G016 final placement separate from the supplied core order, record teaching/exposure and preserve saved evidence. An isolated implementation draft exists. Follow the [continuation contract](docs/knowledge/module-one-course-slice.md#prepared-s12s15-continuation--11-november-2026).
 
 - [new] **BL-062 — Activate S13 neutral yes/no questions.** After S12, transform supplied positive statements into finite-verb-first questions. Preserve uppercase `I`, scoped G018 evidence, required teaching, malformed-request isolation and versioned replay. An isolated implementation draft exists. Follow the [continuation contract](docs/knowledge/module-one-course-slice.md#prepared-s12s15-continuation--11-november-2026).
 

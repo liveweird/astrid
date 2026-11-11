@@ -436,6 +436,46 @@ tasks.register<JavaExec>("exportAbilityPracticeCompatibility") {
     outputs.files(abilityPracticeCompatibilityFixture, abilityPracticeCompatibilityProvenance)
 }
 
+val pilotFourteenCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-14-generator-14-evaluation-14.tsv")
+val pilotFourteenCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-14-generator-14-evaluation-14.provenance")
+
+tasks.register<JavaExec>("exportPilotFourteenCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-14 engine generation and evaluation compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PilotFourteenCompatibilityGoldenExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(
+            pilotFourteenCompatibilityFixture.asFile.absolutePath,
+            pilotFourteenCompatibilityProvenance.asFile.absolutePath,
+        )
+    })
+    outputs.files(pilotFourteenCompatibilityFixture, pilotFourteenCompatibilityProvenance)
+}
+
+val modalRoundPracticeCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/modal-round-practice-0.16.0.tsv")
+val modalRoundPracticeCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/modal-round-practice-0.16.0.provenance")
+
+tasks.register<JavaExec>("exportModalRoundPracticeCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.16.0 Module One S11 modal-round practice fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.ModalRoundPracticeCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(
+            modalRoundPracticeCompatibilityFixture.asFile.absolutePath,
+            modalRoundPracticeCompatibilityProvenance.asFile.absolutePath,
+        )
+    })
+    outputs.files(modalRoundPracticeCompatibilityFixture, modalRoundPracticeCompatibilityProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

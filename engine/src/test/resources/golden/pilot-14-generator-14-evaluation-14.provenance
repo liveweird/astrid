@@ -1,0 +1,11 @@
+releaseSourceCommit=9dd787c14b3a5d4a414da763b4ef28ce511e63be
+releaseVersion=0.16.0
+captureDate=2026-11-11
+contentRevision=pilot-14
+generatorRevision=generator-14
+evaluationRevision=evaluation-14
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=3291
+fixtureSha256=3ea4133c5a1b75eb224fec6b3f45c361e367bfb9a7e599f8cf685c70d300d29c
+reviewSha256=65dc76c6cf823d2dafc667805ec576bd0ddfd82534918fdf7674b3b953fcf9dc
+description=All twenty-eight pair-fourteen format cycles and seed/index boundaries plus every authored E016-E028 task, all six E025 tasks, all three E028 tasks, complete modal task/source/exposure and L011/L034-L036/G005/G030 metadata, and canonical, known-wrong, normalization, missing, order, unknown, malformed and wrong-kind evaluations.

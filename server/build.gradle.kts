@@ -409,6 +409,39 @@ tasks.register<JavaExec>("exportAbilityPracticeWireCompatibility") {
     outputs.files(abilityPracticeWireFixture, abilityPracticeWireProvenance)
 }
 
+val pilotFourteenWireFixture = layout.projectDirectory.file("src/test/resources/golden/pilot-14-generator-14-wire.tsv")
+val pilotFourteenWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-14-generator-14-wire.provenance")
+
+tasks.register<JavaExec>("exportPilotFourteenWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-14 public and private wire compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.PilotFourteenWireCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(pilotFourteenWireFixture.asFile.absolutePath, pilotFourteenWireProvenance.asFile.absolutePath)
+    })
+    outputs.files(pilotFourteenWireFixture, pilotFourteenWireProvenance)
+}
+
+val modalRoundPracticeWireFixture =
+    layout.projectDirectory.file("src/test/resources/golden/modal-round-practice-0.16.0-wire.tsv")
+val modalRoundPracticeWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/modal-round-practice-0.16.0-wire.provenance")
+
+tasks.register<JavaExec>("exportModalRoundPracticeWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.16.0 Module One S11 modal-round practice wire fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.ModalRoundPracticeWireCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(modalRoundPracticeWireFixture.asFile.absolutePath, modalRoundPracticeWireProvenance.asFile.absolutePath)
+    })
+    outputs.files(modalRoundPracticeWireFixture, modalRoundPracticeWireProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

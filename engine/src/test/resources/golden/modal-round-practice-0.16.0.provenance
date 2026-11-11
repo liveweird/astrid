@@ -1,0 +1,9 @@
+releaseSourceCommit=9dd787c14b3a5d4a414da763b4ef28ce511e63be
+releaseVersion=0.16.0
+captureDate=2026-11-11
+planPairs=module-one-volition-1:pilot-14/generator-14/evaluation-14,module-one-obligation-1:pilot-14/generator-14/evaluation-14,module-one-permission-1:pilot-14/generator-14/evaluation-14
+planRevisions=module-one-volition-1,module-one-obligation-1,module-one-permission-1
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=83
+fixtureSha256=abe5f39811cde456c04c85d444a2b98af283127c858d855944a058acf8c6eca6
+description=The three published two-item S12 modal-round plans at four seeds, each with contextual interpretation then supplied word order, full required teaching, exact exposure release order, scoped targets, summaries, mixed completion boundaries, and adverse evaluation shapes.
