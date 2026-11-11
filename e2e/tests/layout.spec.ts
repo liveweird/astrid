@@ -5,6 +5,24 @@ import { PILOT_FORMAT_TITLES } from "../support/formats.js";
 import { chooseVocabulary, VOCABULARY } from "../support/vocabulary.js";
 import { expectFeedbackBadgesUnclipped } from "../support/feedback-layout.js";
 
+const FORMAT_START_BATCH_SIZE = 10;
+
+function partitionFormatStarts(titles: readonly string[]) {
+  const batches = Array.from({ length: Math.ceil(titles.length / FORMAT_START_BATCH_SIZE) }, (_, index) => ({
+    label: `${index * FORMAT_START_BATCH_SIZE + 1}-${Math.min((index + 1) * FORMAT_START_BATCH_SIZE, titles.length)}`,
+    titles: titles.slice(index * FORMAT_START_BATCH_SIZE, (index + 1) * FORMAT_START_BATCH_SIZE),
+  }));
+  const flattened = batches.flatMap((batch) => batch.titles);
+  const preserved = flattened.length === titles.length &&
+    flattened.every((title, index) => title === titles[index]) &&
+    new Set(flattened).size === titles.length &&
+    batches.every((batch) => batch.titles.length <= FORMAT_START_BATCH_SIZE);
+  if (!preserved) throw new Error("Format navigation batches must preserve every unique starting title in order");
+  return batches;
+}
+
+const FORMAT_START_BATCHES = partitionFormatStarts(PILOT_FORMAT_TITLES);
+
 async function expectNoHorizontalOverflow(page: Page, state: string) {
   const dimensions = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
@@ -132,33 +150,35 @@ test("all pilot formats and recovery states reflow at 320px with 200% text", asy
 
 for (const viewport of [{ width: 844, height: 390 }, { width: 320, height: 400 }]) {
   for (const fontSize of [16, 32]) {
-    test(`format navigation stays inside short ${viewport.width}x${viewport.height} windows at ${fontSize}px`, async ({ page }) => {
-      await page.setViewportSize(viewport);
-      await page.goto("/playground");
-      await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
-      if (fontSize === 32) await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-      expect(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize)).toBe(`${fontSize}px`);
-      await openGenerationControls(page);
-      const selector = page.getByRole("combobox", { name: "Exercise type" });
+    for (const batch of FORMAT_START_BATCHES) {
+      test(`format navigation batch ${batch.label} stays inside short ${viewport.width}x${viewport.height} windows at ${fontSize}px`, async ({ page }) => {
+        await page.setViewportSize(viewport);
+        await page.goto("/playground");
+        await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
+        if (fontSize === 32) await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+        expect(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize)).toBe(`${fontSize}px`);
+        await openGenerationControls(page);
+        const selector = page.getByRole("combobox", { name: "Exercise type" });
 
-      for (const title of PILOT_FORMAT_TITLES) {
-        await test.step(`reopen ${title}`, async () => {
-          if ((await selector.inputValue()) !== title) await chooseFormat(page, title);
-          await selector.click();
-          const current = page.getByRole("option", { name: title, exact: true });
-          await expect(current).toHaveAttribute("data-combobox-selected", "true");
-          await expectHighlightedFormatVisible(page);
-          const documentScroll = await page.evaluate(() => document.scrollingElement?.scrollTop);
-          for (let step = 0; step < PILOT_FORMAT_TITLES.length; step += 1) {
-            await page.keyboard.press("ArrowDown");
+        for (const title of batch.titles) {
+          await test.step(`reopen ${title}`, async () => {
+            if ((await selector.inputValue()) !== title) await chooseFormat(page, title);
+            await selector.click();
+            const current = page.getByRole("option", { name: title, exact: true });
+            await expect(current).toHaveAttribute("data-combobox-selected", "true");
             await expectHighlightedFormatVisible(page);
-          }
-          expect(await page.evaluate(() => document.scrollingElement?.scrollTop)).toBe(documentScroll);
-          await expectNoHorizontalOverflow(page, `${viewport.width}x${viewport.height} at ${fontSize}px`);
-          await page.keyboard.press("Escape");
-          await expect(selector).toHaveAttribute("aria-expanded", "false");
-        });
-      }
-    });
+            const documentScroll = await page.evaluate(() => document.scrollingElement?.scrollTop);
+            for (let step = 0; step < PILOT_FORMAT_TITLES.length; step += 1) {
+              await page.keyboard.press("ArrowDown");
+              await expectHighlightedFormatVisible(page);
+            }
+            expect(await page.evaluate(() => document.scrollingElement?.scrollTop)).toBe(documentScroll);
+            await expectNoHorizontalOverflow(page, `${viewport.width}x${viewport.height} at ${fontSize}px`);
+            await page.keyboard.press("Escape");
+            await expect(selector).toHaveAttribute("aria-expanded", "false");
+          });
+        }
+      });
+    }
   }
 }

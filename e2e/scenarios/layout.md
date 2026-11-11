@@ -32,21 +32,28 @@
    - *Expected*: **Reload engine** shows without horizontal overflow or clipped labels; still no
      page errors.
 
-## Scenario: format navigation stays inside short ${viewport.width}x${viewport.height} windows at ${fontSize}px
+## Scenario: format navigation batch ${batch.label} stays inside short ${viewport.width}x${viewport.height} windows at ${fontSize}px
 
 Runs for each of two windows (844×390 and 320×400) at each of two text sizes (16px, and 200% text
-= 32px): four instances.
+= 32px). The complete starting-format list is partitioned in order into batches of at most ten, so
+each window and text size gets two fresh-context instances (10 and 7 starts) for the seventeen-format
+standalone sweep. Each of the 17 starts traverses all 17 entries, retaining 289 navigation checks per
+window and text size. A
+module-load invariant proves that flattening the batches returns every unique original title in its
+original order and that no batch exceeds ten starts.
 
 1. The learner opens the playground at that window size, enlarges text if the size is 32px and opens
    the generation controls.
    - *Expected*: the root font size equals the size under test.
-2. For each of the thirteen playground formats they select it if needed, then open the Exercise type list.
+2. For each starting format in the named batch they select it if needed, then open the Exercise type list.
    - *Expected*: the current format is the selected option and the highlighted option is fully
      visible inside the list and window.
-3. They press Arrow Down once per format.
+3. From every starting format, they press Arrow Down once per entry in the complete format list.
    - *Expected*: the highlighted option stays visible every time and the document scroll position is
      unchanged.
 4. They check overflow and press Escape.
    - *Expected*: no horizontal overflow; the list closes (`aria-expanded` false).
 
-Format options are matched by their exact accessible titles: the original present-form task and the new present-form tile task share a prefix. The list sweeps include all thirteen entries.
+Format options are matched by their exact accessible titles because several tasks share prefixes.
+Every starting title still traverses the entire list, so batching changes test isolation and runtime
+only; it does not remove any starting state, transition, focus, bounds, scroll or Escape assertion.
