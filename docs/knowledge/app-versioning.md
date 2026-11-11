@@ -106,3 +106,9 @@ personal-statement present-form session. Five exact-source CI jobs and 398 journ
 each browser suite passed. A verified backup restore preceded app-only promotion, and
 the preview passed 112 checks.
 [Delivery record](module-one-course-slice.md#observed-s09-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.14.0)
+
+**Subsequent release — 11 November 2026:** App 0.15.0, source `43e9726`, adds
+bare-infinitive selection and typing after ability `kan`. Five exact-source CI jobs
+and 400 journeys in each browser suite passed. A verified backup restore preceded
+app-only promotion, and the preview passed 114 checks.
+[Delivery record](module-one-course-slice.md#observed-s10-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.15.0)

@@ -592,3 +592,32 @@ L011 supplies the selected reading sense, L018 the letter and L031 the language 
 Record prompt, required-teaching, hint and feedback exposure separately. Direct entry and
 explicit continuation from S09 use the existing chooser. The final profile opens the
 chooser on repeat and creates no subsequent run automatically.
+
+### Observed S10 delivery
+
+App 0.15.0 at source `43e9726` adds the four-item bare-infinitive session after
+supplied ability `kan`. E026/E027 keep selection and typed response constraints separate,
+with distinct marker, finite-form, casing and unknown feedback. The plan pins pair
+thirteen. All six authored/worked subject records carry scoped C014 permissions.
+The annotated release tag, source and authored notes were read back from GitHub.
+[GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.15.0)
+
+Freeze `156c86e` captured 7,080 pair-twelve and S09 engine, plan and wire rows from
+released 0.14.0. The retained teaching export stays byte-exact. The full local repository
+gate passed, including PostgreSQL and all frozen records. Measured engine coverage was
+98.25% line and 86.33% branch, with server coverage 98.24% and 81.87%. Independent
+review found no actionable defect. A focused metadata regression covers all six
+subject records. The full browser run caught a stale chooser-count assertion, which was
+corrected before publication and carried forward into later drafts. All five exact-source
+CI jobs passed with 400 Linux browser journeys.
+The same 400 journeys passed natively without retries or flakies. Desktop/light and
+mobile/dark teaching and feedback were inspected. The exact image
+`sha256:8dfc225feedc0f36285a7a228ee13432158a2da38573b477afa131fd3efb57ee` passed Trivy. [Release CI](https://github.com/liveweird/astrid/actions/runs/42952926055)
+
+Saved S09 and reading-vocabulary runs replayed exactly after upgrade. Those runs and
+S10 replayed byte for byte after an observed app restart, including wrong, corrected,
+unknown and hinted answers. A 4,795,850-byte mode-`0600` backup restored into
+an isolated database before app-only promotion. Prior rows in all six history tables,
+the PostgreSQL process and mounts, and Flyway versions 1–3 were preserved. All
+114 live-preview checks passed without retries. Owned QA resources were
+removed. Danish teaching review remains open.
