@@ -17,6 +17,7 @@ object PracticeCompletionPolicy {
             null -> true
             MODULE_ONE_RULE -> latestAttempt.hasKnownTargetOutcome() || latestAttempt.hasKnownConstraintOutcome()
             MODULE_ONE_ORDER_RULE -> latestAttempt.hasKnownOrderConstraintOutcome()
+            ModalRoundPolicies.COMPLETION_RULE_ID -> ModalRoundPolicies.canAdvance(latestAttempt)
             else -> false
         }
     }

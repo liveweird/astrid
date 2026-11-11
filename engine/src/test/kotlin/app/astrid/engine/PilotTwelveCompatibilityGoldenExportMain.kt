@@ -215,6 +215,7 @@ internal object PilotTwelveCompatibilityGolden {
         when (task) {
             is NamedPresentTask -> namedPresentTask(task)
             is SubjectFirstOrderTask -> subjectFirstOrderTask(task)
+            is ModalConstructionTask -> error("Pair twelve cannot contain modal construction tasks")
         }
     }
 

@@ -46,7 +46,7 @@ class PracticeApplicationTest {
             trustedHost()
             cookie("astrid_session", auth.cookie)
         }.bodyAsText().let { wireJson.parseToJsonElement(it).jsonObject.getValue("profiles").jsonArray }
-        assertEquals(13, profiles.size)
+        assertEquals(16, profiles.size)
         val profile = profiles.single { it.jsonObject.getValue("focusId").jsonPrimitive.content == "verb-article-gaps" }.jsonObject
         assertEquals("verb-article-gaps-1", profile.getValue("planRevision").jsonPrimitive.content)
         assertEquals("Verbs and articles together", profile.getValue("title").jsonPrimitive.content)
@@ -169,6 +169,9 @@ class PracticeApplicationTest {
                 "module-one-reading-words/module-one-reading-words-1",
                 "module-one-personal/module-one-personal-1",
                 "module-one-ability/module-one-ability-1",
+                "module-one-volition/module-one-volition-1",
+                "module-one-obligation/module-one-obligation-1",
+                "module-one-permission/module-one-permission-1",
             ),
             choices.map { profile ->
                 profile.jsonObject.let {
@@ -176,7 +179,7 @@ class PracticeApplicationTest {
                 }
             },
         )
-        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4, 6, 6, 4, 4, 6, 4), choices.map {
+        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4, 6, 6, 4, 4, 6, 4, 2, 2, 2), choices.map {
             it.jsonObject.getValue("itemCount").jsonPrimitive.content.toInt()
         })
 

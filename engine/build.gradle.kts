@@ -17,8 +17,12 @@ data class PilotReview(val task: String, val report: String, val flag: String?, 
 
 listOf(
     PilotReview(
-        "exportPilotReview", "pilot-13.md", null,
-        "Writes the deterministic current pilot content review to engine/build/review/pilot-13.md",
+        "exportPilotReview", "pilot-14.md", null,
+        "Writes the deterministic current pilot content review to engine/build/review/pilot-14.md",
+    ),
+    PilotReview(
+        "exportPilotThirteenReview", "pilot-13-retained.md", "--pilot-thirteen",
+        "Writes the retained pilot-13 content review to engine/build/review/pilot-13-retained.md",
     ),
     PilotReview(
         "exportPilotTwelveReview", "pilot-12-retained.md", "--pilot-twelve",

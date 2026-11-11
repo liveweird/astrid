@@ -621,3 +621,49 @@ an isolated database before app-only promotion. Prior rows in all six history ta
 the PostgreSQL process and mounts, and Flyway versions 1–3 were preserved. All
 114 live-preview checks passed without retries. Owned QA resources were
 removed. Danish teaching review remains open.
+
+## S11 contextual modal meanings
+
+App 0.16.0 adds three separate two-item profiles pinned to pair fourteen. Each requires
+its own saved introduction, then an E028 meaning selection and an E025 supplied-word
+construction. Continue explicitly from S10 through intention, requirement and permission.
+
+| Focus and revision suffix `-1` | Title | Meaning statement | Supplied construction |
+| --- | --- | --- | --- |
+| `module-one-volition` | Expressing an intention | `Hun vil læse et brev.` | `Vi vil læse en avis.` |
+| `module-one-obligation` | Understanding a requirement | `De skal læse en bog.` | `Jeg skal læse en avis.` |
+| `module-one-permission` | Understanding permission | `Du må læse et brev.` | `Hun må læse en bog.` |
+
+Supply an explicit English situation for each selected reading. The first speaker chooses
+an activity, the teacher requires reading in the second, and the letter owner grants
+permission in the third. Teach separate worked examples `Jeg vil læse en bog.`,
+`Du skal læse et brev.` and `Han må læse en avis.` with complete English meanings.
+The selected senses and construction are source-checked. [DDO ville, sense 1](https://ordnet.dk/ddo/ordbog/ville) · [DDO skulle, senses 1–1.a](https://ordnet.dk/ddo/ordbog/skulle) · [DDO måtte, permission sense 3](https://ordnet.dk/ddo/ordbog/m%C3%A5tte)
+
+E028 supplies the Danish statement and three English meanings, exactly “A personal wish
+or intention.”, “An external requirement.” and “Permission to do it.” Rotation depends
+on the seed while the three different meanings occupy different positions across the
+three rounds. G030 scopes `modal-volition-meaning`, `modal-obligation-meaning` and
+`modal-permission-meaning` record selection. A wrong supplied meaning is known and gets
+contextual correction. Reject an invented meaning before persistence. Keep raw input.
+
+E025 supplies five word occurrences, the intended modal and the complete proposition.
+G005 scope `supplied-modal-order` records word order. Assess subject first, finite modal
+second and bare infinitive third. Reversing the article and noun can meet those three
+positions while failing the requested complete order. Such feedback leaves broader
+language validity unknown. Partial banks report missing required words, while duplicate
+or foreign occurrences are rejected by the API. Meaning selection and supplied ordering
+have separate summary rows and exposure keys.
+
+The new `module-one-modal-round-outcome-1` and `module-one-modal-round-exposure-1`
+policies combine known selection outcomes with bounded order and missing-word outcomes.
+Introduced forms, contextual meanings, supplied support, the pattern and the exact
+construction have distinct exposure. Construction feedback discloses both the requested
+order and its pattern. This records supported practice without a proficiency claim.
+
+L034–L036 introduce `ville/vil`, `skulle/skal` and `måtte/må`. Scope C014 to the selected
+reading frames and license the exact authored/worked subjects. Extend L011 for these
+count-noun modal frames. Preserve all 109 existing catalogue clauses and previous pinned
+plans. New private modal-source details bind task, modal entry/sense, selected meaning,
+frame and context. Include every field in pair-fourteen reproduction fingerprints,
+and omit the optional private object from older wire payloads.

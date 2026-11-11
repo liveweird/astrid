@@ -13,6 +13,7 @@ object PracticeFeedbackExposureCalculator {
                 MODULE_ONE_ORDER_EXPOSURE_POLICY -> if (attempts.any { it.disclosesModuleOneOrder() }) candidateKeys else emptyList()
                 ReadingWordsPracticePlanner.EXPOSURE_POLICY_ID ->
                     if (attempts.any { it.confirmsReadingMeaning() }) candidateKeys else emptyList()
+                ModalRoundPolicies.EXPOSURE_POLICY_ID -> ModalRoundPolicies.releasedKeys(candidateKeys, attempts)
                 else -> error("Unsupported exposure policy: $exposurePolicyId")
             }
         } else if (assessments.isEmpty()) {

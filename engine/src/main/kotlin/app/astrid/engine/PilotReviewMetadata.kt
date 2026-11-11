@@ -26,9 +26,7 @@ internal object PilotReviewMetadata {
         fixedWords: List<FixedWordEntry> = emptyList(),
     ): List<LexicalReviewRecord> =
         pronounRecords(
-            pronouns,
-            identifyingPronoun,
-            moduleOne,
+            pronouns, identifyingPronoun, moduleOne,
             verbs.any { it.lexicalId == "L033" },
         ) +
             referencePronounRecords(referencePronouns) + verbRecords(verbs, moduleOne) + nounRecords(nouns, matching) +
@@ -72,8 +70,7 @@ internal object PilotReviewMetadata {
         val records = pronouns.map { entry ->
             val detail = pronounDetails.getValue(entry.id)
             val extension = pronounScopeExtension(
-                entry.id,
-                includesAbilityFrames,
+                entry.id, includesAbilityFrames,
             )
             val constraints = detail.second + (if (moduleOne) moduleOneConstraints[entry.id].orEmpty() else "") + extension.first
             record(
@@ -110,6 +107,7 @@ internal object PilotReviewMetadata {
 
     private fun verbRecords(verbs: List<Verb>, moduleOne: Boolean): List<LexicalReviewRecord> {
         val includesAbilityFrame = verbs.any { it.lexicalId == AbilityContent.MODAL_LEXICAL_ID }
+        val includesModalRound = verbs.any { it.lexicalId == "L034" }
         val details =
             mapOf(
                 "L009" to ("possess or have available" to "C002 with a human subject and licensed count noun; auxiliary uses excluded."),
@@ -126,6 +124,19 @@ internal object PilotReviewMetadata {
                         "Pair thirteen authored C014 ability frames only; kan is the supplied finite modal and " +
                         "broader modality is excluded."
                 ),
+                "L034" to (
+                    "L034-S01: personal wish or intention" to
+                        "Pair fourteen authored C014 volition frames only; prediction, requests, past forms, and ellipsis excluded."
+                ),
+                "L035" to (
+                    "L035-S01: external obligation" to
+                        "Pair fourteen authored C014 requirement frames only; hearsay, prediction, past forms, and ellipsis excluded."
+                ),
+                "L036" to (
+                    "L036-S01: permission" to
+                        "Pair fourteen authored C014 permission frames only; epistemic readings, negation, " +
+                            "past forms, and ellipsis excluded."
+                ),
             )
         return verbs.map { verb ->
             val detail = details.getValue(verb.lexicalId)
@@ -134,9 +145,16 @@ internal object PilotReviewMetadata {
                     detail.second.removeSuffix(" only; other copular and auxiliary uses excluded.") +
                         "; pair eight additionally licenses the ten enumerated C004 name and occupation clauses. " +
                         "Other copular and auxiliary uses remain excluded."
-                includesAbilityFrame && verb.lexicalId == AbilityContent.READ_LEXICAL_ID ->
-                    detail.second.removeSuffix(" only.") +
-                        "; pair thirteen additionally licenses the C014 written-language ability frames."
+                verb.lexicalId == AbilityContent.READ_LEXICAL_ID && (includesAbilityFrame || includesModalRound) -> buildString {
+                    append(detail.second.removeSuffix(" only."))
+                    if (includesAbilityFrame) {
+                        append("; pair thirteen additionally licenses the C014 written-language ability frames")
+                    }
+                    if (includesModalRound) {
+                        append("; pair fourteen additionally licenses three contextual C014 written-language modal frames")
+                    }
+                    append(".")
+                }
                 else -> detail.second
             }
             record(
@@ -256,6 +274,9 @@ internal object PilotReviewMetadata {
             "L029" to "https://ordnet.dk/ddo/ordbog/bo",
             "L030" to "https://ordnet.dk/ddo/ordbog/tale",
             "L033" to "https://ordnet.dk/ddo/ordbog/11028611",
+            "L034" to "https://ordnet.dk/ddo/ordbog/ville",
+            "L035" to "https://ordnet.dk/ddo/ordbog/skulle",
+            "L036" to "https://ordnet.dk/ddo/ordbog/m%C3%A5tte",
         )
     private const val INFINITIVE_SOURCE = "https://lex.dk/infinitiv"
     private val MODAL_SUBJECT_IDS = setOf("L001", "L002", "L003", "L004", "L005", "L007")

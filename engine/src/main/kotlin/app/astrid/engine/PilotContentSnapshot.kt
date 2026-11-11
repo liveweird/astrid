@@ -66,7 +66,11 @@ internal object PilotContentValidator {
             )
         ) {
             EXPECTED_CURRENT_SKILL_IDS
-        } else if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+        } else if (snapshot.contentRevision in setOf(
+                PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
+                PilotContent.CURRENT_CONTENT_REVISION,
+            )
+        ) {
             EXPECTED_PILOT_THIRTEEN_SKILL_IDS
         } else {
             EXPECTED_RETAINED_SKILL_IDS
@@ -88,6 +92,7 @@ internal object PilotContentValidator {
                     PilotContent.RETAINED_TEN_CONTENT_REVISION,
                     PilotContent.RETAINED_ELEVEN_CONTENT_REVISION,
                     PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
+                    PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) CURRENT_SENTENCE_COUNT else RETAINED_SENTENCE_COUNT
@@ -111,7 +116,8 @@ internal object PilotContentValidator {
             contentRevision == PilotContent.RETAINED_TEN_CONTENT_REVISION -> EXPECTED_CURRENT_LEXICAL_IDS
             contentRevision == PilotContent.RETAINED_ELEVEN_CONTENT_REVISION -> EXPECTED_CURRENT_LEXICAL_IDS
             contentRevision == PilotContent.RETAINED_TWELVE_CONTENT_REVISION -> EXPECTED_PILOT_TWELVE_LEXICAL_IDS
-            contentRevision == PilotContent.CURRENT_CONTENT_REVISION -> EXPECTED_PILOT_THIRTEEN_LEXICAL_IDS
+            contentRevision == PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION -> EXPECTED_PILOT_THIRTEEN_LEXICAL_IDS
+            contentRevision == PilotContent.CURRENT_CONTENT_REVISION -> EXPECTED_PILOT_FOURTEEN_LEXICAL_IDS
             else -> EXPECTED_RETAINED_LEXICAL_IDS
         }
 
@@ -174,6 +180,7 @@ internal object PilotContentValidator {
                 "E025" to "G005",
                 "E026" to "G030",
                 "E027" to "G030",
+                "E028" to "G030",
             )
         snapshot.formats.forEach { format ->
             expectedTargets[format.id]?.let { expected ->
@@ -302,6 +309,7 @@ internal object PilotContentValidator {
                 PilotContent.RETAINED_TEN_CONTENT_REVISION,
                 PilotContent.RETAINED_ELEVEN_CONTENT_REVISION,
                 PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
+                PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
                 ->
                     setOf("L014-S01", "L015-S01", "L018-S01", "L024-S01")
@@ -444,6 +452,7 @@ internal object PilotContentValidator {
     private const val LAST_CURRENT_LEXICAL_NUMBER = 27
     private const val LAST_PILOT_TWELVE_LEXICAL_NUMBER = 32
     private const val LAST_PILOT_THIRTEEN_LEXICAL_NUMBER = 33
+    private const val LAST_PILOT_FOURTEEN_LEXICAL_NUMBER = 36
     private const val ID_NUMBER_WIDTH = 3
     private val EXPECTED_RETAINED_SKILL_IDS =
         (1..LAST_SKILL_NUMBER).map { "G${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
@@ -463,6 +472,8 @@ internal object PilotContentValidator {
         (1..LAST_PILOT_TWELVE_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_PILOT_THIRTEEN_LEXICAL_IDS =
         (1..LAST_PILOT_THIRTEEN_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
+    private val EXPECTED_PILOT_FOURTEEN_LEXICAL_IDS =
+        (1..LAST_PILOT_FOURTEEN_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_PILOT_EIGHT_FORMAT_IDS =
         (1..LAST_PILOT_EIGHT_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_PILOT_NINE_FORMAT_IDS =
@@ -471,6 +482,8 @@ internal object PilotContentValidator {
         (1..LAST_CURRENT_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_PILOT_THIRTEEN_FORMAT_IDS =
         (1..LAST_PILOT_THIRTEEN_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
+    private val EXPECTED_PILOT_FOURTEEN_FORMAT_IDS =
+        (1..LAST_PILOT_FOURTEEN_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_PILOT_SIX_FORMAT_IDS =
         (1..LAST_PILOT_SIX_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_PILOT_THREE_FORMAT_IDS =
@@ -499,6 +512,9 @@ internal object PilotContentValidator {
             "https://ordnet.dk/ddo/ordbog/i",
             "https://ordnet.dk/ddo/ordbog/11028611",
             "https://lex.dk/infinitiv",
+            "https://ordnet.dk/ddo/ordbog/ville",
+            "https://ordnet.dk/ddo/ordbog/skulle",
+            "https://ordnet.dk/ddo/ordbog/m%C3%A5tte",
             "https://ordnet.dk/ddo/ordbog/bog",
             "https://ordnet.dk/ddo/ordbog/avis",
             "https://ordnet.dk/ddo/ordbog/bil",
@@ -539,10 +555,12 @@ internal object PilotContentValidator {
         PilotContent.RETAINED_TEN_CONTENT_REVISION to EXPECTED_CURRENT_FORMAT_IDS,
         PilotContent.RETAINED_ELEVEN_CONTENT_REVISION to EXPECTED_CURRENT_FORMAT_IDS,
         PilotContent.RETAINED_TWELVE_CONTENT_REVISION to EXPECTED_CURRENT_FORMAT_IDS,
-        PilotContent.CURRENT_CONTENT_REVISION to EXPECTED_PILOT_THIRTEEN_FORMAT_IDS,
+        PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION to EXPECTED_PILOT_THIRTEEN_FORMAT_IDS,
+        PilotContent.CURRENT_CONTENT_REVISION to EXPECTED_PILOT_FOURTEEN_FORMAT_IDS,
     )
     private const val LAST_PILOT_EIGHT_FORMAT_NUMBER = 19
     private const val LAST_PILOT_NINE_FORMAT_NUMBER = 21
     private const val LAST_CURRENT_FORMAT_NUMBER = 25
     private const val LAST_PILOT_THIRTEEN_FORMAT_NUMBER = 27
+    private const val LAST_PILOT_FOURTEEN_FORMAT_NUMBER = 28
 }

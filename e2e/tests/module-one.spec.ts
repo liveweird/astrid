@@ -51,6 +51,29 @@ const ABILITY_FORMS: Record<string, string> = {
   "Hun kan | et brev.": "læse", "Vi kan | dansk.": "læse",
   "Du kan | et brev.": "læse", "De kan | dansk.": "læse",
 };
+const MODAL_CHOICES = [
+  "A personal wish or intention.", "An external requirement.", "Permission to do it.",
+] as const;
+const MODAL_ROUNDS = [
+  {
+    focus: "module-one-volition", title: "Expressing an intention", scope: "modal-volition-meaning",
+    statement: "Hun vil læse et brev.", form: "at ville → vil", example: "Jeg vil læse en bog.",
+    correct: MODAL_CHOICES[0], wrong: MODAL_CHOICES[1], order: ["vi", "vil", "læse", "en", "avis"],
+    next: "Understanding a requirement", orderVariant: "reversed-noun-phrase",
+  },
+  {
+    focus: "module-one-obligation", title: "Understanding a requirement", scope: "modal-obligation-meaning",
+    statement: "De skal læse en bog.", form: "at skulle → skal", example: "Du skal læse et brev.",
+    correct: MODAL_CHOICES[1], wrong: MODAL_CHOICES[2], order: ["jeg", "skal", "læse", "en", "avis"],
+    next: "Understanding permission", orderVariant: "missing-object",
+  },
+  {
+    focus: "module-one-permission", title: "Understanding permission", scope: "modal-permission-meaning",
+    statement: "Du må læse et brev.", form: "at måtte → må", example: "Han må læse en avis.",
+    correct: MODAL_CHOICES[2], wrong: MODAL_CHOICES[0], order: ["hun", "må", "læse", "en", "bog"],
+    next: null, orderVariant: "canonical",
+  },
+] as const;
 const SUBJECT_FIRST_ORDERS: Record<string, string[]> = {
   "We work.": ["vi", "arbejder"],
   "You sleep.": ["du", "sover"],
@@ -110,6 +133,15 @@ async function submitOrder(page: Page, exercise: CourseExercise, properSubset = 
   await page.getByRole("button", { name: "Check answer", exact: true }).click();
   await expect(page.getByRole("status")).toBeFocused();
 }
+async function submitModalOrder(page: Page, exercise: CourseExercise, words: readonly string[]) {
+  const available = page.getByRole("group", { name: /Available/ });
+  for (const word of words) {
+    await available.getByRole("button", { name: word, exact: true }).press("Enter");
+  }
+  await page.getByRole("button", { name: "Check answer", exact: true }).click();
+  await expect(page.getByRole("status")).toBeFocused();
+  expect(exercise.formatId).toBe("E025");
+}
 async function openCourse(page: Page, title: string, enlarged = false) {
   await page.goto("/practice");
   await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
@@ -166,7 +198,8 @@ async function reachRecall(page: Page, wanted?: string) {
 }
 type SavedGrade = {
   attemptId: string; targetSatisfaction: string; linguisticStatus: string;
-  responseConstraintStatus: string; completedSentence: string | null; issues: { code: string }[];
+  meaningSatisfaction?: string; responseConstraintStatus: string;
+  completedSentence: string | null; issues: { code: string }[];
 };
 function latest(state: CourseState) {
   return state.items[state.cursor]!.lastAttempt as SavedGrade;
@@ -614,12 +647,128 @@ test("ability after kan separates selection and one-word response outcomes", asy
       latestOutcomes: expect.objectContaining({ fullyMet: 1, responseConstraintNotMet: 1 }),
     }),
   ]));
-  await expect(page.getByRole("button", { name: /^Next:/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Next: Expressing an intention", exact: true }).click();
+  await expect(page.getByRole("radio", { name: "Expressing an intention", exact: true })).toBeChecked();
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
   await page.reload();
   await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
   expect((await stateFor(page)).summary).toEqual(state.summary);
   await scan(page);
 });
+
+for (const round of MODAL_ROUNDS) {
+  test(`${round.focus} teaches contextual meaning then supplied modal order`, async ({ page }) => {
+    let state = await openCourse(page, round.title);
+    expect(state).toMatchObject({
+      focusId: round.focus, planRevision: `${round.focus}-1`,
+      contentRevision: "pilot-14", generatorRevision: "generator-14",
+      introductionRequired: true, introductionOpened: false, itemCount: 2,
+      prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+    });
+    expect(state.items.map((item) => item.targetScopeId)).toEqual([round.scope, "supplied-modal-order"]);
+    const early = await page.request.post("/api/v1/attempts", {
+      headers: { "X-Astrid-Client": "playground" },
+      data: {
+        attemptId: crypto.randomUUID(), exerciseId: state.currentExercise!.id,
+        answer: { kind: "text", text: round.correct }, hintUsed: false,
+      },
+    });
+    expect(early.status()).toBe(409);
+    expect((await stateFor(page)).summary.attemptCount).toBe(0);
+
+    state = await beginCourse(page);
+    const introduction = page.getByRole("region", { name: "Session introduction", exact: true });
+    await expect(introduction.getByText(round.form, { exact: true })).toHaveAttribute("lang", "da");
+    await expect(introduction.getByText(round.example, { exact: true })).toHaveAttribute("lang", "da");
+    await expect(page.getByText(
+      round.scope === "modal-volition-meaning" ? "Intention in context"
+        : round.scope === "modal-obligation-meaning" ? "Requirement in context"
+          : "Permission in context",
+      { exact: true },
+    ).and(page.locator("span"))).toBeVisible();
+    await scan(page);
+
+    const interpretation = state.currentExercise!;
+    expect(interpretation.formatId).toBe("E028");
+    expect(interpretation.prompt.cue).toBe(round.statement);
+    expect(interpretation.prompt.choices).toEqual(expect.arrayContaining([...MODAL_CHOICES]));
+    expect(interpretation.prompt.choices).toHaveLength(3);
+    await expect(page.getByText(round.statement, { exact: true })).toHaveAttribute("lang", "da");
+    const choices = page.getByRole("group", { name: "English modal meaning choices" });
+    await expect(choices).toHaveAttribute("lang", "en");
+    await submit(page, interpretation, round.wrong);
+    let saved = await stateFor(page);
+    expect(latest(saved)).toMatchObject({
+      targetSatisfaction: "not-met", meaningSatisfaction: "not-met",
+      linguisticStatus: "acceptable", responseConstraintStatus: "met",
+    });
+    expect(saved.items[saved.cursor]!.canAdvance).toBe(true);
+    await page.getByRole("button", { name: "Try again", exact: true }).click();
+    await submit(page, interpretation, round.correct);
+    const correctedInterpretation = await stateFor(page);
+    expect(latest(correctedInterpretation)).toMatchObject({
+      targetSatisfaction: "met", meaningSatisfaction: "met",
+      linguisticStatus: "acceptable", responseConstraintStatus: "met",
+    });
+    state = await next(page, correctedInterpretation);
+
+    const construction = state.currentExercise!;
+    expect(construction.formatId).toBe("E025");
+    expect(construction.targetScopeId).toBe("supplied-modal-order");
+    await expect(page.getByText("Supplied-modal statement order", { exact: true }).and(page.locator("span"))).toBeVisible();
+    if (round.orderVariant === "reversed-noun-phrase") {
+      await submitModalOrder(page, construction, [...round.order.slice(0, 3), round.order[4]!, round.order[3]!]);
+      saved = await stateFor(page);
+      expect(latest(saved)).toMatchObject({
+        targetSatisfaction: "met", linguisticStatus: "unknown", responseConstraintStatus: "not-met",
+        issues: [{ code: "REQUESTED_ORDER_CONSTRAINT" }],
+      });
+      expect(saved.items[saved.cursor]!.canAdvance).toBe(true);
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await submitModalOrder(page, construction, round.order);
+    } else if (round.orderVariant === "missing-object") {
+      await submitModalOrder(page, construction, round.order.slice(0, 3));
+      saved = await stateFor(page);
+      expect(latest(saved)).toMatchObject({
+        targetSatisfaction: "unevaluable", linguisticStatus: "unknown",
+        issues: [{ code: "REQUIRED_WORDS_MISSING" }],
+      });
+      expect(saved.items[saved.cursor]!.canAdvance).toBe(true);
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await submitModalOrder(page, construction, round.order);
+    } else {
+      await submitModalOrder(page, construction, round.order);
+    }
+    state = await next(page, await stateFor(page));
+
+    expect(state.summary).toMatchObject({
+      completedItems: 2, attemptedItems: 2,
+      attemptCount: round.orderVariant === "canonical" ? 3 : 4,
+      retryCount: round.orderVariant === "canonical" ? 1 : 2,
+    });
+    expect(state.summary.rows).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        targetSkillId: "G030", targetScopeId: round.scope, assessmentMode: "selection", plannedItems: 1,
+      }),
+      expect.objectContaining({
+        targetSkillId: "G005", targetScopeId: "supplied-modal-order", assessmentMode: "word-order", plannedItems: 1,
+      }),
+    ]));
+    if (round.next) {
+      await page.getByRole("button", { name: `Next: ${round.next}`, exact: true }).click();
+      await expect(page.getByRole("radio", { name: round.next, exact: true })).toBeChecked();
+      await page.getByRole("button", { name: "Cancel", exact: true }).click();
+    } else {
+      await expect(page.getByRole("button", { name: /^Next:/ })).toHaveCount(0);
+    }
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+    const reloaded = await stateFor(page);
+    expect(reloaded.introductionOpened).toBe(true);
+    expect(reloaded.summary).toEqual(state.summary);
+    await scan(page);
+  });
+}
 
 for (const profile of PROFILES) {
   test(`first steps teach before assessment and retain scoped outcomes for ${profile.focus}`, async ({ page }) => {
@@ -927,7 +1076,7 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/practice");
       await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
       await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-      await expect(page.getByRole("radio")).toHaveCount(13);
+      await expect(page.getByRole("radio")).toHaveCount(16);
       await scan(page);
       const groupSession = page.getByRole("radio", { name: PROFILES[1].title, exact: true });
       await groupSession.focus(); await page.keyboard.press("Space");

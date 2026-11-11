@@ -76,6 +76,32 @@ describe("ExercisePrompt", () => {
 
 describe("ExercisePrompt present and order formats", () => {
 
+  it("marks the modal statement Danish and its interpretation choices English", async () => {
+    const onText = vi.fn();
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E028" as Exercise["formatId"], {
+              before: "", after: "", cue: "Hun vil læse et brev.", cueLanguage: "da", answerLanguage: "en",
+              choices: ["A personal wish or intention.", "An external requirement.", "Permission to do it."],
+              blocks: [],
+            }),
+            contentRevision: "pilot-14", generatorRevision: "generator-14",
+            targetSkillId: "G030", targetScopeId: "modal-volition-meaning",
+          } as Exercise}
+          text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("Hun vil læse et brev.")).toHaveAttribute("lang", "da");
+    const choices = screen.getByRole("group", { name: "English modal meaning choices" });
+    expect(choices).toHaveAttribute("lang", "en");
+    await userEvent.click(screen.getByRole("button", { name: "A personal wish or intention." }));
+    expect(onText).toHaveBeenCalledWith("A personal wish or intention.");
+  });
+
   it("labels the supplied ability-form choices and typed response in Danish", async () => {
     const onText = vi.fn();
     const ability = (formatId: "E026" | "E027", choices: string[]) => ({

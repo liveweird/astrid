@@ -16,9 +16,7 @@ object PilotThirteenCompatibilityGoldenExportMain {
 }
 
 internal fun publishedPairThirteenReviewBytes(): ByteArray {
-    // Capture from 0.15.0 with renderMarkdown(); switch to renderPilotThirteenMarkdown() as soon as
-    // the freeze commit retains pair thirteen and before S11 advances the moving current snapshot.
-    return PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
+    return PilotReview.renderPilotThirteenMarkdown().toByteArray(Charsets.UTF_8)
 }
 
 internal object PilotThirteenCompatibilityGolden {
@@ -114,19 +112,19 @@ internal object PilotThirteenCompatibilityGolden {
     }.finish()
 
     private fun CanonicalHasher.pairThirteenMetadata() {
-        val skill = PilotContent.currentSnapshot.skills.single { it.id == "G030" }
+        val skill = PilotContent.pilotThirteenSnapshot.skills.single { it.id == "G030" }
         field("pairThirteenSkill.id", skill.id)
         field("pairThirteenSkill.title", skill.title)
         field("pairThirteenSkill.explanation", skill.explanation)
         strings("pairThirteenSkill.prerequisiteIds", skill.prerequisiteIds)
-        val formats = PilotContent.currentSnapshot.formats.filter { it.id in setOf("E026", "E027") }.sortedBy { it.id }
+        val formats = PilotContent.pilotThirteenSnapshot.formats.filter { it.id in setOf("E026", "E027") }.sortedBy { it.id }
         integer("pairThirteenFormats.count", formats.size)
         formats.forEachIndexed { index, format ->
             field("pairThirteenFormats[$index].id", format.id)
             field("pairThirteenFormats[$index].title", format.title)
             nullable("pairThirteenFormats[$index].targetSkillId", format.targetSkillId)
         }
-        val records = PilotContent.currentSnapshot.lexicalReview.filter { it.id in PAIR_THIRTEEN_METADATA_IDS }
+        val records = PilotContent.pilotThirteenSnapshot.lexicalReview.filter { it.id in PAIR_THIRTEEN_METADATA_IDS }
             .sortedBy { it.id }
         integer("pairThirteenLexicalMetadata.count", records.size)
         records.forEachIndexed { index, record ->
@@ -322,10 +320,8 @@ internal object PilotThirteenCompatibilityGolden {
     }
 
     private fun requireLiteralPairThirteen() {
-        // Capture against currentSnapshot at released 0.15.0, then replace this moving hook with
-        // pilotThirteenSnapshot in the freeze commit before S11 advances current.
-        require(PilotContent.currentSnapshot.contentRevision == CONTENT_REVISION)
-        require(PilotContent.currentSnapshot.generatorRevision == GENERATOR_REVISION)
+        require(PilotContent.pilotThirteenSnapshot.contentRevision == CONTENT_REVISION)
+        require(PilotContent.pilotThirteenSnapshot.generatorRevision == GENERATOR_REVISION)
         require(engine.evaluationRevision(CONTENT_REVISION, GENERATOR_REVISION) == EVALUATION_REVISION)
     }
 

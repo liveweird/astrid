@@ -180,3 +180,17 @@ records receive scoped C014 permissions for the authored cards and worked exampl
 Pair thirteen contains 33 lexical records and the same 109 catalogue clauses. Its
 [S10 contract](module-one-course-slice.md#s10-bare-infinitive-after-kan) keeps ability
 support separate from the assessed reading-verb form. [DDO kunne, ability sense](https://ordnet.dk/ddo/ordbog/11028611) · [Infinitive construction](https://lex.dk/infinitiv)
+
+## Pair-fourteen contextual modal additions
+
+| ID | Selected meaning | Teaching form | Active scope and source |
+| --- | --- | --- | --- |
+| L034 | ville, personal wish or intention | at ville → vil | L034-S01, supplied C014 intention reading frame. [DDO, sense 1](https://ordnet.dk/ddo/ordbog/ville). |
+| L035 | skulle, external requirement | at skulle → skal | L035-S01, supplied C014 assigned-reading frame. [DDO, senses 1–1.a](https://ordnet.dk/ddo/ordbog/skulle). |
+| L036 | måtte, permission | at måtte → må | L036-S01, supplied C014 granted-permission frame. [DDO, permission sense 3](https://ordnet.dk/ddo/ordbog/m%C3%A5tte). |
+
+Pair fourteen has 36 lexical records and the same 109 catalogue clauses. L011 additionally
+licenses the selected modal count-noun reading frames. Subject permissions cover the exact
+six assessed and three worked propositions. Prior lexical records and pools retain their
+published interpretation. The [S11 contract](module-one-course-slice.md#s11-contextual-modal-meanings)
+records contextual support, meaning selection and supplied-order evidence.

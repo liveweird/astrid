@@ -20,6 +20,10 @@ const TARGET_SCOPE_LABELS: Record<string, string> = {
   "have-possession-present": "Present possession with har",
   "personal-introduction-present": "Present forms for personal details",
   "kan-bare-infinitive": "Verb form after kan",
+  "modal-volition-meaning": "Intention in context",
+  "modal-obligation-meaning": "Requirement in context",
+  "modal-permission-meaning": "Permission in context",
+  "supplied-modal-order": "Supplied-modal statement order",
 };
 
 function targetBadge(exercise: NonNullable<PracticeSession["currentExercise"]>) {

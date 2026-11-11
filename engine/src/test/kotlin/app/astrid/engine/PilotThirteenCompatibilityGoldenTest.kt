@@ -93,15 +93,15 @@ class PilotThirteenCompatibilityGoldenTest {
         })
         assertEquals(
             setOf("L011", "L031", "L033"),
-            PilotContent.currentSnapshot.lexicalReview.map { it.id }.filter { it in PAIR_THIRTEEN_IDS }.toSet(),
+            PilotContent.pilotThirteenSnapshot.lexicalReview.map { it.id }.filter { it in PAIR_THIRTEEN_IDS }.toSet(),
         )
-        assertTrue(PilotContent.currentSnapshot.lexicalReview.single { it.id == "L011" }.constraints.contains("C014"))
-        assertTrue(PilotContent.currentSnapshot.lexicalReview.single { it.id == "L031" }.constraints.contains("C014"))
-        assertEquals("Bare infinitive after kan", PilotContent.currentSnapshot.skills.single { it.id == "G030" }.title)
+        assertTrue(PilotContent.pilotThirteenSnapshot.lexicalReview.single { it.id == "L011" }.constraints.contains("C014"))
+        assertTrue(PilotContent.pilotThirteenSnapshot.lexicalReview.single { it.id == "L031" }.constraints.contains("C014"))
+        assertEquals("Bare infinitive after kan", PilotContent.pilotThirteenSnapshot.skills.single { it.id == "G030" }.title)
         assertEquals("C014", AbilityContent.CONSTRUCTION_ID)
         assertEquals(
             (1..27).map { "E${it.toString().padStart(3, '0')}" }.toSet(),
-            PilotContent.currentSnapshot.formats.map { it.id }.toSet(),
+            PilotContent.pilotThirteenSnapshot.formats.map { it.id }.toSet(),
         )
         assertEquals(
             (1..25).map { "E${it.toString().padStart(3, '0')}" }.toSet(),

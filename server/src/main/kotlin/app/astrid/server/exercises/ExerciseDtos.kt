@@ -364,4 +364,16 @@ data class ExerciseInspectorDto(
     val moduleOneSource: ModuleOneSourceDetailsDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val inanimateReferenceSource: InanimateReferenceSourceDetailsDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val modalSource: ModalSourceDetailsDto? = null,
+)
+
+@Serializable
+data class ModalSourceDetailsDto(
+    val taskId: String,
+    val modalEntryId: String,
+    val modalSenseId: String,
+    val expectedInterpretation: String,
+    val frameVariantId: String,
+    val contextVariantId: String,
 )

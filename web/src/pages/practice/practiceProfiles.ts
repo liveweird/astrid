@@ -60,6 +60,21 @@ const PRESENTATION_PROFILES = [
     itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
   },
   {
+    focusId: "module-one-volition", planRevision: "module-one-volition-1", title: "Expressing an intention",
+    description: "Interpret vil as intention and build one supplied vil statement.",
+    itemCount: 2, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  },
+  {
+    focusId: "module-one-obligation", planRevision: "module-one-obligation-1", title: "Understanding a requirement",
+    description: "Interpret skal as a requirement and build one supplied skal statement.",
+    itemCount: 2, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  },
+  {
+    focusId: "module-one-permission", planRevision: "module-one-permission-1", title: "Understanding permission",
+    description: "Interpret må as permission and build one supplied må statement.",
+    itemCount: 2, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  },
+  {
     focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
     description: "Practise familiar words, sentence order and articles in eight varied parts.",
     itemCount: 8, prerequisiteSkillIds: [],
@@ -87,11 +102,14 @@ export const MODULE_ONE_PROFILES = [
   PRESENTATION_PROFILES[7]!,
   PRESENTATION_PROFILES[8]!,
   PRESENTATION_PROFILES[9]!,
-];
-export const EXISTING_PRACTICE_PROFILES = [
   PRESENTATION_PROFILES[10]!,
   PRESENTATION_PROFILES[11]!,
   PRESENTATION_PROFILES[12]!,
+];
+export const EXISTING_PRACTICE_PROFILES = [
+  PRESENTATION_PROFILES[13]!,
+  PRESENTATION_PROFILES[14]!,
+  PRESENTATION_PROFILES[15]!,
 ];
 
 export function profileKey(profile: Pick<PracticeProfile, "focusId" | "planRevision">) {
@@ -174,6 +192,12 @@ function creationRequestFor(
       return { practiceSessionId, focusId: "module-one-personal", planRevision: "module-one-personal-1", seed };
     case "module-one-ability/module-one-ability-1":
       return { practiceSessionId, focusId: "module-one-ability", planRevision: "module-one-ability-1", seed };
+    case "module-one-volition/module-one-volition-1":
+      return { practiceSessionId, focusId: "module-one-volition", planRevision: "module-one-volition-1", seed };
+    case "module-one-obligation/module-one-obligation-1":
+      return { practiceSessionId, focusId: "module-one-obligation", planRevision: "module-one-obligation-1", seed };
+    case "module-one-permission/module-one-permission-1":
+      return { practiceSessionId, focusId: "module-one-permission", planRevision: "module-one-permission-1", seed };
     default:
       throw new PracticeCatalogError("The selected practice profile has an unsupported revision.");
   }

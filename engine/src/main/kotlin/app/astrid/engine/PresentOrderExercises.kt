@@ -107,10 +107,16 @@ internal object PresentOrderContent {
         formatId: String,
         includePossession: Boolean = false,
         includePersonal: Boolean = false,
+        includeModalConstruction: Boolean = false,
     ): List<PresentOrderTask> {
         val tasks = retainedTasks(formatId) +
             (if (includePossession) possessionTasks(formatId) else emptyList()) +
-            (if (includePersonal) PersonalIntroductionContent.tasks(formatId) else emptyList())
+            (if (includePersonal) PersonalIntroductionContent.tasks(formatId) else emptyList()) +
+            (if (includeModalConstruction && formatId == "E025") {
+                ModalRoundContent.constructionTasks()
+            } else {
+                emptyList()
+            })
         return if (includePersonal) tasks.map(::withPairTwelveForms) else tasks
     }
 
@@ -266,17 +272,21 @@ internal object PresentOrderContent {
 
 internal object PresentOrderExerciseGenerator {
     fun generate(request: GenerationRequest): GeneratedExercise {
-        val (includePossession, includePersonal) = when (request.contentRevision) {
-            PilotContent.RETAINED_ELEVEN_CONTENT_REVISION -> true to false
-            PilotContent.RETAINED_TWELVE_CONTENT_REVISION, PilotContent.CURRENT_CONTENT_REVISION -> true to true
-            else -> false to false
+        val flags = when (request.contentRevision) {
+            PilotContent.RETAINED_ELEVEN_CONTENT_REVISION -> Triple(true, false, false)
+            PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
+            PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
+            -> Triple(true, true, false)
+            PilotContent.CURRENT_CONTENT_REVISION -> Triple(true, true, true)
+            else -> Triple(false, false, false)
         }
-        val tasks = PresentOrderContent.tasks(request.formatId, includePossession, includePersonal)
+        val tasks = PresentOrderContent.tasks(request.formatId, flags.first, flags.second, flags.third)
         val offset = request.seed.toLong() * TASK_SEED_FACTOR + request.index.toLong() * TASK_INDEX_FACTOR
         val task = tasks[Math.floorMod(offset, tasks.size.toLong()).toInt()]
         return when (task) {
             is NamedPresentTask -> presentExercise(request, task)
             is SubjectFirstOrderTask -> orderExercise(request, task)
+            is ModalConstructionTask -> ModalRoundExerciseGenerator.generateConstruction(request, task)
         }
     }
 
@@ -289,6 +299,7 @@ internal object PresentOrderExerciseGenerator {
                 request.index,
                 request.contentRevision in setOf(
                     PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
+                    PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 ),
             )
@@ -467,6 +478,7 @@ internal object PresentOrderExerciseEvaluator {
         return when (val task = source.task) {
             is NamedPresentTask -> evaluatePresent(task, answer)
             is SubjectFirstOrderTask -> evaluateOrder(exercise, task, answer, source.answerKey as AnswerKey.TileOrder)
+            is ModalConstructionTask -> ModalRoundExerciseEvaluator.evaluateConstruction(exercise, answer)
         }
     }
 

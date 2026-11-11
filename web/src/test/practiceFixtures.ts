@@ -144,6 +144,15 @@ export function profiles(ownerSessionId = owner) {
       { focusId: "module-one-ability", planRevision: "module-one-ability-1", title: "Using a verb after kan",
         description: "Choose and type the bare infinitive læse after kan.", itemCount: 4,
         prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
+      { focusId: "module-one-volition", planRevision: "module-one-volition-1", title: "Expressing an intention",
+        description: "Interpret vil as intention and build one supplied vil statement.", itemCount: 2,
+        prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
+      { focusId: "module-one-obligation", planRevision: "module-one-obligation-1", title: "Understanding a requirement",
+        description: "Interpret skal as a requirement and build one supplied skal statement.", itemCount: 2,
+        prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
+      { focusId: "module-one-permission", planRevision: "module-one-permission-1", title: "Understanding permission",
+        description: "Interpret må as permission and build one supplied må statement.", itemCount: 2,
+        prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
       { focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
         description: "Mixed existing skills.", itemCount: 8, prerequisiteSkillIds: [] },
       { focusId: "present-verbs", planRevision: "present-verbs-1", title: "Present verb forms",
@@ -157,7 +166,7 @@ export function profiles(ownerSessionId = owner) {
 
 export async function choosePractice(
   user: ReturnType<typeof userEvent.setup>,
-  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Saying what someone has" | "Words for things you read" | "Names, homes and languages" | "Using a verb after kan" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" = "Mixed practice",
+  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Saying what someone has" | "Words for things you read" | "Names, homes and languages" | "Using a verb after kan" | "Expressing an intention" | "Understanding a requirement" | "Understanding permission" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" = "Mixed practice",
 ) {
   await screen.findByRole("heading", { name: "Choose your practice" });
   await user.click(screen.getByRole("radio", { name }));

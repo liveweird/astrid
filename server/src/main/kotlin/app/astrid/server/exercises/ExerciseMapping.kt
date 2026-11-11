@@ -137,6 +137,12 @@ internal fun GeneratedExercise.toInspector(id: String) = ExerciseInspectorDto(
         )
     },
     inanimateReferenceSource = inspector.inanimateReferenceSource?.toDto(),
+    modalSource = inspector.modalSource?.let { source ->
+        ModalSourceDetailsDto(
+            source.taskId, source.modalEntryId, source.modalSenseId, source.expectedInterpretation,
+            source.frameVariantId, source.contextVariantId,
+        )
+    },
 )
 
 private fun app.astrid.engine.InanimateReferenceSourceDetails.toDto() = InanimateReferenceSourceDetailsDto(
@@ -225,12 +231,7 @@ internal fun GeneratedExercise.reproductionFingerprint(
             targetScopeIdForFingerprint,
             inspectorForFingerprint.moduleOneSource,
         )
-        "pilot-9" to "generator-9",
-        "pilot-10" to "generator-10",
-        "pilot-11" to "generator-11",
-        "pilot-12" to "generator-12",
-        "pilot-13" to "generator-13",
-        -> pairNineFingerprintCanonical(
+        in SCOPED_FINGERPRINT_PAIRS -> pairNineFingerprintCanonical(
             promptForFingerprint,
             lexicalTargetForFingerprint,
             inspectorForFingerprint,
@@ -239,7 +240,7 @@ internal fun GeneratedExercise.reproductionFingerprint(
             introductionForFingerprint,
             lexicalTargetsForFingerprint,
             targetScopeIdForFingerprint,
-        ).let { scopedFingerprintFrame(contentRevision, it) }
+        ).let { scopedFingerprintFrame(contentRevision, it, inspectorForFingerprint.modalSource) }
         else -> error("Unsupported fingerprint revision pair: $contentRevision/$generatorRevision")
     }
     return fingerprintSha256(canonical)
@@ -249,11 +250,34 @@ private fun fingerprintSha256(canonical: String): String =
     MessageDigest.getInstance("SHA-256").digest(canonical.toByteArray(Charsets.UTF_8))
         .joinToString("") { "%02x".format(it) }
 
-private fun scopedFingerprintFrame(revision: String, canonical: String): String = when (revision) {
+private val SCOPED_FINGERPRINT_PAIRS = setOf(
+    "pilot-9" to "generator-9",
+    "pilot-10" to "generator-10",
+    "pilot-11" to "generator-11",
+    "pilot-12" to "generator-12",
+    "pilot-13" to "generator-13",
+    "pilot-14" to "generator-14",
+)
+
+private fun scopedFingerprintFrame(
+    revision: String,
+    canonical: String,
+    modalSource: app.astrid.engine.ModalSourceDetails?,
+): String = when (revision) {
     "pilot-10" -> framedList(listOf("pair-ten", canonical))
     "pilot-11" -> framedList(listOf("pair-eleven", canonical))
     "pilot-12" -> framedList(listOf("pair-twelve", canonical))
     "pilot-13" -> framedList(listOf("pair-thirteen", canonical))
+    "pilot-14" -> framedList(listOf(
+        "pair-fourteen",
+        canonical,
+        framedNullable(modalSource?.let { source ->
+            framedList(listOf(
+                source.taskId, source.modalEntryId, source.modalSenseId, source.expectedInterpretation,
+                source.frameVariantId, source.contextVariantId,
+            ))
+        }),
+    ))
     else -> canonical
 }
 

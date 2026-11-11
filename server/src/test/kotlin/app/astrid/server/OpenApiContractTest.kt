@@ -53,7 +53,7 @@ class OpenApiContractTest {
         OpenApiInteractionValidator.createForInlineApiSpecification(rawSpec)
             .withSchemaValidationConfiguration(ValidationConfiguration().setMaxCacheSize(SCHEMA_CACHE_ENTRIES))
 
-    private val strictValidator = validatorBuilder().build()
+    private val strictValidator by lazy { validatorBuilder().build() }
     private val validator = validatorBuilder()
         .withLevelResolver(
             LevelResolver.create()
@@ -92,6 +92,9 @@ class OpenApiContractTest {
             "module-one-reading-words" to "module-one-reading-words-1",
             "module-one-personal" to "module-one-personal-1",
             "module-one-ability" to "module-one-ability-1",
+            "module-one-volition" to "module-one-volition-1",
+            "module-one-obligation" to "module-one-obligation-1",
+            "module-one-permission" to "module-one-permission-1",
         )
         for (focus in supportedPairs.map { it.first }) {
             for (revision in supportedPairs.map { it.second }) {
@@ -172,6 +175,8 @@ class OpenApiContractTest {
             exerciseRequest("E023", "G004", "pilot-12", "generator-12"),
             exerciseRequest("E026", "G030", "pilot-13", "generator-13"),
             exerciseRequest("E027", "G030", "pilot-13", "generator-13"),
+            exerciseRequest("E028", "G030", "pilot-14", "generator-14"),
+            exerciseRequest("E025", "G005", "pilot-14", "generator-14"),
         )
         val rejected = listOf(
             exerciseRequest("E009", null, "pilot-4", "generator-4"),
@@ -210,6 +215,9 @@ class OpenApiContractTest {
             exerciseRequest("E023", "G005", "pilot-12", "generator-12"),
             exerciseRequest("E026", "G030", "pilot-12", "generator-12"),
             exerciseRequest("E027", "G004", "pilot-13", "generator-13"),
+            exerciseRequest("E028", "G030", "pilot-13", "generator-13"),
+            exerciseRequest("E028", "G005", "pilot-14", "generator-14"),
+            exerciseRequest("E025", "G030", "pilot-14", "generator-14"),
             exerciseRequest("E021", null, "pilot-9", "generator-9"),
             exerciseRequest("E020", "G038", "pilot-8", "generator-8"),
             exerciseRequest("E020", "G038", "pilot-9", "generator-8"),
@@ -283,6 +291,10 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E023", "G004", "personal-introduction-present", "pilot-12"),
             moduleOneExerciseResponse("E026", "G030", "kan-bare-infinitive", "pilot-13"),
             moduleOneExerciseResponse("E027", "G030", "kan-bare-infinitive", "pilot-13"),
+            moduleOneExerciseResponse("E028", "G030", "modal-volition-meaning", "pilot-14"),
+            moduleOneExerciseResponse("E028", "G030", "modal-obligation-meaning", "pilot-14"),
+            moduleOneExerciseResponse("E028", "G030", "modal-permission-meaning", "pilot-14"),
+            moduleOneExerciseResponse("E025", "G005", "supplied-modal-order", "pilot-14"),
         )
         val rejected = listOf(
             exerciseResponse("E009", "pilot-4", "generator-4"),
@@ -381,6 +393,9 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E026", "G030", "kan-bare-infinitive", "pilot-12"),
             moduleOneExerciseResponse("E027", "G004", "kan-bare-infinitive", "pilot-13"),
             moduleOneExerciseResponse("E027", "G030", "personal-introduction-present", "pilot-13"),
+            moduleOneExerciseResponse("E028", "G030", "modal-volition-meaning", "pilot-13"),
+            moduleOneExerciseResponse("E028", "G005", "modal-volition-meaning", "pilot-14"),
+            moduleOneExerciseResponse("E025", "G030", "supplied-modal-order", "pilot-14"),
         )
 
         accepted.forEach { assertExerciseResponseValidity(it, expected = true) }
@@ -485,7 +500,7 @@ class OpenApiContractTest {
         )
         validate(HttpMethod.Post, "/api/v1/attempts", matchingAttempt)
         assertEquals(
-            "evaluation-13",
+            "evaluation-14",
             wireJson.parseToJsonElement(matchingAttempt.bodyAsText()).jsonObject
                 .getValue("evaluationRevision").jsonPrimitive.content,
         )
@@ -504,7 +519,7 @@ class OpenApiContractTest {
         val gapAttempt = submitAttempt(cookie, gapId, AttemptAnswerDto.Gaps(gapSelections))
         validate(HttpMethod.Post, "/api/v1/attempts", gapAttempt)
         assertEquals(
-            "evaluation-13",
+            "evaluation-14",
             wireJson.parseToJsonElement(gapAttempt.bodyAsText()).jsonObject
                 .getValue("evaluationRevision").jsonPrimitive.content,
         )
@@ -1278,6 +1293,113 @@ class OpenApiContractTest {
         assertEquals("", outside.getValue("completedSentence").jsonPrimitive.content)
     }
 
+    @Test
+    fun `modal rounds keep meaning and supplied order distinct through the runtime contract`() = testApplication {
+        val inspectorKey = "m".repeat(32)
+        application { astridModule(config(inspectorKey = inspectorKey), InMemoryStores()) }
+        val cookie = moduleOneCookie()
+        val context = client.get("/api/v1/practice-context") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+        }
+        validate(HttpMethod.Get, "/api/v1/practice-context", context)
+        val owner = context.bodyAsText().asObject().getValue("ownerSessionId").jsonPrimitive.content
+        for ((key, lexicalId) in listOf("volition" to "L034", "obligation" to "L035", "permission" to "L036")) {
+            completeModalRound(cookie, owner, inspectorKey, key, lexicalId)
+        }
+    }
+
+    private suspend fun ApplicationTestBuilder.completeModalRound(
+        cookie: String,
+        owner: String,
+        inspectorKey: String,
+        key: String,
+        lexicalId: String,
+    ) {
+        val id = UUID.randomUUID()
+        val creation = moduleOnePost(
+            cookie, owner, "/api/v1/practice-sessions",
+            """{"practiceSessionId":"$id","focusId":"module-one-$key","planRevision":"module-one-$key-1","seed":47}""",
+        )
+        validate(HttpMethod.Post, "/api/v1/practice-sessions", creation)
+        var state = creation.bodyAsText().asObject()
+        assertEquals("pilot-14", state.getValue("contentRevision").jsonPrimitive.content)
+        assertEquals(2, state.getValue("itemCount").jsonPrimitive.content.toInt())
+        val early = submitAttempt(cookie, currentExerciseId(state), AttemptAnswerDto.Text("An external requirement."))
+        validate(HttpMethod.Post, "/api/v1/attempts", early)
+        assertEquals(409, early.status.value)
+        val support = moduleOnePost(
+            cookie, owner, "/api/v1/practice-sessions/$id/support", """{"kind":"introduction"}""",
+        )
+        validate(HttpMethod.Post, "/api/v1/practice-sessions/$id/support", support)
+        state = support.bodyAsText().asObject()
+        val exercise = state.getValue("currentExercise").jsonObject
+        assertEquals("E028", exercise.getValue("formatId").jsonPrimitive.content)
+        assertEquals("modal-$key-meaning", exercise.getValue("targetScopeId").jsonPrimitive.content)
+        assertFalse("modalSource" in exercise)
+        val source = inspectExercise(cookie, inspectorKey, currentExerciseId(state))
+            .getValue("modalSource").jsonObject
+        assertEquals(lexicalId, source.getValue("modalEntryId").jsonPrimitive.content)
+        assertEquals("$lexicalId-S01", source.getValue("modalSenseId").jsonPrimitive.content)
+        val expected = source.getValue("expectedInterpretation").jsonPrimitive.content
+        val forged = submitAttempt(cookie, currentExerciseId(state), AttemptAnswerDto.Text("I guess."))
+        validate(HttpMethod.Post, "/api/v1/attempts", forged)
+        assertEquals(400, forged.status.value)
+        val wrong = exercise.getValue("prompt").jsonObject.getValue("choices").jsonArray
+            .map { it.jsonPrimitive.content }.first { it != expected }
+        val knownWrong = submitAttempt(cookie, currentExerciseId(state), AttemptAnswerDto.Text(wrong))
+        validate(HttpMethod.Post, "/api/v1/attempts", knownWrong)
+        assertEquals("not-met", knownWrong.bodyAsText().asObject().getValue("meaningSatisfaction").jsonPrimitive.content)
+        val corrected = submitAttempt(cookie, currentExerciseId(state), AttemptAnswerDto.Text(expected))
+        validate(HttpMethod.Post, "/api/v1/attempts", corrected)
+        val advanced = advanceModuleOne(cookie, owner, id, 0)
+        validate(HttpMethod.Post, "/api/v1/practice-sessions/$id/advance", advanced)
+        completeModalConstruction(cookie, owner, inspectorKey, id, advanced.bodyAsText().asObject())
+    }
+
+    private suspend fun ApplicationTestBuilder.completeModalConstruction(
+        cookie: String,
+        owner: String,
+        inspectorKey: String,
+        id: UUID,
+        state: JsonObject,
+    ) {
+        val exercise = state.getValue("currentExercise").jsonObject
+        assertEquals("E025", exercise.getValue("formatId").jsonPrimitive.content)
+        assertEquals("G005", exercise.getValue("targetSkillId").jsonPrimitive.content)
+        assertEquals("supplied-modal-order", exercise.getValue("targetScopeId").jsonPrimitive.content)
+        val source = inspectExercise(cookie, inspectorKey, currentExerciseId(state))
+        val order = source.getValue("tileSource").jsonObject.getValue("licensedOrders").jsonArray.single()
+            .jsonObject.getValue("blockIds").jsonArray.map { it.jsonPrimitive.content }
+        val partial = submitAttempt(cookie, currentExerciseId(state), AttemptAnswerDto.Order(order.take(3)))
+        validate(HttpMethod.Post, "/api/v1/attempts", partial)
+        val saved = partial.bodyAsText().asObject()
+        assertEquals("unevaluable", saved.getValue("targetSatisfaction").jsonPrimitive.content)
+        assertEquals("unknown", saved.getValue("linguisticStatus").jsonPrimitive.content)
+        val finish = advanceModuleOne(cookie, owner, id, 1)
+        validate(HttpMethod.Post, "/api/v1/practice-sessions/$id/advance", finish)
+        val completed = finish.bodyAsText().asObject()
+        assertEquals("completed", completed.getValue("state").jsonPrimitive.content)
+        val rows = completed.getValue("summary").jsonObject.getValue("rows").jsonArray.map { it.jsonObject }
+        assertEquals(setOf("G030", "G005"), rows.map { it.getValue("targetSkillId").jsonPrimitive.content }.toSet())
+        assertEquals(setOf("selection", "word-order"), rows.map { it.getValue("assessmentMode").jsonPrimitive.content }.toSet())
+        val summary = completed.getValue("summary").jsonObject
+        for ((skill, wrongMode) in listOf("G030" to "recall", "G005" to "constituent-order")) {
+            val changedRows = kotlinx.serialization.json.JsonArray(rows.map { row ->
+                if (row.getValue("targetSkillId").jsonPrimitive.content == skill) {
+                    JsonObject(row + ("assessmentMode" to kotlinx.serialization.json.JsonPrimitive(wrongMode)))
+                } else {
+                    row
+                }
+            })
+            val changedSummary = JsonObject(summary + ("rows" to changedRows))
+            assertPracticeResponseValidity(
+                JsonObject(completed + ("summary" to changedSummary)).toString(),
+                expected = false,
+            )
+        }
+    }
+
     private suspend fun validate(method: HttpMethod, path: String, response: HttpResponse) {
         val body = response.bodyAsText()
         if (response.status.value >= 400) {
@@ -1588,7 +1710,7 @@ class OpenApiContractTest {
         cookie: String,
         formatId: String,
         targetSkillId: String? = null,
-        pair: Int = 13,
+        pair: Int = 14,
     ): JsonObject {
         val target = targetSkillId?.let { "\"targetSkillId\":\"$it\"," }.orEmpty()
         val response = client.post("/api/v1/exercises") {

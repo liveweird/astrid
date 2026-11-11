@@ -144,3 +144,12 @@ in 15.25 seconds in 512 MiB JVMs. Post-GC live heap was 339 MiB and 255 MiB resp
 including JShell overhead. These are diagnostic measurements. The normal Gradle/Kover
 gate supplies repository verification. The gate exercises parser defaults, complete schema validation,
 positive/negative correlations and referenced error responses.
+
+### Lazy strict-validator construction for S11
+
+The combined S11 server suite exceeded its existing 512 MiB heap with eagerly constructed
+response and strict-request validator models. Constructing the strict request validator on
+first use retained the same builder, parser settings, four-entry cache and assertions.
+The full 219-test server suite passed, including all 18 OpenAPI methods in 23.152 test
+seconds, with 98.26% line and 81.83% branch coverage. This is a test-lifecycle correction.
+Production JVM settings and public contracts retain their existing configuration.

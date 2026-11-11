@@ -73,6 +73,7 @@ class GeneratedExercise internal constructor(
         is InanimateReferenceExerciseSource -> exerciseSource.task.targetScopeId
         is PresentOrderExerciseSource -> exerciseSource.task.targetScopeId
         is AbilityExerciseSource -> exerciseSource.task.targetScopeId
+        is ModalInterpretationExerciseSource -> exerciseSource.task.targetScopeId
         else -> null
     }
     val instruction: String get() = presentation.instruction
@@ -165,6 +166,7 @@ data class ExerciseInspector(
     val gapSource: GapSourceDetails? = null,
     val moduleOneSource: ModuleOneSourceDetails? = null,
     val inanimateReferenceSource: InanimateReferenceSourceDetails? = null,
+    val modalSource: ModalSourceDetails? = null,
 )
 
 data class InanimateReferenceSourceDetails(

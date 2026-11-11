@@ -42,6 +42,7 @@ Guard tests that must stay green and are never loosened to fit a change:
   and method existence are errors. Also pins `info.version == APP_VERSION` and the closed oneOf correlations (format ↔ target ↔
   revision pair). A new operation lands with its statuses exercised here.
   Its test-only compiled-schema cache is bounded at four entries using Flow's pattern.
+  The strict request validator is constructed on first use through the same builder.
   Each entry copies the expanded schema definitions. The [measurement record](../../docs/knowledge/flow-reuse-manifest.md#test-only-api-schema-cache--11-november-2026)
   explains the bound at the existing test heap.
 - `MigrationChecksumTest` — Flyway CRC32 of every `V*.sql`; the file set must equal the pinned map (`persistence.md`).

@@ -90,7 +90,44 @@
 5. On the final typed response enter unsupported `læste`, reload, then retry with `Læse`.
    - Expected: the unknown answer blocks continuation, discloses no solution and survives reload byte for byte. The capitalized target meets the grammar target with a saved lowercase constraint issue and can continue.
 6. Inspect and reload the summary.
-   - Expected: selection and recall have separate two-item rows. First outcomes retain the selected and typed marker errors plus the unknown response, latest outcomes retain corrected answers and the capitalization issue, and the seven-answer/three-retry totals survive reload. No unimplemented next session is offered.
+   - Expected: selection and recall have separate two-item rows. First outcomes retain the selected and typed marker errors plus the unknown response, latest outcomes retain corrected answers and the capitalization issue, and the seven-answer/three-retry totals survive reload. **Expressing an intention** is offered next.
+
+## Scenario: ${round.focus} teaches contextual meaning then supplied modal order
+
+### Volition round
+
+1. Enter **Expressing an intention** directly and try the first answer before opening the required introduction.
+   - Expected: the pair-fourteen two-item round requires G001–G005, blocks the early answer, and saves no attempt. The items expose one volition-meaning target followed by supplied-modal order.
+2. Open the introduction and inspect `at ville → vil` and `Jeg vil læse en bog.`.
+   - Expected: both carry Danish language metadata. The modal reading stays limited to intention in the given context, and the first target reads **Intention in context**.
+3. For `Hun vil læse et brev.`, choose **An external requirement.**, inspect the known wrong interpretation, retry, and choose **A personal wish or intention.**.
+   - Expected: the Danish statement is marked Danish and all three related meaning choices are marked English. The wrong supplied choice may continue under the modal-round policy, while the retry records the correct contextual meaning.
+4. In the supplied construction, place `vi vil læse avis en`.
+   - Expected: subject, finite modal and nonfinite verb order meet G005 while the complete requested order constraint is unmet and the Danish is unknown. The policy permits continuation. Retry with `vi vil læse en avis`.
+5. Inspect the two primary summary rows, open **Understanding a requirement**, cancel the chooser, reload and inspect the same summary.
+   - Expected: contextual interpretation and supplied-modal order stay separate, first/latest evidence and four-answer/two-retry totals survive, and the next round is explicitly selected without starting it.
+
+### Obligation round
+
+1. Enter **Understanding a requirement**, open its required teaching, and inspect `at skulle → skal` and `Du skal læse et brev.`.
+   - Expected: each exact Danish teaching element has Danish language metadata, and the first target reads **Requirement in context**.
+2. For `De skal læse en bog.`, choose **Permission to do it.**, then retry with **An external requirement.**.
+   - Expected: wrong and correct contextual meanings remain saved as first and latest outcomes using English choices.
+3. In the supplied construction, place only `jeg skal læse` and check it.
+   - Expected: the incomplete response is unevaluable with `REQUIRED_WORDS_MISSING`. The modal-round policy permits continuation. Retry with `jeg skal læse en avis`.
+4. Inspect the two primary summary rows, open **Understanding permission**, cancel, reload and inspect the same summary.
+   - Expected: four answers and two retries survive, with distinct contextual-meaning and supplied-order evidence.
+
+### Permission round
+
+1. Enter **Understanding permission**, open its required teaching, and inspect `at måtte → må` and `Han må læse en avis.`.
+   - Expected: each exact Danish teaching element has Danish language metadata, and the first target reads **Permission in context**.
+2. For `Du må læse et brev.`, choose **A personal wish or intention.**, then retry with **Permission to do it.**.
+   - Expected: the supplied English interpretations retain wrong and corrected contextual-meaning evidence.
+3. Build `hun må læse en bog` with all five supplied word occurrences.
+   - Expected: the canonical order meets the supplied-modal-order target and requested response constraint.
+4. Inspect and reload the completed summary.
+   - Expected: the two primary results and three-answer/one-retry totals survive reload. The sequence ends without offering an unimplemented session.
 
 ## Scenario: first steps preserve ambiguous ${correction.raw} casing without a wrong-person diagnosis
 
@@ -146,7 +183,7 @@
 
 ## Scenario: first-step chooser keeps all profiles keyboard-accessible in ${theme} at ${viewport.width}
 
-1. Open the chooser with thirteen profiles, including 10 Module 1 sessions, in both themes, narrow portrait and short landscape, at 200% text.
+1. Open the chooser with sixteen profiles, including 13 Module 1 sessions, in both themes, narrow portrait and short landscape, at 200% text.
    - Expected: its first-step grouping and every profile remain accessible, without page/text overflow or configured Axe violations.
 2. Focus the group-pronoun radio and select it with Space.
    - Expected: the choice is checked and Start practice is enabled; no session is created automatically.

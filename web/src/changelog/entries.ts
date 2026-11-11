@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.16.0",
+    date: "2026-11-11",
+    body: `**Understand intention, requirement and permission.**
+
+- Three short sessions introduce the selected contextual meanings of vil, skal and må through separate required teaching.
+- First choose among three related English interpretations for a supplied Danish statement.
+- Then arrange five supplied Danish words into a statement while the intended meaning and modal are given.
+- See separate contextual-meaning and supplied-order results, retry saved work, reload each summary, or continue through the three sessions.
+- Continue from **Using a verb after kan**. The material remains a draft awaiting Danish teaching review. Other modal meanings and earlier exercises keep their original behavior.`,
+  },
+  {
     version: "0.15.0",
     date: "2026-11-11",
     body: `**Use an action verb after kan.**

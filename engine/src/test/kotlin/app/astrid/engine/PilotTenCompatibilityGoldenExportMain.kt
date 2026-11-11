@@ -192,6 +192,7 @@ internal object PilotTenCompatibilityGolden {
         when (task) {
             is NamedPresentTask -> namedPresentTask(task)
             is SubjectFirstOrderTask -> subjectFirstOrderTask(task)
+            is ModalConstructionTask -> error("Pilot ten cannot contain modal construction tasks")
         }
     }
 

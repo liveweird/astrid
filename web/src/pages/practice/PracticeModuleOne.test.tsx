@@ -86,6 +86,10 @@ it.each([
   ["have-possession-present", "G004", "Present possession with har"],
   ["personal-introduction-present", "G004", "Present forms for personal details"],
   ["kan-bare-infinitive", "G030", "Verb form after kan"],
+  ["modal-volition-meaning", "G030", "Intention in context"],
+  ["modal-obligation-meaning", "G030", "Requirement in context"],
+  ["modal-permission-meaning", "G030", "Permission in context"],
+  ["supplied-modal-order", "G005", "Supplied-modal statement order"],
 ] as const)("shows a learning label instead of the %s implementation scope", async (targetScopeId, targetSkillId, label) => {
   saveModuleOneRun();
   const scopedExercise = { ...subjectExercise, targetScopeId, targetSkillId };
@@ -118,6 +122,9 @@ it.each([
   ["Words for things you read", "module-one-reading-words", "module-one-reading-words-1"],
   ["Names, homes and languages", "module-one-personal", "module-one-personal-1"],
   ["Using a verb after kan", "module-one-ability", "module-one-ability-1"],
+  ["Expressing an intention", "module-one-volition", "module-one-volition-1"],
+  ["Understanding a requirement", "module-one-obligation", "module-one-obligation-1"],
+  ["Understanding permission", "module-one-permission", "module-one-permission-1"],
 ] as const)("creates %s only after its exact catalog choice", async (title, focusId, planRevision) => {
   let body = "";
   vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
@@ -435,7 +442,7 @@ it("offers S10 after the personal-statement session", async () => {
   expect(screen.getByRole("radio", { name: "Using a verb after kan" })).toBeChecked();
 });
 
-it("stops the explicit sequence after S10", async () => {
+it("offers the first modal-meaning round after S10", async () => {
   saveRunRecovery({
     ownerSessionId: owner, practiceSessionId: practiceId,
     focusId: "module-one-ability", planRevision: "module-one-ability-1", seed: 47,
@@ -445,6 +452,55 @@ it("stops the explicit sequence after S10", async () => {
     focusId: "module-one-ability", planRevision: "module-one-ability-1", title: "Using a verb after kan",
     state: "completed", cursor: 4, itemCount: 4, currentExercise: null, introductionOpened: true,
     summary: { ...completedState().summary, plannedItems: 4, completedItems: 4, attemptedItems: 4 },
+  });
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.includes("/practice-sessions/")) return json(completed);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Practice />);
+
+  expect(await screen.findByRole("button", { name: "Next: Expressing an intention" })).toBeVisible();
+  await userEvent.setup().click(screen.getByRole("button", { name: "Next: Expressing an intention" }));
+  expect(screen.getByRole("radio", { name: "Expressing an intention" })).toBeChecked();
+});
+
+it.each([
+  ["module-one-volition", "Expressing an intention", "Understanding a requirement"],
+  ["module-one-obligation", "Understanding a requirement", "Understanding permission"],
+] as const)("offers the next separate modal round after %s", async (focusId, title, nextTitle) => {
+  saveRunRecovery({
+    ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId, planRevision: `${focusId}-1`, seed: 47,
+  });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const completed = moduleOneState({
+    focusId, planRevision: `${focusId}-1`, title,
+    state: "completed", cursor: 2, itemCount: 2, currentExercise: null, introductionOpened: true,
+    summary: { ...completedState().summary, plannedItems: 2, completedItems: 2, attemptedItems: 2 },
+  });
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.includes("/practice-sessions/")) return json(completed);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Practice />);
+
+  expect(await screen.findByRole("button", { name: `Next: ${nextTitle}` })).toBeVisible();
+  await userEvent.setup().click(screen.getByRole("button", { name: `Next: ${nextTitle}` }));
+  expect(screen.getByRole("radio", { name: nextTitle })).toBeChecked();
+});
+
+it("stops the explicit sequence after the permission round", async () => {
+  saveRunRecovery({
+    ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "module-one-permission", planRevision: "module-one-permission-1", seed: 47,
+  });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const completed = moduleOneState({
+    focusId: "module-one-permission", planRevision: "module-one-permission-1", title: "Understanding permission",
+    state: "completed", cursor: 2, itemCount: 2, currentExercise: null, introductionOpened: true,
+    summary: { ...completedState().summary, plannedItems: 2, completedItems: 2, attemptedItems: 2 },
   });
   vi.stubGlobal("fetch", vi.fn(async (path: string) => {
     if (path.endsWith("practice-context")) return json(context());

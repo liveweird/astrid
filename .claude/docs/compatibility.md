@@ -27,7 +27,8 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-10` / `generator-10` | `evaluation-10` | + E022/E023 (named present forms), E024/E025 (subject-first assembly) | published and frozen; S05 and S06 pin this pair |
 | `pilot-11` / `generator-11` | `evaluation-11` | E022/E023 add scoped possession tasks | published and frozen; S07 pins this pair |
 | `pilot-12` / `generator-12` | `evaluation-12` | E022/E023 add scoped name, residence and language tasks | published and frozen; S09 pins this pair |
-| `pilot-13` / `generator-13` | `evaluation-13` | + E026/E027 bare infinitive after supplied ability modal | CURRENT; S10 pins this pair |
+| `pilot-13` / `generator-13` | `evaluation-13` | + E026/E027 bare infinitive after supplied ability modal | published and frozen; S10 pins this pair |
+| `pilot-14` / `generator-14` | `evaluation-14` | + E028 contextual modal meaning and E025 modal construction | CURRENT; S11 pins this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
@@ -44,6 +45,9 @@ The four-item `module-one-reading-words-1` plan pins the existing pair-five E011
 Its `module-one-reading-word-exposure-1` policy records meaning confirmation on correct choices.
 The six-item `module-one-personal-1` plan pins pair twelve. The four-item
 `module-one-ability-1` plan pins pair thirteen and reuses the named-form completion and exposure policies.
+The two-item `module-one-volition-1`, `module-one-obligation-1` and
+`module-one-permission-1` plans pin pair fourteen. Separate versioned modal-round policies
+record meaning selection and supplied word order.
 Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 
 ## What is stored, and what that implies
@@ -140,11 +144,16 @@ Rules:
 7. Plan the deploy: back up the database first (`persistence.md`); a migration is needed only if a column shape changes (stored payloads are
    JSON and additive).
 
+Pair thirteen and S10 were frozen from the released 0.15.0 source in `d7724dc`
+before S11 production changes. The new archive guards include private ability keys,
+all twenty-seven format pools and byte-exact teaching and lifecycle exposure.
+
 ## Export tasks
 
 | Task | Output |
 | --- | --- |
-| `:engine:exportPilotReview` | `engine/build/review/pilot-13.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotReview` | `engine/build/review/pilot-14.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotThirteenReview` | `engine/build/review/pilot-13-retained.md` |
 | `:engine:exportPilotTwelveReview` | `engine/build/review/pilot-12-retained.md` |
 | `:engine:exportPilotElevenReview` | `engine/build/review/pilot-11-retained.md` |
 | `:engine:exportPilotTenReview` | `engine/build/review/pilot-10-retained.md` |
@@ -166,6 +175,8 @@ Rules:
 | `:engine:exportFollowOnPracticeCompatibility` / `:server:exportFollowOnPracticeWireCompatibility` | add published 0.13.0 S07–S08 plan evidence and provenance only (refuse overwrite) |
 | `:engine:exportPilotTwelveCompatibility` / `:server:exportPilotTwelveWireCompatibility` | add pair-twelve evidence and provenance only (refuse overwrite) |
 | `:engine:exportPersonalPracticeCompatibility` / `:server:exportPersonalPracticeWireCompatibility` | add published S09 plan evidence and provenance only (refuse overwrite) |
+| `:engine:exportPilotThirteenCompatibility` / `:server:exportPilotThirteenWireCompatibility` | add pair-thirteen evidence and provenance only (refuse overwrite) |
+| `:engine:exportAbilityPracticeCompatibility` / `:server:exportAbilityPracticeWireCompatibility` | add published S10 plan evidence and provenance only (refuse overwrite) |
 | `:server:exportPilotThreeWireCompatibility` | writes a **new** wire fixture + provenance (refuses to overwrite) |
 
 Review exports are deterministic evidence for teaching review; they are not approval. The production engine does no file I/O.

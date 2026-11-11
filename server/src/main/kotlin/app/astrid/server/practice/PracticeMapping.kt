@@ -61,6 +61,12 @@ internal const val MODULE_ONE_PERSONAL_FOCUS = "module-one-personal"
 internal const val MODULE_ONE_PERSONAL_REVISION = "module-one-personal-1"
 internal const val MODULE_ONE_ABILITY_FOCUS = "module-one-ability"
 internal const val MODULE_ONE_ABILITY_REVISION = "module-one-ability-1"
+internal const val MODULE_ONE_VOLITION_FOCUS = "module-one-volition"
+internal const val MODULE_ONE_VOLITION_REVISION = "module-one-volition-1"
+internal const val MODULE_ONE_OBLIGATION_FOCUS = "module-one-obligation"
+internal const val MODULE_ONE_OBLIGATION_REVISION = "module-one-obligation-1"
+internal const val MODULE_ONE_PERMISSION_FOCUS = "module-one-permission"
+internal const val MODULE_ONE_PERMISSION_REVISION = "module-one-permission-1"
 private const val TARGETED_REVIEW_FOCUS = "targeted-review"
 private const val INTRODUCTION_POSITION = -1
 

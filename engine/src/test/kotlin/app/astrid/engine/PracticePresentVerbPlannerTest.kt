@@ -26,6 +26,9 @@ class PracticePresentVerbPlannerTest {
                 "module-one-reading-words/module-one-reading-words-1",
                 "module-one-personal/module-one-personal-1",
                 "module-one-ability/module-one-ability-1",
+                "module-one-volition/module-one-volition-1",
+                "module-one-obligation/module-one-obligation-1",
+                "module-one-permission/module-one-permission-1",
             ),
             planner.profiles().map { "${it.focusId}/${it.planRevision}" },
         )
@@ -43,9 +46,12 @@ class PracticePresentVerbPlannerTest {
             "Words for things you read",
             "Names, homes and languages",
             "Using a verb after kan",
+            "Expressing an intention",
+            "Understanding a requirement",
+            "Understanding permission",
         ),
             planner.profiles().map { it.title })
-        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4, 6, 6, 4, 4, 6, 4), planner.profiles().map { it.itemCount })
+        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4, 6, 6, 4, 4, 6, 4, 2, 2, 2), planner.profiles().map { it.itemCount })
         assertEquals("Words and simple statements", planner.plan("reading-basics", "practice-1", 0).title)
     }
 

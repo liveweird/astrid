@@ -120,6 +120,10 @@ object PracticeTargetKeys {
         ScopedAssessment("G038", "inanimate-singular-subject", "recall"),
         ScopedAssessment("G030", "kan-bare-infinitive", "selection"),
         ScopedAssessment("G030", "kan-bare-infinitive", "recall"),
+        ScopedAssessment("G030", "modal-volition-meaning", "selection"),
+        ScopedAssessment("G030", "modal-obligation-meaning", "selection"),
+        ScopedAssessment("G030", "modal-permission-meaning", "selection"),
+        ScopedAssessment("G005", "supplied-modal-order", "word-order"),
     )
 }
 
