@@ -667,3 +667,116 @@ count-noun modal frames. Preserve all 109 existing catalogue clauses and previou
 plans. New private modal-source details bind task, modal entry/sense, selected meaning,
 frame and context. Include every field in pair-fourteen reproduction fingerprints,
 and omit the optional private object from older wire payloads.
+
+
+### S11 verification handoff — 11 November 2026
+
+Source `9dd787c14b3a5d4a414da763b4ef28ce511e63be` is committed, merged and
+pushed to `master`. App 0.16.0 remains a release candidate. The private preview
+still serves released 0.15.0 at `43e9726`. No 0.16.0 tag, GitHub release or
+preview promotion has been verified.
+
+The complete local gate passed with PostgreSQL, retained compatibility archives,
+310 engine tests, 219 server tests and 239 web tests. Engine coverage measured
+98.29% line and 86.30% branch, server coverage 98.26% and 81.83%.
+Independent review corrections are incorporated. Eight focused browser journeys,
+desktop/light and mobile/dark visual inspection, image scanning, and exact replay
+of five sessions with 31 attempts after upgrade and app restart passed. The image is
+`sha256:9762ed05860ac41a39d670a4dcdab313745f6d34a7a13be027ed6cb118839b15`.
+
+At 05:49 CET the macOS GUI console session ended. Native WebKit subsequently
+aborted during startup, including server-free launches. The full native run ended
+with 257 passes and 149 failures. That run supplies no successful full-suite proof.
+Host GitHub DNS/connectivity also failed. Later, a container-resolved address and
+an explicit system CA bundle restored public REST read access with certificate
+verification enabled. Exact-source CI run `42960995220` is confirmed complete and
+successful, with all five jobs successful. Its full browser log has not yet been
+retrieved because that endpoint requires authentication. Authenticated delivery is
+still blocked. Git’s keychain helper fails and `gh auth token` cannot retrieve a
+credential after logout. A fresh desktop login and credential-access retry are needed. [Candidate CI](https://github.com/liveweird/astrid/actions/runs/42960995220)
+
+Resume by restoring credential access, reading the exact-source CI browser log,
+and completing Chromium/WebKit checks in a working native or packaged environment.
+An additional full packaged Linux run against the exact local image completed all
+203 Chromium tests successfully. Its first two WebKit accessibility sweeps exceeded
+the existing 30-second test timeout while the browser remained alive. The remaining
+run is still in progress. No full-suite pass is claimed, and the timeout cause is
+unconfirmed. Logs and traces remain under `.local/s11/linux-all.log` and its
+owned `linux-*` output directory. Preserve this evidence for BL-055 diagnosis. A successful native macOS run is an additional
+local check chosen during implementation. Preserve required both-engine coverage
+and report the platform actually tested. Then create and read back the versioned
+release, restore a restricted-permission backup in isolation, promote only the app,
+verify saved history and preview smoke checks, and remove owned QA resources.
+The S11 QA stack remains for this work. Verify ownership before cleanup.
+Do not change login/security settings or treat the host failure as an app defect.
+
+### Prepared S12–S15 continuation — 11 November 2026
+
+These are bounded implementation choices under the user's continuation approval.
+S12–S14 have isolated engine/API/web/test drafts and review evidence. They have
+not been merged, released or promoted. Local scratch material is under
+`.local/s12/`, `.local/s13/` and `.local/s14/`; this tracked outline preserves the
+contracts if those ignored directories are unavailable. S15 has a plan only.
+Freeze each unchanged predecessor in its own commit before advancing the current
+pair. Preserve previous archives, teaching exports, plans and saved replay.
+Versions below are proposed sequential assignments.
+
+| Unit | Proposed app / pair | Profile | Target and format |
+| --- | --- | --- | --- |
+| S12 | 0.17.0 / fifteen | `module-one-circumstances-1` | G016 `one-final-circumstance`, E029 constituent order |
+| S13 | 0.18.0 / sixteen | `module-one-questions-1` | G018 `neutral-positive-yes-no`, E030 constituent order |
+| S14 | 0.19.0 / seventeen | `module-one-fronting-1` | G021 `fronted-time-place-v2`, E031 constituent order |
+| S15 | 0.20.0 / eighteen | `module-one-negation-1` | G017 `subject-first-simple-ikke`, E032 choice and E033 constituent order |
+
+Every profile has four activities, required saved teaching, explicit chooser
+continuation, supplied English meaning and subject reference. Keep multiword
+constituents intact, lexical uppercase `I`, and prompt support, pattern exposure
+and exact-answer exposure distinct. Complete-bank APIs reject missing, duplicate,
+foreign or wrong-kind input before persistence. These activities assess supplied
+structure. Danish teaching review remains open.
+
+**S12, Adding when and where.** Supply the Danish core and place one circumstance
+last. The four answers are `Jeg arbejder i dag.`, `Hun læser et brev nu.`,
+`Vi arbejder i Aarhus.` and `De læser en avis i dag.` Add L037 temporal `i dag`
+and L038 temporal `nu`, reusing L032 locative `i` and scoped C007 permissions.
+Test all 60 complete permutations. A final circumstance can meet the target while
+a scrambled core fails the requested order, leaving language and meaning unknown.
+All other complete orders disclose the requested order without a general
+ungrammaticality claim. Reuse the existing order outcome/exposure policies.
+
+**S13, Asking yes or no questions.** Transform supplied positive statements into
+`Læser du en avis?`, `Arbejder hun?`, `Bor I i Aarhus?` and `Har de et brev?`.
+Use scoped C010 frames and teach L039 `ja` and L040 `nej` as short answers,
+without scoring them as recalled vocabulary. Target finite verb first and subject
+second. Test all 20 complete permutations. Other orders receive the requested-order
+constraint and bounded structural feedback, with broader language/meaning unknown.
+Reuse constituent controls and order policies.
+
+**S14, Starting with time or place.** Transform explicit originals into
+`I dag arbejder jeg.`, `Nu læser hun et brev.`, `I Aarhus bor vi.` and
+`I dag læser I en avis.` Reuse the 40 lexical records with scoped C008 permissions.
+Require finite verb second and subject third. The exact original subject-first
+statement remains acceptable with preserved meaning while failing the request.
+Diagnose only the authored front–subject–verb corruption specifically. Other
+permutations retain unknown broader language/meaning. Test all 60 permutations.
+The private inspector has separate requested and `subject-first-outside-request`
+licensed orders. Resolve them by kind and enforce consistency between internal
+source, answer key and fingerprinted inspector fields. Test actual source mutations.
+
+**S15, Saying not with ikke.** Select between `Han arbejder ikke.` and
+`Han ikke arbejder.`, then between `Vi sover ikke.` and `Vi ikke sover.`.
+Assemble `Du arbejder ikke.` and `I sover ikke.`. Teach separate worked
+`Jeg arbejder ikke.` and `Hun sover ikke.` examples. Add L041 sentence-negating
+`ikke`, scoped C009 work/sleep variants and roles subject, finite verb and sentence
+adverb. Limit this package to simple intransitive subject-first main clauses.
+Only the reviewed subject–negator–verb corruption receives a specific diagnosis.
+Other complete permutations remain unevaluable with unknown language/meaning.
+Choice shape can be met on a known wrong selection while an assembled wrong order
+fails the response constraint. Reuse mixed modal-round policies if their established
+predicates match. Test both choices, all six permutations per assembly, deterministic
+choice variation, private representation consistency and no-save malformed requests.
+
+For every package, integrate into a fresh predecessor-based branch, rerun the full
+Docker-backed gate and independent review, verify real browser recovery and replay,
+and complete versioned release, backup/restore, app-only promotion and owned cleanup
+before recording delivery. Isolated rehearsal results alone do not establish delivery.
