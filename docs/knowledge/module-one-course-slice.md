@@ -1169,3 +1169,7 @@ validate local Linux listed/passed counts and no-retry status at those gates; bi
 to the candidate's actual capture manifest and screenshot hashes. Finish cross-checking
 runtime assertions against the integrated engine. No S14 QA resources, backup, promotion,
 release or cleanup has been performed; Danish teaching approval remains separate.
+
+### Navigation release sequencing — 11 November 2026
+
+The user subsequently selected the [learner navigation and vocabulary authoring work](learning-engine.md#selected-navigation-implementation-and-content-authoring). Its navigation-only release uses app **0.19.0**, leaving learning pair sixteen unchanged. This supersedes the original S14 app-version reservation above: the next S14 feature release is planned as **0.20.0 / pair seventeen**. S14 remains paused with its frozen 0.18.0 baseline and saved partial API patch; S15 remains unselected. App-version numbering does not alter any published learning pair, plan or fixture.

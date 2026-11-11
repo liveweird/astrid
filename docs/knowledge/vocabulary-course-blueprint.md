@@ -137,3 +137,125 @@ The current seed has 23 entries and three directly assessed noun senses. Its art
 BL-046 records authoring/reconciliation; BL-004 retains vocabulary selection and BL-025 source/licensing decisions. The examples above are not a complete reviewed vocabulary database, corpus ranking or agreed per-unit word list. Q27 and Q28 record remaining lesson/assessment details; outcome/CEFR validation remains Q02.
 
 **8 November 2026 — Module 1 authoring selected:** the user authorized the paired [course slice](module-one-course-slice.md) and [language ledger](module-one-language-pack.md). That bounded packet samples vocabulary units 1–5, reuses existing identities and records new candidate packets with licensed forms/senses. It does not complete all five thematic inventories, choose Q27/Q28 policies, or activate the vocabulary in the app.
+
+## Selected expansion authoring plan — 11 November 2026
+
+### Status, boundary and source policy
+
+**User-accepted next content phase.** After the 0.19.0 navigation release, whose runtime scope does not
+include pair seventeen or S14, author the next vocabulary material before selecting another activation.
+The initial budget is **60 selected-meaning or chunk placements across three thematic packets**. It is an
+authoring budget, not 60 unique lemmas, a complete unit inventory, a frequency-ranked list or a B2 claim.
+Repeated use of one reviewed sense in another packet counts as another placement; a multiword chunk counts
+once even when it needs several component records at implementation time.
+
+All material in this section is a **linguistic draft awaiting Danish teaching review**. It assigns no new
+`L…` or sense IDs, activates no pool, changes no generator/grader and bulk-adopts no external data. The
+runtime source of truth remains `pilot-16`, with 40 lexical records (`L001`–`L040`) and the published
+compatibility snapshots. Before any later activation, audit the then-current catalogue, allocate new IDs,
+write a versioned lexical/frame manifest and preserve every older snapshot and saved evaluator literally.
+
+Use the following bounded source ladder:
+
+1. Reuse an existing Astrid selected sense and stable ID where it is genuinely the same meaning. A new
+   complement, countability analysis or construction permission is not implied by sharing a spelling.
+2. Verify new spellings, parts of speech and active forms one lemma at a time against **COR₁ 1.5.1.0**,
+   which corresponds to RO 5.1. The official site supplies the release and lookup service; the COR manual
+   describes the ground resource as open for any purpose. Record the exact COR lemma/form IDs and
+   normalization values. [COR release](https://ordregister.dk/) ·
+   [COR structure and terms](https://ordregister.dk/doc/COR.html) ·
+   [lookup service](https://ordregister.dk/doc/COR.Webservices.html)
+3. Keep English glosses, selected meanings, count/mass treatment, frames and all teaching examples
+   Astrid-authored. COR morphology does not approve them. COR.SEM 1.0 (CC0) may supply a **candidate**
+   semantic cross-check, but not an automatic learner-sense mapping. Do not copy DDO definitions or
+   examples, and do not scrape or import dictionary content. [COR.SEM resource and licence](https://ordregister.dk/doc/COR.SEM.html)
+4. Do not download or import the DSL frequent-lemma list for this pass: its published terms exclude
+   dictionaries and competing products, so its use needs separate clarification. Frequency is therefore
+   an unresolved later ranking signal, not a claim attached to these selections. DanNet may only be a
+   candidate alignment source unless a later distribution decision handles its CC BY-SA terms. See the
+   existing [frequency](frequency-and-usage-resources.md) and [bilingual-resource](bilingual-resources.md)
+   assessments.
+
+### Three-packet budget and small-session sequence
+
+| Packet | Placement budget | Reuse/new planning split | Small-session introduction batches | Reviewable outcome |
+| --- | ---: | ---: | --- | --- |
+| **P1 — A day of work and study** | 18 | **9 current + 9 new candidates** | Five sessions: `4 + 4 + 4 + 3 + 3` placements | Read a short routine, identify what a person reads/writes/drinks and write one constrained present-tense statement. |
+| **P2 — Food, drink and a small purchase** | 21 | **6 expected reuse + 15 new candidate slots** | Six sessions: `4 + 4 + 4 + 3 + 3 + 3` | Read a short shopping/café exchange, match products and quantities, and assemble one request or purchase statement. |
+| **P3 — Places and a simple journey** | 21 | **5 expected reuse + 16 new candidate slots** | Six sessions: `4 + 4 + 4 + 3 + 3 + 3` | Read a short location/journey message, distinguish destination from static location, and assemble one constrained travel statement. |
+| **Total** | **60** | **20 reuse placements + 40 new-candidate placements** | **17 short sessions** | Three transfer tasks using previously introduced material outside its first presentation. |
+
+Only P1's 18 rows are selected below. P2 and P3 counts are allocation caps for the next two bounded
+reviews, not approval of the examples in the broad 35-unit inventory. P2 should next choose approximately
+seven entity bundles (including count nouns, mass uses and one packaging/quantity chunk), five action
+bundles, four modifiers/price expressions and five functional chunks. P3 should choose approximately seven
+place/transport bundles, five motion or travel-action bundles, four location/direction expressions and five
+functional chunks. Each packet must repeat P1's row-level sense, morphology, frame, source and review audit
+before its forms can be called selected.
+
+Within each packet, keep first exposure and assessment separate:
+
+- session 1 establishes meanings through Danish-to-English recognition plus a two- or three-sentence
+  reading; session 2 adds bilingual matching without near-synonym distractors;
+- sessions 3–4 revisit introduced items through matching, constrained tiles and only then typed recall;
+  prompt-supplied glue is recorded as support rather than silently counted as learned vocabulary;
+- the final session uses a short reading and one constrained production/transfer item. A count noun is
+  displayed as its article+noun bundle even where the selected sentence requires a bare predicative or
+  another licensed realization.
+
+Future activation should build explicit per-operation pools from the same packet manifest: recognition and
+matching use selected-sense alternatives; recall uses only previously exposed answer forms; tiles use a
+closed, licensed proposition; reading records every lexical/support exposure. Freeze ordered candidate IDs,
+packet revision and session slots, then sample by the existing seed/index/revision inputs so replay remains
+reproducible. Do not let a theme tag create a combination, and do not add new items to old E007/E008,
+matching, tile, reading or practice pools in place.
+
+### P1 authoring ledger — A day of work and study
+
+Local labels `P1-01`–`P1-18` are authoring references, not proposed stable IDs. “Current” means the exact
+selected use exists in `pilot-16`; it does not mean every P1 frame below is already licensed. “New” means a
+candidate sense, form or chunk requiring later identity allocation and activation review. The five batches
+introduce `4/4/4/3/3` placements; later sessions may review earlier rows without increasing the placement
+count.
+
+| Ref / batch | Status | Selected teaching item and meaning | Prerequisite and frame limit | Source locator and review state |
+| --- | --- | --- | --- | --- |
+| P1-01 / 1 | Current `L027-S01` | `at arbejde → arbejder`, do work | Human subject; current S05–S06 use is intransitive. P1 may propose one reviewed time/place circumstance, never infer `med/på/for` complements. | Current catalogue and [seed addition](danish-vocabulary-seed.md#pair-ten-present-form-addition). Form/sense already source-checked; P1 reuse still awaits teaching review. |
+| P1-02 / 1 | Current `L011` | `at læse → læser`, read written material | Human subject + only `en bog/en avis/et brev`, or the separately licensed bare `dansk` frame. Do not generalize to `computer/kursus`. | Current catalogue and [seed verb table](danish-vocabulary-seed.md#verbs-and-selected-meanings). Existing draft; teaching review pending. |
+| P1-03 / 1 | Current `L014-S01` | `en bog`, a book | Common-gender count noun; introduce article+noun. Reading/possession/identifying permissions stay distinct. | Current catalogue and [seed noun table](danish-vocabulary-seed.md#nouns-and-selected-meanings). Existing draft; teaching review pending. |
+| P1-04 / 1 | Current `L037-S01` | `i dag`, today (current calendar day) | One temporal constituent, final or fronted only in an expressly licensed frame. | Current catalogue and [pair-fifteen entry](danish-vocabulary-seed.md#pair-fifteen-time-expression-additions). Existing draft; teaching review pending. |
+| P1-05 / 2 | Current `L015-S01` | `en avis`, a newspaper | Common-gender count noun; written-publication sense, not a company. | Current catalogue and [seed noun table](danish-vocabulary-seed.md#nouns-and-selected-meanings). Existing draft; teaching review pending. |
+| P1-06 / 2 | Current `L018-S01` | `et brev`, a written letter/message | Neuter count noun; paper/written-message sense, not an alphabet character. | Current catalogue and [seed noun table](danish-vocabulary-seed.md#nouns-and-selected-meanings). Existing draft; teaching review pending. |
+| P1-07 / 2 | New candidate | `at skrive → skriver`, write a short text | Human subject + `et brev` only in the first packet; the transitive frame is authored, not supplied by COR. Other objects and intransitive/author senses are deferred. | COR₁ `COR.30533.200.01` / `.203.01`, both `N`: [lemma record](https://ordregister.dk/id/COR.30533). Forms verified 11 November 2026; selected meaning/frame and teaching naturalness pending review. |
+| P1-08 / 2 | New candidate | `en computer`, a computer device | Common-gender count noun; permit only possession/identification in P1. No `læse computer` or device-action inference. | COR₁ `COR.63924.110.01`, `N`: [lemma record](https://ordregister.dk/id/COR.63924). Form/gender verified 11 November 2026; authored sense/frame and teaching review pending. |
+| P1-09 / 3 | New candidate | `at studere → studerer`, study as a learner | Initially human subject and no object; institution/subject complements and the noun/adjective `studerende` are deferred. | COR₁ `COR.32395.200.01` / `.203.01`, both `N`: [lemma record](https://ordregister.dk/id/COR.32395). Forms verified 11 November 2026; selected meaning, valency and teaching review pending. |
+| P1-10 / 3 | New candidate | `et kursus`, one course/class programme | Neuter count noun; recognition and `Det er et kursus` only. Do not license `have et kursus` as possession or scheduling without a separate sense/frame review. | COR₁ `COR.41200.120.01`, `N`: [lemma record](https://ordregister.dk/id/COR.41200). Form/gender verified 11 November 2026; authored sense/frame and teaching review pending. |
+| P1-11 / 3 | Current `L031-S01` | `dansk`, the Danish language | Bare mass/language noun in the licensed `tale/læse dansk` frames; no indefinite article and not the adjective/nationality. | Current catalogue and [pair-twelve entry](danish-vocabulary-seed.md#pair-twelve-personal-statement-addition). Existing draft; teaching review pending. |
+| P1-12 / 3 | Current `L038-S01` | `nu`, now (at the current time) | One temporal circumstance; discourse-particle and conjunction readings remain excluded. | Current catalogue and [pair-fifteen entry](danish-vocabulary-seed.md#pair-fifteen-time-expression-additions). Existing draft; teaching review pending. |
+| P1-13 / 4 | New candidate | `at drikke → drikker`, drink a beverage | Human subject + only the P1 mass objects `kaffe/vand`. Intransitive, alcohol-specific and other complement readings are deferred. | COR₁ `COR.30480.200.01` / `.203.01`, both `N`: [lemma record](https://ordregister.dk/id/COR.30480). Forms verified 11 November 2026; selected meaning/frame and teaching review pending. |
+| P1-14 / 4 | New candidate | bare `kaffe`, coffee as a beverage/substance | Selected **mass use**: no indefinite article in `drikke kaffe`. The COR common-gender paradigm does not make `en kaffe` part of this packet. | COR₁ `COR.43580.110.01`, `N`: [lemma record](https://ordregister.dk/id/COR.43580). Lemma/gender verified 11 November 2026; mass-use selection and teaching review pending. |
+| P1-15 / 4 | New candidate | bare `vand`, water as liquid | Selected **mass use**, specifically COR's liquid entry; no article in `drikke vand`. Exclude the common-gender “bottle of water” and body-of-water entries. | COR₁ `COR.41032.120.01` (`væske`), `N`: [lemma record](https://ordregister.dk/id/COR.41032). Identity/form verified 11 November 2026; authored English gloss, frame and teaching review pending. |
+| P1-16 / 5 | Current `L032-S01` | `i + Aarhus/Odense`, in the named city | Supplied static city-location chunk only. The preposition is not independently generalized to institutions, buildings or countries. | Current catalogue and [pair-twelve entry](danish-vocabulary-seed.md#pair-twelve-personal-statement-addition). Existing draft; teaching review pending. |
+| P1-17 / 5 | New candidate | `hjemme`, at home (static location) | One locative adverb with `arbejde/studere` only after frame review; do not contrast productively with directional `hjem`. | COR₁ `COR.10260.900.01`, `N`: [lemma record](https://ordregister.dk/id/COR.10260). Form/POS verified 11 November 2026; selected use, combinations and teaching review pending. |
+| P1-18 / 5 | New candidate | `om morgenen`, in the morning (habitual/day-part chunk) | Treat as one supplied temporal constituent. Its definite noun component and `om` construction are outside current grammar; no fronting or substitution table until separately reviewed. | COR₁ verifies `morgen` and definite `morgenen` at `COR.43995.110.01` / `.111.01`, both `N`: [lemma record](https://ordregister.dk/id/COR.43995). COR component morphology is verified; the complete chunk, meaning/frame and teaching review remain pending. |
+
+P1 therefore contains **9 current placements and 9 new candidates**: five verbs, six count-noun or
+language-noun placements, two mass-noun uses and five time/place/support placements when categorized by
+their assigned teaching role (a row is counted once even if it could receive several tags). Candidate forms
+that exceed the current grammar are explicit: the `skrive` and `drikke` object frames, intransitive
+`studere`, new `computer/kursus` noun permissions, bare mass `kaffe/vand`, `hjemme` combinations and the
+whole `om morgenen` constituent. They must not be smuggled into existing sentence families merely because
+their surface parts are known.
+
+### Q27 and activation gate
+
+Keep all existing grading unchanged. In particular, E008 continues to recall the introduced noun headword
+without retroactively requiring its article. For future vocabulary expansion, the recommendation is a
+**separate, explicit article+noun bundle operation** for singular count nouns, with a new operation/revision,
+recorded bundle exposure and its own feedback contract. Mass uses such as `kaffe` and liquid `vand`, bare
+language `dansk`, and chunks must route to different answer schemas rather than receive a synthetic article.
+This recommendation does not resolve Q27 or authorize implementation.
+
+P1 is ready for a bounded teaching/content review, not runtime activation. That review must confirm every
+authored meaning and frame, decide accepted alternatives/capitalization, test the five small-session readings
+for naturalness and only then propose stable identities, exact operation pools and a compatibility revision.

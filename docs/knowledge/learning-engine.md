@@ -254,3 +254,34 @@ BL-004/BL-046 with generation work under BL-010, then cumulative review (BL-066,
 BL-011). This is a proposed reprioritization, not a change to S14's selected backlog status.
 Before cumulative implementation, define what counts as introduced material, history ownership
 and review eligibility; scheduling and mastery thresholds remain separate decisions.
+
+### Selected navigation implementation and content authoring
+
+**11 November 2026 — User-authorized:** “Go for it” selects the proposed learner-facing
+navigation work and vocabulary expansion planning. Deliver navigation first as app **0.19.0**:
+Lessons at `/`, the existing three extra-practice profiles at `/#review`, the existing runner
+at `/practice`, developer playground at `/playground`, and changelog through the footer.
+Do not expose an empty Vocabulary page or label the old mixed plan as cumulative review.
+The full Vocabulary library and cumulative review remain subsequent work, not this release.
+
+Lessons is a separate passive directory, not the runner mounted at a new URL. Initial browsing
+must not establish/renew an owner, generate exercises, send an outbox or change saved history.
+A guarded saved-run pointer can offer **Resume saved practice**; storage absence/corruption must
+not crash browsing. Explicit starts reuse profile validation and save the existing creation
+identity/body before navigating to the runner. Leaving with an uncertain operation, resuming,
+Back/Forward, own URL binding and source-linked reviews retain their current contracts.
+Unknown routes show a learner-safe not-found state. No new learning pair, engine behavior,
+API payload, database migration, dependency, account or mastery policy is selected here.
+
+Acceptance includes landing/no-network tests, exact saved-creation handoff, storage failure
+and outstanding-run preservation, accessible Review focus, both-browser recovery/navigation,
+light/dark and 320px/200% rendered inspection, independent review and the complete local gate.
+Follow the standing exact-source CI, annotated release, actual backup restore, app-only
+promotion and owned-QA cleanup workflow. These are acceptance conditions, not observed results.
+
+The [vocabulary authoring plan](vocabulary-course-blueprint.md#selected-expansion-authoring-plan--11-november-2026)
+now budgets sixty selected-meaning/chunk placements across three situations. Its first eighteen
+placements comprise nine current uses and nine new candidates with explicit morphology/source
+and frame boundaries. Those are draft authoring records, not newly activated runtime content.
+Use COR as a bounded form reference, author English meanings/examples, and retain the documented
+licensing boundaries for frequency and bilingual resources. Teaching approval remains outstanding.
