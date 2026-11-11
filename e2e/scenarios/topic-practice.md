@@ -11,7 +11,7 @@
 ## Scenario: a fresh chooser creates no run before an explicit focus selection
 
 1. The learner opens `/practice` and watches the creation and session requests.
-   - *Expected*: "Choose your practice" shows with eleven radios (three existing profiles and eight first-step sessions, including the present-form, subject-first, possession and reading-word sessions), none checked, **Start practice**
+   - *Expected*: "Choose your practice" shows with twelve radios (three existing profiles and nine first-step sessions, including the present-form, subject-first, possession, reading-word and personal-statement sessions), none checked, **Start practice**
      disabled, no creation request and no `session` in the URL.
 2. They choose **Present verb forms** and start.
    - *Expected*: "Part 1 of 6"; exactly one creation request with `focusId` `present-verbs` and plan

@@ -499,3 +499,38 @@ into an isolated database and reproduced prior rows in all six history tables. P
 process and mounts, old immutable rows and Flyway versions 1–3 were preserved. All
 110 live-preview checks passed without retries, and the owned QA resources were
 removed. Danish teaching review remains open.
+
+## S09 names, homes and languages
+
+Add three short rounds of present-form practice with a choice and a typed answer in
+each round. Supply the dictionary bundle, subject reference, complete English meaning
+and Danish complement. Require the introduction before answers. Learners can enter
+directly or continue from S08 through the chooser.
+
+| Round | Bundle and form | Selection | Recall | Worked example |
+| --- | --- | --- | --- | --- |
+| Name | `at hedde → hedder` | `Jeg ___ Anna.` | `Du ___ Nora.` | `Hun hedder Nora.` |
+| Residence | `at bo → bor` | `Hun ___ i Aarhus.` | `De ___ i Odense.` | `Jeg bor i Odense.` |
+| Language | `at tale → taler` | `Vi ___ dansk.` | `I ___ dansk.` | `Du taler dansk.` |
+
+Teach the supplied names as fictional and gloss `i` with the named city. In the language
+round, `dansk` names the language. Each verb has a different supplied complement role.
+L028–L030 are the three verb records. L031 is the language noun, and L032 is the locative
+preposition used before a city. License the proper-name predicative under C004, the city
+prepositional phrase under C006 and the bare language complement under C002 as explicit
+scoped variants. The 109 previously licensed catalogue clauses stay intact.
+
+The names, residence and spoken-language frames use the selected senses in the
+dictionary. [Hedde, sense 1](https://ordnet.dk/ddo/ordbog/hedde) ·
+[Bo, verb sense 1](https://ordnet.dk/ddo/ordbog/bo) ·
+[Tale, verb sense 1.b](https://ordnet.dk/ddo/ordbog/tale) ·
+[Dansk, noun sense 1](https://ordnet.dk/ddo/ordbog/dansk) ·
+[I, preposition sense 1.a](https://ordnet.dk/ddo/ordbog/i)
+
+App 0.14.0 pins `module-one-personal-1` to pair twelve. E022 and E023 each add three
+cards under G004 scope `personal-introduction-present`. Select the named infinitive or
+present form, or type one lowercase Danish present word. Record distinct selection and
+recall results. A known different present form receives a named-verb diagnosis. Unknown
+writing stays open for support or retry. Use the seed and stable authored task identity to vary selection positions within each run
+and between seeds in the eight-card pair-twelve pool. Retain the three-card pair-ten and five-card pair-eleven pools
+and their original grading and presentation.

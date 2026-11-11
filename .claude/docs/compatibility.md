@@ -25,7 +25,8 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-8` / `generator-8` | `evaluation-8` | + E016–E019 (scoped subject-word and stored-present selection/recall) | published and frozen; three first-step plans pin this pair |
 | `pilot-9` / `generator-9` | `evaluation-9` | + E020/E021 (singular inanimate subject-reference selection/recall) | published and frozen; four-item S04 plan pins this pair |
 | `pilot-10` / `generator-10` | `evaluation-10` | + E022/E023 (named present forms), E024/E025 (subject-first assembly) | published and frozen; S05 and S06 pin this pair |
-| `pilot-11` / `generator-11` | `evaluation-11` | E022/E023 add scoped possession tasks | CURRENT; S07 pins this pair |
+| `pilot-11` / `generator-11` | `evaluation-11` | E022/E023 add scoped possession tasks | published and frozen; S07 pins this pair |
+| `pilot-12` / `generator-12` | `evaluation-12` | E022/E023 add scoped name, residence and language tasks | CURRENT; S09 pins this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
@@ -136,7 +137,8 @@ Rules:
 
 | Task | Output |
 | --- | --- |
-| `:engine:exportPilotReview` | `engine/build/review/pilot-11.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotReview` | `engine/build/review/pilot-12.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotElevenReview` | `engine/build/review/pilot-11-retained.md` |
 | `:engine:exportPilotTenReview` | `engine/build/review/pilot-10-retained.md` |
 | `:engine:exportPilotNineReview` | `engine/build/review/pilot-9-retained.md` |
 | `:engine:exportPilotEightReview` | `engine/build/review/pilot-8-retained.md` |
@@ -152,6 +154,8 @@ Rules:
 | `:engine:exportModuleOneThingsPracticeCompatibility` / `:server:exportModuleOneThingsPracticeWireCompatibility` | add published S04 evidence and provenance only (refuse overwrite) |
 | `:engine:exportPilotTenCompatibility` / `:server:exportPilotTenWireCompatibility` | add pair-ten evidence and provenance only (refuse overwrite) |
 | `:engine:exportPresentOrderPracticeCompatibility` / `:server:exportPresentOrderPracticeWireCompatibility` | add published S05/S06 evidence and provenance only (refuse overwrite) |
+| `:engine:exportPilotElevenCompatibility` / `:server:exportPilotElevenWireCompatibility` | add published pair-eleven evidence and provenance only (refuse overwrite) |
+| `:engine:exportFollowOnPracticeCompatibility` / `:server:exportFollowOnPracticeWireCompatibility` | add published 0.13.0 S07–S08 plan evidence and provenance only (refuse overwrite) |
 | `:server:exportPilotThreeWireCompatibility` | writes a **new** wire fixture + provenance (refuses to overwrite) |
 
 Review exports are deterministic evidence for teaching review; they are not approval. The production engine does no file I/O.

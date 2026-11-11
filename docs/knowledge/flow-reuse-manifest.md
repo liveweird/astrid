@@ -127,3 +127,20 @@ No force-click, larger timeout, retry workaround, runtime change or teaching-con
 was introduced. BL-055 captures the unresolved diagnostic follow-up; BL-044 remains a separate
 unselected tuning proposal. Ownership-checked diagnostic cleanup completed; main app/database processes and mounts
 remained unchanged.
+
+## Test-only API schema cache — 11 November 2026
+
+The larger first-step contract reproduced a heap failure in `OpenApiContractTest`.
+The pinned validator expands schema references and injects a copy of all definitions
+into each compiled-schema cache entry. Its default maximum is 100. Astrid now uses
+Flow's `ValidationConfiguration.setMaxCacheSize` pattern, with four entries for all
+strict, response-only and request-matrix builders. The donor is
+`server/src/test/kotlin/OpenApiConformance.kt` at Flow commit
+`4e43e48069cd5781c96332c2e660505ea358f644`.
+
+The isolated S10 rehearsal reproduced the failure at cache maxima 100 and 20. The
+unchanged compiled journey passed at four entries in 5.29 seconds and at two entries
+in 15.25 seconds in 512 MiB JVMs. Post-GC live heap was 339 MiB and 255 MiB respectively,
+including JShell overhead. These are diagnostic measurements. The normal Gradle/Kover
+gate supplies repository verification. The gate exercises parser defaults, complete schema validation,
+positive/negative correlations and referenced error responses.

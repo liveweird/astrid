@@ -39,6 +39,14 @@ const READING_WORDS: Record<string, { answer: string; entryId: string; senseId: 
   newspaper: { answer: "en avis", entryId: "L015", senseId: "L015-S01", label: "Newspaper" },
   "letter (written message)": { answer: "et brev", entryId: "L018", senseId: "L018-S01", label: "Letter (written message)" },
 };
+const PERSONAL_FORMS: Record<string, { answer: string; proposition: string }> = {
+  "Jeg | Anna.": { answer: "hedder", proposition: "I am called Anna." },
+  "Du | Nora.": { answer: "hedder", proposition: "You are called Nora." },
+  "Hun | i Aarhus.": { answer: "bor", proposition: "She lives in Aarhus." },
+  "De | i Odense.": { answer: "bor", proposition: "They live in Odense." },
+  "Vi | dansk.": { answer: "taler", proposition: "We speak Danish." },
+  "I | dansk.": { answer: "taler", proposition: "You speak Danish." },
+};
 const SUBJECT_FIRST_ORDERS: Record<string, string[]> = {
   "We work.": ["vi", "arbejder"],
   "You sleep.": ["du", "sover"],
@@ -54,6 +62,11 @@ function answerFor(exercise: CourseExercise) {
   if (exercise.formatId === "E011") {
     const target = READING_WORDS[exercise.prompt.cue ?? ""];
     expect(target, "The literal authored English meaning identifies one Danish bundle").toBeDefined();
+    return target!.answer;
+  }
+  if (exercise.targetScopeId === "personal-introduction-present") {
+    const target = PERSONAL_FORMS[`${exercise.prompt.before ?? ""}|${exercise.prompt.after ?? ""}`];
+    expect(target, "The literal supplied personal statement identifies one present form").toBeDefined();
     return target!.answer;
   }
   if (exercise.targetScopeId === "have-possession-present") {
@@ -408,6 +421,88 @@ test("reading words retain related meaning choices and per-sense results", async
   }
   await expect(page.getByText("Meaning selection", { exact: true })).toHaveCount(4);
   await expect(page.getByText("Written headword recall", { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Next: Names, homes and languages", exact: true }).click();
+  await expect(page.getByRole("radio", { name: "Names, homes and languages", exact: true })).toBeChecked();
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+  expect((await stateFor(page)).summary).toEqual(state.summary);
+  await scan(page);
+});
+
+test("personal present forms alternate choice and recall across six literal statements", async ({ page }) => {
+  let state = await openCourse(page, "Names, homes and languages");
+  expect(state).toMatchObject({
+    focusId: "module-one-personal", planRevision: "module-one-personal-1",
+    contentRevision: "pilot-12", generatorRevision: "generator-12",
+    introductionRequired: true, introductionOpened: false, itemCount: 6,
+    prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  });
+  expect(state.items.every((item) => item.targetScopeId === "personal-introduction-present")).toBe(true);
+  const early = await page.request.post("/api/v1/attempts", {
+    headers: { "X-Astrid-Client": "playground" },
+    data: { attemptId: crypto.randomUUID(), exerciseId: state.currentExercise!.id, answer: { kind: "text", text: "hedder" }, hintUsed: false },
+  });
+  expect(early.status()).toBe(409);
+  expect((await stateFor(page)).summary.attemptCount).toBe(0);
+
+  state = await beginCourse(page);
+  const introduction = page.getByRole("region", { name: "Session introduction", exact: true });
+  for (const danish of [
+    "at hedde → hedder", "Hun hedder Nora.",
+    "at bo → bor", "Jeg bor i Odense.",
+    "at tale → taler", "Du taler dansk.",
+  ]) {
+    await expect(introduction.getByText(danish, { exact: true })).toHaveAttribute("lang", "da");
+  }
+  for (const english of [
+    "The verb gives someone's name.",
+    "The verb states where someone lives.",
+    "The verb states which language someone speaks.",
+  ]) {
+    await expect(introduction.getByText(english, { exact: true })).toBeVisible();
+  }
+  await expect(page.getByText("Present forms for personal details", { exact: true }).and(page.locator("span"))).toBeVisible();
+  await scan(page);
+
+  const seen: string[] = [];
+  while (state.state !== "completed") {
+    const exercise = state.currentExercise!;
+    const key = `${exercise.prompt.before ?? ""}|${exercise.prompt.after ?? ""}`;
+    const target = PERSONAL_FORMS[key]!;
+    seen.push(key);
+    expect(exercise.targetScopeId).toBe("personal-introduction-present");
+    expect(exercise.formatId).toBe(state.cursor % 2 === 0 ? "E022" : "E023");
+    expect(exercise.context).toContain(target.proposition);
+    await expect(page.getByText(exercise.prompt.cue!, { exact: true })).toHaveAttribute("lang", "da");
+    if (exercise.prompt.choices.length) {
+      const sentence = page.getByRole("group", { name: "Danish present verb choices", exact: true });
+      await expect(sentence).toHaveAttribute("lang", "da");
+      await submit(page, exercise, target.answer);
+    } else {
+      const input = page.getByRole("textbox", { name: "Danish present verb", exact: true });
+      await expect(input).toHaveAttribute("lang", "da");
+      await input.fill(target.answer);
+      await page.getByRole("button", { name: "Check answer", exact: true }).click();
+      await expect(page.getByRole("status")).toBeFocused();
+    }
+    await expect(page.getByRole("status").getByText("Good work", { exact: true })).toBeVisible();
+    state = await next(page, await stateFor(page));
+  }
+
+  expect(seen).toEqual(Object.keys(PERSONAL_FORMS));
+  expect(state.summary).toMatchObject({ completedItems: 6, attemptedItems: 6, attemptCount: 6, retryCount: 0 });
+  expect(state.summary.rows).toEqual(expect.arrayContaining([
+    expect.objectContaining({
+      targetScopeId: "personal-introduction-present", assessmentMode: "selection", plannedItems: 3,
+      firstOutcomes: expect.objectContaining({ fullyMet: 3 }), latestOutcomes: expect.objectContaining({ fullyMet: 3 }),
+    }),
+    expect.objectContaining({
+      targetScopeId: "personal-introduction-present", assessmentMode: "recall", plannedItems: 3,
+      firstOutcomes: expect.objectContaining({ fullyMet: 3 }), latestOutcomes: expect.objectContaining({ fullyMet: 3 }),
+    }),
+  ]));
   await expect(page.getByRole("button", { name: /^Next:/ })).toHaveCount(0);
   await page.reload();
   await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
@@ -721,7 +816,7 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/practice");
       await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
       await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-      await expect(page.getByRole("radio")).toHaveCount(11);
+      await expect(page.getByRole("radio")).toHaveCount(12);
       await scan(page);
       const groupSession = page.getByRole("radio", { name: PROFILES[1].title, exact: true });
       await groupSession.focus(); await page.keyboard.press("Space");

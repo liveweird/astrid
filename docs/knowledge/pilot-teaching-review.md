@@ -4,13 +4,13 @@
 
 This is a **proposed review process**, not a user-approved rubric, an arranged specialist
 engagement, or evidence that a specialist has reviewed or approved the content. It covers the
-private beginner preview at app **0.13.0**, content `pilot-11`, generator `generator-11`
-and evaluation `evaluation-11`. Its language state remains `draft-not-teacher-reviewed`.
-See the [course slice](module-one-course-slice.md#s07-possession-with-har).
+private beginner preview at app **0.14.0**, content `pilot-12`, generator `generator-12`
+and evaluation `evaluation-12`. Its language state remains `draft-not-teacher-reviewed`.
+See the [course slice](module-one-course-slice.md#s09-names-homes-and-languages).
 
-The current bounded inventory is 27 lexical records, 109 licensed catalogue clauses and
-twenty-five standalone exercise formats. Eight guided profiles cover first steps through
-reading-material vocabulary. The proposed review covers their teaching and visible feedback.
+The current bounded inventory is 32 lexical records, 109 licensed catalogue clauses and
+twenty-five standalone exercise formats. Nine guided profiles cover first steps through
+names, homes and languages. The proposed review covers their teaching and visible feedback.
 
 Software and source checks cover identifiers, deterministic generation, references, frozen
 compatibility and bounded inventories. They cannot decide whether Danish is natural, explanations
@@ -22,8 +22,8 @@ and [first-step activation contract](module-one-activation.md).
 ## Prepare the current review packet
 
 - From the repository root, run `./gradlew :engine:exportPilotReview`. The current output is
-  `engine/build/review/pilot-11.md`. Confirm content `pilot-11`, generator
-  `generator-11` and review state `draft-not-teacher-reviewed`. Record the exact source commit,
+  `engine/build/review/pilot-12.md`. Confirm content `pilot-12`, generator
+  `generator-12` and review state `draft-not-teacher-reviewed`. Record the exact source commit,
   application version and command result with the review.
 - Give the reviewer that export together with the [vocabulary seed](danish-vocabulary-seed.md),
   [Module 1 language pack](module-one-language-pack.md), [beginner-slice specification](beginner-slice-spec.md),
@@ -44,7 +44,7 @@ and [first-step activation contract](module-one-activation.md).
 
 | Review surface | Current exported coverage |
 | --- | --- |
-| Lexicon and clauses | All 27 lexical records and all 109 licensed catalogue clauses |
+| Lexicon and clauses | All 32 lexical records and all 109 licensed catalogue clauses |
 | Reproducible examples | Two seed-47 prompt summaries for each E001–E025 |
 | E009 writing | 99 complete cue/reference/hint units |
 | E010 reading | 24 complete passages, questions, choice sets and private answers |
@@ -52,10 +52,10 @@ and [first-step activation contract](module-one-activation.md).
 | E012/E013 tiles | 99 units per format, including licensed orders and distractors |
 | E014 matching | Four boards and their private correspondences |
 | E015 two gaps | 92 units with displayed slots and private expected choices |
-| First-step profiles | Seven full required introductions and pinned policy metadata. Review S08's separate required introduction and meaning feedback live. |
+| First-step profiles | Nine full required introductions and pinned policy metadata. Review each profile's feedback live. |
 | E016–E019 | All 30 standalone authored tasks: 7 E016, 7 E017, 8 E018 and 8 E019 |
 | E020/E021 | Four inanimate-reference tasks, two selection and two recall, including antecedent/sense/context metadata; inspect per-item lessons and hints live |
-| E022/E023 | Ten named-present tasks, including four possession tasks, with scoped form targets and exact teaching exposure |
+| E022/E023 | Sixteen named-present tasks, including four possession and six personal-statement tasks, with scoped form targets and exact teaching exposure |
 | E024/E025 | Six subject-first ordering tasks covering whole constituents and individual words |
 
 For standalone first-step traversal at fixed seed `47`, use indices `0..6` for each
@@ -76,9 +76,10 @@ book and letter recall. Traverse indices `0..1` for each E020/E021 with G038 at 
 and separately inspect each profile ordering. These are two introduced forms with repeated
 reference contexts, not four new meanings or unseen transfer.
 
-At seed 47, indices `0..4` traverse each pair-eleven E022/E023 cycle and `0..2` traverse
+At seed 47, indices `0..7` traverse each pair-twelve E022/E023 cycle and `0..2` traverse
 each E024/E025 cycle. In the guided sequence, check the six regular present items in S05,
-the six ordering items in S06, and the four possession items in S07.
+the six ordering items in S06, the four possession items in S07 and the six personal-statement
+items in S09. Check the separate names, residence and language examples and diagnoses.
 
 ## Specialist checklist
 

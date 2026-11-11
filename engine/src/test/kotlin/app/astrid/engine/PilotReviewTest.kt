@@ -6,6 +6,20 @@ import kotlin.test.assertTrue
 
 class PilotReviewTest {
     @Test
+    fun `pair twelve review adds personal inventory while retained pair eleven stays bounded`() {
+        val current = PilotReview.renderMarkdown()
+        val retained = PilotReview.renderPilotElevenMarkdown()
+
+        assertTrue("Content revision: `pilot-12`" in current)
+        assertTrue("Generator revision: `generator-12`" in current)
+        assertTrue("| personal-select-name | E022 | personal-introduction-present | Jeg hedder Anna." in current)
+        assertTrue("### Names, homes and languages" in current)
+        assertTrue("Content revision: `pilot-11`" in retained)
+        assertTrue("personal-introduction-present" !in retained)
+        assertTrue("Names, homes and languages" !in retained)
+    }
+
+    @Test
     fun `review metadata covers all 23 lexical records with sources and draft state`() {
         val records = PilotContent.snapshot.lexicalReview
 

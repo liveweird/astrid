@@ -16,8 +16,7 @@ object PilotElevenCompatibilityGoldenExportMain {
 }
 
 internal fun publishedPairElevenReviewBytes(): ByteArray {
-    // Replace with renderPilotElevenMarkdown() only after released source retains pair eleven.
-    return PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
+    return PilotReview.renderPilotElevenMarkdown().toByteArray(Charsets.UTF_8)
 }
 
 internal object PilotElevenCompatibilityGolden {
@@ -340,9 +339,8 @@ internal object PilotElevenCompatibilityGolden {
     }
 
     private fun requireLiteralPairEleven() {
-        // Replace currentSnapshot with pilotElevenSnapshot after released source retains pair eleven.
-        require(PilotContent.currentSnapshot.contentRevision == CONTENT_REVISION)
-        require(PilotContent.currentSnapshot.generatorRevision == GENERATOR_REVISION)
+        require(PilotContent.pilotElevenSnapshot.contentRevision == CONTENT_REVISION)
+        require(PilotContent.pilotElevenSnapshot.generatorRevision == GENERATOR_REVISION)
         require(engine.evaluationRevision(CONTENT_REVISION, GENERATOR_REVISION) == EVALUATION_REVISION)
     }
 

@@ -57,6 +57,8 @@ internal const val MODULE_ONE_POSSESSION_FOCUS = "module-one-possession"
 internal const val MODULE_ONE_POSSESSION_REVISION = "module-one-possession-1"
 internal const val MODULE_ONE_READING_WORDS_FOCUS = "module-one-reading-words"
 internal const val MODULE_ONE_READING_WORDS_REVISION = "module-one-reading-words-1"
+internal const val MODULE_ONE_PERSONAL_FOCUS = "module-one-personal"
+internal const val MODULE_ONE_PERSONAL_REVISION = "module-one-personal-1"
 private const val TARGETED_REVIEW_FOCUS = "targeted-review"
 private const val INTRODUCTION_POSITION = -1
 

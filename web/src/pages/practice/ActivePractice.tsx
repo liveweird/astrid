@@ -18,6 +18,7 @@ const TARGET_SCOPE_LABELS: Record<string, string> = {
   "named-three-verbs-present": "Present forms of three verbs",
   "subject-first-supplied": "Subject-first statement order",
   "have-possession-present": "Present possession with har",
+  "personal-introduction-present": "Present forms for personal details",
 };
 
 function targetBadge(exercise: NonNullable<PracticeSession["currentExercise"]>) {

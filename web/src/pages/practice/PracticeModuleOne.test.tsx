@@ -84,6 +84,7 @@ it.each([
   ["named-three-verbs-present", "G004", "Present forms of three verbs"],
   ["subject-first-supplied", "G005", "Subject-first statement order"],
   ["have-possession-present", "G004", "Present possession with har"],
+  ["personal-introduction-present", "G004", "Present forms for personal details"],
 ] as const)("shows a learning label instead of the %s implementation scope", async (targetScopeId, targetSkillId, label) => {
   saveModuleOneRun();
   const scopedExercise = { ...subjectExercise, targetScopeId, targetSkillId };
@@ -114,6 +115,7 @@ it.each([
   ["Building subject-first statements", "module-one-order", "module-one-order-1"],
   ["Saying what someone has", "module-one-possession", "module-one-possession-1"],
   ["Words for things you read", "module-one-reading-words", "module-one-reading-words-1"],
+  ["Names, homes and languages", "module-one-personal", "module-one-personal-1"],
 ] as const)("creates %s only after its exact catalog choice", async (title, focusId, planRevision) => {
   let body = "";
   vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
@@ -368,7 +370,7 @@ it("offers S07 after S06 and S08 after S07", async () => {
   expect(screen.getByRole("radio", { name: "Words for things you read" })).toBeChecked();
 });
 
-it("labels S08 meaning selection and stops the explicit sequence after S08", async () => {
+it("labels S08 meaning selection and offers S09 next", async () => {
   saveRunRecovery({
     ownerSessionId: owner, practiceSessionId: practiceId,
     focusId: "module-one-reading-words", planRevision: "module-one-reading-words-1", seed: 47,
@@ -398,10 +400,34 @@ it("labels S08 meaning selection and stops the explicit sequence after S08", asy
     if (path.includes("/practice-sessions/")) return json(completed);
     throw new Error(`Unexpected ${path}`);
   }));
+  const user = userEvent.setup();
   renderWithProviders(<Practice />);
 
   expect(await screen.findAllByText("Meaning selection")).toHaveLength(4);
   for (const [label] of targets) expect(screen.getByRole("article", { name: label })).toBeVisible();
   expect(screen.queryByText("Written headword recall")).not.toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "Next: Names, homes and languages" }));
+  expect(screen.getByRole("radio", { name: "Names, homes and languages" })).toBeChecked();
+});
+
+it("stops the explicit sequence after S09", async () => {
+  saveRunRecovery({
+    ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "module-one-personal", planRevision: "module-one-personal-1", seed: 47,
+  });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const completed = moduleOneState({
+    focusId: "module-one-personal", planRevision: "module-one-personal-1", title: "Names, homes and languages",
+    state: "completed", cursor: 6, itemCount: 6, currentExercise: null, introductionOpened: true,
+    summary: { ...completedState().summary, plannedItems: 6, completedItems: 6, attemptedItems: 6 },
+  });
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.includes("/practice-sessions/")) return json(completed);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Practice />);
+
+  expect(await screen.findByRole("button", { name: "Repeat this session" })).toBeVisible();
   expect(screen.queryByRole("button", { name: /^Next:/ })).not.toBeInTheDocument();
 });

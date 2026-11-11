@@ -23,9 +23,11 @@ internal object PilotReviewMetadata {
         matching: Boolean = false,
         moduleOne: Boolean = false,
         referencePronouns: List<PronounEntry> = emptyList(),
+        fixedWords: List<FixedWordEntry> = emptyList(),
     ): List<LexicalReviewRecord> =
         pronounRecords(pronouns, identifyingPronoun, moduleOne) +
-            referencePronounRecords(referencePronouns) + verbRecords(verbs, moduleOne) + nounRecords(nouns, matching) + articleRecords()
+            referencePronounRecords(referencePronouns) + verbRecords(verbs, moduleOne) + nounRecords(nouns, matching) +
+            articleRecords() + fixedWordRecords(fixedWords)
 
     private fun referencePronounRecords(pronouns: List<PronounEntry>): List<LexicalReviewRecord> =
         pronouns.map { entry ->
@@ -90,6 +92,9 @@ internal object PilotReviewMetadata {
                 "L012" to ("eat" to "C002 with æble only; intransitive and other food uses excluded."),
                 "L013" to ("sleep" to "C001 human subject with no object."),
                 "L027" to ("work" to "Pair ten authored human intransitive work clauses with no object or circumstance only."),
+                "L028" to ("bear a stated name" to "Pair twelve authored C004 name frames only; other senses excluded."),
+                "L029" to ("live or reside in a place" to "Pair twelve authored C006 i + city residence frames only."),
+                "L030" to ("speak a language" to "Pair twelve authored C002-family dansk language-complement frames only."),
             )
         return verbs.map { verb ->
             val detail = details.getValue(verb.lexicalId)
@@ -164,6 +169,25 @@ internal object PilotReviewMetadata {
             ),
         )
 
+    private fun fixedWordRecords(words: List<FixedWordEntry>): List<LexicalReviewRecord> {
+        val details = mapOf(
+            "L031" to Triple(
+                "Danish language",
+                mapOf("language-complement" to "dansk"),
+                "Fixed supplied language complement in the pair-twelve tale frame; adjective and nationality uses excluded.",
+            ),
+            "L032" to Triple(
+                "in at a city location",
+                mapOf("location-preposition" to "i"),
+                "Fixed supplied preposition before Aarhus or Odense in the pair-twelve residence frame only.",
+            ),
+        )
+        return words.map { word ->
+            val detail = details.getValue(word.id)
+            record(word.id, word.text, detail.first, detail.second, detail.third, FIXED_WORD_SOURCES.getValue(word.id))
+        }
+    }
+
     private fun record(
         id: String,
         headword: String,
@@ -188,7 +212,14 @@ internal object PilotReviewMetadata {
             "L012" to "https://ordnet.dk/ddo/ordbog/spise",
             "L013" to "https://ordnet.dk/ddo/ordbog/sove",
             "L027" to "https://ordnet.dk/ddo/ordbog/arbejde",
+            "L028" to "https://ordnet.dk/ddo/ordbog/hedde",
+            "L029" to "https://ordnet.dk/ddo/ordbog/bo",
+            "L030" to "https://ordnet.dk/ddo/ordbog/tale",
         )
+    private val FIXED_WORD_SOURCES = mapOf(
+        "L031" to "https://ordnet.dk/ddo/ordbog/dansk",
+        "L032" to "https://ordnet.dk/ddo/ordbog/i",
+    )
     private val NOUN_SOURCES =
         mapOf(
             "L014" to "https://ordnet.dk/ddo/ordbog/bog",

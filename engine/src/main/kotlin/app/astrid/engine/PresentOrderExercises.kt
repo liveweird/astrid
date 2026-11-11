@@ -26,6 +26,11 @@ internal data class NamedPresentTask(
     val patternKey: String = PresentOrderContent.PRESENT_PATTERN_KEY,
     val englishProposition: String? = null,
     val complementMeaning: String? = null,
+    val constructionId: String = if (complement == null) "C001" else "C002",
+    val complementRole: String? = if (complement == null) null else "OBJECT",
+    val knownPresentForms: Set<String> = PresentOrderContent.retainedIntroducedPresents(),
+    val teaching: NamedPresentTeaching? = null,
+    val suppliedLabel: String = "object",
 ) : PresentOrderTask {
     override val targetScopeId = scopeId
     override val answerExposureKeys = listOf(
@@ -35,15 +40,27 @@ internal data class NamedPresentTask(
     )
     override val promptExposureKeys = listOf(PresentOrderContent.infinitiveKey(verb.lexicalId)) +
         (if (formatId == "E022") listOf(PresentOrderContent.presentKey(verb.lexicalId)) else emptyList()) +
-        if (scopeId == PresentOrderContent.POSSESSION_SCOPE_ID) {
+        if (scopeId in setOf(PresentOrderContent.POSSESSION_SCOPE_ID, PresentOrderContent.PERSONAL_SCOPE_ID)) {
             complementLexicalIds.map(PresentOrderContent::componentKey)
         } else {
             emptyList()
         }
     override val lessonExposureKeys = answerExposureKeys
-    override val hintExposureKeys = listOf(patternKey)
+    override val hintExposureKeys = listOf(patternKey) +
+        if (scopeId == PresentOrderContent.PERSONAL_SCOPE_ID) {
+            listOf(PresentOrderContent.infinitiveKey(verb.lexicalId), PresentOrderContent.presentKey(verb.lexicalId))
+        } else {
+            emptyList()
+        }
     override val feedbackExposureKeys = listOf(PresentOrderContent.presentKey(verb.lexicalId))
 }
+
+internal data class NamedPresentTeaching(
+    val meaning: String,
+    val workedExample: String,
+    val workedMeaning: String,
+    val hint: String,
+)
 
 internal data class SuppliedOrderPart(
     val lexicalId: String,
@@ -80,11 +97,24 @@ internal object PresentOrderContent {
     const val PRESENT_PATTERN_KEY = "module-one:pattern:introduced-present-r"
     const val POSSESSION_SCOPE_ID = "have-possession-present"
     const val POSSESSION_PATTERN_KEY = "module-one:pattern:have-possession-present"
+    const val PERSONAL_SCOPE_ID = "personal-introduction-present"
+    const val PERSONAL_PATTERN_KEY = "module-one:pattern:personal-introduction-present"
     const val ORDER_PATTERN_KEY = "module-one:pattern:subject-first-finite-second"
     val work = Verb("L027", "arbejde", "arbejder", "work")
-    private val presentVerbs = listOf(work, PilotContent.read, PilotContent.sleep)
+    private val retainedPresentVerbs = listOf(work, PilotContent.read, PilotContent.sleep)
 
-    fun tasks(formatId: String, includePossession: Boolean = false): List<PresentOrderTask> = when (formatId) {
+    fun tasks(
+        formatId: String,
+        includePossession: Boolean = false,
+        includePersonal: Boolean = false,
+    ): List<PresentOrderTask> {
+        val tasks = retainedTasks(formatId) +
+            (if (includePossession) possessionTasks(formatId) else emptyList()) +
+            (if (includePersonal) PersonalIntroductionContent.tasks(formatId) else emptyList())
+        return if (includePersonal) tasks.map(::withPairTwelveForms) else tasks
+    }
+
+    private fun retainedTasks(formatId: String): List<PresentOrderTask> = when (formatId) {
         "E022" -> listOf(
             presentTask("present-select-work", formatId, "L001", "jeg", "the speaker", work),
             presentTask(
@@ -92,16 +122,7 @@ internal object PresentOrderContent {
                 "en avis", listOf("L022", "L015"),
             ),
             presentTask("present-select-sleep", formatId, "L005", "vi", "the speaker and another person", PilotContent.sleep),
-        ) + if (includePossession) listOf(
-            possessionTask(
-                "possession-select-letter", formatId, "L003", "han", "one stated man", "He has a letter.",
-                "et brev", "a letter", listOf("L023", "L018"),
-            ),
-            possessionTask(
-                "possession-select-newspaper", formatId, "L005", "vi", "the speaker and another person",
-                "We have a newspaper.", "en avis", "a newspaper", listOf("L022", "L015"),
-            ),
-        ) else emptyList()
+        )
         "E023" -> listOf(
             presentTask("present-recall-work", formatId, "L007", "de", "several other people", work),
             presentTask(
@@ -109,16 +130,7 @@ internal object PresentOrderContent {
                 "en bog", listOf("L022", "L014"),
             ),
             presentTask("present-recall-sleep", formatId, "L003", "han", "one stated man", PilotContent.sleep),
-        ) + if (includePossession) listOf(
-            possessionTask(
-                "possession-recall-book", formatId, "L002", "du", "one addressee", "You have a book.",
-                "en bog", "a book", listOf("L022", "L014"),
-            ),
-            possessionTask(
-                "possession-recall-letter", formatId, "L007", "de", "several other people", "They have a letter.",
-                "et brev", "a letter", listOf("L023", "L018"),
-            ),
-        ) else emptyList()
+        )
         "E024" -> listOf(
             orderTask(
                 OrderTaskSeed("order-constituents-we-work", "We work.", "the speaker and another person", "L005", "vi", work),
@@ -161,6 +173,33 @@ internal object PresentOrderContent {
         )
         else -> error("Unsupported present/order format $formatId")
     }
+
+    private fun possessionTasks(formatId: String): List<PresentOrderTask> = when (formatId) {
+        "E022" -> listOf(
+            possessionTask(
+                "possession-select-letter", formatId, "L003", "han", "one stated man", "He has a letter.",
+                "et brev", "a letter", listOf("L023", "L018"),
+            ),
+            possessionTask(
+                "possession-select-newspaper", formatId, "L005", "vi", "the speaker and another person",
+                "We have a newspaper.", "en avis", "a newspaper", listOf("L022", "L015"),
+            ),
+        )
+        "E023" -> listOf(
+            possessionTask(
+                "possession-recall-book", formatId, "L002", "du", "one addressee", "You have a book.",
+                "en bog", "a book", listOf("L022", "L014"),
+            ),
+            possessionTask(
+                "possession-recall-letter", formatId, "L007", "de", "several other people", "They have a letter.",
+                "et brev", "a letter", listOf("L023", "L018"),
+            ),
+        )
+        else -> emptyList()
+    }
+
+    private fun withPairTwelveForms(task: PresentOrderTask): PresentOrderTask =
+        if (task is NamedPresentTask) task.copy(knownPresentForms = pairTwelveIntroducedPresents()) else task
 
     private fun presentTask(
         id: String,
@@ -219,15 +258,20 @@ internal object PresentOrderContent {
     fun infinitiveKey(lexicalId: String) = "module-one:verb-infinitive:$lexicalId"
     fun componentKey(lexicalId: String) = "module-one:supplied-component:$lexicalId"
     fun orderKey(taskId: String) = "module-one:exact-order:$taskId"
-    fun introducedPresents() = presentVerbs.mapTo(mutableSetOf(), Verb::present)
+    fun retainedIntroducedPresents() = retainedPresentVerbs.mapTo(mutableSetOf(), Verb::present)
+    fun pairTwelveIntroducedPresents() =
+        (retainedPresentVerbs + PilotContent.have + PilotContent.be + PilotContent.personalIntroductionVerbs)
+            .mapTo(mutableSetOf(), Verb::present)
 }
 
 internal object PresentOrderExerciseGenerator {
     fun generate(request: GenerationRequest): GeneratedExercise {
-        val tasks = PresentOrderContent.tasks(
-            request.formatId,
-            request.contentRevision == PilotContent.CURRENT_CONTENT_REVISION,
-        )
+        val (includePossession, includePersonal) = when (request.contentRevision) {
+            PilotContent.RETAINED_ELEVEN_CONTENT_REVISION -> true to false
+            PilotContent.CURRENT_CONTENT_REVISION -> true to true
+            else -> false to false
+        }
+        val tasks = PresentOrderContent.tasks(request.formatId, includePossession, includePersonal)
         val offset = request.seed.toLong() * TASK_SEED_FACTOR + request.index.toLong() * TASK_INDEX_FACTOR
         val task = tasks[Math.floorMod(offset, tasks.size.toLong()).toInt()]
         return when (task) {
@@ -239,7 +283,7 @@ internal object PresentOrderExerciseGenerator {
     private fun presentExercise(request: GenerationRequest, task: NamedPresentTask): GeneratedExercise {
         val selection = request.formatId == "E022"
         val choices = if (selection) {
-            presentChoices(task, request.seed, request.index)
+            presentChoices(task, request.seed, request.index, request.contentRevision == PilotContent.CURRENT_CONTENT_REVISION)
         } else {
             emptyList()
         }
@@ -249,7 +293,8 @@ internal object PresentOrderExerciseGenerator {
             formatId = request.formatId,
             targetSkillId = "G004",
             lexicalTarget = null,
-            supportSkillIds = listOf("G001", "G002", "G003"),
+            supportSkillIds = listOf("G001", "G002", "G003") +
+                if (task.scopeId == PresentOrderContent.PERSONAL_SCOPE_ID) listOf("G005") else emptyList(),
             presentation = ExercisePresentation(
                 instruction = if (selection) {
                     "Choose the one-word present form of the named Danish verb."
@@ -263,26 +308,24 @@ internal object PresentOrderExerciseGenerator {
                     cue = "at ${task.verb.lemma}", cueLanguage = "da", answerLanguage = "da",
                 ),
                 introduction = presentIntroduction(task),
-                hint = if (task.scopeId == PresentOrderContent.POSSESSION_SCOPE_ID) {
+                hint = task.teaching?.hint ?: if (task.scopeId == PresentOrderContent.POSSESSION_SCOPE_ID) {
                     "Use the stored one-word present form har from at have."
-                } else {
-                    "Use the introduced one-word present form ending in -r from the named pair."
-                },
+                } else "Use the introduced one-word present form ending in -r from the named pair.",
             ),
             contentRevision = request.contentRevision,
             generatorRevision = request.generatorRevision,
             reproduction = Reproduction(request.seed, request.index),
             inspector = ExerciseInspector(
                 canonicalSentenceId = task.id,
-                constructionId = if (task.complement == null) "C001" else "C002",
+                constructionId = task.constructionId,
                 lexicalIds = listOf(task.subjectId, task.verb.lexicalId) + task.complementLexicalIds,
-                clauseRoles = listOf("SUBJECT", "FINITE_VERB") + if (task.complement == null) emptyList() else listOf("OBJECT"),
+                clauseRoles = listOf("SUBJECT", "FINITE_VERB") + listOfNotNull(task.complementRole),
                 canonicalSentence = canonical(task.subject, task.verb.present, task.complement),
                 moduleOneSource = ModuleOneSourceDetails(
                     task.id,
                     task.verb.lexicalId,
                     task.verb.present,
-                    (PresentOrderContent.introducedPresents() + task.verb.lemma).filterNot { it == task.verb.present }.sorted(),
+                    (task.knownPresentForms + task.verb.lemma).filterNot { it == task.verb.present }.sorted(),
                     "finite-verb",
                     task.id,
                     "lowercase-mid-sentence",
@@ -298,7 +341,7 @@ internal object PresentOrderExerciseGenerator {
                 task,
                 AnswerKey.ModuleOneForm(
                     task.verb.present,
-                    (PresentOrderContent.introducedPresents() + task.verb.lemma) - task.verb.present,
+                    (task.knownPresentForms + task.verb.lemma) - task.verb.present,
                     selection,
                 ),
             ),
@@ -351,7 +394,14 @@ internal object PresentOrderExerciseGenerator {
     }
 
     private fun presentIntroduction(task: NamedPresentTask) =
-        if (task.scopeId == PresentOrderContent.POSSESSION_SCOPE_ID) {
+        if (task.teaching != null) {
+            listOf(
+                IntroductionSection("Dictionary and present forms", "at ${task.verb.lemma} → ${task.verb.present}", "da"),
+                IntroductionSection("Meaning", task.teaching.meaning),
+                IntroductionSection("Worked example", task.teaching.workedExample, "da"),
+                IntroductionSection("Worked meaning", task.teaching.workedMeaning),
+            )
+        } else if (task.scopeId == PresentOrderContent.POSSESSION_SCOPE_ID) {
             listOf(
                 IntroductionSection("Dictionary and present forms", "at have → har", "da"),
                 IntroductionSection("Meaning", "The verb expresses possession here. Use the same present form with each subject."),
@@ -367,7 +417,7 @@ internal object PresentOrderExerciseGenerator {
         }
 
     private fun presentContext(task: NamedPresentTask): String = task.englishProposition?.let { proposition ->
-        "English: $proposition The subject refers to ${task.reference}. The supplied object " +
+        "English: $proposition The subject refers to ${task.reference}. The supplied ${task.suppliedLabel} " +
             "${task.complement} means ${task.complementMeaning}."
     } ?: "The subject refers to ${task.reference}. The named verb means to ${task.verb.gloss}."
 
@@ -388,9 +438,15 @@ internal object PresentOrderExerciseGenerator {
     private fun <T> shuffled(values: List<T>, seed: Int, index: Int): List<T> =
         if ((seed xor index) and 1 == 0) values.reversed() else values.drop(1) + values.take(1)
 
-    private fun presentChoices(task: NamedPresentTask, seed: Int, index: Int): List<String> {
+    private fun presentChoices(
+        task: NamedPresentTask,
+        seed: Int,
+        index: Int,
+        independentOfIndex: Boolean,
+    ): List<String> {
         val canonical = listOf(task.verb.lemma, task.verb.present)
-        return if ((seed xor index) and 1 == 0) canonical else canonical.reversed()
+        val parity = if (independentOfIndex) seed xor task.id.hashCode() else seed xor index
+        return if (parity and 1 == 0) canonical else canonical.reversed()
     }
 
     private const val TASK_SEED_FACTOR = 31L
@@ -427,7 +483,7 @@ internal object PresentOrderExerciseEvaluator {
                 task, answer, normalized, TargetStatus.NOT_MET, LinguisticStatus.KNOWN_ISSUE,
                 "INFINITIVE_USED", "Use the present form in this statement.", ResponseConstraintStatus.MET,
             )
-            normalized in PresentOrderContent.introducedPresents() -> presentResult(
+            normalized in task.knownPresentForms -> presentResult(
                 task, answer, normalized, TargetStatus.NOT_MET, LinguisticStatus.ACCEPTABLE,
                 "NAMED_VERB_MISMATCH", "That is an introduced present form for a different verb.",
                 ResponseConstraintStatus.MET,

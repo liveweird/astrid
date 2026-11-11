@@ -18,6 +18,12 @@ internal data class NounEntry(
     val gender: NounGender,
 )
 
+internal data class FixedWordEntry(
+    val id: String,
+    val text: String,
+    val gloss: String,
+)
+
 internal object PilotContent {
     const val CONTENT_REVISION = "pilot-1"
     const val GENERATOR_REVISION = "generator-1"
@@ -39,8 +45,10 @@ internal object PilotContent {
     const val RETAINED_NINE_GENERATOR_REVISION = "generator-9"
     const val RETAINED_TEN_CONTENT_REVISION = "pilot-10"
     const val RETAINED_TEN_GENERATOR_REVISION = "generator-10"
-    const val CURRENT_CONTENT_REVISION = "pilot-11"
-    const val CURRENT_GENERATOR_REVISION = "generator-11"
+    const val RETAINED_ELEVEN_CONTENT_REVISION = "pilot-11"
+    const val RETAINED_ELEVEN_GENERATOR_REVISION = "generator-11"
+    const val CURRENT_CONTENT_REVISION = "pilot-12"
+    const val CURRENT_GENERATOR_REVISION = "generator-12"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
     const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
@@ -51,7 +59,8 @@ internal object PilotContent {
     const val RETAINED_EIGHT_EVALUATION_REVISION = "evaluation-8"
     const val RETAINED_NINE_EVALUATION_REVISION = "evaluation-9"
     const val RETAINED_TEN_EVALUATION_REVISION = "evaluation-10"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-11"
+    const val RETAINED_ELEVEN_EVALUATION_REVISION = "evaluation-11"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-12"
 
     val humanPronouns =
         listOf(
@@ -73,6 +82,14 @@ internal object PilotContent {
     val eat = Verb("L012", "spise", "spiser", "eat")
     val sleep = Verb("L013", "sove", "sover", "sleep")
     val verbs = listOf(have, be, read, eat, sleep)
+    val beCalled = Verb("L028", "hedde", "hedder", "be called")
+    val live = Verb("L029", "bo", "bor", "live or reside")
+    val speak = Verb("L030", "tale", "taler", "speak")
+    val personalIntroductionVerbs = listOf(beCalled, live, speak)
+    val personalIntroductionFixedWords = listOf(
+        FixedWordEntry("L031", "dansk", "Danish language"),
+        FixedWordEntry("L032", "i", "in at a city location"),
+    )
 
     val nouns =
         listOf(
@@ -378,10 +395,28 @@ internal object PilotContent {
             ),
         )
 
-    val currentSnapshot =
+    val pilotElevenSnapshot =
         pilotTenSnapshot.copy(
+            contentRevision = RETAINED_ELEVEN_CONTENT_REVISION,
+            generatorRevision = RETAINED_ELEVEN_GENERATOR_REVISION,
+        )
+
+    val currentSnapshot =
+        pilotElevenSnapshot.copy(
             contentRevision = CURRENT_CONTENT_REVISION,
             generatorRevision = CURRENT_GENERATOR_REVISION,
+            verbs = pilotElevenSnapshot.verbs + personalIntroductionVerbs,
+            fixedWords = personalIntroductionFixedWords,
+            lexicalReview = PilotReviewMetadata.records(
+                humanPronouns,
+                identifyingPronoun,
+                pilotElevenSnapshot.verbs + personalIntroductionVerbs,
+                moduleOneNouns,
+                matching = true,
+                moduleOne = true,
+                referencePronouns = inanimateReferencePronouns,
+                fixedWords = personalIntroductionFixedWords,
+            ),
         )
 
     init {
@@ -395,6 +430,7 @@ internal object PilotContent {
         PilotContentValidator.requireValid(pilotEightSnapshot)
         PilotContentValidator.requireValid(pilotNineSnapshot)
         PilotContentValidator.requireValid(pilotTenSnapshot)
+        PilotContentValidator.requireValid(pilotElevenSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

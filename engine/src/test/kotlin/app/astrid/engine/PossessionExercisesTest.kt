@@ -11,8 +11,8 @@ class PossessionExercisesTest {
 
     @Test
     fun `pair eleven publishes literal possession cards while pair ten remains unchanged`() {
-        assertEquals("pilot-11", engine.catalog().contentRevision)
-        assertEquals("generator-11", engine.catalog().generatorRevision)
+        assertEquals("pilot-12", engine.catalog().contentRevision)
+        assertEquals("generator-12", engine.catalog().generatorRevision)
         assertEquals("evaluation-10", engine.evaluationRevision("pilot-10", "generator-10"))
         assertEquals("evaluation-11", engine.evaluationRevision("pilot-11", "generator-11"))
 

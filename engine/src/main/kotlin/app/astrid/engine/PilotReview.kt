@@ -5,6 +5,8 @@ object PilotReview {
 
     fun renderPilotTenMarkdown(): String = renderSnapshot(PilotContent.pilotTenSnapshot)
 
+    fun renderPilotElevenMarkdown(): String = renderSnapshot(PilotContent.pilotElevenSnapshot)
+
     fun renderPilotEightMarkdown(): String = renderSnapshot(PilotContent.pilotEightSnapshot)
 
     fun renderPilotNineMarkdown(): String = renderSnapshot(PilotContent.pilotNineSnapshot)
@@ -59,17 +61,31 @@ object PilotReview {
         }
         if (PilotReviewVersions.hasInanimateReference(snapshot)) appendInanimateReferenceInventory()
         if (PilotReviewVersions.hasPresentOrder(snapshot)) appendPresentOrderInventory(snapshot)
-        if (snapshot.contentRevision == "pilot-11") appendLaterProfileTeaching()
+        if (snapshot.contentRevision in setOf(
+                PilotContent.RETAINED_ELEVEN_CONTENT_REVISION,
+                PilotContent.CURRENT_CONTENT_REVISION,
+            )
+        ) {
+            appendLaterProfileTeaching(snapshot)
+        }
     }
 
-    private fun StringBuilder.appendLaterProfileTeaching() {
+    private fun StringBuilder.appendLaterProfileTeaching(snapshot: PilotContentSnapshot) {
         val planner = PracticePlanner()
-        val profiles = listOf(
+        val retainedProfiles = listOf(
             PresentOrderPracticePlanner.PRESENT_FOCUS_ID to PresentOrderPracticePlanner.PRESENT_PLAN_REVISION,
             PresentOrderPracticePlanner.ORDER_FOCUS_ID to PresentOrderPracticePlanner.ORDER_PLAN_REVISION,
             PossessionPracticePlanner.FOCUS_ID to PossessionPracticePlanner.PLAN_REVISION,
         )
-        appendLine("## S05–S07 required teaching")
+        val profiles = if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            retainedProfiles + listOf(
+                ReadingWordsPracticePlanner.FOCUS_ID to ReadingWordsPracticePlanner.PLAN_REVISION,
+                PersonalIntroductionPracticePlanner.FOCUS_ID to PersonalIntroductionPracticePlanner.PLAN_REVISION,
+            )
+        } else {
+            retainedProfiles
+        }
+        appendLine(if (profiles.size == retainedProfiles.size) "## S05–S07 required teaching" else "## S05–S09 required teaching")
         appendLine()
         for ((focus, revision) in profiles) {
             val plan = planner.plan(focus, revision, REVIEW_SEED)
@@ -517,11 +533,16 @@ object PilotReview {
         appendLine()
         appendLine("| Task | Format | Scope | Canonical sentence | Answer exposure | Prompt exposure |")
         appendLine("| --- | --- | --- | --- | --- | --- |")
-        val includePossession = snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION
+        val includePossession = snapshot.contentRevision in setOf(
+            PilotContent.RETAINED_ELEVEN_CONTENT_REVISION,
+            PilotContent.CURRENT_CONTENT_REVISION,
+        )
+        val includePersonal = snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION
         listOf("E022", "E023", "E024", "E025").flatMap { formatId ->
-            PresentOrderContent.tasks(formatId, includePossession)
+            PresentOrderContent.tasks(formatId, includePossession, includePersonal)
         }.forEach { task ->
-            val exercise = (0 until PresentOrderContent.tasks(task.formatId, includePossession).size).asSequence().map { index ->
+            val exercise = (0 until PresentOrderContent.tasks(task.formatId, includePossession, includePersonal).size)
+                .asSequence().map { index ->
                 PilotEngine().generate(
                     GenerationRequest(
                         task.formatId,

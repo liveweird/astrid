@@ -138,6 +138,9 @@ export function profiles(ownerSessionId = owner) {
       { focusId: "module-one-reading-words", planRevision: "module-one-reading-words-1", title: "Words for things you read",
         description: "Choose Danish words for a magazine, a book, a newspaper and a letter.", itemCount: 4,
         prerequisiteSkillIds: [] },
+      { focusId: "module-one-personal", planRevision: "module-one-personal-1", title: "Names, homes and languages",
+        description: "Choose and type Danish present forms for names, places and languages.", itemCount: 6,
+        prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
       { focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
         description: "Mixed existing skills.", itemCount: 8, prerequisiteSkillIds: [] },
       { focusId: "present-verbs", planRevision: "present-verbs-1", title: "Present verb forms",
@@ -151,7 +154,7 @@ export function profiles(ownerSessionId = owner) {
 
 export async function choosePractice(
   user: ReturnType<typeof userEvent.setup>,
-  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Saying what someone has" | "Words for things you read" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" = "Mixed practice",
+  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Saying what someone has" | "Words for things you read" | "Names, homes and languages" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" = "Mixed practice",
 ) {
   await screen.findByRole("heading", { name: "Choose your practice" });
   await user.click(screen.getByRole("radio", { name }));

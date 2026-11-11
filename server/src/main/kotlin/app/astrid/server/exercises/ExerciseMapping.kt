@@ -228,6 +228,7 @@ internal fun GeneratedExercise.reproductionFingerprint(
         "pilot-9" to "generator-9",
         "pilot-10" to "generator-10",
         "pilot-11" to "generator-11",
+        "pilot-12" to "generator-12",
         -> pairNineFingerprintCanonical(
             promptForFingerprint,
             lexicalTargetForFingerprint,
@@ -247,6 +248,7 @@ internal fun GeneratedExercise.reproductionFingerprint(
 private fun scopedFingerprintFrame(revision: String, canonical: String): String = when (revision) {
     "pilot-10" -> framedList(listOf("pair-ten", canonical))
     "pilot-11" -> framedList(listOf("pair-eleven", canonical))
+    "pilot-12" -> framedList(listOf("pair-twelve", canonical))
     else -> canonical
 }
 

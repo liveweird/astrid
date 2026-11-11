@@ -44,8 +44,8 @@ class PossessionPracticeTest {
     }
 
     @Test
-    fun `current review includes the saved teaching for the last three beginner profiles`() {
-        val teaching = PilotReview.renderMarkdown().substringAfter("## S05–S07 required teaching", "")
+    fun `retained pair eleven review includes saved teaching through possession`() {
+        val teaching = PilotReview.renderPilotElevenMarkdown().substringAfter("## S05–S07 required teaching", "")
         assertTrue("`module-one-present-1`" in teaching)
         assertTrue("`module-one-order-1`" in teaching)
         assertTrue("`module-one-possession-1`" in teaching)

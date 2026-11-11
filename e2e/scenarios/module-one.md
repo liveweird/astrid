@@ -64,7 +64,18 @@
 3. On the printed-magazine item, choose the known but wrong `en bog`, retry, focus `et magasin` and submit it with the keyboard. Complete book, newspaper and written letter in their exact authored order.
    - Expected: the wrong related meaning is acceptable Danish but misses the target and can advance; the retry succeeds without treating the article as a separate assessment. All cues and choices retain their language metadata.
 4. Inspect and reload the completed summary.
-   - Expected: four exact one-item sense rows are labelled **Meaning selection** rather than written headword recall, retain first/latest outcomes and the five-answer/one-retry totals, and survive reload. No next session is offered.
+   - Expected: four exact one-item sense rows are labelled **Meaning selection** rather than written headword recall, retain first/latest outcomes and the five-answer/one-retry totals, and survive reload. **Names, homes and languages** is offered next.
+
+## Scenario: personal present forms alternate choice and recall across six literal statements
+
+1. Enter **Names, homes and languages** directly and attempt the first activity through the API before opening its required introduction.
+   - Expected: the six-item pair-twelve session requires G001–G005, rejects assessment before teaching and records no early attempt. Every item uses the personal-introduction present-form scope.
+2. Open the introduction and inspect the separate dictionary/present pairs, worked examples and English explanations for naming, residence and language.
+   - Expected: `at hedde → hedder`, `Hun hedder Nora.`, `at bo → bor`, `Jeg bor i Odense.`, `at tale → taler` and `Du taler dansk.` carry Danish language metadata. Their meanings remain English teaching, and the target badge is **Present forms for personal details**.
+3. Complete the literal cards in round order: `Jeg ___ Anna` then `Du ___ Nora`; `Hun ___ i Aarhus` then `De ___ i Odense`; `Vi ___ dansk` then `I ___ dansk`.
+   - Expected: each round alternates an E022 choice and an E023 typed response, the exact English proposition is supplied, and the Danish cue, choices or input retain their language metadata. `hedder`, `bor` and `taler` each succeed in both modes.
+4. Inspect and reload the summary.
+   - Expected: selection and recall have separate three-item scoped rows with six fully met first/latest outcomes, the completed state survives reload, and no unimplemented next session is offered.
 
 ## Scenario: first steps preserve ambiguous ${correction.raw} casing without a wrong-person diagnosis
 

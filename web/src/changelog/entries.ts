@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.14.0",
+    date: "2026-11-11",
+    body: `**Talk about names, homes and languages.**
+
+- **Names, homes and languages** adds six activities for choosing and typing hedder, bor and taler in supplied personal statements.
+- Read the required introduction to connect each Danish dictionary form with its present form, meaning and worked example.
+- Practise one choice and one written response for each verb while names, city phrases and dansk remain supplied.
+- See separate selection and written-recall results, reload saved progress, repeat the session, or enter it directly.
+- Continue from **Words for things you read**. The material remains a draft awaiting Danish teaching review. Earlier exercises keep their original behavior.`,
+  },
+  {
     version: "0.13.0",
     date: "2026-11-11",
     body: `**Learn Danish words for things you read.**

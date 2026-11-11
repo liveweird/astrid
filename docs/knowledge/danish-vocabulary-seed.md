@@ -147,3 +147,23 @@ does not expose an exhaustive global sense count. Teaching review remains pendin
 Pair ten contains 27 lexical entries and the same 109 catalogue sentences. The work frames
 are confined to the selected tasks and use a human subject with no object or circumstance.
 The six named-form and six subject-first activities use the [course contract](module-one-course-slice.md#following-package--s05-and-s06).
+
+## Pair-twelve personal-statement addition
+
+S09 assigns five new lexical identities in scoped name, residence and language frames.
+The three verbs are taught with their infinitive marker and stored present form. The
+language noun and location preposition are supplied support.
+
+| ID | Selected meaning | Teaching form | Active scope and source |
+| --- | --- | --- | --- |
+| L028 | hedde, be called by the stated name | at hedde → hedder | L028-S01, human subject and a supplied fictional name under scoped C004. [DDO, sense 1](https://ordnet.dk/ddo/ordbog/hedde). |
+| L029 | bo, live or reside at the stated place | at bo → bor | L029-S01, supplied `i Aarhus/Odense` under scoped C006. [DDO, verb sense 1](https://ordnet.dk/ddo/ordbog/bo). |
+| L030 | tale, speak the stated language | at tale → taler | L030-S01, bare supplied `dansk` complement under scoped C002. [DDO, verb sense 1.b](https://ordnet.dk/ddo/ordbog/tale). |
+| L031 | dansk, the Danish language | dansk | L031-S01, language noun supplied bare in `tale dansk`. This use has no indefinite article. [DDO, noun sense 1](https://ordnet.dk/ddo/ordbog/dansk). |
+| L032 | i, in a named city | i + city | L032-S01, location preposition supplied with Aarhus or Odense in the residence cards. [DDO, preposition sense 1.a](https://ordnet.dk/ddo/ordbog/i). |
+
+Pair twelve contains 32 lexical records and the same 109 catalogue clauses. Its new lexical
+permissions are confined to the six authored S09 cards and their worked examples. The earlier
+C002 noun-object pool, C004 identities and occupation frames retain their original licensing.
+The new entries remain a linguistic draft. The [S09 contract](module-one-course-slice.md#s09-names-homes-and-languages)
+records the teaching, assessment and replay boundaries.

@@ -4,41 +4,28 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 object PilotReviewExportMain {
+    private val retainedRenderers: Map<String, () -> String> = mapOf(
+        "--legacy" to PilotReview::renderLegacyMarkdown,
+        "--pilot-two" to PilotReview::renderPilotTwoMarkdown,
+        "--pilot-three" to PilotReview::renderPilotThreeMarkdown,
+        "--pilot-four" to PilotReview::renderPilotFourMarkdown,
+        "--pilot-five" to PilotReview::renderPilotFiveMarkdown,
+        "--pilot-six" to PilotReview::renderPilotSixMarkdown,
+        "--pilot-seven" to PilotReview::renderPilotSevenMarkdown,
+        "--pilot-eight" to PilotReview::renderPilotEightMarkdown,
+        "--pilot-nine" to PilotReview::renderPilotNineMarkdown,
+        "--pilot-ten" to PilotReview::renderPilotTenMarkdown,
+        "--pilot-eleven" to PilotReview::renderPilotElevenMarkdown,
+    )
+
     @JvmStatic
     fun main(args: Array<String>) {
-        require(
-            args.size == 1 ||
-                (args.size == 2 && args.first() in
-                    setOf(
-                        "--legacy",
-                        "--pilot-two",
-                        "--pilot-three",
-                        "--pilot-four",
-                        "--pilot-five",
-                        "--pilot-six",
-                        "--pilot-seven",
-                        "--pilot-eight",
-                        "--pilot-nine",
-                        "--pilot-ten",
-                    )),
-        ) {
-            "Expected an output path, optionally preceded by a retained-pilot flag from --legacy through --pilot-ten"
+        require(args.size == 1 || (args.size == 2 && args.first() in retainedRenderers)) {
+            "Expected an output path, optionally preceded by a retained-pilot flag from --legacy through --pilot-eleven"
         }
         val output = Path.of(args.last())
         Files.createDirectories(output.parent)
-        val markdown = when (args.first()) {
-            "--legacy" -> PilotReview.renderLegacyMarkdown()
-            "--pilot-two" -> PilotReview.renderPilotTwoMarkdown()
-            "--pilot-three" -> PilotReview.renderPilotThreeMarkdown()
-            "--pilot-four" -> PilotReview.renderPilotFourMarkdown()
-            "--pilot-five" -> PilotReview.renderPilotFiveMarkdown()
-            "--pilot-six" -> PilotReview.renderPilotSixMarkdown()
-            "--pilot-seven" -> PilotReview.renderPilotSevenMarkdown()
-            "--pilot-eight" -> PilotReview.renderPilotEightMarkdown()
-            "--pilot-nine" -> PilotReview.renderPilotNineMarkdown()
-            "--pilot-ten" -> PilotReview.renderPilotTenMarkdown()
-            else -> PilotReview.renderMarkdown()
-        }
-        Files.writeString(output, markdown)
+        val render = retainedRenderers[args.first()] ?: PilotReview::renderMarkdown
+        Files.writeString(output, render())
     }
 }
