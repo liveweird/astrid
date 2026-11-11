@@ -1,0 +1,9 @@
+releaseSourceCommit=b82ad3615b74de932ae903e7d479d454debc0740
+releaseVersion=0.13.0
+captureDate=2026-11-11
+planPairs=module-one-possession-1:pilot-11/generator-11/evaluation-11,module-one-reading-words-1:pilot-5/generator-5/evaluation-5
+planRevisions=module-one-possession-1,module-one-reading-words-1
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=24
+fixtureSha256=9d53d3b0b74598ab0c3d8cc0d87caa1a520642aaae7b3a13b967368cb4f069b2
+description=The published four-item S07 possession plan and four-item S08 reading-meaning plan at four seeds, with full teaching, source-pair and policy metadata, exact scoped targets, summaries, completion boundaries, and correct-only reading feedback exposure.

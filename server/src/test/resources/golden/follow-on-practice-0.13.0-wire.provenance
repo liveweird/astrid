@@ -1,0 +1,8 @@
+releaseSourceCommit=b82ad3615b74de932ae903e7d479d454debc0740
+releaseVersion=0.13.0
+captureDate=2026-11-11
+planPairs=module-one-possession-1:pilot-11/generator-11/evaluation-11,module-one-reading-words-1:pilot-5/generator-5/evaluation-5
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=67
+fixtureSha256=0dc164e1c6ec136f157a1d1b57edb6c57c062458b48c04f8b275319cb2f641d1
+description=The four-item S07 possession and S08 reading-meaning plans at four seeds; exact profile/request/private-plan and public lifecycle wire, scoped eligibility, correct-only reading feedback exposure, frozen context, and request/response replay. No follow-up fallback.

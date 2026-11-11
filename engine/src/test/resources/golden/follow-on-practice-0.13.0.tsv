@@ -1,0 +1,24 @@
+CATALOG	f7cd1b48b43e86c8b0071d664dfeb41662f9d2261b42c52a0951dd528aa8256a
+PLAN	module-one-possession	0	1eac0a754e0fb073d5dc04d7870ed746658f56488ae35042426b2fa14a4e0b75
+PLAN	module-one-reading-words	0	bd5f16abe34726506c20b97d9bf8456cc61a5e5ccb2a957f546fe54d1ab9b4fe
+PLAN	module-one-possession	1	e2742dd4c44e35698f7c811cbbf019e29787d2213465ae4b8dd79fdf659e1063
+PLAN	module-one-reading-words	1	8de4bd53d0c373171b28fe102a450bec99b8cf4b8e361a2f7a89fc91746fc864
+PLAN	module-one-possession	47	a45db946610427fbf9650fe8062a2ccaa879d49bba75b2ec8ec855b238ecf348
+PLAN	module-one-reading-words	47	eb46b3b6af7510557eb2b7fe13629b9ccbdf47c8e207d7590de08c0c064566d2
+PLAN	module-one-possession	2147483647	ec1c5ab0f8e9a699e4a81598f21bbc1993fe6ee1faf7cfde8bbc8c64c7489d1c
+PLAN	module-one-reading-words	2147483647	e24755ce63e1313b3e0d2e2db348c49ed1c7342ac5a586c1efec660c74fee69a
+SUMMARY	module-one-possession	88efbb58e66013ab6b842fcebbb480c9fdf3df722c0c57dd8153c9ab7f6c674b
+EXPOSURE	module-one-possession	wrong	module-one:verb-present:L009
+EXPOSURE	module-one-possession	right	module-one:verb-present:L009
+EXPOSURE	module-one-possession	wrong-then-right	module-one:verb-present:L009
+SUMMARY	module-one-reading-words	646f450aad0c1e1a20fa2982bcf5005f3a145ce92a4894ab5fd8b549756c4876
+EXPOSURE	module-one-reading-words	wrong	-
+EXPOSURE	module-one-reading-words	right	module-one:reading-meaning:L024-S01
+EXPOSURE	module-one-reading-words	wrong-then-right	module-one:reading-meaning:L024-S01
+COMPLETION	module-one-known-outcome-1	missing	false
+COMPLETION	module-one-known-outcome-1	met	true
+COMPLETION	module-one-known-outcome-1	known-wrong	true
+COMPLETION	module-one-known-outcome-1	unknown	false
+COMPLETION	module-one-known-outcome-1	case	true
+COMPLETION	module-one-known-outcome-1	multiword	true
+COMPLETION	module-one-known-outcome-1	blank	false

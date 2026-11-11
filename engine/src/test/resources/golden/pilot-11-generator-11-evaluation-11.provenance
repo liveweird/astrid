@@ -1,0 +1,11 @@
+releaseSourceCommit=b82ad3615b74de932ae903e7d479d454debc0740
+releaseVersion=0.13.0
+captureDate=2026-11-11
+contentRevision=pilot-11
+generatorRevision=generator-11
+evaluationRevision=evaluation-11
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=2986
+fixtureSha256=04b274e4bb32d8f813f10509924eea23c2433d97fe87e99a2a408a8af94254de
+reviewSha256=6755d11d95fc7d4a77f9623f4fc5bc960aa9adc14b28fb7da52f39d9a2fbb65f
+description=All twenty-five pair-eleven format cycles and seed/index boundaries plus every authored E016-E025 task, private Module One, inanimate-reference, present/order and possession source/exposure metadata, and canonical, known-wrong, case, normalization, blank, unknown, partial, malformed and wrong-kind evaluations.

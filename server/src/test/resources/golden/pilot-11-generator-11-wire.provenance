@@ -1,0 +1,10 @@
+releaseSourceCommit=b82ad3615b74de932ae903e7d479d454debc0740
+releaseVersion=0.13.0
+captureDate=2026-11-11
+contentRevision=pilot-11
+generatorRevision=generator-11
+evaluationRevision=evaluation-11
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=3794
+fixtureSha256=1960d220a96ea93e6cddeb59b638a1e66973c22fb4b504955dd80102fe09893c
+description=All twenty-five pair-eleven formats: finite cycles and boundaries, bounded E014 samples, all E016-E025 tasks/scopes/private possession metadata, public and inspector wire, fingerprints, and text/order canonical, known-wrong, case, blank, unknown, Unicode, partial, malformed, wrong-kind and replay grades.
