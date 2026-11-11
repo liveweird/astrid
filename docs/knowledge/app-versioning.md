@@ -100,3 +100,9 @@ reading-material vocabulary bridge. Five exact-source CI jobs and 396 journeys i
 browser suite passed. After backup restoration was verified, app-only promotion preserved
 history and the preview passed 110 checks.
 [Delivery record](module-one-course-slice.md#observed-s08-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.13.0)
+
+**Subsequent release — 11 November 2026:** App 0.14.0, source `f0c9568`, adds the
+personal-statement present-form session. Five exact-source CI jobs and 398 journeys in
+each browser suite passed. A verified backup restore preceded app-only promotion, and
+the preview passed 112 checks.
+[Delivery record](module-one-course-slice.md#observed-s09-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.14.0)

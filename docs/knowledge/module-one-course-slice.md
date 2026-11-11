@@ -534,3 +534,27 @@ recall results. A known different present form receives a named-verb diagnosis. 
 writing stays open for support or retry. Use the seed and stable authored task identity to vary selection positions within each run
 and between seeds in the eight-card pair-twelve pool. Retain the three-card pair-ten and five-card pair-eleven pools
 and their original grading and presentation.
+
+### Observed S09 delivery
+
+App 0.14.0 at source `f0c9568` adds six alternating selections and typed responses for
+`hedder`, `bor` and `taler`. Each round supplies the intended meaning and complement.
+The plan pins pair twelve, preserves original frame licensing and requires saved teaching.
+Choice order combines the seed with the authored task identity. The annotated release tag,
+source and authored notes were read back from GitHub. [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.14.0)
+
+Freeze `f608410` captured 6,871 pair-eleven and S07–S08 engine, plan and wire rows from
+released 0.13.0. The retained teaching export stays byte-exact. The full local repository
+gate passed, including PostgreSQL, all frozen records and the 86% engine branch floor.
+All five exact-source CI jobs passed with 398 Linux browser journeys. The same 398 journeys
+passed natively without retries or flakies. The exact image
+`sha256:f0781bdf80c00d9640f1cc178371c46f6d5b4d1e272990eba192c96bc44f3864` passed Trivy.
+[Release CI](https://github.com/liveweird/astrid/actions/runs/42945485925)
+
+Saved S07 and S08 runs replayed exactly after upgrade. Those two runs and S09 replayed
+byte for byte after an observed app restart, including wrong, corrected and unknown
+answers. A 4,631,838-byte mode-`0600` backup restored into an isolated database
+before app-only promotion. Prior rows in all six history tables, the PostgreSQL process
+and mounts, and Flyway versions 1–3 were preserved. All 112 live-preview checks
+passed without retries, and the owned QA resources were removed. Danish teaching review
+remains open.
