@@ -30,9 +30,9 @@ jobs:
           cache: npm
           cache-dependency-path: e2e/package-lock.json
 
-      - name: Install e2e dependencies and browsers
+      - name: Install e2e dependencies
         working-directory: e2e
-        run: npm ci && npx playwright install --with-deps chromium webkit
+        run: npm ci
 
       # Separate steps so the image build, the stack start-up and the specs are timed separately in the run view.
       - name: Build the image
@@ -43,7 +43,7 @@ jobs:
         run: docker compose --env-file .env.example up -d --wait --wait-timeout 300
 
       - name: Run the browser journeys
-        run: npm --prefix e2e test
+        run: scripts/run-browser-tests.sh
 
       # Container logs make a red nightly diagnosable without reproducing it.
       - name: Capture stack diagnostics

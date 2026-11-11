@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Keep locally tested runtime pins aligned with containers and CI."""
 from pathlib import Path
+import json
 import re
 
 root = Path(__file__).resolve().parents[1]
@@ -32,6 +33,36 @@ for tag, kind in temurin_images:
 ci = (root / ".github/workflows/ci.yml").read_text()
 assert f"java-version: {java_patch}" in ci, "CI JDK differs"
 assert "node-version-file: .nvmrc" in ci, "CI must read the Node pin"
+
+e2e_manifest = json.loads((root / "e2e/package.json").read_text())
+e2e_lock = json.loads((root / "e2e/package-lock.json").read_text())
+playwright_version = e2e_manifest["devDependencies"]["@playwright/test"]
+assert e2e_lock["packages"][""]["devDependencies"]["@playwright/test"] == playwright_version, (
+    "Playwright package manifest and lock root differ"
+)
+assert e2e_lock["packages"]["node_modules/@playwright/test"]["version"] == playwright_version, (
+    "Locked Playwright package differs from the manifest"
+)
+browser_runner = (root / "scripts/run-browser-tests.sh").read_text()
+expected_browser_image = (
+    "mcr.microsoft.com/playwright:v1.64.1-noble@"
+    "sha256:2f05f8a734509a7b3f26a912639488ee08f58a7b292d14d62271bcff9038768f"
+)
+browser_image_matches = re.findall(
+    r'mcr\.microsoft\.com/playwright:v[\d.]+-noble@sha256:[0-9a-f]{64}', browser_runner
+)
+assert browser_image_matches == [expected_browser_image], "Browser runner Playwright image pin differs"
+image_version = re.search(r"playwright:v([\d.]+)-noble", expected_browser_image).group(1)
+assert image_version == playwright_version, "Playwright image and package versions differ"
+assert re.search(rf'^readonly REQUIRED_NODE_VERSION="{re.escape(node)}"$', browser_runner, re.MULTILINE), (
+    "Browser runner Node version differs from .nvmrc"
+)
+for workflow_name in ("ci.yml", "e2e.yml"):
+    workflow = (root / ".github/workflows" / workflow_name).read_text()
+    assert workflow.count("scripts/run-browser-tests.sh") == 1, (
+        f"{workflow_name} must use the shared browser runner exactly once"
+    )
+    assert "playwright install" not in workflow, f"{workflow_name} must not install browsers on the host"
 for line in dockerfile.splitlines():
     if line.startswith("FROM "):
         assert re.search(r"@sha256:[0-9a-f]{64}(?: AS \w+)?$", line), f"Unpinned image: {line}"

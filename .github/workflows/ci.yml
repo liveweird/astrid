@@ -98,12 +98,12 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: e2e/package-lock.json
-      - run: npm ci && npm run lint && npm run knip && npm run typecheck && npm run check:scenarios && npm run test:scripts && npm audit --audit-level=high && npx playwright install --with-deps chromium webkit
+      - run: npm ci && npm run lint && npm run knip && npm run typecheck && npm run check:scenarios && npm run test:scripts && npm audit --audit-level=high
         working-directory: e2e
       - name: Run the packaged browser journeys
         run: |
           docker compose --env-file .env.example up -d --wait
-          npm --prefix e2e test
+          scripts/run-browser-tests.sh
       - name: Capture stack diagnostics
         if: ${{ failure() }}
         run: docker compose --env-file .env.example logs --no-color

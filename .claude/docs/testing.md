@@ -81,6 +81,13 @@ UI state needs a scan. `e2e/support/` holds shared page helpers; `recovery.spec.
 (from `e2e/`), stack up with `docker compose --env-file .env.example up -d --wait`, run `npm --prefix …/e2e test`. Gates without a
 stack: `npm run lint`, `npm run knip`, `npm run typecheck`, `npm run check:scenarios`.
 
+CI and nightly use `scripts/run-browser-tests.sh` after host npm installation/static checks.
+The pinned Playwright container supplies browser libraries; the mounted, guarded setup-node
+executable retains the exact Node pin for CLI and workers. Native macOS commands above remain
+unchanged. Container reports/traces are exported from a temporary writable artifact parent to the same
+host directories; all projects,
+workers, reporters, timeouts and retries retain their configured values.
+
 **Scenario files** (`e2e/scenarios/`, format in its `README.md`; ported from Flow): every `tests/<name>.spec.ts` has a `scenarios/<name>.md`
 with one `## Scenario:` heading per `test(` call, equal to the title's source text, and a new or behaviourally changed test lands with its
 scenario in the **same commit**. `npm run check:scenarios` enforces the parity in both directions (missing file, title without heading,

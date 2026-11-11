@@ -8,7 +8,7 @@ Read before changing `scripts/check.sh`, a workflow, Dependabot, a pin, the Dock
 Runs from any directory, needs Docker (Testcontainers) and `kubectl`. Steps, in order, all must pass:
 
 1. `python3 scripts/check-toolchain.py` — runtime/action/image pins agree (below).
-2. `python3 -m unittest discover -s scripts/tests -p 'test_*.py'` — tests of the knowledge checker.
+2. `python3 -m unittest discover -s scripts/tests -p 'test_*.py'` — tests of the knowledge, toolchain and browser-runner guards.
 3. `python3 scripts/check-knowledge.py` — offline integrity of `docs/knowledge` (foundation IDs, prerequisites, source refs, crosswalk rows) and local
    Markdown links in `README.md`, `BACKLOG.md` and `docs/`. It does not read `.claude/`, so check links there by hand.
 4. `python3 scripts/check-startup-budget.py` — bootstrap envelope vs Docker/Kubernetes grace (`persistence.md`).
@@ -33,7 +33,7 @@ Triggers: push to `master`, pull requests, manual dispatch; `permissions: conten
 | `web` | `npm ci --legacy-peer-deps`; `lint:api && check:api && lint && knip && test:coverage && build` with `GIT_SHA`; `npm audit --audit-level=high`. |
 | `dependency-scan` | Trivy filesystem scan (HIGH/CRITICAL, dev deps included) over all Gradle lockfiles. |
 | `kubernetes` | kubeconform (checksum-verified binary, k8s 1.33.0 schemas pinned by commit) over the manifests and over `kubectl kustomize k8s`. |
-| `image` | `docker compose config`; `docker build -t astrid:local .`; e2e `npm ci && lint && knip && typecheck && check:scenarios && test:scripts && audit`; `playwright install --with-deps chromium webkit`; `docker compose --env-file .env.example up -d --wait` then `npm --prefix e2e test`; logs on failure; uploads `browser-reports`; Trivy scan of the packaged image (HIGH/CRITICAL, `--ignore-unfixed`); `compose down` (never `-v`). |
+| `image` | `docker compose config`; `docker build -t astrid:local .`; e2e `npm ci && lint && knip && typecheck && check:scenarios && test:scripts && audit`; `docker compose --env-file .env.example up -d --wait` then `./scripts/run-browser-tests.sh` in the digest-pinned Playwright container with mounted setup-node executable; logs on failure; uploads `browser-reports`; Trivy scan of the packaged image (HIGH/CRITICAL, `--ignore-unfixed`); `compose down` (never `-v`). |
 
 The image job has a **40-minute** outer budget. Its unchanged 0.8.0 baseline on run
 `42709008358` took 1,476 seconds, including 1,205 seconds in the browser/startup step
@@ -56,11 +56,34 @@ A new gate lands in `scripts/check.sh` **and** the matching job in the same comm
 ## Nightly e2e (`.github/workflows/e2e.yml`)
 
 Ported from Flow. Runs at 03:41 UTC against `master` and on demand (Actions → "e2e" → "Run workflow"). It builds the image with
-`docker compose build`, starts the stack (`up -d --wait --wait-timeout 300`), runs `npm --prefix e2e test` (Chromium and WebKit), uploads
+`docker compose build`, starts the stack (`up -d --wait --wait-timeout 300`), runs `./scripts/run-browser-tests.sh` (Chromium and WebKit in the same pinned browser container as CI), uploads
 `browser-reports`, and Trivy-scans `astrid:local` with the same pin and flags as `image` (`check-toolchain.py` fails if the workflows' Trivy pins
 differ). The scan runs after the suite even when it fails, so neither result hides the other. Because Astrid's PR gate already runs the suite, the
 nightly is there for quiet days: a fixable HIGH/CRITICAL advisory published after the last merge, or drift in base images or runners, shows up within
 a day instead of at the next push. Keep its steps in step with `image` when either changes.
+
+## Shared Linux browser runner
+
+`scripts/run-browser-tests.sh` ports the existing packaged-Linux QA runner. Both workflows
+install and audit npm packages with setup-node, then run the installed Playwright CLI in the
+digest-pinned `v1.64.1-noble` image. The image supplies browsers and OS libraries; no runner-host
+APT installation occurs in this path. The package and image versions must match.
+[Playwright Docker documentation](https://playwright.dev/docs/docker)
+
+The image's bundled Node is not used. Bind-mount setup-node's Linux executable, check the
+repository's exact Node version inside the container, and execute the CLI and its workers
+through that binary. A read-only preload guard rejects a different version or executable.
+Keep the existing Playwright configuration, both projects, reporters, one worker, timeouts
+and retry policy; the shared runner adds no test-policy overrides.
+
+The checkout mounts read-only. Playwright writes removable child directories beneath an owned
+writable artifact parent; cleanup exports reports/traces to the original host upload paths.
+Host networking
+reaches the existing loopback Compose app; real checkout commit/time are passed explicitly.
+`E2E_BASE_URL` can target an owned QA stack; `ASTRID_BROWSER_NODE` can select a verified Linux
+executable for a local container probe. Ownership-labelled CID cleanup runs on exit and signals
+and preserves a failing browser status. Application-image scanning and Compose cleanup remain
+separate. This avoids host browser-dependency fetches, not Dockerfile APT or general DNS faults.
 
 ## Failure alerting (`.github/workflows/ci-alert.yml`)
 
@@ -82,6 +105,9 @@ Pins are exact and intentional; update related pins together. `scripts/check-too
 JDK and JRE images match the `mise.toml`/CI versions and every `FROM` carries `@sha256:`; CI reads Node from `.nvmrc` and the JDK from `java-version`;
 every `uses:` is SHA-pinned; **one** PostgreSQL image (tag + digest) is identical in `docker-compose.yaml`, `k8s/postgres.yaml` and `PostgresTestDatabase.kt`.
 npm dependencies are exact versions (no `^`/`~`); Gradle versions live in `gradle/libs.versions.toml`.
+The checker also pins the shared browser image digest, correlates its Playwright version with
+`e2e/package.json` and its lockfile, checks the mounted Node version, and requires both workflows
+to use the shared runner without host browser installation.
 
 ## The full stack (Docker Compose)
 

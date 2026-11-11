@@ -207,3 +207,44 @@ available processors and G1 collectors. This closes the Linux uncertainty for th
 lazy, response-only, two-entry test harness. It is test-only CI evidence, not a
 production-runtime memory measurement or JVM-tuning result. BL-044 and BL-055
 remain separate work.
+
+## Container-based CI browser execution — 11 November 2026
+
+S13 source `f3c5249` passed the complete local gate, all 430 native journeys, and four
+[CI jobs](https://github.com/liveweird/astrid/actions/runs/43037116250). Its two image-job
+attempts were stopped before browser tests: host Playwright dependency installation
+repeatedly retried Ubuntu package fetches and recorded DNS failures resolving
+`azure.archive.ubuntu.com`. The first application Docker build also recorded Ubuntu
+DNS warnings. These observations establish those runner failures, not a global outage.
+Logs and both stopped attempts remain retained as evidence.
+
+**Implementation decision:** port the existing packaged-Linux QA execution pattern into
+one shared CI/nightly runner using the same digest-pinned Playwright image. This removes
+host browser-library installation while preserving both browser projects, the full suite,
+configured reporters/workers/retries/timeouts, audits, runtime scan, artifacts and cleanup.
+Flow's browser cache still calls host `install-deps`, so it does not remove this dependency.
+The image includes browser system libraries but requires the matching installed package.
+[Playwright Docker documentation](https://playwright.dev/docs/docker)
+
+An actual probe of the pinned amd64 image reported bundled Node `v26.13.0`, while
+Astrid pins `24.22.1`. Mount and explicitly execute the setup-node Linux binary instead;
+check the version/path in CLI and inherited workers. The isolated probe verified
+Node `v24.22.1`, Playwright `1.64.1`, Chromium `156.0.8078.80` and WebKit `27.2` opening
+the real QA app without host APT. This is a CI-only execution correction; application
+behavior, npm/Gradle dependencies, JVM settings and the app version remain unchanged. Final delivery
+requires fresh exact-source/image evidence and CI success for the new runner commit.
+
+The first actual shared-runner probe exposed `EROFS` when Playwright tried to
+remove an output directory mounted beneath the read-only checkout. The corrected
+runner writes ordinary child directories beneath a separate private writable
+artifact parent, then exports reports/traces to the original host upload paths.
+Only artifact routing changes; test projects, reporters, workers and limits do not.
+
+The actual container runner passed 34 focused Chromium/WebKit journeys against
+the S13 QA image, including real commit/time identity, lazy-route recovery, S12/S13
+lifecycle and both-theme enlarged-text checks. CLI and forked workers reported
+Node `v24.22.1` through `/astrid-node/node`; HTML and result artifacts exported.
+Intentional CLI failure and SIGTERM probes preserved exit codes 1 and 143 and
+left no owned container behind. Independent review also verified that ownership,
+removal or export errors cannot turn a passing browser run into a false green.
+These are runner acceptance checks; final exact-source CI and release remain required.

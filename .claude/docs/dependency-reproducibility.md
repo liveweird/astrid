@@ -72,3 +72,11 @@ a focused change. **A changed checksum for an unchanged coordinate is a possible
   `overrides` pins `react-is` to the React version.
 - `knip` `ignoreDependencies: ["ajv"]` in `web/knip.json` is carried over from Flow, where `ajv` is pinned only for `@stoplight/spectral-cli`'s resolution.
 - Node is pinned in `mise.toml` and `.nvmrc` (`check-toolchain.py`); the Dockerfile and CI use the same version.
+
+## CI browser image
+
+`scripts/run-browser-tests.sh` pins the Playwright image by digest and `check-toolchain.py`
+requires its package version to match the e2e manifest/lockfile. Update those pins together.
+The image's bundled Node does not establish the project runtime: setup-node's exact Linux
+executable is mounted read-only and checked in the container and inherited Node workers.
+No npm, Gradle, application-image or browser test policy is relaxed by this execution change.
