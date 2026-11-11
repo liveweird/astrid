@@ -285,3 +285,40 @@ placements comprise nine current uses and nine new candidates with explicit morp
 and frame boundaries. Those are draft authoring records, not newly activated runtime content.
 Use COR as a bounded form reference, author English meanings/examples, and retain the documented
 licensing boundaries for frequency and bilingual resources. Teaching approval remains outstanding.
+
+### Observed navigation delivery — 11 November 2026
+
+Released app [0.19.0](https://github.com/liveweird/astrid/releases/tag/v0.19.0) at annotated tag `v0.19.0`, source `62d9a89`.
+The private Compose preview now runs the verified `arm64` image
+`sha256:9ba491689d5b6086cd071c25c16f4b7a1bef7914ea2012afb80fd1fab1695ce5`. Lessons is the passive home page, with fifteen labelled Module 1
+sessions and a three-set Review section; the runner remains `/practice`, the developer
+playground is `/playground`, and the footer opens Changelog. Unknown routes are learner-safe.
+This supersedes earlier running-preview statements for 0.18.0; learning pair sixteen,
+all thirty exercise entries and the eighteen practice profiles remain unchanged.
+
+The complete Docker-backed local gate passed, including all 263 frontend tests and existing
+coverage floors. All **446 native** and **446 packaged-Linux** Chromium/WebKit journeys passed
+against the exact image without retries. All five [exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/43105333365) passed,
+including **446 CI Linux journeys** without retries or flakies. The image passed Trivy and
+network-disabled runtime package checks. Independent code and rendered review closed its
+findings; eight source/image/hash-bound captures cover both themes, desktop and 320px/200% text.
+
+Entry and recovery checks cover passive browsing, exact saved-creation handoff, pending-attempt
+resume, corrupt pointers, blocked storage and safe failures before creation. The Review heading
+stays below the fixed header. Short-window format navigation retains all seventeen starting
+formats and seventeen key transitions per start (289 checks per viewport/font), partitioned
+into batches of ten and seven with unchanged timeout/retry policy. The superseded emulated run
+with two whole-test timeouts remains archived as a failed run; it is not part of the passing proof.
+
+Two saved pre-upgrade sessions and eleven attempts replayed byte for byte after candidate upgrade
+and an observed app restart. Before app-only promotion, a **5,570,583-byte** PostgreSQL
+backup with mode `0600` was restored into an isolated scratch database, reproducing all six
+history tables; the scratch database was removed. Promotion preserved prior rows, Flyway
+versions 1–3 and the original PostgreSQL process/mounts. All **150 live-preview
+browser checks** passed without retries. Only owned QA containers, volume and network were
+removed; main processes and mounts were preserved.
+
+The [sixty-placement vocabulary plan](vocabulary-course-blueprint.md#selected-expansion-authoring-plan--11-november-2026)
+and its first eighteen authored placements are documented, including nine new form-checked
+candidates. They are not activated by this navigation release; Danish teaching review, Q27,
+the Vocabulary library (BL-067), cumulative review (BL-066) and S14 remain separate work.

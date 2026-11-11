@@ -2,9 +2,12 @@
 
 ## Purpose
 
-This proposed walkthrough helps evaluate the engine before expanding content or producing media. Open `http://localhost:8088`. It is a private developer preview, with twenty-one entries, four beginner sessions and draft Danish content rather than a complete beginner course.
+This walkthrough helps evaluate the private preview before broader content or media work. Open `http://localhost:8088` for Lessons: fifteen Module 1 sessions with grammar, vocabulary or combined labels, plus three existing practice sets under Review. Browsing is passive; an explicit start opens the saved runner, and Resume saved practice returns to the same run. The thirty standalone exercise entries are under Developer tools at `http://localhost:8088/playground`. Danish remains a draft awaiting teaching review; this is not a complete beginner course.
 
-## Try the twenty-one entries
+## Try the first twenty-one standalone entries
+
+These checks cover the foundational entries. The remaining nine scoped entries are documented
+with S05–S13 in the [Module 1 course slice](module-one-course-slice.md).
 
 1. **Present form:** open “Learn this first,” then choose the finite present form. The alternatives deliberately use the same verb. Check the answer, inspect feedback, retry, then advance. Opening the lesson or hint records supported practice; that evidence stays attached to retries of the same exercise.
 2. **Article:** expand “Generation controls” and select “Supply the indefinite article.” Type `en` or `et`. Try the wrong gender, then retry with the matching form. A matching accented numeral such as `én` has a different target interpretation from the requested unstressed article; feedback should distinguish that from a gender error.
@@ -76,8 +79,9 @@ retain the completed run. These sessions offer no target-selection review. Compl
 practice evidence after teaching, not independent mastery. The [activation contract](module-one-activation.md)
 records the first three profiles; the [S04 contract](inanimate-reference-activation.md) defines supplied
 `en bog`/`et brev` gender and separate referential `det`. S04 introduces both forms before two
-selections and two recalls. Check its two scoped result rows and that S03 suggests S04,
-while S04 offers no unavailable next session.
+selections and two recalls. Check its two scoped result rows and that S03 suggests S04.
+The directory also includes S05–S13; use the [course slice](module-one-course-slice.md)
+for their scoped teaching and assessment checks.
 
 ## Try targeted follow-up practice
 
@@ -101,7 +105,7 @@ The [first-step inventory](practice-variation-audit.md#first-step-finite-invento
 separately records the bounded one-person, group and `er` sequences. A new seed does not guarantee
 new content; the required teaching and answer banks make later recall potentially supported.
 
-For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-11.md`. Use `:engine:exportPilotTenReview` for `pilot-10-retained.md` and `:engine:exportPilotNineReview` for `pilot-9-retained.md`. Retained revision eight is available with `:engine:exportPilotEightReview` at
+For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-16.md`. Use `:engine:exportPilotTenReview` for `pilot-10-retained.md` and `:engine:exportPilotNineReview` for `pilot-9-retained.md`. Retained revision eight is available with `:engine:exportPilotEightReview` at
 `engine/build/review/pilot-8-retained.md`; revision seven is available with `:engine:exportPilotSevenReview` at `engine/build/review/pilot-7.md`; revision six is available with `:engine:exportPilotSixReview` at `engine/build/review/pilot-6.md`; revision five with `:engine:exportPilotFiveReview` at `engine/build/review/pilot-5.md`; revision four with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
 
 ## Record feedback
