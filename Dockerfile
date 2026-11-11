@@ -25,8 +25,13 @@ COPY server/ server/
 RUN ./gradlew :server:installDist --no-daemon --dependency-verification strict
 
 FROM eclipse-temurin:21.0.13_9-jre-noble@sha256:0eda5830ed7b669abc246a8dc520ea8a23cab06f9a8d4b6964109e2f2394e46f AS runtime
-RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends curl \
+# APT can warn yet return success when an index fetch fails. Fail on any such error,
+# avoid hiding DNS stalls behind bootstrap retries, and retain signature/TLS verification.
+RUN apt-get -o Acquire::Retries=0 -o APT::Update::Error-Mode=any update \
+    && apt-get -o Acquire::Retries=0 upgrade -y \
+    && apt-get -o Acquire::Retries=0 install -y --no-install-recommends curl \
+    && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' apt)" ge 2.8.4ubuntu0.1 \
+    && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' libapt-pkg6.0t64)" ge 2.8.4ubuntu0.1 \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --system --gid 10001 astrid \
     && useradd --system --uid 10001 --gid astrid --home-dir /app --shell /usr/sbin/nologin astrid

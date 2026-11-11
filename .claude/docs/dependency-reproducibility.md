@@ -80,3 +80,19 @@ requires its package version to match the e2e manifest/lockfile. Update those pi
 The image's bundled Node does not establish the project runtime: setup-node's exact Linux
 executable is mounted read-only and checked in the container and inherited Node workers.
 No npm, Gradle, application-image or browser test policy is relaxed by this execution change.
+
+## Live Ubuntu runtime upgrade
+
+The runtime base image is digest-pinned, but its Docker build deliberately upgrades from
+Ubuntu's current signed repositories, so the final Ubuntu revision is a live build input.
+Exact revision pins would stop rebuilding when Ubuntu supersedes a security update. The
+Dockerfile instead fails on any index error, disables acquisition retries for this bounded
+bootstrap, performs the full upgrade, and verifies minimum versions for security-sensitive
+`apt`/`libapt-pkg6.0t64`. Repository signature and TLS verification remain enabled.
+
+This ports only the minimum-version guard pattern from Flow donor commit `3c9cfc52`; Astrid
+retains its full upgrade and curl/user setup. The floors are not evidence that a particular
+build fetched them: the packaged-image Trivy scan remains the independent gate. Canonical's
+[APT vulnerability notice](https://ubuntu.com/blog/apt-vulnerability-fixes-available)
+identifies `2.8.4ubuntu0.1` as the Noble fix. Do not switch mirrors or add retry behavior on
+the strength of one runner failure; record and review a paired probe first.

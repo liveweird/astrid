@@ -248,3 +248,31 @@ Intentional CLI failure and SIGTERM probes preserved exit codes 1 and 143 and
 left no owned container behind. Independent review also verified that ownership,
 removal or export errors cannot turn a passing browser run into a false green.
 These are runner acceptance checks; final exact-source CI and release remain required.
+
+## Runtime APT fail-closed bootstrap — 11 November 2026
+
+The corrected browser runner reached all 430 Linux journeys in about 30.5 minutes in
+[CI run 43047887486](https://github.com/liveweird/astrid/actions/runs/43047887486) at
+`ecc3463`, without retries or flakies. The later packaged-image scan nevertheless failed on
+two fixable HIGH findings: Noble's `apt` and `libapt-pkg6.0t64` stayed at `2.8.3` while
+`2.8.4ubuntu0.1` was available. During the runtime image build, an Ubuntu index DNS fetch
+warned but returned success; the following full upgrade reported zero changes. Thus the
+browser execution correction worked, while the separate runtime-image gate correctly stayed
+red. This is not evidence of an application or browser-test defect.
+
+Astrid ports Flow commit `3c9cfc52`'s minimum-version guard pattern only. The runtime keeps
+its full Ubuntu upgrade, curl install, fixed non-root user and pinned Temurin base. It now
+makes any APT index error fatal, disables acquisition retries for the bounded bootstrap, and
+requires both packages at least `2.8.4ubuntu0.1`. Signed repositories and TLS verification
+remain enabled. Canonical's
+[APT vulnerability notice](https://ubuntu.com/blog/apt-vulnerability-fixes-available)
+records the fixed Noble revision.
+
+The exact base image succeeded against the current repositories in local arm64 and amd64
+probes. The amd64 probe completed the full guarded upgrade and reported both packages at
+`2.8.4ubuntu0.1`; an intentionally unreachable index proxy returned status 100 with retries
+disabled. Those observations validate the local success and fail-closed paths, but do not
+establish GitHub-hosted network behavior or close the CI gate. Final acceptance requires a
+fresh exact-source GitHub image build and clean runtime scan. Mirror changes remain out of
+scope until a separately reviewed paired main-runner probe and architecture decision provide
+evidence for them.

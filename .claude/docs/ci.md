@@ -128,6 +128,25 @@ Gradle), uid 10001, `ASTRID_DEVELOPMENT_MODE=false`, `ASTRID_BIND_HOST=0.0.0.0`,
 `.env`, `docs/`, build output and `node_modules` out of the context. Compose runs the image read-only with `cap_drop: [ALL]`; no JVM tuning flags are baked in
 (measure first: BL-044).
 
+The runtime bootstrap keeps the full signed Ubuntu upgrade and curl install. It disables APT
+acquisition retries and makes any index error fatal; it does not change mirrors or disable
+signature/TLS verification. Post-upgrade guards require `apt` and `libapt-pkg6.0t64` at least
+`2.8.4ubuntu0.1`. Exact Ubuntu revisions remain live-repository inputs rather than Dockerfile
+pins (`dependency-reproducibility.md`).
+
+**Observed failure, pending final validation.** At `ecc3463`, CI run
+[`43047887486`](https://github.com/liveweird/astrid/actions/runs/43047887486) completed all
+430 Linux browser journeys in about 30.5 minutes, then the runtime scan found two fixable HIGH
+findings: `apt` and `libapt-pkg6.0t64` remained at `2.8.3` while Ubuntu offered
+`2.8.4ubuntu0.1`. The image build had logged an Ubuntu index DNS warning, but unguarded
+`apt-get update` returned success and the following upgrade changed no packages. The stricter
+bootstrap addresses that false-success path; an exact-source GitHub image build and scan are
+still required. A disposable exact-image local amd64 run completed the full guarded bootstrap
+at both floors; forcing its index through an unreachable proxy failed immediately with status
+100 and no retries. These checks validate the mechanism, not GitHub runner network behavior,
+so no mirror change is adopted without a separately reviewed paired probe and architecture
+decision.
+
 ## Kubernetes (`k8s/`, kustomize)
 
 `kubectl apply -k k8s` installs namespace `astrid`, ConfigMap, a PostgreSQL Deployment (one replica, `Recreate`, 1 Gi PVC) and the app Deployment+Service
