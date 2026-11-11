@@ -1,0 +1,9 @@
+releaseSourceCommit=43e9726b079f4483103badbd87d2209da943adb8
+releaseVersion=0.15.0
+captureDate=2026-11-11
+planPairs=module-one-ability-1:pilot-13/generator-13/evaluation-13
+planRevisions=module-one-ability-1
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=44
+fixtureSha256=4b68503bcc2a17f61a0402b2f5a04bef1e97c347facb62ac7c125397eed3b332
+description=The published four-item S10 ability plan at four seeds, with two selection then two recall items, full required teaching and exact exposure keys, scoped targets, summaries, completion boundaries, and canonical, normalized, marker, finite, case, unknown and wrong-kind evaluations.

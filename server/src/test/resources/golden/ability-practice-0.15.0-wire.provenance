@@ -1,0 +1,8 @@
+releaseSourceCommit=43e9726b079f4483103badbd87d2209da943adb8
+releaseVersion=0.15.0
+captureDate=2026-11-11
+planPairs=module-one-ability-1:pilot-13/generator-13/evaluation-13
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=36
+fixtureSha256=e7c3c06deb0be9c09cbc8f3e67212832806098a059ed192b04d65346c242fbf9
+description=The four-item S10 ability plan at four seeds; exact profile/request/private-plan and public lifecycle wire, two selection then two recall items, full teaching and exposure keys, selected-vs-typed marker constraints, scoped eligibility, frozen context and request/response replay. No follow-up fallback.

@@ -395,6 +395,43 @@ tasks.register<JavaExec>("exportPersonalPracticeCompatibility") {
     outputs.files(personalPracticeCompatibilityFixture, personalPracticeCompatibilityProvenance)
 }
 
+val pilotThirteenCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-13-generator-13-evaluation-13.tsv")
+val pilotThirteenCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-13-generator-13-evaluation-13.provenance")
+
+tasks.register<JavaExec>("exportPilotThirteenCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-13 engine generation and evaluation compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PilotThirteenCompatibilityGoldenExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(pilotThirteenCompatibilityFixture.asFile.absolutePath, pilotThirteenCompatibilityProvenance.asFile.absolutePath)
+    })
+    outputs.files(pilotThirteenCompatibilityFixture, pilotThirteenCompatibilityProvenance)
+}
+
+val abilityPracticeCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/ability-practice-0.15.0.tsv")
+val abilityPracticeCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/ability-practice-0.15.0.provenance")
+
+tasks.register<JavaExec>("exportAbilityPracticeCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.15.0 Module One S10 ability practice fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.AbilityPracticeCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(
+            abilityPracticeCompatibilityFixture.asFile.absolutePath,
+            abilityPracticeCompatibilityProvenance.asFile.absolutePath,
+        )
+    })
+    outputs.files(abilityPracticeCompatibilityFixture, abilityPracticeCompatibilityProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

@@ -1,0 +1,11 @@
+releaseSourceCommit=43e9726b079f4483103badbd87d2209da943adb8
+releaseVersion=0.15.0
+captureDate=2026-11-11
+contentRevision=pilot-13
+generatorRevision=generator-13
+evaluationRevision=evaluation-13
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=3216
+fixtureSha256=30eeeb34adc5a7ab7d3575dcdaab40e69a5831bccdb9d880c50e6d6549dbf065
+reviewSha256=f2d4a0c9150ec05f526f29510999d4fbe9d377b1aa907d38420ae1518a596e02
+description=All twenty-seven pair-thirteen format cycles and seed/index boundaries plus every authored E016-E027 task, pair-thirteen ability task/source/exposure and L011/L031/L033/G030 metadata, and canonical, marker, finite, case, normalization, blank, unknown, partial, malformed and wrong-kind evaluations.

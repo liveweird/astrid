@@ -1,0 +1,10 @@
+releaseSourceCommit=43e9726b079f4483103badbd87d2209da943adb8
+releaseVersion=0.15.0
+captureDate=2026-11-11
+contentRevision=pilot-13
+generatorRevision=generator-13
+evaluationRevision=evaluation-13
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=3930
+fixtureSha256=458d51f6cff2c929224becd90b9e098f2720de1f53e5736e3c0446bb38e6c8b9
+description=All twenty-seven pair-thirteen formats: finite cycles and boundaries, bounded E014 samples, all E016-E027 tasks/scopes/private ability metadata, all three E026 choice positions, public and inspector wire, fingerprints, canonical/normalized/marker/finite/case/blank/unknown/wrong-kind and replay grades.
