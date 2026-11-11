@@ -37,7 +37,7 @@ jobs:
       # Separate steps so the image build, the stack start-up and the specs are timed separately in the run view.
       - name: Build the image
         id: build
-        run: docker compose --env-file .env.example build
+        run: docker compose --env-file .env.example build --build-arg ASTRID_UBUNTU_MIRROR=https://mirrors.edge.kernel.org/ubuntu/
 
       - name: Start the stack
         run: docker compose --env-file .env.example up -d --wait --wait-timeout 300

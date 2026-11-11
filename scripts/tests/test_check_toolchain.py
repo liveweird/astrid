@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class ToolchainPinTest(unittest.TestCase):
-    def test_rejects_playwright_image_digest_drift(self):
+    def copy_checker_checkout(self, checkout):
         files = [
             ".nvmrc",
             "Dockerfile",
@@ -26,13 +26,16 @@ class ToolchainPinTest(unittest.TestCase):
             str(path.relative_to(ROOT)) for path in (ROOT / ".github/workflows").glob("*.yml")
         )
 
+        for relative in files:
+            source = ROOT / relative
+            destination = checkout / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, destination)
+
+    def test_rejects_playwright_image_digest_drift(self):
         with tempfile.TemporaryDirectory() as temporary:
             checkout = Path(temporary)
-            for relative in files:
-                source = ROOT / relative
-                destination = checkout / relative
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(source, destination)
+            self.copy_checker_checkout(checkout)
 
             runner = checkout / "scripts/run-browser-tests.sh"
             runner.write_text(
@@ -50,6 +53,27 @@ class ToolchainPinTest(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("Browser runner Playwright image pin differs", result.stderr)
+
+    def test_rejects_workflow_ubuntu_mirror_drift(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            checkout = Path(temporary)
+            self.copy_checker_checkout(checkout)
+            workflow = checkout / ".github/workflows/e2e.yml"
+            workflow.write_text(
+                workflow.read_text().replace(
+                    "https://mirrors.edge.kernel.org/ubuntu/",
+                    "https://example.invalid/ubuntu/",
+                )
+            )
+            result = subprocess.run(
+                ["python3", str(checkout / "scripts/check-toolchain.py")],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("e2e.yml Ubuntu mirror build argument differs", result.stderr)
 
 
 if __name__ == "__main__":

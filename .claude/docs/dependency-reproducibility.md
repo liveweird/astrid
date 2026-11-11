@@ -96,3 +96,18 @@ build fetched them: the packaged-image Trivy scan remains the independent gate. 
 [APT vulnerability notice](https://ubuntu.com/blog/apt-vulnerability-fixes-available)
 identifies `2.8.4ubuntu0.1` as the Noble fix. Do not switch mirrors or add retry behavior on
 the strength of one runner failure; record and review a paired probe first.
+
+GitHub image builds use one closed escape hatch for the observed Canonical DNS outage:
+`ASTRID_UBUNTU_MIRROR=https://mirrors.edge.kernel.org/ubuntu/`. The argument defaults empty,
+accepts no other value, requires amd64 when nonempty, and is passed explicitly by both workflow
+build commands (direct `docker build` in CI and the existing `docker compose build` in nightly).
+Before rewriting, the Dockerfile requires the pinned base's expected archive/security URIs,
+Noble suites, components and keyring fields; only the two URI values change. Local/Compose and
+native arm64 builds therefore retain the base defaults. The HTTPS mirror does not relax archive
+signatures, TLS verification, metadata validity, the full upgrade, version floors or Trivy.
+The selected endpoint is run by the [Linux Kernel Archives](https://www.kernel.org/) and listed
+in Ubuntu's [archive mirror registry](https://launchpad.net/ubuntu/+archivemirrors).
+
+Removal is deliberately narrow once a reviewed upstream probe is healthy: delete both workflow
+arguments and the toolchain correlation check, returning the default-empty selector path. Retain
+the fail-closed update, retry mitigation and version floors.

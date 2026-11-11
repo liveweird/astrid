@@ -33,6 +33,15 @@ for tag, kind in temurin_images:
 ci = (root / ".github/workflows/ci.yml").read_text()
 assert f"java-version: {java_patch}" in ci, "CI JDK differs"
 assert "node-version-file: .nvmrc" in ci, "CI must read the Node pin"
+ubuntu_mirror = "https://mirrors.edge.kernel.org/ubuntu/"
+assert 'ARG ASTRID_UBUNTU_MIRROR=""' in dockerfile, "Dockerfile needs an opt-in Ubuntu mirror argument"
+assert f'[ "$ASTRID_UBUNTU_MIRROR" = "{ubuntu_mirror}" ]' in dockerfile, (
+    "Dockerfile Ubuntu mirror allowlist differs"
+)
+for workflow_name in ("ci.yml", "e2e.yml"):
+    workflow = (root / ".github/workflows" / workflow_name).read_text()
+    expected_arg = f"--build-arg ASTRID_UBUNTU_MIRROR={ubuntu_mirror}"
+    assert workflow.count(expected_arg) == 1, f"{workflow_name} Ubuntu mirror build argument differs"
 
 e2e_manifest = json.loads((root / "e2e/package.json").read_text())
 e2e_lock = json.loads((root / "e2e/package-lock.json").read_text())

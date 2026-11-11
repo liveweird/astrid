@@ -27,7 +27,45 @@ RUN ./gradlew :server:installDist --no-daemon --dependency-verification strict
 FROM eclipse-temurin:21.0.13_9-jre-noble@sha256:0eda5830ed7b669abc246a8dc520ea8a23cab06f9a8d4b6964109e2f2394e46f AS runtime
 # APT can warn yet return success when an index fetch fails. Fail on any such error,
 # avoid hiding DNS stalls behind bootstrap retries, and retain signature/TLS verification.
-RUN apt-get -o Acquire::Retries=0 -o APT::Update::Error-Mode=any update \
+ARG ASTRID_UBUNTU_MIRROR=""
+RUN set -eu; \
+    if [ -n "$ASTRID_UBUNTU_MIRROR" ]; then \
+      [ "$ASTRID_UBUNTU_MIRROR" = "https://mirrors.edge.kernel.org/ubuntu/" ]; \
+      [ "$(dpkg --print-architecture)" = amd64 ]; \
+      sources=/etc/apt/sources.list.d/ubuntu.sources; \
+      [ -f "$sources" ]; \
+      expected_sources="$(printf '%s\n' \
+        'Types: deb' \
+        'URIs: http://archive.ubuntu.com/ubuntu/' \
+        'Suites: noble noble-updates noble-backports' \
+        'Components: main universe restricted multiverse' \
+        'Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg' \
+        'Types: deb' \
+        'URIs: http://security.ubuntu.com/ubuntu/' \
+        'Suites: noble-security' \
+        'Components: main universe restricted multiverse' \
+        'Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg')"; \
+      active_sources="$(sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$sources")"; \
+      [ "$active_sources" = "$expected_sources" ]; \
+      sed -i \
+        -e "s|^URIs: http://archive.ubuntu.com/ubuntu/\$|URIs: $ASTRID_UBUNTU_MIRROR|" \
+        -e "s|^URIs: http://security.ubuntu.com/ubuntu/\$|URIs: $ASTRID_UBUNTU_MIRROR|" \
+        "$sources"; \
+      expected_sources="$(printf '%s\n' \
+        'Types: deb' \
+        "URIs: $ASTRID_UBUNTU_MIRROR" \
+        'Suites: noble noble-updates noble-backports' \
+        'Components: main universe restricted multiverse' \
+        'Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg' \
+        'Types: deb' \
+        "URIs: $ASTRID_UBUNTU_MIRROR" \
+        'Suites: noble-security' \
+        'Components: main universe restricted multiverse' \
+        'Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg')"; \
+      active_sources="$(sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$sources")"; \
+      [ "$active_sources" = "$expected_sources" ]; \
+    fi; \
+    apt-get -o Acquire::Retries=0 -o APT::Update::Error-Mode=any update \
     && apt-get -o Acquire::Retries=0 upgrade -y \
     && apt-get -o Acquire::Retries=0 install -y --no-install-recommends curl \
     && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' apt)" ge 2.8.4ubuntu0.1 \

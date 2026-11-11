@@ -33,7 +33,7 @@ Triggers: push to `master`, pull requests, manual dispatch; `permissions: conten
 | `web` | `npm ci --legacy-peer-deps`; `lint:api && check:api && lint && knip && test:coverage && build` with `GIT_SHA`; `npm audit --audit-level=high`. |
 | `dependency-scan` | Trivy filesystem scan (HIGH/CRITICAL, dev deps included) over all Gradle lockfiles. |
 | `kubernetes` | kubeconform (checksum-verified binary, k8s 1.33.0 schemas pinned by commit) over the manifests and over `kubectl kustomize k8s`. |
-| `image` | `docker compose config`; `docker build -t astrid:local .`; e2e `npm ci && lint && knip && typecheck && check:scenarios && test:scripts && audit`; `docker compose --env-file .env.example up -d --wait` then `./scripts/run-browser-tests.sh` in the digest-pinned Playwright container with mounted setup-node executable; logs on failure; uploads `browser-reports`; Trivy scan of the packaged image (HIGH/CRITICAL, `--ignore-unfixed`); `compose down` (never `-v`). |
+| `image` | `docker compose config`; `docker build` with the closed Ubuntu mirror build argument below; e2e `npm ci && lint && knip && typecheck && check:scenarios && test:scripts && audit`; `docker compose --env-file .env.example up -d --wait` then `./scripts/run-browser-tests.sh` in the digest-pinned Playwright container with mounted setup-node executable; logs on failure; uploads `browser-reports`; Trivy scan of the packaged image (HIGH/CRITICAL, `--ignore-unfixed`); `compose down` (never `-v`). |
 
 The image job has a **40-minute** outer budget. Its unchanged 0.8.0 baseline on run
 `42709008358` took 1,476 seconds, including 1,205 seconds in the browser/startup step
@@ -134,6 +134,16 @@ signature/TLS verification. Post-upgrade guards require `apt` and `libapt-pkg6.0
 `2.8.4ubuntu0.1`. Exact Ubuntu revisions remain live-repository inputs rather than Dockerfile
 pins (`dependency-reproducibility.md`).
 
+Local and native builds leave `ASTRID_UBUNTU_MIRROR` empty and retain the pinned image's
+default sources. CI's direct build and the nightly Compose build pass the one allowed value:
+`https://mirrors.edge.kernel.org/ubuntu/`. The selector accepts only that exact HTTPS URL and
+amd64, verifies the expected two-stanza Noble `ubuntu.sources` shape, and rewrites only its two
+`URIs:` lines. Suites, components, `Signed-By`, keyring and APT validity checks remain unchanged;
+an unexpected base shape fails before network access. No Compose YAML or environment-file
+setting is added: this is only a scoped build argument on the two workflow build commands, not
+a general mirror configuration surface. `check-toolchain.py` keeps both workflows and the
+Dockerfile allowlist correlated.
+
 **Observed failure, pending final validation.** At `ecc3463`, CI run
 [`43047887486`](https://github.com/liveweird/astrid/actions/runs/43047887486) completed all
 430 Linux browser journeys in about 30.5 minutes, then the runtime scan found two fixable HIGH
@@ -143,9 +153,27 @@ findings: `apt` and `libapt-pkg6.0t64` remained at `2.8.3` while Ubuntu offered
 bootstrap addresses that false-success path; an exact-source GitHub image build and scan are
 still required. A disposable exact-image local amd64 run completed the full guarded bootstrap
 at both floors; forcing its index through an unreachable proxy failed immediately with status
-100 and no retries. These checks validate the mechanism, not GitHub runner network behavior,
-so no mirror change is adopted without a separately reviewed paired probe and architecture
-decision.
+100 and no retries. These checks validated the mechanism but did not establish GitHub runner
+network behavior; the paired probe and architecture decision below resolve that earlier
+decision boundary.
+
+The later hosted diagnostic
+[`43055420763`](https://github.com/liveweird/astrid/actions/runs/43055420763) reproduced DNS
+failure from both the runner host and its default Docker network while Canonical's saved status
+feed ([live RSS](https://status.canonical.com/index.rss)) reported a DNS major outage at
+14:26 UTC. A second hosted probe
+[`43056349808`](https://github.com/liveweird/astrid/actions/runs/43056349808) at diagnostic
+source `59be95a` completed the current fail-closed bootstrap through the HTTPS kernel.org mirror.
+Its release-policy Trivy scan also passed with zero findings. This validates the hosted mirror
+path; the selector is implemented, while release acceptance still requires the fresh
+exact-source gate. The endpoint is operated by the [Linux Kernel Archives](https://www.kernel.org/)
+and appears in Ubuntu's [registered archive mirrors](https://launchpad.net/ubuntu/+archivemirrors).
+
+After a separately reviewed healthy upstream probe, remove both workflow build arguments and
+their correlation assertion in `check-toolchain.py` to return CI/nightly to the empty default.
+Keep the fail-on-index-error behavior, zero retries and APT minimum-version guards; they protect
+the bootstrap independently of which archive URI is selected. Preserve the historical failed
+run and outage evidence rather than rewriting it as a selector failure.
 
 ## Kubernetes (`k8s/`, kustomize)
 

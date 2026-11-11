@@ -274,5 +274,34 @@ probes. The amd64 probe completed the full guarded upgrade and reported both pac
 disabled. Those observations validate the local success and fail-closed paths, but do not
 establish GitHub-hosted network behavior or close the CI gate. Final acceptance requires a
 fresh exact-source GitHub image build and clean runtime scan. Mirror changes remain out of
-scope until a separately reviewed paired main-runner probe and architecture decision provide
-evidence for them.
+scope at this stage; the separately reviewed paired probe and architecture decision below
+provide the later evidence.
+
+### Scoped hosted mirror selector
+
+The paired diagnostic supplied the missing hosted evidence. Run
+[`43055420763`](https://github.com/liveweird/astrid/actions/runs/43055420763) reproduced DNS
+failure on the GitHub host and the default Docker network. The saved official Canonical status
+feed ([live RSS](https://status.canonical.com/index.rss)) reported **DNS — Major Outage** at
+14:26 UTC on 11 November. A second hosted run
+[`43056349808`](https://github.com/liveweird/astrid/actions/runs/43056349808), diagnostic source
+`59be95a`, completed the current full guarded bootstrap using the kernel.org Ubuntu mirror over
+HTTPS, installed both fixed APT packages and passed the release-policy Trivy scan with zero
+findings. These facts support the bounded selector but do not yet establish release acceptance.
+
+The selector is closed rather than configurable infrastructure: its default is empty, and its
+only accepted nonempty value is `https://mirrors.edge.kernel.org/ubuntu/`. CI/nightly opt in,
+and any nonempty use requires amd64. Before changing anything it requires the pinned base's
+exact two Noble source stanzas, including archive/security URIs, suites, components and Ubuntu
+archive keyring. It then rewrites only the two `URIs:` fields to the same allowed HTTPS mirror.
+A base shape change, other URL or unsupported architecture fails closed. Both CI and nightly
+pass the value explicitly to their existing direct/Compose build commands; local Compose,
+native arm64, signatures, TLS/validity checks, full upgrade, APT floors and runtime scan remain
+unchanged.
+
+The selected endpoint is operated by the [Linux Kernel Archives](https://www.kernel.org/) and
+appears in Ubuntu's [registered archive mirrors](https://launchpad.net/ubuntu/+archivemirrors).
+After a separately reviewed healthy upstream probe, remove both workflow build arguments and
+the pin-checker correlation assertion; normal empty/default builds then resume without changing
+the fail-closed index handling, retry mitigation or version floors. The failed `ecc3463` scan
+and paired outage diagnostics remain historical evidence and are not superseded by removal.

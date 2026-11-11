@@ -62,7 +62,7 @@ jobs:
       - name: Scan locked build, test and runtime dependencies
         run: |
           mkdir -p "$RUNNER_TEMP/astrid-locks/engine" "$RUNNER_TEMP/astrid-locks/server"
-          cp *gradle.lockfile "$RUNNER_TEMP/astrid-locks/"
+          cp ./*gradle.lockfile "$RUNNER_TEMP/astrid-locks/"
           cp engine/*gradle.lockfile "$RUNNER_TEMP/astrid-locks/engine/"
           cp server/*gradle.lockfile "$RUNNER_TEMP/astrid-locks/server/"
           docker run --rm -v "$RUNNER_TEMP/astrid-locks:/scan:ro" \
@@ -92,7 +92,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: docker compose --env-file .env.example config --quiet
-      - run: docker build -t astrid:local .
+      - run: docker build --build-arg ASTRID_UBUNTU_MIRROR=https://mirrors.edge.kernel.org/ubuntu/ -t astrid:local .
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
