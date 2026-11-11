@@ -268,6 +268,47 @@ tasks.register<JavaExec>("exportModuleOneThingsPracticeCompatibility") {
     outputs.files(moduleOneThingsPracticeCompatibilityFixture, moduleOneThingsPracticeCompatibilityProvenance)
 }
 
+val pilotTenCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-10-generator-10-evaluation-10.tsv")
+val pilotTenCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-10-generator-10-evaluation-10.provenance")
+
+tasks.register<JavaExec>("exportPilotTenCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-10 engine generation and evaluation compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PilotTenCompatibilityGoldenExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(pilotTenCompatibilityFixture.asFile.absolutePath, pilotTenCompatibilityProvenance.asFile.absolutePath)
+        },
+    )
+    outputs.files(pilotTenCompatibilityFixture, pilotTenCompatibilityProvenance)
+}
+
+val presentOrderPracticeCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/present-order-practice-0.11.0.tsv")
+val presentOrderPracticeCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/present-order-practice-0.11.0.provenance")
+
+tasks.register<JavaExec>("exportPresentOrderPracticeCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.11.0 Module One S05-S06 practice compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PresentOrderPracticeCompatibilityExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                presentOrderPracticeCompatibilityFixture.asFile.absolutePath,
+                presentOrderPracticeCompatibilityProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(presentOrderPracticeCompatibilityFixture, presentOrderPracticeCompatibilityProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

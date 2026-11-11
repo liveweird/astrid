@@ -266,6 +266,47 @@ tasks.register<JavaExec>("exportModuleOneThingsPracticeWireCompatibility") {
     outputs.files(moduleOneThingsPracticeWireFixture, moduleOneThingsPracticeWireProvenance)
 }
 
+val pilotTenWireFixture =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-10-generator-10-wire.tsv")
+val pilotTenWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-10-generator-10-wire.provenance")
+
+tasks.register<JavaExec>("exportPilotTenWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-10 public and private wire compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.PilotTenWireCompatibilityExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(pilotTenWireFixture.asFile.absolutePath, pilotTenWireProvenance.asFile.absolutePath)
+        },
+    )
+    outputs.files(pilotTenWireFixture, pilotTenWireProvenance)
+}
+
+val presentOrderPracticeWireFixture =
+    layout.projectDirectory.file("src/test/resources/golden/present-order-practice-0.11.0-wire.tsv")
+val presentOrderPracticeWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/present-order-practice-0.11.0-wire.provenance")
+
+tasks.register<JavaExec>("exportPresentOrderPracticeWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.11.0 Module One S05-S06 practice wire fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.PresentOrderPracticeWireCompatibilityExportMain")
+    argumentProviders.add(
+        org.gradle.process.CommandLineArgumentProvider {
+            listOf(
+                presentOrderPracticeWireFixture.asFile.absolutePath,
+                presentOrderPracticeWireProvenance.asFile.absolutePath,
+            )
+        },
+    )
+    outputs.files(presentOrderPracticeWireFixture, presentOrderPracticeWireProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

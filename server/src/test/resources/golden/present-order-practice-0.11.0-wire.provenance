@@ -1,0 +1,12 @@
+baselineCommit=8934fb1bea132854d91d592801af33dd10fbc338
+releaseSourceCommit=8934fb1bea132854d91d592801af33dd10fbc338
+releaseVersion=0.11.0
+captureDate=2026-11-10
+planRevisions=module-one-present-1,module-one-order-1
+contentRevision=pilot-10
+generatorRevision=generator-10
+evaluationRevision=evaluation-10
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=67
+fixtureSha256=eb1b09c9197a8dc538f553c22d412961b382c5161f0439565383e843cca2e5ba
+description=The two six-item Module 1 S05-S06 plans at four seeds; exact profile/request/private-plan and public initial/introduction-required/supported/attempted/completed wire, scoped present/order eligibility, frozen exposure/context, and request/response replay. No follow-up fallback.

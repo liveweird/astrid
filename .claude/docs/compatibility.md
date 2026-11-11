@@ -76,6 +76,10 @@ Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 | `server/.../pilot-9-generator-9-wire.tsv` (3,578) | `PilotNineWireCompatibilityTest` (SHA-256 pinned) | pair-nine public and inspector wire, attempts and reproduction fingerprints |
 | `engine/.../module-one-things-practice-0.10.0.tsv` (13) | `ModuleOneThingsPracticeCompatibilityTest` (SHA-256 pinned) | S04 teaching, policies, scoped evidence and latest-attempt eligibility |
 | `server/.../module-one-things-practice-0.10.0-wire.tsv` (34) | `ModuleOneThingsPracticeWireCompatibilityTest` (SHA-256 pinned) | S04 lifecycle wire, saved requests, plans, replay and exposure |
+| `engine/.../pilot-10-generator-10-evaluation-10.tsv` (2,930) | `PilotTenCompatibilityGoldenTest` (SHA-256 pinned) | all 25 format cycles, S05/S06 private keys and grading boundaries, byte-exact review |
+| `server/.../pilot-10-generator-10-wire.tsv` (3,746) | `PilotTenWireCompatibilityTest` (SHA-256 pinned) | pair-ten public and inspector wire, attempts and reproduction fingerprints |
+| `engine/.../present-order-practice-0.11.0.tsv` (23) | `PresentOrderPracticeCompatibilityTest` (SHA-256 pinned) | S05/S06 teaching, plans, scoped outcomes, eligibility and exposure |
+| `server/.../present-order-practice-0.11.0-wire.tsv` (67) | `PresentOrderPracticeWireCompatibilityTest` (SHA-256 pinned) | S05/S06 saved requests, private plan/context, public lifecycle and replay |
 | `server/.../published-fingerprints.tsv` (978) | `PublishedFingerprintCompatibilityTest` (SHA-256 pinned) | original reproduction fingerprints of pilot-1/2 |
 
 Plus `PracticeWireCompatibilityTest` (legacy plan payload and practice item/response stay byte-stable when new optional fields are absent).
@@ -94,6 +98,7 @@ inspector/task metadata. The test-source review adapter checks the literal retai
 hashes actual retained review bytes. The retained renderer was added before CURRENT moved
 in `394c4c1`; the review hash, fixtures and provenance are unchanged.
 Pair nine and its S04 plan were frozen from released source `3d87b4d` before adding S05–S06.
+Pair ten and its S05/S06 plans were frozen from released source `8934fb1` before adding S07.
 
 Rules:
 
@@ -139,6 +144,8 @@ Rules:
 | `:engine:exportModuleOnePracticeCompatibility` / `:server:exportModuleOnePracticeWireCompatibility` | add the published 0.9.0 first-step practice archives and provenance only (refuse overwrite) |
 | `:engine:exportPilotNineCompatibility` / `:server:exportPilotNineWireCompatibility` | add pair-nine evidence and provenance only (refuse overwrite) |
 | `:engine:exportModuleOneThingsPracticeCompatibility` / `:server:exportModuleOneThingsPracticeWireCompatibility` | add published S04 evidence and provenance only (refuse overwrite) |
+| `:engine:exportPilotTenCompatibility` / `:server:exportPilotTenWireCompatibility` | add pair-ten evidence and provenance only (refuse overwrite) |
+| `:engine:exportPresentOrderPracticeCompatibility` / `:server:exportPresentOrderPracticeWireCompatibility` | add published S05/S06 evidence and provenance only (refuse overwrite) |
 | `:server:exportPilotThreeWireCompatibility` | writes a **new** wire fixture + provenance (refuses to overwrite) |
 
 Review exports are deterministic evidence for teaching review; they are not approval. The production engine does no file I/O.

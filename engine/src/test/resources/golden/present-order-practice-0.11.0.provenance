@@ -1,0 +1,11 @@
+baselineCommit=8934fb1bea132854d91d592801af33dd10fbc338
+releaseVersion=0.11.0
+captureDate=2026-11-10
+contentRevision=pilot-10
+generatorRevision=generator-10
+evaluationRevision=evaluation-10
+planRevisions=module-one-present-1,module-one-order-1
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=23
+fixtureSha256=207c01c103abf2ea83cd20ed6530dd3a5433c85676fb637b98c454590bdf057e
+description=The two published six-item Module One S05-S06 plans at seeds 0, 1, 47 and Int.MAX_VALUE, full teaching and policy metadata, deterministic scoped assessments, feedback exposure, first/latest non-success summaries, and present/order completion boundaries.

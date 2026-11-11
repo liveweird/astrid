@@ -404,3 +404,55 @@ mode `0600` restored successfully into an isolated database. Verification covere
 history tables, the original PostgreSQL process and mounts, and Flyway versions 1–3.
 All 106 live-preview browser checks passed without retries on 11 November. Cleanup removed
 the QA run's own containers, volume and network. Danish teaching review remains open.
+
+## S07 possession with har
+
+**11 November 2026 — Selected:** Add four guided activities with `at have → har` for human
+possession. Start with two selections between the named infinitive and present form, then
+ask for the one-word present form in two different statements. Supply the subject reference,
+article and familiar reading-material noun throughout. Teach the stored form using a separate
+worked example, and keep selection and recall evidence separate. Save the introduction before
+assessment. Direct entry and explicit continuation from S06 use the existing chooser.
+
+| Item | Operation | Supplied statement and meaning | Expected form |
+| --- | --- | --- | --- |
+| 1 | Selection | `Han ___ et brev.` He has a letter. | `har` |
+| 2 | Selection | `Vi ___ en avis.` We have a newspaper. | `har` |
+| 3 | Recall | `Du ___ en bog.` You, one person, have a book. | `har` |
+| 4 | Recall | `De ___ et brev.` They have a letter. | `har` |
+
+The worked example is `Jeg har en bog.` The introduction displays the dictionary bundle and
+the stored present form, glosses the example and explains that the present form is the same
+for each supplied subject. The teaching and hint use the stored-form pattern. Selection shows
+the two forms in seed-dependent order, and recall expects one lowercase word. The activity
+keeps form recognition distinct from meaning and from the order already supplied in the prompt.
+
+Implementation defaults are app 0.12.0 and `module-one-possession-1` pinned to pair eleven.
+Reuse E022 and E023 under G004 scope `have-possession-present`. Pair eleven adds two possession
+tasks per format alongside the three regular present tasks. The new planner selects its four
+literal cards. S05 and S06 keep their pair-ten plans and compatibility guards. Familiar noun
+bundles and the existing L009 sense require no lexical import. The `har` activity is limited to
+possession in these statements. Specialist review remains open.
+
+On the 0.11.0 preview, a fresh learner context completed S04→S05→S06 through the chooser.
+Each next-session button preselected the intended profile and kept the completed run in the URL
+until Start practice was pressed. The three runs saved 4, 6 and 6 first attempts with their
+expected operation summaries. Six focused Chromium and WebKit journeys also passed. The
+S05 and S06 introductions displayed roughly 124 and 104 words, including headings and Danish
+examples. For S07, keep the introduction focused on a single stored form, one worked example and
+the supplied noun bundles. This engineering walkthrough did not measure learner reading time.
+
+## S08 reading-material vocabulary bridge
+
+**Implementation plan for the overnight continuation:** After verifying S07, add four meaning
+selections in this order: printed magazine, book, newspaper and written letter. A brief English
+reading situation introduces `et magasin` and reviews `en bog`, `en avis` and `et brev` as complete
+bundles. Show the four supplied Danish bundles for each English meaning. The article remains part
+of the supplied choice. The initial activity records supported recognition of the new sense.
+
+Pin `module-one-reading-words-1` to the existing E011 pair five, selecting L024-S01, L014-S01,
+L015-S01 and L018-S01 respectively. Keep the existing meaning and direction identifiers. Require
+saved teaching before assessment and record exposure to the shown phrases separately from exposure
+to their English meanings. E011 feedback confirms a mapping on a correct choice. A wrong choice
+identifies a meaning mismatch without showing the expected mapping, so use a distinct feedback
+exposure policy. Direct entry and explicit continuation from S07 use the existing chooser.

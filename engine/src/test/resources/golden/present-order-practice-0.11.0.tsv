@@ -1,0 +1,23 @@
+CATALOG	d2063e0194c7a3a5b792b23797a319e558dadfa8d0d74fffbd38400ad7c0baaf
+PLAN	module-one-present	0	d70981828e59327d8450fd918c74df054f25e1afc5bda3c066c50ca855762cf2
+PLAN	module-one-order	0	a8432155842ce8e6bd19c1dee33d1083bd0eb92714e0d3245ef799a7cf307897
+PLAN	module-one-present	1	0fadf880dab143d47ea7b29f181344c2b37f21c2273ca789d15a47bedd6b8eb2
+PLAN	module-one-order	1	b1dd6dde86a7831570be49cff9b2ba79cafc0f21d08c5b5bc65ee2170dee4701
+PLAN	module-one-present	47	249869ee4de2f987f4375e904a53447890f24cd8a8956f6ec0d0200444b5e1b4
+PLAN	module-one-order	47	370aec13438a54e05294473a8110dbcd458c8f8ded3483eaecc9725c90d82114
+PLAN	module-one-present	2147483647	1596ab025b0e016cc09c55a29146b2af326fc389ab3299b6d149992453a9fad6
+PLAN	module-one-order	2147483647	5984a56edf1938edbd9627497d957b3885c4e5d638794ece9dea5add9e630619
+SUMMARY	module-one-present	4ca0a2e764710282a907b75b31f6754587563bf62b7d72b4e6ad66f8f6cda295
+SUMMARY	module-one-order	bc46903a0f140e298a32352e607c913c573090a7738b5bacf59e3827c0f6adcd
+COMPLETION	module-one-known-outcome-1	missing	false
+COMPLETION	module-one-known-outcome-1	met	true
+COMPLETION	module-one-known-outcome-1	known-wrong	true
+COMPLETION	module-one-known-outcome-1	unknown	false
+COMPLETION	module-one-known-outcome-1	case	true
+COMPLETION	module-one-known-outcome-1	multiword	true
+COMPLETION	module-one-known-outcome-1	blank	false
+COMPLETION	module-one-order-outcome-1	missing	false
+COMPLETION	module-one-order-outcome-1	canonical	true
+COMPLETION	module-one-order-outcome-1	generic-unknown	false
+COMPLETION	module-one-order-outcome-1	wrong-order	true
+COMPLETION	module-one-order-outcome-1	required-missing	true
