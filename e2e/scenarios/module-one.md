@@ -103,7 +103,7 @@
 3. For `Hun vil læse et brev.`, choose **An external requirement.**, inspect the known wrong interpretation, retry, and choose **A personal wish or intention.**.
    - Expected: the Danish statement is marked Danish and all three related meaning choices are marked English. The wrong supplied choice may continue under the modal-round policy, while the retry records the correct contextual meaning.
 4. In the supplied construction, place `vi vil læse avis en`.
-   - Expected: subject, finite modal and nonfinite verb order meet G005 while the complete requested order constraint is unmet and the Danish is unknown. The policy permits continuation. Retry with `vi vil læse en avis`.
+   - Expected: subject, finite modal and nonfinite verb order meet G005 while the complete requested order constraint is unmet and the Danish is unknown. The policy permits continuation. Clear the retained word tiles and retry with `vi vil læse en avis`.
 5. Inspect the two primary summary rows, open **Understanding a requirement**, cancel the chooser, reload and inspect the same summary.
    - Expected: contextual interpretation and supplied-modal order stay separate, first/latest evidence and four-answer/two-retry totals survive, and the next round is explicitly selected without starting it.
 
@@ -114,7 +114,7 @@
 2. For `De skal læse en bog.`, choose **Permission to do it.**, then retry with **An external requirement.**.
    - Expected: wrong and correct contextual meanings remain saved as first and latest outcomes using English choices.
 3. In the supplied construction, place only `jeg skal læse` and check it.
-   - Expected: the incomplete response is unevaluable with `REQUIRED_WORDS_MISSING`. The modal-round policy permits continuation. Retry with `jeg skal læse en avis`.
+   - Expected: the incomplete response is unevaluable with `REQUIRED_WORDS_MISSING`. The modal-round policy permits continuation. Clear the retained word tiles and retry with `jeg skal læse en avis`.
 4. Inspect the two primary summary rows, open **Understanding permission**, cancel, reload and inspect the same summary.
    - Expected: four answers and two retries survive, with distinct contextual-meaning and supplied-order evidence.
 

@@ -134,6 +134,8 @@ async function submitOrder(page: Page, exercise: CourseExercise, properSubset = 
   await expect(page.getByRole("status")).toBeFocused();
 }
 async function submitModalOrder(page: Page, exercise: CourseExercise, words: readonly string[]) {
+  const chosen = page.getByLabel("Your Danish sentence", { exact: true }).getByRole("button");
+  while (await chosen.count()) await chosen.first().click();
   const available = page.getByRole("group", { name: /Available/ });
   for (const word of words) {
     await available.getByRole("button", { name: word, exact: true }).press("Enter");
