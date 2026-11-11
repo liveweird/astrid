@@ -813,20 +813,27 @@ teaching review remains open.
 ### Prepared S12–S15 continuation — 11 November 2026
 
 These are bounded implementation choices under the user's continuation approval.
-S12–S14 have isolated engine/API/web/test drafts and review evidence. They have
+S12 is delivered in the [observed record](#observed-s12-delivery). S13–S14 retain
+isolated engine/API/web/test drafts and review evidence; those later packages have
 not been merged, released or promoted. Local scratch material is under
 `.local/s12/`, `.local/s13/` and `.local/s14/`; this tracked outline preserves the
 contracts if those ignored directories are unavailable. S15 has a plan only.
 Freeze each unchanged predecessor in its own commit before advancing the current
 pair. Preserve previous archives, teaching exports, plans and saved replay.
-Versions below are proposed sequential assignments.
+S12's assignment is delivered; the later version assignments remain proposals.
 
-| Unit | Proposed app / pair | Profile | Target and format |
+| Unit | App / pair | Profile | Target and format |
 | --- | --- | --- | --- |
 | S12 | 0.17.0 / fifteen | `module-one-circumstances-1` | G016 `one-final-circumstance`, E029 constituent order |
 | S13 | 0.18.0 / sixteen | `module-one-questions-1` | G018 `neutral-positive-yes-no`, E030 constituent order |
 | S14 | 0.19.0 / seventeen | `module-one-fronting-1` | G021 `fronted-time-place-v2`, E031 constituent order |
 | S15 | 0.20.0 / eighteen | `module-one-negation-1` | G017 `subject-first-simple-ikke`, E032 choice and E033 constituent order |
+
+**Integration note from S12:** older drafts predate final client and harness corrections.
+Merge their bounded changes into the released source, preserving order-answer serialization,
+complete-bank readiness, retry retention, exact summary correlations, narrow summary wrapping,
+and lazy response-only validator calls. Verify actual transport and enlarged-text behavior;
+an old draft's unit-test pass does not establish integration correctness.
 
 Every profile has four activities, required saved teaching, explicit chooser
 continuation, supplied English meaning and subject reference. Keep multiword
@@ -922,3 +929,44 @@ pair-fifteen fingerprint frame. Public prompts omit word-tile mode/count fields.
 all previous pools, plans, review bytes and 109 catalogue clauses. The new lexical inventory
 contains 38 records. Software validation and saved supported practice remain separate from
 Danish teaching review and learner proficiency.
+
+### Observed S12 delivery
+
+The current private preview is app 0.17.0, source `0f1b322`, with four **Adding when
+and where** activities pinned to pair fifteen. Required teaching supplies the Danish
+clause core, English meaning and one intact time/place constituent. E029 records G016
+final placement separately from the requested core order. Earlier plans, pools, teaching
+exports and saved grading remain unchanged. [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.17.0)
+
+Freeze `aca3c5d` captured 7,497 engine, modal-plan and wire rows from released 0.16.0
+source `9dd787c` before CURRENT advanced. Independent review verified the private
+projection and unchanged archives. Tests cover all 60 complete orders, malformed
+no-save requests, explicit teaching/exposure, exact summary correlations and a real
+conflicting-private-key mutation. Canonical grading derives from fingerprinted inspector
+data and rejects a mismatched private key. Both validators initialize lazily with
+two-entry caches at the unchanged test heap.
+Response helpers use response-only validation to avoid compiling ignored request parameters;
+strict request matrices and all existing assertions remain intact. This addresses the
+observed Linux allocation pressure without changing application behavior.
+
+Integration corrected missing guided/standalone order serialization and retry retention;
+transport tests assert raw IDs, durable outbox ordering and exact pending replay.
+Live enlarged-text testing found an overflowing summary label in both browsers. The
+scoped wrapping fix passed the original 320px/200% geometric and Axe checks in both
+themes. Desktop/light teaching and feedback plus an enlarged dark mobile summary were
+visually inspected. The exact image `sha256:123da82207fca08500040f653f67941b4d66f313b61c652df74190d0fc7f4a2b` passed Trivy.
+
+The full Docker-backed gate passed with 339 engine tests, the fresh Arabic-locale run,
+232 server tests, 245 web tests and unchanged coverage floors. All five exact-source CI
+jobs passed with 420 Linux browser journeys, and all 420
+native Chromium/WebKit journeys passed against the exact local image, without retries
+or flakies. [Release CI](https://github.com/liveweird/astrid/actions/runs/43024813909)
+
+Two existing S10/S11 sessions and the new S12 run replayed byte for byte after an
+observed app restart: three sessions and 19 attempts. Before app-only promotion, a
+5,143,001-byte mode-`0600` backup restored into an isolated database and matched
+every prior row in all six history tables. Promotion preserved those rows, the main
+PostgreSQL process/mounts and Flyway versions 1–3. All 128 live-preview
+browser checks passed without retries; ownership-verified cleanup removed only the QA
+resources. This supersedes the earlier 0.16.0 running-preview statement. Danish teaching
+review and S13–S15 remain separate work.

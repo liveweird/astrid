@@ -119,3 +119,10 @@ CI journeys passed; the unchanged image also passed 410 packaged-Linux
 journeys with the reviewed harness, all without retries or flakies. A verified backup
 restore preceded app-only promotion, and the preview passed 120 packaged-Linux checks.
 [Delivery record](module-one-course-slice.md#observed-s11-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.16.0)
+
+**Subsequent release — 11 November 2026:** App 0.17.0, source `0f1b322`, is the current
+private preview and adds four final time/place activities. Five exact-source CI jobs,
+420 Linux and 420 native browser journeys passed without
+retries/flakies. Verified backup restoration preceded app-only promotion; all
+128 live-preview checks and owned QA cleanup passed.
+[Delivery record](module-one-course-slice.md#observed-s12-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.17.0)

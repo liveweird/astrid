@@ -198,3 +198,12 @@ On the current local toolchain, all 20 OpenAPI methods passed in 62.37 seconds a
 the two-entry combined-validation path. These are local measurements, not a claimed Linux
 pass. The exact-source Linux job remains the release gate. Application code, migrations,
 public schemas, dependencies and production JVM settings are unaffected.
+
+**Final exact-source Linux server result.** The server job in
+[CI run 43024813909](https://github.com/liveweird/astrid/actions/runs/43024813909)
+at source `0f1b322` passed. Its Gradle verification step completed in 5m57s under the
+unchanged test budget; `OpenApiContractTest` reported a 512 MiB maximum heap, four
+available processors and G1 collectors. This closes the Linux uncertainty for the
+lazy, response-only, two-entry test harness. It is test-only CI evidence, not a
+production-runtime memory measurement or JVM-tuning result. BL-044 and BL-055
+remain separate work.
