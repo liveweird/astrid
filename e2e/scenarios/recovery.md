@@ -1,7 +1,7 @@
 # Playground recovery: connection, revision and session failures
 
 - **Spec**: [tests/recovery.spec.ts](../tests/recovery.spec.ts)
-- **Actors**: an anonymous learner on the engine playground (`/`)
+- **Actors**: an anonymous learner on the engine playground (`/playground`)
 - **Owns** (exclusive server-side state): development sessions, generated exercises and graded
   attempts in each test's own context; failures are injected in the browser by mocking or aborting
   `fetch` responses, never in the server

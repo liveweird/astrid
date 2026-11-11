@@ -5,10 +5,13 @@ import { APP_VERSION } from "./changelog/version";
 import { renderWithProviders } from "./test/render";
 
 vi.mock("./pages/playground/Playground", () => ({ default: () => <div>Learning workspace</div> }));
+vi.mock("./pages/lessons/Lessons", () => ({ default: () => (
+  <div><h1>Module 1: First steps</h1><h2 id="review" tabIndex={-1}>Review</h2></div>
+) }));
 const practiceTestState = vi.hoisted(() => ({ mounts: 0 }));
 vi.mock("./pages/practice/Practice", async () => {
   const { useState } = await import("react");
-  const { useSearchParams } = await import("react-router-dom");
+  const { Link, useSearchParams } = await import("react-router-dom");
   return {
     default: function TestPractice() {
       const [instance] = useState(() => { practiceTestState.mounts += 1; return practiceTestState.mounts; });
@@ -17,6 +20,7 @@ vi.mock("./pages/practice/Practice", async () => {
         <div>
           <p>Practice instance {instance}</p>
           <button type="button" onClick={() => setSearchParams({ session: "bound-run" }, { replace: true })}>Bind run</button>
+          <Link to="/practice">Open practice</Link>
         </div>
       );
     },
@@ -72,7 +76,7 @@ describe("App theme", () => {
     const navigation = screen.getByRole("navigation");
     const burger = screen.getByLabelText("Toggle navigation");
     expect(navigation).toHaveAttribute("id", "primary-navigation");
-    expect(screen.getByRole("link", { name: "Engine playground" })).toHaveAttribute("href", "#main-content");
+    expect(screen.getByRole("link", { name: "Lessons" })).toHaveAttribute("href", "/");
     expect(burger).toHaveAttribute("aria-controls", "primary-navigation");
     expect(burger).toHaveAttribute("aria-expanded", "false");
     const railToggle = screen.getByLabelText("Expand navigation");
@@ -92,7 +96,7 @@ describe("App theme", () => {
     expect(screen.getByRole("link", { name: "Changelog" })).toHaveAttribute("data-active", "true");
     expect(await screen.findByRole("heading", { level: 1, name: "Changelog" })).toBeVisible();
     await waitFor(() => expect(screen.queryByTitle("What's new")).not.toBeInTheDocument());
-    expect(screen.getByRole("link", { name: "Engine playground" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Engine playground" })).toHaveAttribute("href", "/playground");
     expect(screen.queryByText("Learning workspace")).not.toBeInTheDocument();
   });
 
@@ -112,7 +116,7 @@ describe("App theme", () => {
 
       expect(await screen.findByRole("alert")).toHaveTextContent("Changelog unavailable");
       expect(screen.getByRole("navigation")).toBeVisible();
-      expect(screen.getByRole("link", { name: "Engine playground" })).toHaveAttribute("href", "/");
+      expect(screen.getByRole("link", { name: "Lessons" })).toHaveAttribute("href", "/");
       expect(screen.getByTitle("What's new")).toBeVisible();
       expect(screen.getByRole("button", { name: "Reload changelog" })).toBeVisible();
     } finally {
@@ -148,18 +152,17 @@ describe("App routes", () => {
     localStorage.clear();
   });
 
-  it("keeps the practice mounted through its own URL binding and restarts it from the navigation link", async () => {
+  it("keeps the practice mounted through its own URL binding and restarts it from a pushed bare-practice link", async () => {
     window.history.replaceState(null, "", "/practice");
     renderWithProviders(<App />);
 
     expect(screen.getByText("Practice instance 1")).toBeVisible();
-    expect(screen.getByRole("link", { name: "Practice" })).toHaveAttribute("data-active", "true");
     expect(screen.getByRole("link", { name: "Skip to learning exercise" })).toHaveAttribute("href", "#main-content");
     await userEvent.click(screen.getByRole("button", { name: "Bind run" }));
     expect(window.location.search).toBe("?session=bound-run");
     expect(screen.getByText("Practice instance 1")).toBeVisible();
 
-    await userEvent.click(screen.getByRole("link", { name: "Practice" }));
+    await userEvent.click(screen.getByRole("link", { name: "Open practice" }));
     expect(window.location.pathname).toBe("/practice");
     expect(window.location.search).toBe("");
     expect(screen.getByText("Practice instance 2")).toBeVisible();
@@ -170,7 +173,7 @@ describe("App routes", () => {
     renderWithProviders(<App />);
     expect(screen.getByText("Practice instance 1")).toBeVisible();
 
-    await userEvent.click(screen.getByRole("link", { name: "Practice" }));
+    await userEvent.click(screen.getByRole("link", { name: "Open practice" }));
     expect(screen.getByText("Practice instance 2")).toBeVisible();
     await userEvent.click(screen.getByRole("button", { name: "Bind run" }));
     expect(window.location.search).toBe("?session=bound-run");
@@ -203,32 +206,45 @@ describe("App routes", () => {
 
     await userEvent.click(screen.getByRole("link", { name: "Changelog" }));
     await waitFor(() => expect(main).toHaveFocus());
-    await userEvent.click(screen.getByRole("link", { name: "Practice" }));
+    await userEvent.click(screen.getByRole("link", { name: "Engine playground" }));
     await waitFor(() => expect(main).toHaveFocus());
   });
 
-  it("highlights the practice link for a trailing-slash path", () => {
+  it("renders the practice runner for a trailing-slash path", () => {
     window.history.replaceState(null, "", "/practice/");
     renderWithProviders(<App />);
 
-    expect(screen.getByRole("link", { name: "Practice" })).toHaveAttribute("data-active", "true");
     expect(screen.getByText("Practice instance 1")).toBeVisible();
   });
 
-  it("navigates between pages in the app and falls back to the playground for unknown paths", async () => {
+  it("navigates between learner and developer pages and shows a learner-friendly unknown route", async () => {
     window.history.replaceState(null, "", "/unknown");
     renderWithProviders(<App />);
 
+    expect(screen.getByRole("heading", { name: "Page not found" })).toBeVisible();
+    await userEvent.click(screen.getByRole("link", { name: "Go to Lessons" }));
+    expect(screen.getByRole("heading", { name: "Module 1: First steps" })).toBeVisible();
+    await userEvent.click(screen.getByRole("link", { name: "Engine playground" }));
+    expect(window.location.pathname).toBe("/playground");
     expect(screen.getByText("Learning workspace")).toBeVisible();
-    expect(screen.getByRole("link", { name: "Engine playground" })).toHaveAttribute("href", "#main-content");
-    await userEvent.click(screen.getByRole("link", { name: "Practice" }));
-    expect(window.location.pathname).toBe("/practice");
-    expect(screen.getByText("Practice instance 1")).toBeVisible();
     await userEvent.click(screen.getByRole("link", { name: "Changelog" }));
     expect(await screen.findByRole("heading", { level: 1, name: "Changelog" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Skip to main content" })).toBeVisible();
-    await userEvent.click(screen.getByRole("link", { name: "Engine playground" }));
+    await userEvent.click(screen.getByRole("link", { name: "Lessons" }));
     expect(window.location.pathname).toBe("/");
-    expect(screen.getByText("Learning workspace")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Module 1: First steps" })).toBeVisible();
+  });
+
+  it("focuses the review heading for pushed same-page and cross-page review navigation", async () => {
+    window.history.replaceState(null, "", "/");
+    renderWithProviders(<App />);
+    const reviewHeading = screen.getByRole("heading", { name: "Review" });
+
+    await userEvent.click(screen.getByRole("link", { name: "Review" }));
+    await waitFor(() => expect(reviewHeading).toHaveFocus());
+    expect(window.location.hash).toBe("#review");
+    await userEvent.click(screen.getByRole("link", { name: "Engine playground" }));
+    await userEvent.click(screen.getByRole("link", { name: "Review" }));
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Review" })).toHaveFocus());
   });
 });

@@ -18,7 +18,7 @@ async function scan(page: Page) {
 }
 
 async function openPlayground(page: Page) {
-  await page.goto("/");
+  await page.goto("/playground");
   await expect(page.getByRole("heading", { name: "Danish engine playground" })).toBeVisible();
 }
 

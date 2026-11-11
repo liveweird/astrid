@@ -34,10 +34,105 @@
   overflow-wrap: anywhere;
 }
 
+.lessonsIntro {
+  border-inline-start: 4px solid var(--astrid-nav-border);
+  padding-inline-start: var(--mantine-spacing-lg);
+}
+
+.resumePanel {
+  background: var(--astrid-nav-fill);
+  border-color: var(--astrid-nav-border);
+}
+
+.lessonList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lessonRow {
+  align-items: center;
+  display: grid;
+  gap: var(--mantine-spacing-md);
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+}
+
+.lessonRow:not(:has(.lessonNumber)) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.lessonNumber {
+  align-items: center;
+  align-self: stretch;
+  border-inline-end: 2px solid var(--astrid-border);
+  color: var(--astrid-nav-ink);
+  display: flex;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.lessonBody {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.lessonBody :global(.mantine-Group-root),
+.lessonRow > :global(.mantine-Button-root) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.lessonBody :global(.mantine-Title-root) {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.lessonRow > :global(.mantine-Button-root) :global(.mantine-Button-label) {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.reviewSection {
+  border-block-start: 1px solid var(--astrid-border);
+  padding-block-start: var(--mantine-spacing-xl);
+  scroll-margin-block-start: calc(var(--app-shell-header-height, 3rem) + var(--mantine-spacing-md));
+}
+
+@container lessons (max-width: 36rem) {
+  .lessonRow,
+  .lessonRow:not(:has(.lessonNumber)) {
+    align-items: start;
+    grid-template-columns: 2rem minmax(0, 1fr);
+  }
+
+  .lessonRow:not(:has(.lessonNumber)) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lessonRow > :global(.mantine-Button-root) {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .lessonRow:not(:has(.lessonNumber)) > :global(.mantine-Button-root) {
+    grid-column: 1;
+  }
+
+  .resumePanel :global(.mantine-Group-root) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
 .playground {
   container-name: playground;
   container-type: inline-size;
   --mantine-spacing-md: min(1rem, 16px);
+}
+
+.playground.lessons {
+  container-name: playground lessons;
 }
 
 .exerciseCard {

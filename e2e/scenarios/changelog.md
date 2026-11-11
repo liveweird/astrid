@@ -10,7 +10,7 @@
 
 ## Scenario: the real build stamp opens release notes and clears the current-version indicator
 
-1. The learner opens the playground on a fresh context.
+1. The learner opens the lessons home on a fresh context.
    - *Expected*: the "Build version" stamp reads `vX.Y.Z · <commit> · YYYY-MM-DD HH:MM` (real
      committed build metadata); when `E2E_EXPECTED_COMMIT` / `E2E_EXPECTED_COMMIT_TIME` are set the
      commit and time must equal them. The stamp links to `/changelog` and the "What's new" indicator
@@ -19,8 +19,8 @@
    - *Expected*: the **Changelog** page opens; its first version equals the stamp's version, its
      first date is `YYYY-MM-DD`, the indicator is gone and `localStorage` holds that version as
      `seenVersion`.
-3. They follow the **Engine playground** link back.
-   - *Expected*: the playground shows and the indicator stays cleared.
+3. They follow the **Lessons** link back.
+   - *Expected*: the lessons home shows and the indicator stays cleared.
 
 ## Scenario: direct changelog navigation works without learning requests when seen storage is ${storage}
 
@@ -36,7 +36,7 @@ writing storage throws `SecurityError`).
 
 ## Scenario: reading the changelog in another tab immediately clears the original indicator
 
-1. The learner's stored `seenVersion` is `0.0.0`; they open the playground.
+1. The learner's stored `seenVersion` is `0.0.0`; they open the lessons home.
    - *Expected*: the "What's new" indicator shows.
 2. In a second tab of the same context they open the changelog.
    - *Expected*: the indicator disappears in the second tab and, without any reload, in the first
@@ -64,7 +64,7 @@ Runs once in light and once in dark (emulated colour scheme).
 2. They choose a wrong answer and check, while the first attempt request is committed by the server
    and then aborted (`connectionfailed`).
    - *Expected*: an alert reports the uncertain result.
-3. They open **Changelog** and come back via **Practice**.
+3. They open **Changelog**, return via **Lessons**, and press **Resume saved practice**.
    - *Expected*: the same `?session=` practice session reopens and the saved operation is replayed
      with the **identical request body** (two attempt requests, equal bodies); no new development
      session was requested.
@@ -77,7 +77,7 @@ Runs with `failure` = `interrupted` (first chunk request aborted) and `HTTP 503`
 request answered `503`).
 
 1. The first request for the lazily loaded Changelog script fails; the learner opens `/changelog`.
-   - *Expected*: an alert mentions the Changelog; the navigation and its **Practice** link stay
+   - *Expected*: an alert mentions the Changelog; the navigation and its **Lessons** link stay
      visible and the "What's new" indicator is still shown.
 2. They press **Reload changelog**.
    - *Expected*: the Changelog heading renders, the alert is gone, the indicator clears, the script

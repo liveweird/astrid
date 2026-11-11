@@ -44,7 +44,7 @@ async function choose(page: Page, title: string, index = 5) {
 }
 
 async function open(page: Page) {
-  await page.goto("/");
+  await page.goto("/playground");
   await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeVisible();
 }
 

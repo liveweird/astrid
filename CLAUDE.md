@@ -6,7 +6,7 @@ Codex reads `AGENTS.md`, which points here.
 ## Product
 
 Astrid is a Danish reading and writing engine for English-speaking complete beginners. Today it is a
-**private development preview**: a standalone engine playground (`/`) and short guided practice sessions
+**private development preview**: a learner lesson directory (`/`), a standalone engine playground (`/playground`) and short guided practice sessions
 (`/practice`) over a connected beginner slice with 40 vocabulary entries, 109 licensed sentences in the
 catalogue and separate scoped task frames. The thirty exercise entries include grammar selection/supply/order/repair, vocabulary recognition/recall, constrained
 sentence writing, short reading comprehension, English→Danish word choice and all/spare word tiles,

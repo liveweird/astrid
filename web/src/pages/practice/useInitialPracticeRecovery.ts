@@ -112,7 +112,17 @@ export function useInitialPracticeRecovery(boundId: string | null, handlers: Ini
       }
     };
     const recover = async () => {
-      const recovery = boundId ? loadRunRecovery(boundId) : latestRunRecovery();
+      let recovery: PracticeRunRecovery | null;
+      try {
+        recovery = boundId ? loadRunRecovery(boundId) : latestRunRecovery();
+      } catch (caught) {
+        if (active) {
+          handlers.setRecoveryUnavailable(true);
+          handlers.setError(practiceError(caught));
+          handlers.setBusy(false);
+        }
+        return;
+      }
       if (boundId && !recovery) {
         if (active) {
           handlers.setRecoveryUnavailable(true);

@@ -11,7 +11,7 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-Open **http://localhost:8088**. The app creates an isolated development session in your browser. PostgreSQL preserves exercises and attempts across ordinary restarts. `docker compose down` stops the stack; `docker compose down -v` also deletes its data.
+Open **http://localhost:8088** for Lessons and its Review section. Browsing lessons starts no development session; explicitly starting a lesson or opening the developer playground establishes the browser's isolated session. PostgreSQL preserves exercises and attempts across ordinary restarts. `docker compose down` stops the stack; `docker compose down -v` also deletes its data.
 
 This is a private development tool. Ports bind to loopback, sessions require `ASTRID_DEVELOPMENT_MODE=true`, and there is no public account system. Keep this deployment private.
 
@@ -39,6 +39,8 @@ Open **http://localhost:5180**; Vite proxies API calls to port 8088. The narrow 
 Native development binds to `127.0.0.1:8088`; `ASTRID_BIND_HOST` and `ASTRID_PORT` (1-65535) override them, and a non-default port moves the default allowed hosts and origins with it (the Vite proxy and the container stay on 8088). The container explicitly binds its internal interface, with Compose publishing only loopback ports. Default database URLs use `localhost:5438/astrid`. Override `POSTGRES_JDBC_URL`, `POSTGRES_R2DBC_URL`, `POSTGRES_USER` and `POSTGRES_PASSWORD` together when using another database. Do not commit `.env` or credentials. OrbStack users may need `export DOCKER_HOST=unix://$HOME/.orbstack/run/docker.sock` for Testcontainers.
 
 ## Use the playground
+
+Open **http://localhost:8088/playground** through Developer tools. The learner home lists the existing short lessons; Review links to the three existing extra-practice profiles, rather than cumulative review of everything studied. A saved-practice link returns to the existing runner without changing its stored operation identities.
 
 - **Present form:** choose between related infinitive and present forms.
 - **En or et:** type an unstressed indefinite article.
@@ -150,7 +152,7 @@ For a user-visible feature, bump the minor application version; for a fix, bump 
 | `engine/` | Pure Kotlin language content, validation, generation and grading; no HTTP/database dependencies |
 | `server/` | Ktor API (`application/problem+json` errors, hand-maintained spec at `server/src/main/resources/openapi/documentation.yaml`), PostgreSQL and Flyway migrations. Packages under `app.astrid.server`: the composition root (`Main`, `Application`, `Stores`, `PostgresStores`); `plugins/` (Ktor wiring: errors, compression, security headers, HTTP, SPA routing, health); `infra/` (`config`, `db` Flyway and pool, `json` wire format); `authz/` (typed HTTP exceptions, guards, the `SessionPrincipal`/`Authenticator` seam); then the features, one-way `session` < `exercises` < `practice` (each: DTOs, routes, store port, Postgres store). `exercises/` reaches practice state only through `AttemptPracticeHook`; `PackageBoundaryTest` enforces the layering |
 | `api-guidelines/` | Shared API rulebook and Spectral ruleset (copied from Flow, never edited here); Astrid's severity decisions live in `web/spectral.astrid.yaml` |
-| `web/` | React/Mantine shell (`App.tsx` owns the React Router routes `/`, `/practice`, lazy `/changelog`; unknown paths show the playground), one folder per page under `src/pages/` (`playground/`, `practice/` with its browser-storage recovery outbox), shared `components/`, generated API types in `api/`. TanStack Query only for the catalog reads (`GET /catalog`, `GET /practice-profiles`); every mutation stays on `api/client.ts`. Colocated interaction tests use `src/test/render.tsx` |
+| `web/` | React/Mantine shell (`App.tsx` owns Lessons at `/`, Review at `/#review`, `/playground`, `/practice`, lazy `/changelog`; unknown paths show a page-not-found state), one folder per page under `src/pages/`, shared `components/`, generated API types in `api/`. TanStack Query only for the catalog reads (`GET /catalog`, `GET /practice-profiles`); every mutation stays on `api/client.ts`. Colocated interaction tests use `src/test/render.tsx` |
 | `e2e/` | Browser journeys against the assembled app |
 | `k8s/` | Private single-replica playground deployment |
 | `docs/knowledge/` | Requirements, decisions, language drafts, sources and open points |

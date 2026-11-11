@@ -1,6 +1,6 @@
 # Frontend (`web/`)
 
-Vite + React 19 + TypeScript 6 + Mantine 9 SPA for Astrid, a Danish reading/writing learning engine: the **engine playground** (`/`), **guided
+Vite + React 19 + TypeScript 6 + Mantine 9 SPA for Astrid, a Danish reading/writing learning engine: **Lessons** (`/`, Review at `/#review`), the **engine playground** (`/playground`), **guided
 practice** (`/practice`) and the lazy **changelog** (`/changelog`). Server rules and the feature template: `.claude/docs/conventions.md`; test rules:
 `.claude/docs/testing.md`; compatibility of what the UI sends and stores: `.claude/docs/compatibility.md`. Look at Flow's `web/CLAUDE.md` before inventing a
 building block (Astrid is a much smaller app: no auth screens, tables, forms libraries or i18n).
@@ -25,7 +25,8 @@ building block (Astrid is a much smaller app: no auth screens, tables, forms lib
   `ChangelogErrorBoundary`), `hooks/` (`useChangelogSeen`), `api/` (`client.ts` transport, `models.ts`, generated `schema.ts`), `changelog/` (`version.ts`, `entries.ts`), `test/` (shared test scaffolding).
 - Default exports for components/pages, named exports elsewhere; **relative imports only** (no path aliases); a folder per page, no catch-all `utils/`. Tests are colocated
   (`Foo.test.tsx` beside `Foo.tsx`). Domain logic stays on the server/engine — the UI renders what the API says and never grades.
-- Routes (`App.tsx`): `/` Playground, `/practice` (`PracticeRoute`), `/changelog` (`React.lazy` + `ChangelogErrorBoundary` + `Suspense`), `*` also renders the Playground (no redirect). New routes go above `*`.
+- Routes (`App.tsx`): `/` Lessons, `/#review` its three existing extra-practice profiles, `/playground` Playground, `/practice` (`PracticeRoute`), `/changelog` (`React.lazy` + `ChangelogErrorBoundary` + `Suspense`), `*` a page-not-found state linking to Lessons. New routes go above `*`.
+  Lessons is passive: browsing reads a guarded saved-run pointer without bootstrapping a development session or replaying an outbox. An explicit start validates the profile, saves the existing serialized creation operation and navigates to the runner; the runner owns sending/recovery. Review is not cumulative across studied lessons. No vocabulary-library route exists yet.
   `/practice?session=<id>` is the URL-bound run: `Practice` binds it with `navigate(…, { replace: true })`; a pushed navigation to `/practice` remounts it so recovery restarts as a full page load would, while its own
   `replace` keeps the mounted run. `useRouteChangeFocus` moves focus to `#main-content` on a pushed navigation only (replace/Back leave focus alone).
 

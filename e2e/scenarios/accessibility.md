@@ -1,7 +1,7 @@
 # Accessibility sweeps (axe, WCAG 2 A/AA)
 
 - **Spec**: [tests/accessibility.spec.ts](../tests/accessibility.spec.ts)
-- **Actors**: an anonymous learner on the engine playground (`/`) with a development session
+- **Actors**: an anonymous learner on the engine playground (`/playground`) with a development session
 - **Owns** (exclusive server-side state): development-session-scoped generated exercises and
   graded attempts in this test's own browser context; nothing shared with other tests
 

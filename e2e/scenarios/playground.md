@@ -1,7 +1,7 @@
 # Engine playground: exercises, keyboard use, replay and theme
 
 - **Spec**: [tests/playground.spec.ts](../tests/playground.spec.ts)
-- **Actors**: an anonymous learner on the engine playground (`/`)
+- **Actors**: an anonymous learner on the engine playground (`/playground`)
 - **Owns** (exclusive server-side state): development-session-scoped generated exercises and graded
   attempts in each test's own browser context; the theme choice is device state
 

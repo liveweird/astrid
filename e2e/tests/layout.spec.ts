@@ -58,7 +58,7 @@ test("all pilot formats and recovery states reflow at 320px with 200% text", asy
     if (document.documentElement) enlargeText();
     else document.addEventListener("DOMContentLoaded", enlargeText, { once: true });
   });
-  await page.goto("/");
+  await page.goto("/playground");
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize)).toBe("32px");
   expect(pageErrors).toEqual([]);
@@ -134,7 +134,7 @@ for (const viewport of [{ width: 844, height: 390 }, { width: 320, height: 400 }
   for (const fontSize of [16, 32]) {
     test(`format navigation stays inside short ${viewport.width}x${viewport.height} windows at ${fontSize}px`, async ({ page }) => {
       await page.setViewportSize(viewport);
-      await page.goto("/");
+      await page.goto("/playground");
       await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
       if (fontSize === 32) await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
       expect(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize)).toBe(`${fontSize}px`);

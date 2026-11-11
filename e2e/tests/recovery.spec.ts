@@ -14,7 +14,7 @@ test("reconnects after the initial development session fails", async ({ page }) 
     } else await route.continue();
   });
 
-  await page.goto("/");
+  await page.goto("/playground");
   const reconnect = page.getByRole("button", { name: "Try connection again" });
   await expect(reconnect).toBeVisible();
   await reconnect.click();
@@ -34,7 +34,7 @@ test("offers a full engine reload after a revision conflict", async ({ page }) =
     } else await route.continue();
   });
 
-  await page.goto("/");
+  await page.goto("/playground");
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
   await openGenerationControls(page);
   const selector = page.getByRole("combobox", { name: "Exercise type" });
@@ -71,7 +71,7 @@ test("reconnects an expired existing session before generating again", async ({ 
     } else await route.continue();
   });
 
-  await page.goto("/");
+  await page.goto("/playground");
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
   await openGenerationControls(page);
   let selector = page.getByRole("combobox", { name: "Exercise type" });
@@ -111,7 +111,7 @@ test("replays the stored attempt after its committed response exceeds the browse
     });
   });
 
-  await page.goto("/");
+  await page.goto("/playground");
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
   await page.getByLabel("Answer choices").getByRole("button").first().click();
   await page.clock.install();

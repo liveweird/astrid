@@ -2,7 +2,7 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import { chooseVocabulary, textLanguage, VOCABULARY } from "../support/vocabulary.js";
 
 async function open(page: Page) {
-  await page.goto("/");
+  await page.goto("/playground");
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
 }
 

@@ -4,7 +4,8 @@ import {
 } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
-  IconBook2, IconFlask, IconHistory, IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand, IconMoon, IconSun,
+  IconBook2, IconFlask, IconHistory, IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand, IconMoon,
+  IconRefresh, IconSun,
 } from "@tabler/icons-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Link as RouterLink, Route, Routes, useLocation, useMatch, useNavigationType } from "react-router-dom";
@@ -12,6 +13,8 @@ import BrandMark from "./components/BrandMark";
 import ChangelogErrorBoundary from "./components/ChangelogErrorBoundary";
 import VersionStamp from "./components/VersionStamp";
 import { useChangelogUnseen } from "./hooks/useChangelogSeen";
+import NotFound from "./pages/NotFound";
+import Lessons from "./pages/lessons/Lessons";
 import Playground from "./pages/playground/Playground";
 import Practice from "./pages/practice/Practice";
 import classes from "./theme.module.css";
@@ -38,61 +41,55 @@ interface NavigationProps {
   changelog: boolean;
   changelogUnseen: boolean;
   close: () => void;
-  practice: boolean;
+  lessons: boolean;
+  playground: boolean;
+  review: boolean;
   rail: boolean;
 }
 
-function PrimaryNavigation({ changelog, changelogUnseen, close, practice, rail }: NavigationProps) {
-  const playgroundLink = {
-    label: rail ? undefined : "Engine playground",
-    leftSection: <IconFlask size={19} stroke={1.6} />,
-    "aria-label": "Engine playground",
-    className: rail ? classes.railLink : undefined,
-    onClick: close,
-  };
+function PrimaryNavigation({ changelog, changelogUnseen, close, lessons, playground, review, rail }: NavigationProps) {
   return (
     <>
       <AppShell.Section grow component={ScrollArea}>
         {!rail && <Text size="xs" fw={650} c="dimmed" px="sm" py="xs">Learn Danish</Text>}
-        {practice || changelog ? (
-          <NavLink {...playgroundLink} component={RouterLink} to="/" />
-        ) : (
-          // Already on the playground: a plain fragment link moves focus to the main landmark.
-          <NavLink {...playgroundLink} active href="#main-content" />
-        )}
         <NavLink
           component={RouterLink}
-          to="/practice"
-          active={practice}
-          label={rail ? undefined : "Practice"}
+          to="/"
+          active={lessons && !review}
+          label={rail ? undefined : "Lessons"}
           leftSection={<IconBook2 size={19} stroke={1.6} />}
-          aria-label="Practice"
+          aria-label="Lessons"
           className={rail ? classes.railLink : undefined}
           onClick={close}
         />
+        <NavLink
+          component={RouterLink}
+          to="/#review"
+          active={review}
+          label={rail ? undefined : "Review"}
+          leftSection={<IconRefresh size={19} stroke={1.6} />}
+          aria-label="Review"
+          className={rail ? classes.railLink : undefined}
+          onClick={close}
+        />
+        {!rail && <Text size="xs" fw={650} c="dimmed" px="sm" pt="lg" pb="xs">Developer tools</Text>}
+        <NavLink component={RouterLink} to="/playground" active={playground} label={rail ? undefined : "Engine playground"}
+          leftSection={<IconFlask size={19} stroke={1.6} />} aria-label="Engine playground"
+          className={rail ? classes.railLink : undefined} onClick={close} />
+      </AppShell.Section>
+      <AppShell.Section>
+        <Divider mb="xs" />
         <NavLink
           component={RouterLink}
           to="/changelog"
           active={changelog}
           label={rail ? undefined : "Changelog"}
-          leftSection={(
-            <Indicator
-              disabled={!changelogUnseen}
-              size={7}
-              color="red"
-              offset={2}
-              title={changelogUnseen ? "What's new" : undefined}
-            >
-              <IconHistory size={19} stroke={1.6} />
-            </Indicator>
-          )}
+          leftSection={<Indicator disabled={!changelogUnseen} size={7} color="red" offset={2}
+            title={changelogUnseen ? "What's new" : undefined}><IconHistory size={19} stroke={1.6} /></Indicator>}
           aria-label="Changelog"
           className={rail ? classes.railLink : undefined}
           onClick={close}
         />
-      </AppShell.Section>
-      <AppShell.Section>
-        <Divider mb="xs" />
         <Box ta="center" py={4}>
           <VersionStamp href="/changelog" compact={rail} className={classes.versionStamp} />
         </Box>
@@ -122,22 +119,26 @@ function PracticeRoute() {
 
 /**
  * A pushed navigation moves focus to the main landmark, as a full page load restarts the reading
- * position there (the skip link and the playground fragment link do the same natively). Replaces
+ * position there (the skip link does the same natively). Replaces
  * (Practice binding its run) and history traversals leave focus where the user has it.
  */
 function useRouteChangeFocus() {
-  const { key } = useLocation();
+  const { hash, key } = useLocation();
   const navigationType = useNavigationType();
   useEffect(() => {
-    if (navigationType === "PUSH") document.getElementById("main-content")?.focus();
-  }, [key, navigationType]);
+    if (navigationType !== "PUSH") return;
+    const target = hash === "#review" ? document.getElementById("review") : document.getElementById("main-content");
+    target?.focus();
+    if (hash === "#review") target?.scrollIntoView({ block: "start" });
+  }, [hash, key, navigationType]);
 }
 
 function RouteContent() {
   return (
     <Routes>
-      <Route path="/" element={<Playground />} />
+      <Route path="/" element={<Lessons />} />
       <Route path="/practice" element={<PracticeRoute />} />
+      <Route path="/playground" element={<Playground />} />
       <Route
         path="/changelog"
         element={(
@@ -148,8 +149,7 @@ function RouteContent() {
           </ChangelogErrorBoundary>
         )}
       />
-      {/* Unknown paths keep today's fallback: the playground, without a redirect. */}
-      <Route path="*" element={<Playground />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
@@ -162,8 +162,12 @@ export default function App() {
   const colorScheme = useComputedColorScheme("light", { getInitialValueInEffect: false });
   const rail = collapsed && (desktop || !opened);
   useRouteChangeFocus();
-  const practice = useMatch("/practice") !== null;
+  const location = useLocation();
   const changelog = useMatch("/changelog") !== null;
+  const playground = useMatch("/playground") !== null;
+  const learningExercise = useMatch("/practice") !== null || playground;
+  const lessons = useMatch("/") !== null;
+  const review = lessons && location.hash === "#review";
   const changelogUnseen = useChangelogUnseen();
   useEffect(() => {
     if (desktop) close();
@@ -182,7 +186,7 @@ export default function App() {
     >
       <AppShell.Header>
         <a href="#main-content" className="skip-link">
-          {changelog ? "Skip to main content" : "Skip to learning exercise"}
+          {learningExercise ? "Skip to learning exercise" : "Skip to main content"}
         </a>
         <Group h="3rem" px={{ base: "xs", sm: "md" }} justify="space-between" wrap="nowrap">
           <Group gap="sm" wrap="nowrap">
@@ -228,7 +232,9 @@ export default function App() {
           changelog={changelog}
           changelogUnseen={changelogUnseen}
           close={close}
-          practice={practice}
+          lessons={lessons}
+          playground={playground}
+          review={review}
           rail={rail}
         />
       </AppShell.Navbar>

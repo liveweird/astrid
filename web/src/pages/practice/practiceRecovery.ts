@@ -46,9 +46,13 @@ function safeSet(key: string, value: string) {
   try { localStorage.setItem(key, value); } catch { throw new PracticePersistenceError(); }
 }
 
+function safeGet(key: string) {
+  try { return localStorage.getItem(key); } catch { throw new PracticePersistenceError(); }
+}
+
 function restoreIfUnchanged(key: string, expected: string, previous: string | null) {
-  if (localStorage.getItem(key) !== expected) return;
   try {
+    if (localStorage.getItem(key) !== expected) return;
     if (previous === null) localStorage.removeItem(key);
     else localStorage.setItem(key, previous);
   } catch {
@@ -79,14 +83,14 @@ export function saveRunWithCreation(run: PracticeRunRecovery, entry: PracticeOut
   const runValue = JSON.stringify(run);
   const durableEntry = { ...entry, queuedAt: entry.queuedAt ?? performance.timeOrigin + performance.now() };
   const outboxValue = JSON.stringify(durableEntry);
-  const previousRun = localStorage.getItem(savedRunKey);
-  const previousOutbox = localStorage.getItem(savedOutboxKey);
-  const previousLatest = localStorage.getItem(LATEST_KEY);
+  const previousRun = safeGet(savedRunKey);
+  const previousOutbox = safeGet(savedOutboxKey);
+  const previousLatest = safeGet(LATEST_KEY);
   try {
     safeSet(savedRunKey, runValue);
     saveOutboxEntry(durableEntry);
     // Another tab may have selected a newer run between these writes. Preserve that choice.
-    if (localStorage.getItem(LATEST_KEY) === previousLatest) safeSet(LATEST_KEY, run.practiceSessionId);
+    if (safeGet(LATEST_KEY) === previousLatest) safeSet(LATEST_KEY, run.practiceSessionId);
   } catch (error) {
     restoreIfUnchanged(savedOutboxKey, outboxValue, previousOutbox);
     restoreIfUnchanged(savedRunKey, runValue, previousRun);
@@ -96,17 +100,23 @@ export function saveRunWithCreation(run: PracticeRunRecovery, entry: PracticeOut
 }
 
 export function loadRunRecovery(practiceSessionId: string): PracticeRunRecovery | null {
-  return parse<PracticeRunRecovery>(localStorage.getItem(runKey(practiceSessionId)));
+  return parse<PracticeRunRecovery>(safeGet(runKey(practiceSessionId)));
 }
 
 export function latestRunRecovery(): PracticeRunRecovery | null {
-  const id = localStorage.getItem(LATEST_KEY);
-  return id ? loadRunRecovery(id) : null;
+  return latestRunRecoveryEntry()?.run ?? null;
+}
+
+export function latestRunRecoveryEntry(): { pointer: string; run: PracticeRunRecovery } | null {
+  const id = safeGet(LATEST_KEY);
+  if (!id) return null;
+  const run = loadRunRecovery(id);
+  return run ? { pointer: id, run } : null;
 }
 
 export function saveOutboxEntry(entry: PracticeOutboxEntry) {
   const key = outboxKey(entry);
-  const existing = parse<PracticeOutboxEntry>(localStorage.getItem(key));
+  const existing = parse<PracticeOutboxEntry>(safeGet(key));
   if (existing) {
     const unchanged = existing.ownerSessionId === entry.ownerSessionId &&
       existing.practiceSessionId === entry.practiceSessionId && existing.kind === entry.kind &&

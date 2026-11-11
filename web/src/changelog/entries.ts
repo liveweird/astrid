@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.19.0",
+    date: "2026-11-11",
+    body: `**Find a lesson and return to saved practice.**
+
+- Lessons is now the home page, with the fifteen existing Module 1 sessions labelled by their grammar or vocabulary focus.
+- Use Review to find the three existing extra-practice options. These cover their stated beginner material; cumulative review across studied lessons is still to come.
+- Resume saved practice from the home page, or choose a session and continue in the existing practice workspace.
+- Engine playground remains available under Developer tools, and the version link opens the changelog.
+- Browsing lessons does not start a learning session. Existing saved exercises, answers and recovery keep their original behavior.`,
+  },
+  {
     version: "0.18.0",
     date: "2026-11-11",
     body: `**Ask a neutral yes or no question.**

@@ -31,7 +31,7 @@ async function openChangelog(page: Page) {
 
 test("the real build stamp opens release notes and clears the current-version indicator", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Danish engine playground", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
   const stamp = page.getByTitle("Build version", { exact: true });
   const text = (await stamp.textContent())!.trim();
   const parts = BUILD.exec(text);
@@ -46,8 +46,8 @@ test("the real build stamp opens release notes and clears the current-version in
   await expect(page.locator("main").getByText(/^\d{4}-\d{2}-\d{2}$/).first()).toBeVisible();
   await expect(page.getByTitle("What's new", { exact: true })).toHaveCount(0);
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("astrid.changelog")!).seenVersion)).toBe(parts![1]);
-  await page.getByRole("link", { name: "Engine playground", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Danish engine playground", exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Lessons", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
   await expect(page.getByTitle("What's new", { exact: true })).toHaveCount(0);
 });
 
@@ -132,7 +132,8 @@ test("visiting release notes preserves an uncertain practice answer and its owne
   await expect(page.getByRole("alert")).toBeVisible();
   await page.getByRole("link", { name: "Changelog", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Changelog", exact: true })).toBeVisible();
-  await page.getByRole("link", { name: "Practice", exact: true }).click();
+  await page.getByRole("link", { name: "Lessons", exact: true }).click();
+  await page.getByRole("link", { name: "Resume saved practice", exact: true }).click();
   await expect(page.getByRole("status")).toBeVisible();
   expect(new URL(page.url()).searchParams.get("session")).toBe(id);
   expect(bodies).toHaveLength(2);
@@ -161,7 +162,7 @@ for (const failure of ["interrupted", "HTTP 503"] as const) {
     await page.goto("/changelog");
     await expect(page.getByRole("alert")).toContainText("Changelog");
     await expect(page.getByRole("navigation")).toBeVisible();
-    await expect(page.getByRole("link", { name: "Practice", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Lessons", exact: true })).toBeVisible();
     await expect(page.getByTitle("What's new", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Reload changelog", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Changelog", exact: true })).toBeVisible();

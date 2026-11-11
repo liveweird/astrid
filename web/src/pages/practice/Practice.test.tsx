@@ -10,6 +10,29 @@ import { listOutbox, saveRunRecovery } from "./practiceRecovery";
 
 beforeEach(resetPracticeBrowser);
 
+it.each(["/practice", `/practice?session=${practiceId}`])(
+  "does not hang or contact the server when recovery storage is blocked at %s",
+  async (path) => {
+    localStorage.setItem("unrelated", "keep");
+    window.history.replaceState(null, "", path);
+    const fetch = vi.fn();
+    vi.stubGlobal("fetch", fetch);
+    const getItem = vi.spyOn(localStorage, "getItem").mockImplementation(() => {
+      throw new DOMException("Storage denied", "SecurityError");
+    });
+
+    renderWithProviders(<Practice />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "This browser could not save recovery data. The operation was not sent.",
+    );
+    expect(screen.queryByLabelText("Starting practice")).not.toBeInTheDocument();
+    expect(fetch).not.toHaveBeenCalled();
+    getItem.mockRestore();
+    expect(localStorage.getItem("unrelated")).toBe("keep");
+  },
+);
+
 it("submits one selected gap in supplied order and labels the bounded action", async () => {
   saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed: 47 });
   window.history.replaceState(null, "", `/practice?session=${practiceId}`);

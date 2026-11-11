@@ -29,7 +29,7 @@ const WRITTEN = "Hun læser et brev.";
 const meanings: Record<string, string> = { bog: "book", avis: "newspaper", brev: "letter (written message)" };
 
 async function open(page: Page) {
-  await page.goto("/");
+  await page.goto("/playground");
   await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeVisible();
 }
 

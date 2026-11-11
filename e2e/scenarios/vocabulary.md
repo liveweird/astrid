@@ -1,7 +1,7 @@
 # Vocabulary recognition and recall formats
 
 - **Spec**: [tests/vocabulary.spec.ts](../tests/vocabulary.spec.ts)
-- **Actors**: an anonymous learner on the engine playground (`/`)
+- **Actors**: an anonymous learner on the engine playground (`/playground`)
 - **Owns** (exclusive server-side state): development-session-scoped generated exercises and graded
   attempts in each test's own context
 

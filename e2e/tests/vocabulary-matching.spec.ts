@@ -24,7 +24,7 @@ type Grade = {
 };
 
 async function openMatching(page: Page) {
-  await page.goto("/");
+  await page.goto("/playground");
   await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeVisible();
   await openGenerationControls(page);
   await page.getByRole("textbox", { name: "Next generation seed", exact: true }).fill("47");

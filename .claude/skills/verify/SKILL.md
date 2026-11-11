@@ -31,15 +31,15 @@ Axe is available the same way (`@axe-core/playwright`, WCAG 2 A/AA tags as in `e
 
 ## Drive recipe (gotchas that cost time)
 
-- **There is no login.** The app calls `POST /api/v1/development-session` on first load and the `astrid_session` cookie (HttpOnly, SameSite=Strict, 24 h) is the identity. A new
+- **There is no login.** Opening the playground or explicitly starting fresh practice calls `POST /api/v1/development-session`; browsing Lessons/Review is passive. The `astrid_session` cookie (HttpOnly, SameSite=Strict, 24 h) is the identity. A new
   browser context is a new learner with no history; practice recovery needs the same context (cookie **and** `localStorage` keys `astrid.practice.v1.*`). To probe recovery, reload the page,
   do not open a new context. Server-side the API is 404 unless `ASTRID_DEVELOPMENT_MODE=true`.
 - **Locate by role, label or text** — the app has no `data-testid`. Standalone exercise types live behind the collapsed **Generation controls** button; the format picker is the combobox
   **Exercise type** (open it, `fill` the title, press ArrowDown then Enter; see `e2e/support/generation-controls.ts`, `format-select.ts`). Mantine inputs: prefer
   `getByRole("textbox", { name })` over `getByLabel`.
 - **Danish text** is `lang="da"`; the answer fields accept `æ ø å` (the app also offers character buttons; see `unicode-input-boundary.md` in `docs/knowledge/`).
-- **Route changes:** `/` playground (unknown paths also show it), `/practice` (a run binds `?session=<id>`), lazy `/changelog`. After clicking a nav link `waitForURL` can pass while the old page is still
-  rendered (the chunk loads lazily against the built bundle). `waitFor()` an element unique to the target page before filling. While on `/`, "Engine playground" is a fragment link that only moves focus to `#main-content`.
+- **Route changes:** `/` Lessons (passive browsing), `/#review` the existing extra-practice section, `/playground` the developer playground, `/practice` (a run binds `?session=<id>`), lazy `/changelog`. Unknown paths show a page-not-found state. After clicking a nav link `waitForURL` can pass while the old page is still
+  rendered (the chunk loads lazily against the built bundle). `waitFor()` an element unique to the target page before filling. "Engine playground" links to `/playground`; a pushed navigation focuses `#main-content`, including a same-route push. Review navigation focuses its section heading.
 - **Failures and recovery:** simulate with `page.route("**/api/v1/…")` — `route.abort("connectionfailed")` for a lost response, `route.fulfill({ status: 503, contentType: "application/problem+json", body })`
   for a server error (as `e2e/tests/recovery.spec.ts`). The browser deadline is 15 s; an unconfirmed submission must keep the **same** attempt id/body available ("Check the same attempt").
 - **Direct API probes need the guards:** `Host` must be allowed (default `localhost:8088` / `127.0.0.1:8088`), mutations need `X-Astrid-Client: playground` and `Content-Type: application/json`,

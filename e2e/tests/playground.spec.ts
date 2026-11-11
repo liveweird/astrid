@@ -18,7 +18,7 @@ function contrast(foreground: string, background: string) {
 }
 
 async function openPlayground(page: Page) {
-  await page.goto("/");
+  await page.goto("/playground");
   await expect(page.getByRole("heading", { name: "Danish engine playground" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
 }
