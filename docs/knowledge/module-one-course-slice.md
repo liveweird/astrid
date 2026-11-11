@@ -1146,3 +1146,26 @@ omits both real client order serializers. Integrate bounded new files into curre
 preserve lazy response-only validation/cache two, closed summary schemas, full-bank readiness,
 retry retention, narrow summary wrapping, all retained plans/pools/goldens, and the delivered
 CI browser/Node and strict APT/mirror guards. No migration, dependency or heap change is planned.
+
+
+### S14 pause checkpoint — 11 November 2026
+
+**User-requested pause:** stop after the separately committed S13 compatibility freeze.
+Commit `0e98e81` captures the actual released 0.18.0 baseline in four immutable archives
+(7,744 rows). All 24 focused guards, independent review and the full Docker-backed
+`./scripts/check.sh` passed. The review's two stale transition comments were corrected.
+No S14 production changes are active, and the private preview remains on 0.18.0.
+BL-063 remains selected and unfinished; S15 remains unselected.
+
+Resume with pair-seventeen engine integration, the synchronized API/OpenAPI contract and
+web serializers/continuation, then independent review and the established release workflow.
+Five partial API deltas were saved privately under `.local/s14/paused-api-stage2.patch`
+and removed from the working tree; they require engine integration, schema and tests before
+use. The ignored `.local/s14/PAUSE-HANDOFF.md` records the detailed implementation boundaries.
+
+The prepared private operations helpers have not been executed. Before using them, fix
+three independent-review findings: require inspected visual evidence at release/promotion;
+validate local Linux listed/passed counts and no-retry status at those gates; bind inspection
+to the candidate's actual capture manifest and screenshot hashes. Finish cross-checking
+runtime assertions against the integrated engine. No S14 QA resources, backup, promotion,
+release or cleanup has been performed; Danish teaching approval remains separate.
