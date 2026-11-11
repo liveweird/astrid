@@ -341,6 +341,40 @@ tasks.register<JavaExec>("exportFollowOnPracticeWireCompatibility") {
     outputs.files(followOnPracticeWireFixture, followOnPracticeWireProvenance)
 }
 
+val pilotTwelveWireFixture =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-12-generator-12-wire.tsv")
+val pilotTwelveWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-12-generator-12-wire.provenance")
+
+tasks.register<JavaExec>("exportPilotTwelveWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-12 public and private wire compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.PilotTwelveWireCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(pilotTwelveWireFixture.asFile.absolutePath, pilotTwelveWireProvenance.asFile.absolutePath)
+    })
+    outputs.files(pilotTwelveWireFixture, pilotTwelveWireProvenance)
+}
+
+val personalPracticeWireFixture =
+    layout.projectDirectory.file("src/test/resources/golden/personal-practice-0.14.0-wire.tsv")
+val personalPracticeWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/personal-practice-0.14.0-wire.provenance")
+
+tasks.register<JavaExec>("exportPersonalPracticeWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.14.0 Module One S09 personal-introduction practice wire fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.PersonalPracticeWireCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(personalPracticeWireFixture.asFile.absolutePath, personalPracticeWireProvenance.asFile.absolutePath)
+    })
+    outputs.files(personalPracticeWireFixture, personalPracticeWireProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

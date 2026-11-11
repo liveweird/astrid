@@ -354,6 +354,43 @@ tasks.register<JavaExec>("exportFollowOnPracticeCompatibility") {
     outputs.files(followOnPracticeCompatibilityFixture, followOnPracticeCompatibilityProvenance)
 }
 
+val pilotTwelveCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-12-generator-12-evaluation-12.tsv")
+val pilotTwelveCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-12-generator-12-evaluation-12.provenance")
+
+tasks.register<JavaExec>("exportPilotTwelveCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-12 engine generation and evaluation compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PilotTwelveCompatibilityGoldenExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(pilotTwelveCompatibilityFixture.asFile.absolutePath, pilotTwelveCompatibilityProvenance.asFile.absolutePath)
+    })
+    outputs.files(pilotTwelveCompatibilityFixture, pilotTwelveCompatibilityProvenance)
+}
+
+val personalPracticeCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/personal-practice-0.14.0.tsv")
+val personalPracticeCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/personal-practice-0.14.0.provenance")
+
+tasks.register<JavaExec>("exportPersonalPracticeCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.14.0 Module One S09 personal-introduction practice fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PersonalPracticeCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(
+            personalPracticeCompatibilityFixture.asFile.absolutePath,
+            personalPracticeCompatibilityProvenance.asFile.absolutePath,
+        )
+    })
+    outputs.files(personalPracticeCompatibilityFixture, personalPracticeCompatibilityProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

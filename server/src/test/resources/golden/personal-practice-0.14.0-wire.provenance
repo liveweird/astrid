@@ -1,0 +1,8 @@
+releaseSourceCommit=f0c95687c387bd23652cab2f50311e8bda756f20
+releaseVersion=0.14.0
+captureDate=2026-11-11
+planPairs=module-one-personal-1:pilot-12/generator-12/evaluation-12
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=34
+fixtureSha256=c3d5099f19f548ecd5a7fd9d0197324d47e3f84a168060b41042dc987e537c85
+description=The six-item S09 personal-introduction plan at four seeds; exact profile/request/private-plan and public lifecycle wire, alternating selection/recall, required teaching and exposure keys, scoped eligibility, frozen context, and request/response replay. No follow-up fallback.

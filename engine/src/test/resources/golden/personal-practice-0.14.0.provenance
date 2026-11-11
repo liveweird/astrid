@@ -1,0 +1,9 @@
+releaseSourceCommit=f0c95687c387bd23652cab2f50311e8bda756f20
+releaseVersion=0.14.0
+captureDate=2026-11-11
+planPairs=module-one-personal-1:pilot-12/generator-12/evaluation-12
+planRevisions=module-one-personal-1
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=40
+fixtureSha256=6dea8fbdbf18bc2ef26b58182df9b5cf3cc0506c9c110a6abf5cafe611066b52
+description=The published six-item S09 personal-introduction plan at four seeds, with alternating selection and recall, required teaching, exact exposure keys and scoped targets, summaries, completion boundaries, and canonical, known-wrong, case and unknown evaluations.
