@@ -19,6 +19,7 @@ const TARGET_SCOPE_LABELS: Record<string, string> = {
   "subject-first-supplied": "Subject-first statement order",
   "have-possession-present": "Present possession with har",
   "personal-introduction-present": "Present forms for personal details",
+  "kan-bare-infinitive": "Verb form after kan",
 };
 
 function targetBadge(exercise: NonNullable<PracticeSession["currentExercise"]>) {

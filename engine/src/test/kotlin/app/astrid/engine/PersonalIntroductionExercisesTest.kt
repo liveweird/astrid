@@ -11,8 +11,8 @@ class PersonalIntroductionExercisesTest {
 
     @Test
     fun `pair twelve publishes literal personal cards and keeps earlier task pools bounded`() {
-        assertEquals("pilot-12", engine.catalog().contentRevision)
-        assertEquals("generator-12", engine.catalog().generatorRevision)
+        assertEquals("pilot-13", engine.catalog().contentRevision)
+        assertEquals("generator-13", engine.catalog().generatorRevision)
         assertEquals("evaluation-11", engine.evaluationRevision("pilot-11", "generator-11"))
         assertEquals("evaluation-12", engine.evaluationRevision("pilot-12", "generator-12"))
         assertEquals(109, engine.catalog().sentenceCount)
@@ -177,11 +177,11 @@ class PersonalIntroductionExercisesTest {
     fun `pair twelve lexical inventory adds only the five reviewed personal entries`() {
         assertEquals(
             (1..32).map { "L${it.toString().padStart(3, '0')}" }.toSet(),
-            PilotContent.currentSnapshot.lexicalReview.map { it.id }.toSet(),
+            PilotContent.pilotTwelveSnapshot.lexicalReview.map { it.id }.toSet(),
         )
-        assertEquals(32, PilotContent.currentSnapshot.lexicalReview.size)
+        assertEquals(32, PilotContent.pilotTwelveSnapshot.lexicalReview.size)
         assertEquals(listOf("L028", "L029", "L030"), PilotContent.personalIntroductionVerbs.map { it.lexicalId })
-        assertEquals(listOf("L031", "L032"), PilotContent.currentSnapshot.fixedWords.map { it.id })
+        assertEquals(listOf("L031", "L032"), PilotContent.pilotTwelveSnapshot.fixedWords.map { it.id })
         assertEquals(109, PilotContent.currentSnapshot.sentences.size)
         assertEquals(109, PilotContent.pilotElevenSnapshot.sentences.size)
     }

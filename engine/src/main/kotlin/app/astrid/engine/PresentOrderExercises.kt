@@ -268,7 +268,7 @@ internal object PresentOrderExerciseGenerator {
     fun generate(request: GenerationRequest): GeneratedExercise {
         val (includePossession, includePersonal) = when (request.contentRevision) {
             PilotContent.RETAINED_ELEVEN_CONTENT_REVISION -> true to false
-            PilotContent.CURRENT_CONTENT_REVISION -> true to true
+            PilotContent.RETAINED_TWELVE_CONTENT_REVISION, PilotContent.CURRENT_CONTENT_REVISION -> true to true
             else -> false to false
         }
         val tasks = PresentOrderContent.tasks(request.formatId, includePossession, includePersonal)
@@ -283,7 +283,15 @@ internal object PresentOrderExerciseGenerator {
     private fun presentExercise(request: GenerationRequest, task: NamedPresentTask): GeneratedExercise {
         val selection = request.formatId == "E022"
         val choices = if (selection) {
-            presentChoices(task, request.seed, request.index, request.contentRevision == PilotContent.CURRENT_CONTENT_REVISION)
+            presentChoices(
+                task,
+                request.seed,
+                request.index,
+                request.contentRevision in setOf(
+                    PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
+                    PilotContent.CURRENT_CONTENT_REVISION,
+                ),
+            )
         } else {
             emptyList()
         }

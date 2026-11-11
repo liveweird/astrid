@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.15.0",
+    date: "2026-11-11",
+    body: `**Use an action verb after kan.**
+
+- **Using a verb after kan** adds four activities for choosing and typing læse after the supplied ability verb kan.
+- Read the required introduction to distinguish the bare infinitive læse from the present form læser and the dictionary form at læse.
+- Practise two supplied statements about reading a letter and written Danish, with separate selection and written-response results.
+- See exact first and latest outcomes, reload saved progress, repeat the session, or enter it directly.
+- Continue from **Names, homes and languages**. The material remains a draft awaiting Danish teaching review. Earlier exercises keep their original behavior.`,
+  },
+  {
     version: "0.14.0",
     date: "2026-11-11",
     body: `**Talk about names, homes and languages.**

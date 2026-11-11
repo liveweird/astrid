@@ -75,7 +75,22 @@
 3. Complete the literal cards in round order: `Jeg ___ Anna` then `Du ___ Nora`; `Hun ___ i Aarhus` then `De ___ i Odense`; `Vi ___ dansk` then `I ___ dansk`.
    - Expected: each round alternates an E022 choice and an E023 typed response, the exact English proposition is supplied, and the Danish cue, choices or input retain their language metadata. `hedder`, `bor` and `taler` each succeed in both modes.
 4. Inspect and reload the summary.
-   - Expected: selection and recall have separate three-item scoped rows with six fully met first/latest outcomes, the completed state survives reload, and no unimplemented next session is offered.
+   - Expected: selection and recall have separate three-item scoped rows with six fully met first/latest outcomes, the completed state survives reload, and **Using a verb after kan** is offered next.
+
+## Scenario: ability after kan separates selection and one-word response outcomes
+
+1. Enter **Using a verb after kan** directly and attempt the first activity through the API before opening its required introduction.
+   - Expected: the four-item pair-thirteen session requires G001–G005, rejects assessment before teaching, records no early attempt and keeps all items under the bare-infinitive-after-kan scope.
+2. Open the introduction and inspect the supplied modal, target verb, rule and separate examples.
+   - Expected: `at kunne → kan`, `at læse → læse efter kan`, `Jeg kan læse et brev.` and `Han kan læse dansk.` carry Danish language metadata. The rule distinguishes bare `læse` from `læser` and `at læse`, and the readable target is **Verb form after kan**.
+3. On the first E026 selection choose `at læse`, inspect the known grammar outcome, then retry with `læse`.
+   - Expected: the marked infinitive misses the target while satisfying the supplied-choice constraint. Retry succeeds, and the three choices are exactly `læse`, `læser` and `at læse`.
+4. On the first E027 typed response enter `at læse`, inspect the result, then retry with `læse`.
+   - Expected: the same marker diagnosis precedes generic multiword handling, while the one-word response constraint is now unmet. Retry succeeds.
+5. On the final typed response enter unsupported `læste`, reload, then retry with `Læse`.
+   - Expected: the unknown answer blocks continuation, discloses no solution and survives reload byte for byte. The capitalized target meets the grammar target with a saved lowercase constraint issue and can continue.
+6. Inspect and reload the summary.
+   - Expected: selection and recall have separate two-item rows. First outcomes retain the selected and typed marker errors plus the unknown response, latest outcomes retain corrected answers and the capitalization issue, and the seven-answer/three-retry totals survive reload. No unimplemented next session is offered.
 
 ## Scenario: first steps preserve ambiguous ${correction.raw} casing without a wrong-person diagnosis
 
@@ -131,7 +146,7 @@
 
 ## Scenario: first-step chooser keeps all profiles keyboard-accessible in ${theme} at ${viewport.width}
 
-1. Open the nine-profile chooser in both themes, narrow portrait and short landscape, at 200% text.
+1. Open the ten-profile chooser in both themes, narrow portrait and short landscape, at 200% text.
    - Expected: its first-step grouping and every profile remain accessible, without page/text overflow or configured Axe violations.
 2. Focus the group-pronoun radio and select it with Space.
    - Expected: the choice is checked and Start practice is enabled; no session is created automatically.

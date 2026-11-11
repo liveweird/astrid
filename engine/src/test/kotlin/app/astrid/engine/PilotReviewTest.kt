@@ -6,17 +6,17 @@ import kotlin.test.assertTrue
 
 class PilotReviewTest {
     @Test
-    fun `pair twelve review adds personal inventory while retained pair eleven stays bounded`() {
+    fun `pair thirteen review adds ability inventory while retained pair twelve stays bounded`() {
         val current = PilotReview.renderMarkdown()
-        val retained = PilotReview.renderPilotElevenMarkdown()
+        val retained = PilotReview.renderPilotTwelveMarkdown()
 
-        assertTrue("Content revision: `pilot-12`" in current)
-        assertTrue("Generator revision: `generator-12`" in current)
-        assertTrue("| personal-select-name | E022 | personal-introduction-present | Jeg hedder Anna." in current)
-        assertTrue("### Names, homes and languages" in current)
-        assertTrue("Content revision: `pilot-11`" in retained)
-        assertTrue("personal-introduction-present" !in retained)
-        assertTrue("Names, homes and languages" !in retained)
+        assertTrue("Content revision: `pilot-13`" in current)
+        assertTrue("Generator revision: `generator-13`" in current)
+        assertTrue("## Ability-after-kan task inventory" in current)
+        assertTrue("### Using a verb after kan" in current)
+        assertTrue("Content revision: `pilot-12`" in retained)
+        assertTrue("Ability-after-kan" !in retained)
+        assertTrue("Using a verb after kan" !in retained)
     }
 
     @Test

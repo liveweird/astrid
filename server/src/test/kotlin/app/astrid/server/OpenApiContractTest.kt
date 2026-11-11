@@ -47,8 +47,8 @@ import kotlinx.serialization.json.jsonPrimitive
 
 class OpenApiContractTest {
     private val rawSpec = checkNotNull(javaClass.getResource("/openapi/documentation.yaml")).readText()
-    // Bound the test-only cache because each compiled schema copies all expanded definitions.
-    // Flow uses this pattern; Astrid retains four entries at the existing test heap.
+    // Each cached schema copies the expanded definitions. Four entries pass the S10 journey
+    // at the unchanged 512 MiB test heap; Flow uses the same bounded-cache pattern.
     private fun validatorBuilder() =
         OpenApiInteractionValidator.createForInlineApiSpecification(rawSpec)
             .withSchemaValidationConfiguration(ValidationConfiguration().setMaxCacheSize(SCHEMA_CACHE_ENTRIES))
@@ -91,6 +91,7 @@ class OpenApiContractTest {
             "module-one-possession" to "module-one-possession-1",
             "module-one-reading-words" to "module-one-reading-words-1",
             "module-one-personal" to "module-one-personal-1",
+            "module-one-ability" to "module-one-ability-1",
         )
         for (focus in supportedPairs.map { it.first }) {
             for (revision in supportedPairs.map { it.second }) {
@@ -169,6 +170,8 @@ class OpenApiContractTest {
             exerciseRequest("E025", "G005", "pilot-11", "generator-11"),
             exerciseRequest("E022", "G004", "pilot-12", "generator-12"),
             exerciseRequest("E023", "G004", "pilot-12", "generator-12"),
+            exerciseRequest("E026", "G030", "pilot-13", "generator-13"),
+            exerciseRequest("E027", "G030", "pilot-13", "generator-13"),
         )
         val rejected = listOf(
             exerciseRequest("E009", null, "pilot-4", "generator-4"),
@@ -205,6 +208,8 @@ class OpenApiContractTest {
             exerciseRequest("E023", "G005", "pilot-11", "generator-11"),
             exerciseRequest("E022", "G004", "pilot-12", "generator-11"),
             exerciseRequest("E023", "G005", "pilot-12", "generator-12"),
+            exerciseRequest("E026", "G030", "pilot-12", "generator-12"),
+            exerciseRequest("E027", "G004", "pilot-13", "generator-13"),
             exerciseRequest("E021", null, "pilot-9", "generator-9"),
             exerciseRequest("E020", "G038", "pilot-8", "generator-8"),
             exerciseRequest("E020", "G038", "pilot-9", "generator-8"),
@@ -276,6 +281,8 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E023", "G004", "named-three-verbs-present", "pilot-11"),
             moduleOneExerciseResponse("E022", "G004", "personal-introduction-present", "pilot-12"),
             moduleOneExerciseResponse("E023", "G004", "personal-introduction-present", "pilot-12"),
+            moduleOneExerciseResponse("E026", "G030", "kan-bare-infinitive", "pilot-13"),
+            moduleOneExerciseResponse("E027", "G030", "kan-bare-infinitive", "pilot-13"),
         )
         val rejected = listOf(
             exerciseResponse("E009", "pilot-4", "generator-4"),
@@ -371,6 +378,9 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E023", "G005", "have-possession-present", "pilot-11"),
             moduleOneExerciseResponse("E022", "G004", "personal-introduction-present", "pilot-11"),
             moduleOneExerciseResponse("E023", "G005", "personal-introduction-present", "pilot-12"),
+            moduleOneExerciseResponse("E026", "G030", "kan-bare-infinitive", "pilot-12"),
+            moduleOneExerciseResponse("E027", "G004", "kan-bare-infinitive", "pilot-13"),
+            moduleOneExerciseResponse("E027", "G030", "personal-introduction-present", "pilot-13"),
         )
 
         accepted.forEach { assertExerciseResponseValidity(it, expected = true) }
@@ -475,7 +485,7 @@ class OpenApiContractTest {
         )
         validate(HttpMethod.Post, "/api/v1/attempts", matchingAttempt)
         assertEquals(
-            "evaluation-12",
+            "evaluation-13",
             wireJson.parseToJsonElement(matchingAttempt.bodyAsText()).jsonObject
                 .getValue("evaluationRevision").jsonPrimitive.content,
         )
@@ -494,7 +504,7 @@ class OpenApiContractTest {
         val gapAttempt = submitAttempt(cookie, gapId, AttemptAnswerDto.Gaps(gapSelections))
         validate(HttpMethod.Post, "/api/v1/attempts", gapAttempt)
         assertEquals(
-            "evaluation-12",
+            "evaluation-13",
             wireJson.parseToJsonElement(gapAttempt.bodyAsText()).jsonObject
                 .getValue("evaluationRevision").jsonPrimitive.content,
         )
@@ -1020,6 +1030,7 @@ class OpenApiContractTest {
             Triple("module-one-present", "module-one-present-1", "named-three-verbs-present"),
             Triple("module-one-possession", "module-one-possession-1", "have-possession-present"),
             Triple("module-one-personal", "module-one-personal-1", "personal-introduction-present"),
+            Triple("module-one-ability", "module-one-ability-1", "kan-bare-infinitive"),
         )
         val observedFormats = mutableSetOf<String>()
 
@@ -1091,7 +1102,7 @@ class OpenApiContractTest {
                 val source = wireJson.parseToJsonElement(inspector.bodyAsText()).jsonObject
                     .getValue("moduleOneSource").jsonObject
                 val expected = source.getValue("expectedForm").jsonPrimitive.content
-                val isRecall = formatId in setOf("E017", "E019", "E023")
+                val isRecall = formatId in setOf("E017", "E019", "E023", "E027")
                 val answer = when {
                     isRecall && !checkedCaseOutcome -> expected.replaceFirstChar {
                         if (it.isUpperCase()) it.lowercase() else it.uppercase()
@@ -1150,7 +1161,7 @@ class OpenApiContractTest {
                 it.jsonObject.getValue("targetScopeId").jsonPrimitive.content == expectedScope
             })
         }
-        assertEquals(setOf("E016", "E017", "E018", "E019", "E022", "E023"), observedFormats)
+        assertEquals(setOf("E016", "E017", "E018", "E019", "E022", "E023", "E026", "E027"), observedFormats)
     }
 
     @Test
@@ -1230,6 +1241,41 @@ class OpenApiContractTest {
         assertEquals(503, ready.status.value)
         val code = (wireJson.parseToJsonElement(ready.bodyAsText()) as JsonObject).getValue("code").jsonPrimitive.content
         assertEquals("not_ready", code)
+    }
+
+    @Test
+    fun `ability supplied choices and typed markers have distinct response constraints`() = testApplication {
+        application { astridModule(config(), InMemoryStores()) }
+        val cookie = moduleOneCookie()
+        val selection = createCurrentExercise(cookie, "E026", "G030")
+        val selectionId = selection.getValue("id").jsonPrimitive.content
+        for (answer in listOf(AttemptAnswerDto.Text("kan"), AttemptAnswerDto.Order(emptyList()))) {
+            val rejected = submitAttempt(cookie, selectionId, answer)
+            validate(HttpMethod.Post, "/api/v1/attempts", rejected)
+            assertEquals(400, rejected.status.value)
+        }
+        val selectedMarker = submitAttempt(cookie, selectionId, AttemptAnswerDto.Text("at læse"))
+        validate(HttpMethod.Post, "/api/v1/attempts", selectedMarker)
+        val selected = selectedMarker.bodyAsText().asObject()
+        assertEquals(200, selectedMarker.status.value)
+        assertEquals("not-met", selected.getValue("targetSatisfaction").jsonPrimitive.content)
+        assertEquals("known-issue", selected.getValue("linguisticStatus").jsonPrimitive.content)
+        assertEquals("met", selected.getValue("responseConstraintStatus").jsonPrimitive.content)
+        assertEquals(1, selected.getValue("retryNumber").jsonPrimitive.content.toInt())
+
+        val recall = createCurrentExercise(cookie, "E027", "G030")
+        val recallId = recall.getValue("id").jsonPrimitive.content
+        val typedMarker = submitAttempt(cookie, recallId, AttemptAnswerDto.Text("at læse"))
+        validate(HttpMethod.Post, "/api/v1/attempts", typedMarker)
+        val typed = typedMarker.bodyAsText().asObject()
+        assertEquals("not-met", typed.getValue("targetSatisfaction").jsonPrimitive.content)
+        assertEquals("known-issue", typed.getValue("linguisticStatus").jsonPrimitive.content)
+        assertEquals("not-met", typed.getValue("responseConstraintStatus").jsonPrimitive.content)
+        val unknown = submitAttempt(cookie, recallId, AttemptAnswerDto.Text("læse."))
+        validate(HttpMethod.Post, "/api/v1/attempts", unknown)
+        val outside = unknown.bodyAsText().asObject()
+        assertEquals("unknown", outside.getValue("linguisticStatus").jsonPrimitive.content)
+        assertEquals("", outside.getValue("completedSentence").jsonPrimitive.content)
     }
 
     private suspend fun validate(method: HttpMethod, path: String, response: HttpResponse) {
@@ -1542,7 +1588,7 @@ class OpenApiContractTest {
         cookie: String,
         formatId: String,
         targetSkillId: String? = null,
-        pair: Int = 12,
+        pair: Int = 13,
     ): JsonObject {
         val target = targetSkillId?.let { "\"targetSkillId\":\"$it\"," }.orEmpty()
         val response = client.post("/api/v1/exercises") {

@@ -73,6 +73,13 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
             description = PersonalIntroductionPracticePlanner.DESCRIPTION,
             itemCount = PersonalIntroductionPracticePlanner.ITEM_COUNT,
             prerequisiteSkillIds = PersonalIntroductionPracticePlanner.PREREQUISITES,
+        ) + PracticeProfile(
+            focusId = AbilityPracticePlanner.FOCUS_ID,
+            planRevision = AbilityPracticePlanner.PLAN_REVISION,
+            title = AbilityPracticePlanner.TITLE,
+            description = AbilityPracticePlanner.DESCRIPTION,
+            itemCount = AbilityPracticePlanner.ITEM_COUNT,
+            prerequisiteSkillIds = AbilityPracticePlanner.PREREQUISITES,
         )
 
     fun plan(
@@ -100,6 +107,8 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
                 ReadingWordsPracticePlanner(engine).plan(seed)
             PersonalIntroductionPracticePlanner.FOCUS_ID to PersonalIntroductionPracticePlanner.PLAN_REVISION ->
                 PersonalIntroductionPracticePlanner(engine).plan(seed)
+            AbilityPracticePlanner.FOCUS_ID to AbilityPracticePlanner.PLAN_REVISION ->
+                AbilityPracticePlanner(engine).plan(seed)
             else -> throw IllegalArgumentException("Unsupported practice profile: $focusId/$planRevision")
         }
     }

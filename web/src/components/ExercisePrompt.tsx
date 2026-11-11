@@ -36,6 +36,7 @@ function hasLexicalTarget(exercise: Exercise) {
 function choiceGroupLabel(formatId: Exercise["formatId"]) {
   return formatId === "E020"
     ? "Danish standalone reference word choices"
+    : formatId === "E026" ? "Danish verb after kan choices"
     : formatId === "E022" ? "Danish present verb choices"
     : "Danish sentence with answer choices";
 }
@@ -47,6 +48,7 @@ function choiceGroupLanguage(formatId: Exercise["formatId"]) {
 function responseGroupLabel(formatId: Exercise["formatId"]) {
   return formatId === "E021"
     ? "Danish standalone reference word response"
+    : formatId === "E027" ? "Danish verb after kan response"
     : "Danish sentence cloze";
 }
 

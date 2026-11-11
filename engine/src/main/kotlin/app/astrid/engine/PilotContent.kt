@@ -47,8 +47,10 @@ internal object PilotContent {
     const val RETAINED_TEN_GENERATOR_REVISION = "generator-10"
     const val RETAINED_ELEVEN_CONTENT_REVISION = "pilot-11"
     const val RETAINED_ELEVEN_GENERATOR_REVISION = "generator-11"
-    const val CURRENT_CONTENT_REVISION = "pilot-12"
-    const val CURRENT_GENERATOR_REVISION = "generator-12"
+    const val RETAINED_TWELVE_CONTENT_REVISION = "pilot-12"
+    const val RETAINED_TWELVE_GENERATOR_REVISION = "generator-12"
+    const val CURRENT_CONTENT_REVISION = "pilot-13"
+    const val CURRENT_GENERATOR_REVISION = "generator-13"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
     const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
@@ -60,7 +62,8 @@ internal object PilotContent {
     const val RETAINED_NINE_EVALUATION_REVISION = "evaluation-9"
     const val RETAINED_TEN_EVALUATION_REVISION = "evaluation-10"
     const val RETAINED_ELEVEN_EVALUATION_REVISION = "evaluation-11"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-12"
+    const val RETAINED_TWELVE_EVALUATION_REVISION = "evaluation-12"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-13"
 
     val humanPronouns =
         listOf(
@@ -233,6 +236,13 @@ internal object PilotContent {
                 ExerciseFormat("E025", "Arrange supplied words", "G005"),
             )
 
+    val abilityFormats =
+        presentOrderFormats +
+            listOf(
+                ExerciseFormat("E026", "Choose the bare infinitive after kan", "G030"),
+                ExerciseFormat("E027", "Recall the bare infinitive after kan", "G030"),
+            )
+
     val snapshot =
         PilotContentSnapshot(
             contentRevision = CONTENT_REVISION,
@@ -401,16 +411,40 @@ internal object PilotContent {
             generatorRevision = RETAINED_ELEVEN_GENERATOR_REVISION,
         )
 
-    val currentSnapshot =
+    val pilotTwelveSnapshot =
         pilotElevenSnapshot.copy(
-            contentRevision = CURRENT_CONTENT_REVISION,
-            generatorRevision = CURRENT_GENERATOR_REVISION,
+            contentRevision = RETAINED_TWELVE_CONTENT_REVISION,
+            generatorRevision = RETAINED_TWELVE_GENERATOR_REVISION,
             verbs = pilotElevenSnapshot.verbs + personalIntroductionVerbs,
             fixedWords = personalIntroductionFixedWords,
             lexicalReview = PilotReviewMetadata.records(
                 humanPronouns,
                 identifyingPronoun,
                 pilotElevenSnapshot.verbs + personalIntroductionVerbs,
+                moduleOneNouns,
+                matching = true,
+                moduleOne = true,
+                referencePronouns = inanimateReferencePronouns,
+                fixedWords = personalIntroductionFixedWords,
+            ),
+        )
+
+    val currentSnapshot =
+        pilotTwelveSnapshot.copy(
+            contentRevision = CURRENT_CONTENT_REVISION,
+            generatorRevision = CURRENT_GENERATOR_REVISION,
+            skills = pilotTwelveSnapshot.skills + Skill(
+                "G030",
+                "Bare infinitive after kan",
+                "Use the bare infinitive without at after the finite ability modal kan in the introduced frame.",
+                listOf("G001", "G002", "G003", "G004", "G005"),
+            ),
+            formats = abilityFormats,
+            verbs = pilotTwelveSnapshot.verbs + AbilityContent.can,
+            lexicalReview = PilotReviewMetadata.records(
+                humanPronouns,
+                identifyingPronoun,
+                pilotTwelveSnapshot.verbs + AbilityContent.can,
                 moduleOneNouns,
                 matching = true,
                 moduleOne = true,
@@ -431,6 +465,7 @@ internal object PilotContent {
         PilotContentValidator.requireValid(pilotNineSnapshot)
         PilotContentValidator.requireValid(pilotTenSnapshot)
         PilotContentValidator.requireValid(pilotElevenSnapshot)
+        PilotContentValidator.requireValid(pilotTwelveSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

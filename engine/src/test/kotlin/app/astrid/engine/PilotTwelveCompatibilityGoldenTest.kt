@@ -87,7 +87,7 @@ class PilotTwelveCompatibilityGoldenTest {
         assertTrue(personal.all { it.knownPresentForms.isNotEmpty() && it.teaching != null && it.suppliedLabel.isNotBlank() })
         assertEquals(
             setOf("L028", "L029", "L030", "L031", "L032"),
-            PilotContent.currentSnapshot.lexicalReview.map { it.id }.filter { it in PAIR_TWELVE_IDS }.toSet(),
+            PilotContent.pilotTwelveSnapshot.lexicalReview.map { it.id }.filter { it in PAIR_TWELVE_IDS }.toSet(),
         )
     }
 

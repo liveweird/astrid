@@ -15,11 +15,8 @@ object PilotTwelveCompatibilityGoldenExportMain {
     }
 }
 
-internal fun publishedPairTwelveReviewBytes(): ByteArray {
-    // Capture from 0.14.0 with renderMarkdown(); switch to renderPilotTwelveMarkdown() as soon as
-    // the freeze commit retains pair twelve and before S10 advances the moving current snapshot.
-    return PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
-}
+internal fun publishedPairTwelveReviewBytes(): ByteArray =
+    PilotReview.renderPilotTwelveMarkdown().toByteArray(Charsets.UTF_8)
 
 internal object PilotTwelveCompatibilityGolden {
     private val engine = PilotEngine()
@@ -183,7 +180,7 @@ internal object PilotTwelveCompatibilityGolden {
     }.finish()
 
     private fun CanonicalHasher.pairTwelveLexicalMetadata() {
-        val records = PilotContent.currentSnapshot.lexicalReview.filter { it.id in PAIR_TWELVE_LEXICAL_IDS }
+        val records = PilotContent.pilotTwelveSnapshot.lexicalReview.filter { it.id in PAIR_TWELVE_LEXICAL_IDS }
             .sortedBy { it.id }
         integer("pairTwelveLexicalMetadata.count", records.size)
         records.forEachIndexed { index, record ->
@@ -379,10 +376,8 @@ internal object PilotTwelveCompatibilityGolden {
     }
 
     private fun requireLiteralPairTwelve() {
-        // Capture against currentSnapshot at released 0.14.0, then replace this moving hook with
-        // pilotTwelveSnapshot in the freeze commit before S10 advances current.
-        require(PilotContent.currentSnapshot.contentRevision == CONTENT_REVISION)
-        require(PilotContent.currentSnapshot.generatorRevision == GENERATOR_REVISION)
+        require(PilotContent.pilotTwelveSnapshot.contentRevision == CONTENT_REVISION)
+        require(PilotContent.pilotTwelveSnapshot.generatorRevision == GENERATOR_REVISION)
         require(engine.evaluationRevision(CONTENT_REVISION, GENERATOR_REVISION) == EVALUATION_REVISION)
     }
 

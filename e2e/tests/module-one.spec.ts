@@ -47,6 +47,10 @@ const PERSONAL_FORMS: Record<string, { answer: string; proposition: string }> = 
   "Vi | dansk.": { answer: "taler", proposition: "We speak Danish." },
   "I | dansk.": { answer: "taler", proposition: "You speak Danish." },
 };
+const ABILITY_FORMS: Record<string, string> = {
+  "Hun kan | et brev.": "læse", "Vi kan | dansk.": "læse",
+  "Du kan | et brev.": "læse", "De kan | dansk.": "læse",
+};
 const SUBJECT_FIRST_ORDERS: Record<string, string[]> = {
   "We work.": ["vi", "arbejder"],
   "You sleep.": ["du", "sover"],
@@ -68,6 +72,11 @@ function answerFor(exercise: CourseExercise) {
     const target = PERSONAL_FORMS[`${exercise.prompt.before ?? ""}|${exercise.prompt.after ?? ""}`];
     expect(target, "The literal supplied personal statement identifies one present form").toBeDefined();
     return target!.answer;
+  }
+  if (exercise.targetScopeId === "kan-bare-infinitive") {
+    const answer = ABILITY_FORMS[`${exercise.prompt.before ?? ""}|${exercise.prompt.after ?? ""}`];
+    expect(answer, "The literal supplied ability frame identifies the bare infinitive").toBeDefined();
+    return answer!;
   }
   if (exercise.targetScopeId === "have-possession-present") {
     const answer = POSSESSION_FORMS[`${exercise.prompt.before ?? ""}|${exercise.prompt.after ?? ""}`];
@@ -501,6 +510,108 @@ test("personal present forms alternate choice and recall across six literal stat
     expect.objectContaining({
       targetScopeId: "personal-introduction-present", assessmentMode: "recall", plannedItems: 3,
       firstOutcomes: expect.objectContaining({ fullyMet: 3 }), latestOutcomes: expect.objectContaining({ fullyMet: 3 }),
+    }),
+  ]));
+  await page.getByRole("button", { name: "Next: Using a verb after kan", exact: true }).click();
+  await expect(page.getByRole("radio", { name: "Using a verb after kan", exact: true })).toBeChecked();
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+  expect((await stateFor(page)).summary).toEqual(state.summary);
+  await scan(page);
+});
+
+test("ability after kan separates selection and one-word response outcomes", async ({ page }) => {
+  let state = await openCourse(page, "Using a verb after kan");
+  expect(state).toMatchObject({
+    focusId: "module-one-ability", planRevision: "module-one-ability-1",
+    contentRevision: "pilot-13", generatorRevision: "generator-13",
+    introductionRequired: true, introductionOpened: false, itemCount: 4,
+    prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  });
+  expect(state.items.every((item) => item.targetScopeId === "kan-bare-infinitive")).toBe(true);
+  const early = await page.request.post("/api/v1/attempts", {
+    headers: { "X-Astrid-Client": "playground" },
+    data: {
+      attemptId: crypto.randomUUID(), exerciseId: state.currentExercise!.id,
+      answer: { kind: "text", text: "læse" }, hintUsed: false,
+    },
+  });
+  expect(early.status()).toBe(409);
+  expect((await stateFor(page)).summary.attemptCount).toBe(0);
+
+  state = await beginCourse(page);
+  const introduction = page.getByRole("region", { name: "Session introduction", exact: true });
+  for (const danish of ["at kunne → kan", "at læse → læse efter kan", "Jeg kan læse et brev.", "Han kan læse dansk."]) {
+    await expect(introduction.getByText(danish, { exact: true })).toHaveAttribute("lang", "da");
+  }
+  await expect(introduction.getByText(/no at/i)).toBeVisible();
+  await expect(page.getByText("Verb form after kan", { exact: true }).and(page.locator("span"))).toBeVisible();
+  await scan(page);
+
+  const seen: string[] = [];
+  while (state.state !== "completed") {
+    const exercise = state.currentExercise!;
+    const key = `${exercise.prompt.before ?? ""}|${exercise.prompt.after ?? ""}`;
+    seen.push(key);
+    expect(ABILITY_FORMS[key]).toBe("læse");
+    expect(exercise.targetScopeId).toBe("kan-bare-infinitive");
+    expect(exercise.formatId).toBe(state.cursor < 2 ? "E026" : "E027");
+    await expect(page.getByText("at læse", { exact: true }).first()).toHaveAttribute("lang", "da");
+    if (state.cursor === 0) {
+      expect(new Set(exercise.prompt.choices)).toEqual(new Set(["læse", "læser", "at læse"]));
+      await submit(page, exercise, "at læse");
+      const saved = await stateFor(page);
+      expect(latest(saved)).toMatchObject({
+        targetSatisfaction: "not-met", linguisticStatus: "known-issue", responseConstraintStatus: "met",
+        issues: [{ code: "INFINITIVE_MARKER_AFTER_MODAL" }],
+      });
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await submit(page, exercise, "læse");
+    } else if (state.cursor === 2) {
+      await submit(page, exercise, "at læse");
+      const saved = await stateFor(page);
+      expect(latest(saved)).toMatchObject({
+        targetSatisfaction: "not-met", linguisticStatus: "known-issue", responseConstraintStatus: "not-met",
+        issues: [{ code: "INFINITIVE_MARKER_AFTER_MODAL" }],
+      });
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await submit(page, exercise, "læse");
+    } else if (state.cursor === 3) {
+      await submit(page, exercise, "læste");
+      const unknown = await stateFor(page);
+      expect(latest(unknown)).toMatchObject({
+        targetSatisfaction: "unevaluable", linguisticStatus: "unknown", completedSentence: "",
+        issues: [{ code: "UNRECOGNIZED_BARE_INFINITIVE" }],
+      });
+      await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeDisabled();
+      const attemptId = latest(unknown).attemptId;
+      await page.reload();
+      expect(latest(await stateFor(page)).attemptId).toBe(attemptId);
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await submit(page, exercise, "Læse");
+      expect(latest(await stateFor(page))).toMatchObject({
+        targetSatisfaction: "met", linguisticStatus: "known-issue", responseConstraintStatus: "not-met",
+        issues: [{ code: "MID_SENTENCE_VERB_CASE_REQUIRED" }],
+      });
+    } else {
+      await submit(page, exercise);
+    }
+    state = await next(page, await stateFor(page));
+  }
+
+  expect(seen).toEqual(Object.keys(ABILITY_FORMS));
+  expect(state.summary).toMatchObject({ completedItems: 4, attemptedItems: 4, attemptCount: 7, retryCount: 3 });
+  expect(state.summary.rows).toEqual(expect.arrayContaining([
+    expect.objectContaining({
+      targetScopeId: "kan-bare-infinitive", assessmentMode: "selection", plannedItems: 2,
+      firstOutcomes: expect.objectContaining({ targetNotMet: 1 }),
+      latestOutcomes: expect.objectContaining({ fullyMet: 2 }),
+    }),
+    expect.objectContaining({
+      targetScopeId: "kan-bare-infinitive", assessmentMode: "recall", plannedItems: 2,
+      firstOutcomes: expect.objectContaining({ targetNotMet: 1, unevaluable: 1 }),
+      latestOutcomes: expect.objectContaining({ fullyMet: 1, responseConstraintNotMet: 1 }),
     }),
   ]));
   await expect(page.getByRole("button", { name: /^Next:/ })).toHaveCount(0);

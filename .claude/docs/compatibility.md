@@ -26,7 +26,8 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-9` / `generator-9` | `evaluation-9` | + E020/E021 (singular inanimate subject-reference selection/recall) | published and frozen; four-item S04 plan pins this pair |
 | `pilot-10` / `generator-10` | `evaluation-10` | + E022/E023 (named present forms), E024/E025 (subject-first assembly) | published and frozen; S05 and S06 pin this pair |
 | `pilot-11` / `generator-11` | `evaluation-11` | E022/E023 add scoped possession tasks | published and frozen; S07 pins this pair |
-| `pilot-12` / `generator-12` | `evaluation-12` | E022/E023 add scoped name, residence and language tasks | CURRENT; S09 pins this pair |
+| `pilot-12` / `generator-12` | `evaluation-12` | E022/E023 add scoped name, residence and language tasks | published and frozen; S09 pins this pair |
+| `pilot-13` / `generator-13` | `evaluation-13` | + E026/E027 bare infinitive after supplied ability modal | CURRENT; S10 pins this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
@@ -41,6 +42,8 @@ The four-item `module-one-possession-1` plan pins pair eleven. Its stored-form p
 the existing named-form completion and exposure policies.
 The four-item `module-one-reading-words-1` plan pins the existing pair-five E011 choices.
 Its `module-one-reading-word-exposure-1` policy records meaning confirmation on correct choices.
+The six-item `module-one-personal-1` plan pins pair twelve. The four-item
+`module-one-ability-1` plan pins pair thirteen and reuses the named-form completion and exposure policies.
 Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 
 ## What is stored, and what that implies
@@ -105,6 +108,10 @@ hashes actual retained review bytes. The retained renderer was added before CURR
 in `394c4c1`; the review hash, fixtures and provenance are unchanged.
 Pair nine and its S04 plan were frozen from released source `3d87b4d` before adding S05–S06.
 Pair ten and its S05/S06 plans were frozen from released source `8934fb1` before adding S07.
+Pair eleven and S07–S08 were frozen from released source `b82ad36` before S09.
+Pair twelve and S09 were frozen from released source `f0c9568` in `156c86e` before S10.
+The four pair-twelve/personal-practice archives contain 3,140 engine, 40 plan, 3,866 wire
+and 34 practice-wire rows. They pin private keys, exact review bytes and lifecycle exposure.
 
 Rules:
 
@@ -137,7 +144,8 @@ Rules:
 
 | Task | Output |
 | --- | --- |
-| `:engine:exportPilotReview` | `engine/build/review/pilot-12.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotReview` | `engine/build/review/pilot-13.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotTwelveReview` | `engine/build/review/pilot-12-retained.md` |
 | `:engine:exportPilotElevenReview` | `engine/build/review/pilot-11-retained.md` |
 | `:engine:exportPilotTenReview` | `engine/build/review/pilot-10-retained.md` |
 | `:engine:exportPilotNineReview` | `engine/build/review/pilot-9-retained.md` |
@@ -156,6 +164,8 @@ Rules:
 | `:engine:exportPresentOrderPracticeCompatibility` / `:server:exportPresentOrderPracticeWireCompatibility` | add published S05/S06 evidence and provenance only (refuse overwrite) |
 | `:engine:exportPilotElevenCompatibility` / `:server:exportPilotElevenWireCompatibility` | add published pair-eleven evidence and provenance only (refuse overwrite) |
 | `:engine:exportFollowOnPracticeCompatibility` / `:server:exportFollowOnPracticeWireCompatibility` | add published 0.13.0 S07–S08 plan evidence and provenance only (refuse overwrite) |
+| `:engine:exportPilotTwelveCompatibility` / `:server:exportPilotTwelveWireCompatibility` | add pair-twelve evidence and provenance only (refuse overwrite) |
+| `:engine:exportPersonalPracticeCompatibility` / `:server:exportPersonalPracticeWireCompatibility` | add published S09 plan evidence and provenance only (refuse overwrite) |
 | `:server:exportPilotThreeWireCompatibility` | writes a **new** wire fixture + provenance (refuses to overwrite) |
 
 Review exports are deterministic evidence for teaching review; they are not approval. The production engine does no file I/O.

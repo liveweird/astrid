@@ -7,8 +7,8 @@ Codex reads `AGENTS.md`, which points here.
 
 Astrid is a Danish reading and writing engine for English-speaking complete beginners. Today it is a
 **private development preview**: a standalone engine playground (`/`) and short guided practice sessions
-(`/practice`) over a connected beginner slice with 32 vocabulary entries, 109 licensed sentences in the
-catalogue and separate scoped task frames. The twenty-five exercise entries include grammar selection/supply/order/repair, vocabulary recognition/recall, constrained
+(`/practice`) over a connected beginner slice with 33 vocabulary entries, 109 licensed sentences in the
+catalogue and separate scoped task frames. The twenty-seven exercise entries include grammar selection/supply/order/repair, vocabulary recognition/recall, constrained
 sentence writing, short reading comprehension, English→Danish word choice and all/spare word tiles,
 bilingual matching, verb/article gaps, and scoped subject reference, present-form practice and sentence assembly.
 Generation and grading are deterministic and reproducible
@@ -20,13 +20,13 @@ together (four). The third profile and its selected-only reviews pin pair seven;
 pair eight, a four-item **Referring to one thing** profile pinned to pair nine, two six-item present-form
 and sentence-assembly profiles pinned to pair ten, a four-item possession profile pinned to pair eleven,
 a four-item reading-vocabulary profile pinned to pair five, and a six-item personal-introduction
-profile pinned to pair twelve.
+profile pinned to pair twelve, and a four-item bare-infinitive profile pinned to pair thirteen.
 They require saved teaching before assessment, expose
 server-computed continuation eligibility and keep results by scope and operation. Repeat and continuation
 open the chooser.
 Existing format pools and all retained pairs/plans stay unchanged; the first-step contract is
 `docs/knowledge/module-one-activation.md`; S04 is specified in
-`docs/knowledge/inanimate-reference-activation.md`. S05–S09 are specified in `docs/knowledge/module-one-course-slice.md`.
+`docs/knowledge/inanimate-reference-activation.md`. S05–S10 are specified in `docs/knowledge/module-one-course-slice.md`.
 Next work: `BACKLOG.md`. Product scope and decisions: `docs/knowledge/product-direction.md`.
 
 Brand: Danish red accent with separately labelled learning-feedback colours (`web/src/theme.ts`); the logo (a girl

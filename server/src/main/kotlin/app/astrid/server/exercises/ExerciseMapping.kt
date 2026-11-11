@@ -229,6 +229,7 @@ internal fun GeneratedExercise.reproductionFingerprint(
         "pilot-10" to "generator-10",
         "pilot-11" to "generator-11",
         "pilot-12" to "generator-12",
+        "pilot-13" to "generator-13",
         -> pairNineFingerprintCanonical(
             promptForFingerprint,
             lexicalTargetForFingerprint,
@@ -241,14 +242,18 @@ internal fun GeneratedExercise.reproductionFingerprint(
         ).let { scopedFingerprintFrame(contentRevision, it) }
         else -> error("Unsupported fingerprint revision pair: $contentRevision/$generatorRevision")
     }
-    return MessageDigest.getInstance("SHA-256").digest(canonical.toByteArray(Charsets.UTF_8))
-        .joinToString("") { "%02x".format(it) }
+    return fingerprintSha256(canonical)
 }
+
+private fun fingerprintSha256(canonical: String): String =
+    MessageDigest.getInstance("SHA-256").digest(canonical.toByteArray(Charsets.UTF_8))
+        .joinToString("") { "%02x".format(it) }
 
 private fun scopedFingerprintFrame(revision: String, canonical: String): String = when (revision) {
     "pilot-10" -> framedList(listOf("pair-ten", canonical))
     "pilot-11" -> framedList(listOf("pair-eleven", canonical))
     "pilot-12" -> framedList(listOf("pair-twelve", canonical))
+    "pilot-13" -> framedList(listOf("pair-thirteen", canonical))
     else -> canonical
 }
 

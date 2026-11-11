@@ -15,26 +15,12 @@ class PilotEngine {
     fun evaluationRevision(
         contentRevision: String,
         generatorRevision: String,
-    ): String? =
-        when (RevisionPair(contentRevision, generatorRevision)) {
-            LEGACY_REVISION_PAIR -> PilotContent.LEGACY_EVALUATION_REVISION
-            PILOT_TWO_REVISION_PAIR -> PilotContent.RETAINED_EVALUATION_REVISION
-            PILOT_THREE_REVISION_PAIR -> PilotContent.RETAINED_THREE_EVALUATION_REVISION
-            PILOT_FOUR_REVISION_PAIR -> PilotContent.RETAINED_FOUR_EVALUATION_REVISION
-            PILOT_FIVE_REVISION_PAIR -> PilotContent.RETAINED_FIVE_EVALUATION_REVISION
-            PILOT_SIX_REVISION_PAIR -> PilotContent.RETAINED_SIX_EVALUATION_REVISION
-            PILOT_SEVEN_REVISION_PAIR -> PilotContent.RETAINED_SEVEN_EVALUATION_REVISION
-            PILOT_EIGHT_REVISION_PAIR -> PilotContent.RETAINED_EIGHT_EVALUATION_REVISION
-            PILOT_NINE_REVISION_PAIR -> PilotContent.RETAINED_NINE_EVALUATION_REVISION
-            PILOT_TEN_REVISION_PAIR -> PilotContent.RETAINED_TEN_EVALUATION_REVISION
-            PILOT_ELEVEN_REVISION_PAIR -> PilotContent.RETAINED_ELEVEN_EVALUATION_REVISION
-            CURRENT_REVISION_PAIR -> PilotContent.CURRENT_EVALUATION_REVISION
-            else -> null
-        }
+    ): String? = EVALUATION_REVISION_BY_PAIR[RevisionPair(contentRevision, generatorRevision)]
 
     fun generate(request: GenerationRequest): GeneratedExercise {
         validate(request)
         return when {
+            request.formatId in ABILITY_FORMAT_IDS -> AbilityExerciseGenerator.generate(request)
             request.formatId in PRESENT_ORDER_FORMAT_IDS -> PresentOrderExerciseGenerator.generate(request)
             request.formatId in INANIMATE_REFERENCE_FORMAT_IDS -> InanimateReferenceExerciseGenerator.create(request)
             request.formatId in MODULE_ONE_FORMAT_IDS -> ModuleOneExerciseGenerator.create(request)
@@ -106,6 +92,8 @@ class PilotEngine {
                 "E023" to "G004",
                 "E024" to "G005",
                 "E025" to "G005",
+                "E026" to "G030",
+                "E027" to "G030",
             )[request.formatId]
         require(expectedTarget != null || request.formatId in LEXICAL_FORMAT_IDS || request.formatId == READING_FORMAT_ID) {
             "Unsupported format: ${request.formatId}"
@@ -123,22 +111,7 @@ class PilotEngine {
         }
     }
 
-    private fun supportedFormats(pair: RevisionPair): Set<String> =
-        when (pair) {
-            LEGACY_REVISION_PAIR -> LEGACY_FORMAT_IDS
-            PILOT_TWO_REVISION_PAIR -> PILOT_TWO_FORMAT_IDS
-            PILOT_THREE_REVISION_PAIR -> PILOT_THREE_FORMAT_IDS
-            PILOT_FOUR_REVISION_PAIR -> PILOT_FOUR_FORMAT_IDS
-            PILOT_FIVE_REVISION_PAIR -> PILOT_FIVE_FORMAT_IDS
-            PILOT_SIX_REVISION_PAIR -> PILOT_SIX_FORMAT_IDS
-            PILOT_SEVEN_REVISION_PAIR -> PILOT_SEVEN_FORMAT_IDS
-            PILOT_EIGHT_REVISION_PAIR -> PILOT_EIGHT_FORMAT_IDS
-            PILOT_NINE_REVISION_PAIR -> PILOT_NINE_FORMAT_IDS
-            PILOT_TEN_REVISION_PAIR -> CURRENT_FORMAT_IDS
-            PILOT_ELEVEN_REVISION_PAIR -> CURRENT_FORMAT_IDS
-            CURRENT_REVISION_PAIR -> CURRENT_FORMAT_IDS
-            else -> emptySet()
-        }
+    private fun supportedFormats(pair: RevisionPair): Set<String> = FORMAT_IDS_BY_REVISION_PAIR[pair].orEmpty()
 
     private fun createExercise(
         request: GenerationRequest,
@@ -626,6 +599,8 @@ class PilotEngine {
             RevisionPair(PilotContent.RETAINED_TEN_CONTENT_REVISION, PilotContent.RETAINED_TEN_GENERATOR_REVISION)
         val PILOT_ELEVEN_REVISION_PAIR =
             RevisionPair(PilotContent.RETAINED_ELEVEN_CONTENT_REVISION, PilotContent.RETAINED_ELEVEN_GENERATOR_REVISION)
+        val PILOT_TWELVE_REVISION_PAIR =
+            RevisionPair(PilotContent.RETAINED_TWELVE_CONTENT_REVISION, PilotContent.RETAINED_TWELVE_GENERATOR_REVISION)
         val SUPPORTED_REVISION_PAIRS =
             listOf(
                 LEGACY_REVISION_PAIR,
@@ -639,6 +614,7 @@ class PilotEngine {
                 PILOT_NINE_REVISION_PAIR,
                 PILOT_TEN_REVISION_PAIR,
                 PILOT_ELEVEN_REVISION_PAIR,
+                PILOT_TWELVE_REVISION_PAIR,
                 CURRENT_REVISION_PAIR,
             )
         val LEGACY_FORMAT_IDS = setOf("E001", "E002", "E003")
@@ -655,7 +631,39 @@ class PilotEngine {
         val INANIMATE_REFERENCE_FORMAT_IDS = setOf("E020", "E021")
         val PILOT_NINE_FORMAT_IDS = PILOT_EIGHT_FORMAT_IDS + INANIMATE_REFERENCE_FORMAT_IDS
         val PRESENT_ORDER_FORMAT_IDS = setOf("E022", "E023", "E024", "E025")
-        val CURRENT_FORMAT_IDS = PILOT_NINE_FORMAT_IDS + PRESENT_ORDER_FORMAT_IDS
+        val PILOT_TWELVE_FORMAT_IDS = PILOT_NINE_FORMAT_IDS + PRESENT_ORDER_FORMAT_IDS
+        val ABILITY_FORMAT_IDS = setOf("E026", "E027")
+        val CURRENT_FORMAT_IDS = PILOT_TWELVE_FORMAT_IDS + ABILITY_FORMAT_IDS
+        val EVALUATION_REVISION_BY_PAIR = mapOf(
+            LEGACY_REVISION_PAIR to PilotContent.LEGACY_EVALUATION_REVISION,
+            PILOT_TWO_REVISION_PAIR to PilotContent.RETAINED_EVALUATION_REVISION,
+            PILOT_THREE_REVISION_PAIR to PilotContent.RETAINED_THREE_EVALUATION_REVISION,
+            PILOT_FOUR_REVISION_PAIR to PilotContent.RETAINED_FOUR_EVALUATION_REVISION,
+            PILOT_FIVE_REVISION_PAIR to PilotContent.RETAINED_FIVE_EVALUATION_REVISION,
+            PILOT_SIX_REVISION_PAIR to PilotContent.RETAINED_SIX_EVALUATION_REVISION,
+            PILOT_SEVEN_REVISION_PAIR to PilotContent.RETAINED_SEVEN_EVALUATION_REVISION,
+            PILOT_EIGHT_REVISION_PAIR to PilotContent.RETAINED_EIGHT_EVALUATION_REVISION,
+            PILOT_NINE_REVISION_PAIR to PilotContent.RETAINED_NINE_EVALUATION_REVISION,
+            PILOT_TEN_REVISION_PAIR to PilotContent.RETAINED_TEN_EVALUATION_REVISION,
+            PILOT_ELEVEN_REVISION_PAIR to PilotContent.RETAINED_ELEVEN_EVALUATION_REVISION,
+            PILOT_TWELVE_REVISION_PAIR to PilotContent.RETAINED_TWELVE_EVALUATION_REVISION,
+            CURRENT_REVISION_PAIR to PilotContent.CURRENT_EVALUATION_REVISION,
+        )
+        val FORMAT_IDS_BY_REVISION_PAIR = mapOf(
+            LEGACY_REVISION_PAIR to LEGACY_FORMAT_IDS,
+            PILOT_TWO_REVISION_PAIR to PILOT_TWO_FORMAT_IDS,
+            PILOT_THREE_REVISION_PAIR to PILOT_THREE_FORMAT_IDS,
+            PILOT_FOUR_REVISION_PAIR to PILOT_FOUR_FORMAT_IDS,
+            PILOT_FIVE_REVISION_PAIR to PILOT_FIVE_FORMAT_IDS,
+            PILOT_SIX_REVISION_PAIR to PILOT_SIX_FORMAT_IDS,
+            PILOT_SEVEN_REVISION_PAIR to PILOT_SEVEN_FORMAT_IDS,
+            PILOT_EIGHT_REVISION_PAIR to PILOT_EIGHT_FORMAT_IDS,
+            PILOT_NINE_REVISION_PAIR to PILOT_NINE_FORMAT_IDS,
+            PILOT_TEN_REVISION_PAIR to PILOT_TWELVE_FORMAT_IDS,
+            PILOT_ELEVEN_REVISION_PAIR to PILOT_TWELVE_FORMAT_IDS,
+            PILOT_TWELVE_REVISION_PAIR to PILOT_TWELVE_FORMAT_IDS,
+            CURRENT_REVISION_PAIR to CURRENT_FORMAT_IDS,
+        )
         val TILE_FORMAT_IDS = setOf("E012", "E013")
         val NEW_FORMAT_IDS = setOf("E004", "E005", "E006")
         const val MAX_INDEX = 1_000_000

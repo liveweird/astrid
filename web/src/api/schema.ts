@@ -269,11 +269,11 @@ export interface components {
             mode: "development";
             inspectorEnabled: boolean;
             /** @enum {string} */
-            contentRevision: "pilot-12";
+            contentRevision: "pilot-13";
             /** @enum {string} */
-            generatorRevision: "generator-12";
+            generatorRevision: "generator-13";
             /** @enum {string} */
-            evaluationRevision: "evaluation-12";
+            evaluationRevision: "evaluation-13";
         };
         Catalog: {
             contentRevision: string;
@@ -292,7 +292,7 @@ export interface components {
         };
         Format: {
             /** @enum {string} */
-            id: "E001" | "E002" | "E003" | "E004" | "E005" | "E006" | "E007" | "E008" | "E009" | "E010" | "E011" | "E012" | "E013" | "E014" | "E015" | "E016" | "E017" | "E018" | "E019" | "E020" | "E021" | "E022" | "E023" | "E024" | "E025";
+            id: "E001" | "E002" | "E003" | "E004" | "E005" | "E006" | "E007" | "E008" | "E009" | "E010" | "E011" | "E012" | "E013" | "E014" | "E015" | "E016" | "E017" | "E018" | "E019" | "E020" | "E021" | "E022" | "E023" | "E024" | "E025" | "E026" | "E027";
             title: string;
             targetSkillId?: string | null;
             lexicalTask?: components["schemas"]["LexicalTask"];
@@ -308,7 +308,7 @@ export interface components {
             /** @enum {string} */
             facet: "participant-action-complement";
         };
-        ExerciseRequest: components["schemas"]["PairOnePresentRequest"] | components["schemas"]["PairOneArticleRequest"] | components["schemas"]["PairOneOrderRequest"] | components["schemas"]["PairTwoPresentRequest"] | components["schemas"]["PairTwoArticleRequest"] | components["schemas"]["PairTwoOrderRequest"] | components["schemas"]["PairThreePresentRequest"] | components["schemas"]["PairThreeArticleRequest"] | components["schemas"]["PairThreeOrderRequest"] | components["schemas"]["PairThreeLexicalRequest"] | components["schemas"]["PairFourPresentRequest"] | components["schemas"]["PairFourArticleRequest"] | components["schemas"]["PairFourOrderRequest"] | components["schemas"]["PairFourLexicalRequest"] | components["schemas"]["PairFourReadingRequest"] | components["schemas"]["PairFivePresentRequest"] | components["schemas"]["PairFiveArticleRequest"] | components["schemas"]["PairFiveOrderRequest"] | components["schemas"]["PairFiveLexicalRequest"] | components["schemas"]["PairFiveWritingRequest"] | components["schemas"]["PairFiveReadingRequest"] | components["schemas"]["PairFiveUseAllTilesRequest"] | components["schemas"]["PairFiveSpareTilesRequest"] | components["schemas"]["PairSixPresentRequest"] | components["schemas"]["PairSixArticleRequest"] | components["schemas"]["PairSixOrderRequest"] | components["schemas"]["PairSixLexicalRequest"] | components["schemas"]["PairSixWritingRequest"] | components["schemas"]["PairSixReadingRequest"] | components["schemas"]["PairSixUseAllTilesRequest"] | components["schemas"]["PairSixSpareTilesRequest"] | components["schemas"]["PairSixMatchingRequest"] | components["schemas"]["PairSevenPresentRequest"] | components["schemas"]["PairSevenArticleRequest"] | components["schemas"]["PairSevenOrderRequest"] | components["schemas"]["PairSevenLexicalRequest"] | components["schemas"]["PairSevenWritingRequest"] | components["schemas"]["PairSevenReadingRequest"] | components["schemas"]["PairSevenUseAllTilesRequest"] | components["schemas"]["PairSevenSpareTilesRequest"] | components["schemas"]["PairSevenMatchingRequest"] | components["schemas"]["PairSevenGapRequest"] | components["schemas"]["PairEightPresentRequest"] | components["schemas"]["PairEightArticleRequest"] | components["schemas"]["PairEightOrderRequest"] | components["schemas"]["PairEightWritingRequest"] | components["schemas"]["PairEightUseAllTilesRequest"] | components["schemas"]["PairEightSpareTilesRequest"] | components["schemas"]["PairEightGapRequest"] | components["schemas"]["PairEightLexicalRequest"] | components["schemas"]["PairEightReadingRequest"] | components["schemas"]["PairEightMatchingRequest"] | components["schemas"]["PairEightSubjectSelectionRequest"] | components["schemas"]["PairEightSubjectRecallRequest"] | components["schemas"]["PairEightErSelectionRequest"] | components["schemas"]["PairEightErRecallRequest"] | components["schemas"]["PairNinePresentRequest"] | components["schemas"]["PairNineArticleRequest"] | components["schemas"]["PairNineOrderRequest"] | components["schemas"]["PairNineWritingRequest"] | components["schemas"]["PairNineUseAllTilesRequest"] | components["schemas"]["PairNineSpareTilesRequest"] | components["schemas"]["PairNineGapRequest"] | components["schemas"]["PairNineLexicalRequest"] | components["schemas"]["PairNineReadingRequest"] | components["schemas"]["PairNineMatchingRequest"] | components["schemas"]["PairNineSubjectSelectionRequest"] | components["schemas"]["PairNineSubjectRecallRequest"] | components["schemas"]["PairNineErSelectionRequest"] | components["schemas"]["PairNineErRecallRequest"] | components["schemas"]["PairNineReferenceSelectionRequest"] | components["schemas"]["PairNineReferenceRecallRequest"] | components["schemas"]["PairTenPresentRequest"] | components["schemas"]["PairTenArticleRequest"] | components["schemas"]["PairTenOrderRequest"] | components["schemas"]["PairTenWritingRequest"] | components["schemas"]["PairTenUseAllTilesRequest"] | components["schemas"]["PairTenSpareTilesRequest"] | components["schemas"]["PairTenGapRequest"] | components["schemas"]["PairTenSubjectSelectionRequest"] | components["schemas"]["PairTenSubjectRecallRequest"] | components["schemas"]["PairTenErSelectionRequest"] | components["schemas"]["PairTenErRecallRequest"] | components["schemas"]["PairTenReferenceSelectionRequest"] | components["schemas"]["PairTenReferenceRecallRequest"] | components["schemas"]["PairTenLexicalRequest"] | components["schemas"]["PairTenReadingRequest"] | components["schemas"]["PairTenMatchingRequest"] | components["schemas"]["PairTenNamedPresentSelectionRequest"] | components["schemas"]["PairTenNamedPresentRecallRequest"] | components["schemas"]["PairTenConstituentOrderRequest"] | components["schemas"]["PairTenWordOrderRequest"] | components["schemas"]["PairElevenPresentRequest"] | components["schemas"]["PairElevenArticleRequest"] | components["schemas"]["PairElevenOrderRequest"] | components["schemas"]["PairElevenWritingRequest"] | components["schemas"]["PairElevenUseAllTilesRequest"] | components["schemas"]["PairElevenSpareTilesRequest"] | components["schemas"]["PairElevenGapRequest"] | components["schemas"]["PairElevenSubjectSelectionRequest"] | components["schemas"]["PairElevenSubjectRecallRequest"] | components["schemas"]["PairElevenErSelectionRequest"] | components["schemas"]["PairElevenErRecallRequest"] | components["schemas"]["PairElevenReferenceSelectionRequest"] | components["schemas"]["PairElevenReferenceRecallRequest"] | components["schemas"]["PairElevenLexicalRequest"] | components["schemas"]["PairElevenReadingRequest"] | components["schemas"]["PairElevenMatchingRequest"] | components["schemas"]["PairElevenNamedPresentSelectionRequest"] | components["schemas"]["PairElevenNamedPresentRecallRequest"] | components["schemas"]["PairElevenConstituentOrderRequest"] | components["schemas"]["PairElevenWordOrderRequest"] | components["schemas"]["PairTwelvePresentRequest"] | components["schemas"]["PairTwelveArticleRequest"] | components["schemas"]["PairTwelveOrderRequest"] | components["schemas"]["PairTwelveWritingRequest"] | components["schemas"]["PairTwelveUseAllTilesRequest"] | components["schemas"]["PairTwelveSpareTilesRequest"] | components["schemas"]["PairTwelveGapRequest"] | components["schemas"]["PairTwelveSubjectSelectionRequest"] | components["schemas"]["PairTwelveSubjectRecallRequest"] | components["schemas"]["PairTwelveErSelectionRequest"] | components["schemas"]["PairTwelveErRecallRequest"] | components["schemas"]["PairTwelveReferenceSelectionRequest"] | components["schemas"]["PairTwelveReferenceRecallRequest"] | components["schemas"]["PairTwelveLexicalRequest"] | components["schemas"]["PairTwelveReadingRequest"] | components["schemas"]["PairTwelveMatchingRequest"] | components["schemas"]["PairTwelveNamedPresentSelectionRequest"] | components["schemas"]["PairTwelveNamedPresentRecallRequest"] | components["schemas"]["PairTwelveConstituentOrderRequest"] | components["schemas"]["PairTwelveWordOrderRequest"];
+        ExerciseRequest: components["schemas"]["PairOnePresentRequest"] | components["schemas"]["PairOneArticleRequest"] | components["schemas"]["PairOneOrderRequest"] | components["schemas"]["PairTwoPresentRequest"] | components["schemas"]["PairTwoArticleRequest"] | components["schemas"]["PairTwoOrderRequest"] | components["schemas"]["PairThreePresentRequest"] | components["schemas"]["PairThreeArticleRequest"] | components["schemas"]["PairThreeOrderRequest"] | components["schemas"]["PairThreeLexicalRequest"] | components["schemas"]["PairFourPresentRequest"] | components["schemas"]["PairFourArticleRequest"] | components["schemas"]["PairFourOrderRequest"] | components["schemas"]["PairFourLexicalRequest"] | components["schemas"]["PairFourReadingRequest"] | components["schemas"]["PairFivePresentRequest"] | components["schemas"]["PairFiveArticleRequest"] | components["schemas"]["PairFiveOrderRequest"] | components["schemas"]["PairFiveLexicalRequest"] | components["schemas"]["PairFiveWritingRequest"] | components["schemas"]["PairFiveReadingRequest"] | components["schemas"]["PairFiveUseAllTilesRequest"] | components["schemas"]["PairFiveSpareTilesRequest"] | components["schemas"]["PairSixPresentRequest"] | components["schemas"]["PairSixArticleRequest"] | components["schemas"]["PairSixOrderRequest"] | components["schemas"]["PairSixLexicalRequest"] | components["schemas"]["PairSixWritingRequest"] | components["schemas"]["PairSixReadingRequest"] | components["schemas"]["PairSixUseAllTilesRequest"] | components["schemas"]["PairSixSpareTilesRequest"] | components["schemas"]["PairSixMatchingRequest"] | components["schemas"]["PairSevenPresentRequest"] | components["schemas"]["PairSevenArticleRequest"] | components["schemas"]["PairSevenOrderRequest"] | components["schemas"]["PairSevenLexicalRequest"] | components["schemas"]["PairSevenWritingRequest"] | components["schemas"]["PairSevenReadingRequest"] | components["schemas"]["PairSevenUseAllTilesRequest"] | components["schemas"]["PairSevenSpareTilesRequest"] | components["schemas"]["PairSevenMatchingRequest"] | components["schemas"]["PairSevenGapRequest"] | components["schemas"]["PairEightPresentRequest"] | components["schemas"]["PairEightArticleRequest"] | components["schemas"]["PairEightOrderRequest"] | components["schemas"]["PairEightWritingRequest"] | components["schemas"]["PairEightUseAllTilesRequest"] | components["schemas"]["PairEightSpareTilesRequest"] | components["schemas"]["PairEightGapRequest"] | components["schemas"]["PairEightLexicalRequest"] | components["schemas"]["PairEightReadingRequest"] | components["schemas"]["PairEightMatchingRequest"] | components["schemas"]["PairEightSubjectSelectionRequest"] | components["schemas"]["PairEightSubjectRecallRequest"] | components["schemas"]["PairEightErSelectionRequest"] | components["schemas"]["PairEightErRecallRequest"] | components["schemas"]["PairNinePresentRequest"] | components["schemas"]["PairNineArticleRequest"] | components["schemas"]["PairNineOrderRequest"] | components["schemas"]["PairNineWritingRequest"] | components["schemas"]["PairNineUseAllTilesRequest"] | components["schemas"]["PairNineSpareTilesRequest"] | components["schemas"]["PairNineGapRequest"] | components["schemas"]["PairNineLexicalRequest"] | components["schemas"]["PairNineReadingRequest"] | components["schemas"]["PairNineMatchingRequest"] | components["schemas"]["PairNineSubjectSelectionRequest"] | components["schemas"]["PairNineSubjectRecallRequest"] | components["schemas"]["PairNineErSelectionRequest"] | components["schemas"]["PairNineErRecallRequest"] | components["schemas"]["PairNineReferenceSelectionRequest"] | components["schemas"]["PairNineReferenceRecallRequest"] | components["schemas"]["PairTenPresentRequest"] | components["schemas"]["PairTenArticleRequest"] | components["schemas"]["PairTenOrderRequest"] | components["schemas"]["PairTenWritingRequest"] | components["schemas"]["PairTenUseAllTilesRequest"] | components["schemas"]["PairTenSpareTilesRequest"] | components["schemas"]["PairTenGapRequest"] | components["schemas"]["PairTenSubjectSelectionRequest"] | components["schemas"]["PairTenSubjectRecallRequest"] | components["schemas"]["PairTenErSelectionRequest"] | components["schemas"]["PairTenErRecallRequest"] | components["schemas"]["PairTenReferenceSelectionRequest"] | components["schemas"]["PairTenReferenceRecallRequest"] | components["schemas"]["PairTenLexicalRequest"] | components["schemas"]["PairTenReadingRequest"] | components["schemas"]["PairTenMatchingRequest"] | components["schemas"]["PairTenNamedPresentSelectionRequest"] | components["schemas"]["PairTenNamedPresentRecallRequest"] | components["schemas"]["PairTenConstituentOrderRequest"] | components["schemas"]["PairTenWordOrderRequest"] | components["schemas"]["PairElevenPresentRequest"] | components["schemas"]["PairElevenArticleRequest"] | components["schemas"]["PairElevenOrderRequest"] | components["schemas"]["PairElevenWritingRequest"] | components["schemas"]["PairElevenUseAllTilesRequest"] | components["schemas"]["PairElevenSpareTilesRequest"] | components["schemas"]["PairElevenGapRequest"] | components["schemas"]["PairElevenSubjectSelectionRequest"] | components["schemas"]["PairElevenSubjectRecallRequest"] | components["schemas"]["PairElevenErSelectionRequest"] | components["schemas"]["PairElevenErRecallRequest"] | components["schemas"]["PairElevenReferenceSelectionRequest"] | components["schemas"]["PairElevenReferenceRecallRequest"] | components["schemas"]["PairElevenLexicalRequest"] | components["schemas"]["PairElevenReadingRequest"] | components["schemas"]["PairElevenMatchingRequest"] | components["schemas"]["PairElevenNamedPresentSelectionRequest"] | components["schemas"]["PairElevenNamedPresentRecallRequest"] | components["schemas"]["PairElevenConstituentOrderRequest"] | components["schemas"]["PairElevenWordOrderRequest"] | components["schemas"]["PairTwelvePresentRequest"] | components["schemas"]["PairTwelveArticleRequest"] | components["schemas"]["PairTwelveOrderRequest"] | components["schemas"]["PairTwelveWritingRequest"] | components["schemas"]["PairTwelveUseAllTilesRequest"] | components["schemas"]["PairTwelveSpareTilesRequest"] | components["schemas"]["PairTwelveGapRequest"] | components["schemas"]["PairTwelveSubjectSelectionRequest"] | components["schemas"]["PairTwelveSubjectRecallRequest"] | components["schemas"]["PairTwelveErSelectionRequest"] | components["schemas"]["PairTwelveErRecallRequest"] | components["schemas"]["PairTwelveReferenceSelectionRequest"] | components["schemas"]["PairTwelveReferenceRecallRequest"] | components["schemas"]["PairTwelveLexicalRequest"] | components["schemas"]["PairTwelveReadingRequest"] | components["schemas"]["PairTwelveMatchingRequest"] | components["schemas"]["PairTwelveNamedPresentSelectionRequest"] | components["schemas"]["PairTwelveNamedPresentRecallRequest"] | components["schemas"]["PairTwelveConstituentOrderRequest"] | components["schemas"]["PairTwelveWordOrderRequest"] | components["schemas"]["PairThirteenPresentRequest"] | components["schemas"]["PairThirteenArticleRequest"] | components["schemas"]["PairThirteenOrderRequest"] | components["schemas"]["PairThirteenWritingRequest"] | components["schemas"]["PairThirteenUseAllTilesRequest"] | components["schemas"]["PairThirteenSpareTilesRequest"] | components["schemas"]["PairThirteenGapRequest"] | components["schemas"]["PairThirteenSubjectSelectionRequest"] | components["schemas"]["PairThirteenSubjectRecallRequest"] | components["schemas"]["PairThirteenErSelectionRequest"] | components["schemas"]["PairThirteenErRecallRequest"] | components["schemas"]["PairThirteenReferenceSelectionRequest"] | components["schemas"]["PairThirteenReferenceRecallRequest"] | components["schemas"]["PairThirteenLexicalRequest"] | components["schemas"]["PairThirteenReadingRequest"] | components["schemas"]["PairThirteenMatchingRequest"] | components["schemas"]["PairThirteenNamedPresentSelectionRequest"] | components["schemas"]["PairThirteenNamedPresentRecallRequest"] | components["schemas"]["PairThirteenConstituentOrderRequest"] | components["schemas"]["PairThirteenWordOrderRequest"] | components["schemas"]["PairThirteenAbilityRequest"];
         PairOnePresentRequest: {
             /** @enum {string} */
             formatId: "E001";
@@ -1867,7 +1867,256 @@ export interface components {
             /** @enum {string} */
             generatorRevision: "generator-12";
         };
-        Exercise: components["schemas"]["GrammarExercise"] | components["schemas"]["LexicalExercise"] | components["schemas"]["WritingExercise"] | components["schemas"]["ReadingExercise"] | components["schemas"]["TileExercise"] | components["schemas"]["MatchingExercise"] | components["schemas"]["GapExercise"] | components["schemas"]["PairEightExercise"] | components["schemas"]["PairNineExercise"] | components["schemas"]["PairTenExercise"] | components["schemas"]["PairElevenExercise"] | components["schemas"]["PairTwelveExercise"];
+        PairThirteenPresentRequest: {
+            /** @enum {string} */
+            formatId: "E001" | "E004" | "E005";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenArticleRequest: {
+            /** @enum {string} */
+            formatId: "E002" | "E006";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenOrderRequest: {
+            /** @enum {string} */
+            formatId: "E003";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenWritingRequest: {
+            /** @enum {string} */
+            formatId: "E009";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenUseAllTilesRequest: {
+            /** @enum {string} */
+            formatId: "E012";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenSpareTilesRequest: {
+            /** @enum {string} */
+            formatId: "E013";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenGapRequest: {
+            /** @enum {string} */
+            formatId: "E015";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenSubjectSelectionRequest: {
+            /** @enum {string} */
+            formatId: "E016";
+            /** @enum {string} */
+            targetSkillId: "G003";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenSubjectRecallRequest: {
+            /** @enum {string} */
+            formatId: "E017";
+            /** @enum {string} */
+            targetSkillId: "G003";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenErSelectionRequest: {
+            /** @enum {string} */
+            formatId: "E018";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenErRecallRequest: {
+            /** @enum {string} */
+            formatId: "E019";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenReferenceSelectionRequest: {
+            /** @enum {string} */
+            formatId: "E020";
+            /** @enum {string} */
+            targetSkillId: "G038";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenReferenceRecallRequest: {
+            /** @enum {string} */
+            formatId: "E021";
+            /** @enum {string} */
+            targetSkillId: "G038";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenLexicalRequest: {
+            /** @enum {string} */
+            formatId: "E007" | "E008" | "E011";
+            targetSkillId?: string | null;
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenReadingRequest: {
+            /** @enum {string} */
+            formatId: "E010";
+            targetSkillId?: string | null;
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenMatchingRequest: {
+            /** @enum {string} */
+            formatId: "E014";
+            targetSkillId?: string | null;
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenNamedPresentSelectionRequest: {
+            /** @enum {string} */
+            formatId: "E022";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenNamedPresentRecallRequest: {
+            /** @enum {string} */
+            formatId: "E023";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenConstituentOrderRequest: {
+            /** @enum {string} */
+            formatId: "E024";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenWordOrderRequest: {
+            /** @enum {string} */
+            formatId: "E025";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        PairThirteenAbilityRequest: {
+            /** @enum {string} */
+            formatId: "E026" | "E027";
+            /** @enum {string} */
+            targetSkillId: "G030";
+            seed: number;
+            index: number;
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+        };
+        Exercise: components["schemas"]["GrammarExercise"] | components["schemas"]["LexicalExercise"] | components["schemas"]["WritingExercise"] | components["schemas"]["ReadingExercise"] | components["schemas"]["TileExercise"] | components["schemas"]["MatchingExercise"] | components["schemas"]["GapExercise"] | components["schemas"]["PairEightExercise"] | components["schemas"]["PairNineExercise"] | components["schemas"]["PairTenExercise"] | components["schemas"]["PairElevenExercise"] | components["schemas"]["PairTwelveExercise"] | components["schemas"]["PairThirteenExercise"];
         GrammarExercise: components["schemas"]["PairOnePresentExerciseObject"] | components["schemas"]["PairOneArticleExerciseObject"] | components["schemas"]["PairOneOrderExerciseObject"] | components["schemas"]["PairTwoPresentExerciseObject"] | components["schemas"]["PairTwoArticleExerciseObject"] | components["schemas"]["PairTwoOrderExerciseObject"] | components["schemas"]["PairThreePresentExerciseObject"] | components["schemas"]["PairThreeArticleExerciseObject"] | components["schemas"]["PairThreeOrderExerciseObject"] | components["schemas"]["PairFourPresentExerciseObject"] | components["schemas"]["PairFourArticleExerciseObject"] | components["schemas"]["PairFourOrderExerciseObject"] | components["schemas"]["PairFivePresentExerciseObject"] | components["schemas"]["PairFiveArticleExerciseObject"] | components["schemas"]["PairFiveOrderExerciseObject"] | components["schemas"]["PairSixPresentExerciseObject"] | components["schemas"]["PairSixArticleExerciseObject"] | components["schemas"]["PairSixOrderExerciseObject"] | components["schemas"]["PairSevenPresentExerciseObject"] | components["schemas"]["PairSevenArticleExerciseObject"] | components["schemas"]["PairSevenOrderExerciseObject"];
         PairOnePresentExerciseObject: {
             /** Format: uuid */
@@ -4132,6 +4381,296 @@ export interface components {
             introduction: components["schemas"]["Introduction"][];
             hint: string;
         };
+        PairThirteenExercise: components["schemas"]["PairThirteenGrammarExercise"] | components["schemas"]["PairThirteenArticleExercise"] | components["schemas"]["PairThirteenOrderExercise"] | components["schemas"]["PairThirteenLexicalExercise"] | components["schemas"]["PairThirteenReadingExercise"] | components["schemas"]["PairThirteenMatchingExercise"] | components["schemas"]["PairThirteenGapExercise"] | components["schemas"]["PairThirteenSubjectExercise"] | components["schemas"]["PairThirteenErExercise"] | components["schemas"]["PairThirteenReferenceExercise"] | components["schemas"]["PairThirteenNamedPresentExercise"] | components["schemas"]["PairThirteenSubjectFirstExercise"] | components["schemas"]["PairThirteenAbilityExercise"];
+        PairThirteenGrammarExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E001" | "E004" | "E005" | "E013";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            targetScopeId?: string;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets?: components["schemas"]["LexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["PairEightPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThirteenArticleExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E002" | "E006";
+            /** @enum {string} */
+            targetSkillId: "G006";
+            targetScopeId?: string;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets?: components["schemas"]["LexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["PairEightPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThirteenOrderExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E003" | "E009" | "E012";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            targetScopeId?: string;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets?: components["schemas"]["LexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["PairEightPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThirteenLexicalExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E007" | "E008" | "E011";
+            targetSkillId?: string | null;
+            targetScopeId?: string;
+            lexicalTarget: components["schemas"]["LexicalTarget"];
+            lexicalTargets?: components["schemas"]["LexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["PairEightPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThirteenReadingExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E010";
+            targetSkillId?: string | null;
+            targetScopeId?: string;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets?: components["schemas"]["LexicalTarget"][];
+            readingTarget: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["PairEightPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThirteenMatchingExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E014";
+            targetSkillId?: string | null;
+            targetScopeId?: string;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets: components["schemas"]["MatchingLexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["MatchingPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThirteenGapExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E015";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            targetScopeId?: string;
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets?: components["schemas"]["LexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["GapExercisePrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThirteenSubjectExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E016" | "E017";
+            /** @enum {string} */
+            targetSkillId: "G003";
+            /** @enum {string} */
+            targetScopeId: "human-singular" | "human-group";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets?: components["schemas"]["LexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["PairEightPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThirteenErExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E018" | "E019";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            /** @enum {string} */
+            targetScopeId: "vaere-present";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets?: components["schemas"]["LexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["PairEightPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThirteenReferenceExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E020" | "E021";
+            /** @enum {string} */
+            targetSkillId: "G038";
+            /** @enum {string} */
+            targetScopeId: "inanimate-singular-subject";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets?: components["schemas"]["LexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["PairEightPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThirteenNamedPresentExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E022" | "E023";
+            /** @enum {string} */
+            targetSkillId: "G004";
+            /** @enum {string} */
+            targetScopeId: "named-three-verbs-present" | "have-possession-present" | "personal-introduction-present";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets?: components["schemas"]["LexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["PairEightPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThirteenSubjectFirstExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E024" | "E025";
+            /** @enum {string} */
+            targetSkillId: "G005";
+            /** @enum {string} */
+            targetScopeId: "subject-first-supplied";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets?: components["schemas"]["LexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["PairEightPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
+        PairThirteenAbilityExercise: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            formatId: "E026" | "E027";
+            /** @enum {string} */
+            targetSkillId: "G030";
+            /** @enum {string} */
+            targetScopeId: "kan-bare-infinitive";
+            lexicalTarget?: components["schemas"]["LexicalTarget"];
+            lexicalTargets?: components["schemas"]["LexicalTarget"][];
+            readingTarget?: components["schemas"]["ReadingTask"];
+            supportSkillIds: string[];
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            instruction: string;
+            context: string;
+            prompt: components["schemas"]["PairEightPrompt"];
+            introduction: components["schemas"]["Introduction"][];
+            hint: string;
+        };
         PairEightPrompt: {
             before: string;
             after: string;
@@ -4656,7 +5195,7 @@ export interface components {
             feedback: string;
             completedSentence: string;
             /** @enum {string} */
-            evaluationRevision: "evaluation-6" | "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12";
+            evaluationRevision: "evaluation-6" | "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12" | "evaluation-13";
             hintUsed: boolean;
             retryNumber: number;
             /** Format: int64 */
@@ -4731,7 +5270,7 @@ export interface components {
             feedback: string;
             completedSentence: string;
             /** @enum {string} */
-            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12";
+            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12" | "evaluation-13";
             hintUsed: boolean;
             retryNumber: number;
             /** Format: int64 */
@@ -4756,7 +5295,7 @@ export interface components {
             feedback: string;
             completedSentence: string;
             /** @enum {string} */
-            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12";
+            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12" | "evaluation-13";
             hintUsed: boolean;
             retryNumber: number;
             /** Format: int64 */
@@ -4781,7 +5320,7 @@ export interface components {
             feedback: string;
             completedSentence: string;
             /** @enum {string} */
-            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12";
+            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12" | "evaluation-13";
             hintUsed: boolean;
             retryNumber: number;
             /** Format: int64 */
@@ -4806,7 +5345,7 @@ export interface components {
             feedback: string;
             completedSentence: string;
             /** @enum {string} */
-            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12";
+            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12" | "evaluation-13";
             hintUsed: boolean;
             retryNumber: number;
             /** Format: int64 */
@@ -4831,7 +5370,7 @@ export interface components {
             feedback: string;
             completedSentence: string;
             /** @enum {string} */
-            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12";
+            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12" | "evaluation-13";
             hintUsed: boolean;
             retryNumber: number;
             /** Format: int64 */
@@ -4856,7 +5395,7 @@ export interface components {
             feedback: string;
             completedSentence: string;
             /** @enum {string} */
-            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12";
+            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12" | "evaluation-13";
             hintUsed: boolean;
             retryNumber: number;
             /** Format: int64 */
@@ -4881,7 +5420,7 @@ export interface components {
             feedback: string;
             completedSentence: string;
             /** @enum {string} */
-            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12";
+            evaluationRevision: "evaluation-7" | "evaluation-8" | "evaluation-9" | "evaluation-10" | "evaluation-11" | "evaluation-12" | "evaluation-13";
             hintUsed: boolean;
             retryNumber: number;
             /** Format: int64 */
@@ -5046,7 +5585,7 @@ export interface components {
             /** @enum {integer} */
             itemCount: 4;
             prerequisiteSkillIds: ("G001" | "G002" | "G003" | "G005")[];
-        } | components["schemas"]["ModuleOneSingularProfile"] | components["schemas"]["ModuleOneGroupsProfile"] | components["schemas"]["ModuleOneErProfile"] | components["schemas"]["ModuleOneThingsProfile"] | components["schemas"]["ModuleOnePresentProfile"] | components["schemas"]["ModuleOneOrderProfile"] | components["schemas"]["ModuleOnePossessionProfile"] | components["schemas"]["ModuleOneReadingWordsProfile"] | components["schemas"]["ModuleOnePersonalProfile"];
+        } | components["schemas"]["ModuleOneSingularProfile"] | components["schemas"]["ModuleOneGroupsProfile"] | components["schemas"]["ModuleOneErProfile"] | components["schemas"]["ModuleOneThingsProfile"] | components["schemas"]["ModuleOnePresentProfile"] | components["schemas"]["ModuleOneOrderProfile"] | components["schemas"]["ModuleOnePossessionProfile"] | components["schemas"]["ModuleOneReadingWordsProfile"] | components["schemas"]["ModuleOnePersonalProfile"] | components["schemas"]["ModuleOneAbilityProfile"];
         ModuleOneSingularProfile: {
             /** @enum {string} */
             focusId: "module-one-singular";
@@ -5155,6 +5694,18 @@ export interface components {
             itemCount: 6;
             prerequisiteSkillIds: string[];
         };
+        ModuleOneAbilityProfile: {
+            /** @enum {string} */
+            focusId: "module-one-ability";
+            /** @enum {string} */
+            planRevision: "module-one-ability-1";
+            /** @enum {string} */
+            title: "Using a verb after kan";
+            description: string;
+            /** @enum {integer} */
+            itemCount: 4;
+            prerequisiteSkillIds: string[];
+        };
         PracticeSessionRequest: {
             /** Format: uuid */
             practiceSessionId: string;
@@ -5179,7 +5730,7 @@ export interface components {
             /** @enum {string} */
             planRevision: "present-verbs-1";
             seed: number;
-        } | components["schemas"]["ModuleOneSingularSessionRequest"] | components["schemas"]["ModuleOneGroupsSessionRequest"] | components["schemas"]["ModuleOneErSessionRequest"] | components["schemas"]["ModuleOneThingsSessionRequest"] | components["schemas"]["ModuleOnePresentSessionRequest"] | components["schemas"]["ModuleOneOrderSessionRequest"] | components["schemas"]["ModuleOnePossessionSessionRequest"] | components["schemas"]["ModuleOneReadingWordsSessionRequest"] | components["schemas"]["ModuleOnePersonalSessionRequest"];
+        } | components["schemas"]["ModuleOneSingularSessionRequest"] | components["schemas"]["ModuleOneGroupsSessionRequest"] | components["schemas"]["ModuleOneErSessionRequest"] | components["schemas"]["ModuleOneThingsSessionRequest"] | components["schemas"]["ModuleOnePresentSessionRequest"] | components["schemas"]["ModuleOneOrderSessionRequest"] | components["schemas"]["ModuleOnePossessionSessionRequest"] | components["schemas"]["ModuleOneReadingWordsSessionRequest"] | components["schemas"]["ModuleOnePersonalSessionRequest"] | components["schemas"]["ModuleOneAbilitySessionRequest"];
         ModuleOneSingularSessionRequest: {
             /** Format: uuid */
             practiceSessionId: string;
@@ -5259,6 +5810,15 @@ export interface components {
             focusId: "module-one-personal";
             /** @enum {string} */
             planRevision: "module-one-personal-1";
+            seed: number;
+        };
+        ModuleOneAbilitySessionRequest: {
+            /** Format: uuid */
+            practiceSessionId: string;
+            /** @enum {string} */
+            focusId: "module-one-ability";
+            /** @enum {string} */
+            planRevision: "module-one-ability-1";
             seed: number;
         };
         PracticeSupportRequest: {
@@ -5560,6 +6120,25 @@ export interface components {
             });
         } & {
             [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            focusId: "module-one-ability";
+            /** @enum {string} */
+            planRevision: "module-one-ability-1";
+            /** @enum {string} */
+            contentRevision: "pilot-13";
+            /** @enum {string} */
+            generatorRevision: "generator-13";
+            /** @enum {string} */
+            evaluationRevision: "evaluation-13";
+            /** @enum {integer} */
+            itemCount: 4;
+            /** @enum {boolean} */
+            introductionRequired: true;
+            items?: components["schemas"]["ModuleOneAbilityPracticeItem"][];
+            currentExercise?: components["schemas"]["PairThirteenAbilityExercise"];
+        } & {
+            [key: string]: unknown;
         }));
         PracticeFollowUp: {
             /** Format: uuid */
@@ -5576,7 +6155,7 @@ export interface components {
             /** @enum {string} */
             assessmentMode?: "selection" | "recall" | "repair" | "constituent-order" | "word-order";
             /** @enum {string} */
-            targetScopeId?: "human-singular" | "human-group" | "vaere-present" | "inanimate-singular-subject" | "named-three-verbs-present" | "subject-first-supplied" | "have-possession-present" | "personal-introduction-present";
+            targetScopeId?: "human-singular" | "human-group" | "vaere-present" | "inanimate-singular-subject" | "named-three-verbs-present" | "subject-first-supplied" | "have-possession-present" | "personal-introduction-present" | "kan-bare-infinitive";
             canAdvance?: boolean;
             assessments?: components["schemas"]["PracticeAssessment"][];
             lessonOpened: boolean;
@@ -5648,8 +6227,8 @@ export interface components {
             assessments: components["schemas"]["ModuleOnePracticeAssessment"][];
         } & {
             [key: string]: unknown;
-        }) | components["schemas"]["ModuleOnePresentSelectionItemProperties"] | components["schemas"]["ModuleOnePresentRecallItemProperties"] | components["schemas"]["ModuleOneOrderConstituentItemProperties"] | components["schemas"]["ModuleOneOrderWordItemProperties"] | components["schemas"]["ModuleOnePossessionSelectionItemProperties"] | components["schemas"]["ModuleOnePossessionRecallItemProperties"] | components["schemas"]["ModuleOnePersonalSelectionItemProperties"] | components["schemas"]["ModuleOnePersonalRecallItemProperties"]);
-        PracticeExercise: components["schemas"]["GrammarExercise"] | components["schemas"]["LexicalExercise"] | components["schemas"]["WritingExercise"] | components["schemas"]["ReadingExercise"] | components["schemas"]["TileExercise"] | components["schemas"]["GapExercise"] | components["schemas"]["PairEightExercise"] | components["schemas"]["PairNineExercise"] | components["schemas"]["PairTenExercise"] | components["schemas"]["PairElevenExercise"] | components["schemas"]["PairTwelveExercise"];
+        }) | components["schemas"]["ModuleOnePresentSelectionItemProperties"] | components["schemas"]["ModuleOnePresentRecallItemProperties"] | components["schemas"]["ModuleOneOrderConstituentItemProperties"] | components["schemas"]["ModuleOneOrderWordItemProperties"] | components["schemas"]["ModuleOnePossessionSelectionItemProperties"] | components["schemas"]["ModuleOnePossessionRecallItemProperties"] | components["schemas"]["ModuleOnePersonalSelectionItemProperties"] | components["schemas"]["ModuleOnePersonalRecallItemProperties"] | components["schemas"]["ModuleOneAbilitySelectionItemProperties"] | components["schemas"]["ModuleOneAbilityRecallItemProperties"]);
+        PracticeExercise: components["schemas"]["GrammarExercise"] | components["schemas"]["LexicalExercise"] | components["schemas"]["WritingExercise"] | components["schemas"]["ReadingExercise"] | components["schemas"]["TileExercise"] | components["schemas"]["GapExercise"] | components["schemas"]["PairEightExercise"] | components["schemas"]["PairNineExercise"] | components["schemas"]["PairTenExercise"] | components["schemas"]["PairElevenExercise"] | components["schemas"]["PairTwelveExercise"] | components["schemas"]["PairThirteenExercise"];
         LegacyPracticeItem: components["schemas"]["PracticeItem"] & {
             [key: string]: unknown;
         };
@@ -5825,7 +6404,34 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
-        PracticeAssessment: components["schemas"]["GuidedGapPracticeAssessment"] | components["schemas"]["GuidedVerbFollowUpAssessment"] | components["schemas"]["GuidedArticleFollowUpAssessment"] | components["schemas"]["ModuleOnePracticeAssessment"] | components["schemas"]["ModuleOneOrderWordAssessment"] | components["schemas"]["ModuleOneOrderConstituentAssessment"] | components["schemas"]["ModuleOnePresentRecallAssessment"] | components["schemas"]["ModuleOnePersonalRecallAssessment"] | components["schemas"]["ModuleOnePossessionRecallAssessment"] | components["schemas"]["ModuleOnePresentSelectionAssessment"] | components["schemas"]["ModuleOnePersonalSelectionAssessment"] | components["schemas"]["ModuleOnePossessionSelectionAssessment"];
+        ModuleOneAbilityPracticeItem: components["schemas"]["PracticeItem"] & (components["schemas"]["ModuleOneAbilitySelectionItemProperties"] | components["schemas"]["ModuleOneAbilityRecallItemProperties"]);
+        ModuleOneAbilitySelectionItemProperties: {
+            /** @enum {string} */
+            formatId?: "E026";
+            /** @enum {string} */
+            targetSkillId: "G030";
+            /** @enum {string} */
+            targetScopeId: "kan-bare-infinitive";
+            /** @enum {string} */
+            assessmentMode: "selection";
+            assessments: components["schemas"]["ModuleOneAbilitySelectionAssessment"][];
+        } & {
+            [key: string]: unknown;
+        };
+        ModuleOneAbilityRecallItemProperties: {
+            /** @enum {string} */
+            formatId?: "E027";
+            /** @enum {string} */
+            targetSkillId: "G030";
+            /** @enum {string} */
+            targetScopeId: "kan-bare-infinitive";
+            /** @enum {string} */
+            assessmentMode: "recall";
+            assessments: components["schemas"]["ModuleOneAbilityRecallAssessment"][];
+        } & {
+            [key: string]: unknown;
+        };
+        PracticeAssessment: components["schemas"]["GuidedGapPracticeAssessment"] | components["schemas"]["GuidedVerbFollowUpAssessment"] | components["schemas"]["GuidedArticleFollowUpAssessment"] | components["schemas"]["ModuleOnePracticeAssessment"] | components["schemas"]["ModuleOneOrderWordAssessment"] | components["schemas"]["ModuleOneOrderConstituentAssessment"] | components["schemas"]["ModuleOnePresentRecallAssessment"] | components["schemas"]["ModuleOnePersonalRecallAssessment"] | components["schemas"]["ModuleOneAbilityRecallAssessment"] | components["schemas"]["ModuleOnePossessionRecallAssessment"] | components["schemas"]["ModuleOnePresentSelectionAssessment"] | components["schemas"]["ModuleOnePersonalSelectionAssessment"] | components["schemas"]["ModuleOneAbilitySelectionAssessment"] | components["schemas"]["ModuleOnePossessionSelectionAssessment"];
         ModuleOnePracticeAssessment: {
             label: string;
             /** @enum {string} */
@@ -5945,6 +6551,28 @@ export interface components {
             /** @enum {string} */
             assessmentRole: "primary";
         };
+        ModuleOneAbilitySelectionAssessment: {
+            label: string;
+            /** @enum {string} */
+            targetSkillId: "G030";
+            /** @enum {string} */
+            targetScopeId: "kan-bare-infinitive";
+            /** @enum {string} */
+            assessmentMode: "selection";
+            /** @enum {string} */
+            assessmentRole: "primary";
+        };
+        ModuleOneAbilityRecallAssessment: {
+            label: string;
+            /** @enum {string} */
+            targetSkillId: "G030";
+            /** @enum {string} */
+            targetScopeId: "kan-bare-infinitive";
+            /** @enum {string} */
+            assessmentMode: "recall";
+            /** @enum {string} */
+            assessmentRole: "primary";
+        };
         GuidedGapPracticeAssessment: {
             /** @enum {string} */
             slotId: "g0";
@@ -6041,7 +6669,7 @@ export interface components {
             /** @enum {string} */
             assessmentRole?: "primary" | "support";
             /** @enum {string} */
-            targetScopeId?: "human-singular" | "human-group" | "vaere-present" | "inanimate-singular-subject" | "named-three-verbs-present" | "subject-first-supplied" | "have-possession-present" | "personal-introduction-present";
+            targetScopeId?: "human-singular" | "human-group" | "vaere-present" | "inanimate-singular-subject" | "named-three-verbs-present" | "subject-first-supplied" | "have-possession-present" | "personal-introduction-present" | "kan-bare-infinitive";
             plannedItems: number;
             attemptedItems: number;
             advancedItems: number;
@@ -6092,6 +6720,15 @@ export interface components {
             targetScopeId: "subject-first-supplied";
             /** @enum {string} */
             assessmentMode: "constituent-order" | "word-order";
+        } & {
+            [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            targetSkillId: "G030";
+            /** @enum {string} */
+            targetScopeId: "kan-bare-infinitive";
+            /** @enum {string} */
+            assessmentMode: "selection" | "recall";
         } & {
             [key: string]: unknown;
         }));

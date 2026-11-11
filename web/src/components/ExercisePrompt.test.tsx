@@ -76,6 +76,44 @@ describe("ExercisePrompt", () => {
 
 describe("ExercisePrompt present and order formats", () => {
 
+  it("labels the supplied ability-form choices and typed response in Danish", async () => {
+    const onText = vi.fn();
+    const ability = (formatId: "E026" | "E027", choices: string[]) => ({
+      ...exercise(formatId as Exercise["formatId"], {
+        before: formatId === "E026" ? "Hun kan " : "Du kan ", after: " et brev.",
+        cue: "at læse", cueLanguage: "da", answerLanguage: "da", choices, blocks: [],
+        inputLabel: formatId === "E027" ? "Danish verb after kan" : undefined,
+      }),
+      contentRevision: "pilot-13", generatorRevision: "generator-13",
+      targetSkillId: "G030", targetScopeId: "kan-bare-infinitive",
+    } as Exercise);
+    const { rerender } = render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={ability("E026", ["læse", "læser", "at læse"])}
+          text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getAllByText("at læse").every((element) => element.lang === "da")).toBe(true);
+    const choiceGroup = screen.getByRole("group", { name: "Danish verb after kan choices" });
+    expect(choiceGroup).toHaveAttribute("lang", "da");
+    await userEvent.click(screen.getByRole("button", { name: "læse" }));
+    expect(onText).toHaveBeenCalledWith("læse");
+
+    rerender(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={ability("E027", [])}
+          text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+    expect(screen.getByRole("group", { name: "Danish verb after kan response" })).toBeVisible();
+    expect(screen.getByRole("textbox", { name: "Danish verb after kan" })).toHaveAttribute("lang", "da");
+  });
+
   it("labels named present-form choices and keeps the cue in English", async () => {
     const onText = vi.fn();
     render(

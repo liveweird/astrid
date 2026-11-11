@@ -167,3 +167,16 @@ permissions are confined to the six authored S09 cards and their worked examples
 C002 noun-object pool, C004 identities and occupation frames retain their original licensing.
 The new entries remain a linguistic draft. The [S09 contract](module-one-course-slice.md#s09-names-homes-and-languages)
 records the teaching, assessment and replay boundaries.
+
+## Pair-thirteen ability addition
+
+| ID | Selected meaning | Teaching form | Active scope and source |
+| --- | --- | --- | --- |
+| L033 | kunne, be able to | at kunne → kan | L033-S01, supplied ability modal in the two authored C014 reading frames. [DDO, ability sense](https://ordnet.dk/ddo/ordbog/11028611). |
+
+The supplied modal is restricted to those reading frames. L011 permits the bare infinitive for reading a letter and written
+Danish. L031 adds the supplied language complement in the same frames. Six subject
+records receive scoped C014 permissions for the authored cards and worked examples.
+Pair thirteen contains 33 lexical records and the same 109 catalogue clauses. Its
+[S10 contract](module-one-course-slice.md#s10-bare-infinitive-after-kan) keeps ability
+support separate from the assessed reading-verb form. [DDO kunne, ability sense](https://ordnet.dk/ddo/ordbog/11028611) · [Infinitive construction](https://lex.dk/infinitiv)

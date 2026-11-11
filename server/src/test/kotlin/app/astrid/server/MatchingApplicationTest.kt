@@ -82,9 +82,9 @@ class MatchingApplicationTest {
         application { astridModule(config(), InMemoryStores()) }
         val owner = createSession()
         val catalog = client.get("/api/v1/catalog") { trustedHost(); cookie(SESSION_COOKIE, owner) }.json()
-        assertEquals("pilot-12", catalog.string("contentRevision"))
-        assertEquals("generator-12", catalog.string("generatorRevision"))
-        assertEquals("evaluation-12", catalog.string("evaluationRevision"))
+        assertEquals("pilot-13", catalog.string("contentRevision"))
+        assertEquals("generator-13", catalog.string("generatorRevision"))
+        assertEquals("evaluation-13", catalog.string("evaluationRevision"))
         val matchingFormat = catalog.getValue("formats").jsonArray.map { it.jsonObject }
             .single { it.string("id") == "E014" }
         assertEquals("meaning", matchingFormat.getValue("lexicalTask").jsonObject.string("facet"))

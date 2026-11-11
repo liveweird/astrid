@@ -21,10 +21,11 @@ class InanimateReferenceExercisesTest {
             RevisionPair("pilot-10", "generator-10"),
             engine.supportedRevisionPairs()[9],
         )
-        assertEquals(RevisionPair("pilot-12", "generator-12"), engine.supportedRevisionPairs().last())
+        assertEquals(RevisionPair("pilot-12", "generator-12"), engine.supportedRevisionPairs()[11])
+        assertEquals(RevisionPair("pilot-13", "generator-13"), engine.supportedRevisionPairs().last())
         assertEquals("evaluation-8", engine.evaluationRevision("pilot-8", "generator-8"))
         assertEquals("evaluation-9", engine.evaluationRevision("pilot-9", "generator-9"))
-        assertEquals((1..25).map { "E${it.toString().padStart(3, '0')}" }, engine.catalog().formats.map { it.id })
+        assertEquals((1..27).map { "E${it.toString().padStart(3, '0')}" }, engine.catalog().formats.map { it.id })
         assertEquals(109, engine.catalog().sentenceCount)
         assertEquals(setOf("E020", "E021"), engine.catalog().formats.filter { it.targetSkillId == "G038" }.map { it.id }.toSet())
         assertEquals(

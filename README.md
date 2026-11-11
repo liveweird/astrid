@@ -106,6 +106,11 @@ separate by sense. See the [S08 contract](docs/knowledge/module-one-course-slice
 languages. Selection and typed answers have separate results. See the
 [S09 contract](docs/knowledge/module-one-course-slice.md#s09-names-homes-and-languages).
 
+**Using a verb after kan** teaches the ability meaning and the bare infinitive `læse`.
+Two choices and two typed responses distinguish `læse`, `læser` and `at læse`, with
+separate form and response-constraint feedback. See the
+[S10 contract](docs/knowledge/module-one-course-slice.md#s10-bare-infinitive-after-kan).
+
 Practice saves operation identities in this browser before sending them. Refresh resumes the URL-bound session and replays uncertain operations with their original identities; confirmed grades are read back without regrading. Recovery requires the original valid development cookie and browser storage. If either is unavailable, use **Start new practice**; old server history remains intact. Unsent drafts need not survive refresh. The standalone playground retains its existing in-tab recovery behavior.
 
 From a completed mixed/verb/guided-gap summary, select individual grammar or vocabulary targets and choose **Start selected review**. Recognition and written recall stay separate. Vocabulary targets add one item each; selecting grammar adds distinct sentences for a short run of up to eight items. No targets are selected automatically. Present-verb summaries keep selection, written recall and repair separate; choosing one, two or three operations produces four, four or six review items. The review saves its source link and possible earlier exposure, and keeps the original session's results intact. A single-word review can contain one item because repeating its cue would not add meaningful variation.
@@ -173,7 +178,7 @@ CI repeats the gates on pull requests and master, validates Kubernetes schemas a
 ./gradlew :engine:exportPilotReview
 ```
 
-The current deterministic report is `engine/build/review/pilot-12.md`. It covers 32 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotTenReview` for `pilot-10-retained.md`. See the [export and compatibility inventory](.claude/docs/compatibility.md).
+The current deterministic report is `engine/build/review/pilot-13.md`. It covers 33 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotTenReview` for `pilot-10-retained.md`. See the [export and compatibility inventory](.claude/docs/compatibility.md).
 
 Vocabulary introduces a forward migration permitting a null grammar target; its separate lexical target lives in the stored presentation. After vocabulary writes, rollback requires a reader compatible with new metadata and nullable targets; a bare older image is unsafe. See the [contract](docs/knowledge/vocabulary-assessment.md).
 

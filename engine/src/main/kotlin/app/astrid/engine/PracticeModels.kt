@@ -92,6 +92,7 @@ object PracticeTargetKeys {
         "G005" to setOf("constituent-order", "word-order"),
         "G006" to setOf("selection", "recall"),
         "G038" to setOf("selection", "recall"),
+        "G030" to setOf("selection", "recall"),
     )
 
     private data class ScopedAssessment(
@@ -117,6 +118,8 @@ object PracticeTargetKeys {
         ScopedAssessment("G005", "subject-first-supplied", "word-order"),
         ScopedAssessment("G038", "inanimate-singular-subject", "selection"),
         ScopedAssessment("G038", "inanimate-singular-subject", "recall"),
+        ScopedAssessment("G030", "kan-bare-infinitive", "selection"),
+        ScopedAssessment("G030", "kan-bare-infinitive", "recall"),
     )
 }
 

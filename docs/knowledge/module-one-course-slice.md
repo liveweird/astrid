@@ -558,3 +558,37 @@ before app-only promotion. Prior rows in all six history tables, the PostgreSQL 
 and mounts, and Flyway versions 1–3 were preserved. All 112 live-preview checks
 passed without retries, and the owned QA resources were removed. Danish teaching review
 remains open.
+
+## S10 bare infinitive after kan
+
+App 0.15.0 adds the four-item `module-one-ability-1` plan pinned to pair thirteen.
+Require saved teaching before two E026 selections and two E027 typed responses.
+G030 scope `kan-bare-infinitive` assesses the form of the following reading verb.
+Supply the finite ability modal, subject reference, complement and full English meaning.
+
+| Operation | Supplied frame | Expected form |
+| --- | --- | --- |
+| Selection | `Hun kan ___ et brev.` | `læse` |
+| Selection | `Vi kan ___ dansk.` | `læse` |
+| Recall | `Du kan ___ et brev.` | `læse` |
+| Recall | `De kan ___ dansk.` | `læse` |
+
+Teach `at kunne → kan`, the ability meaning, and the bare infinitive after the modal.
+Give separate worked examples `Jeg kan læse et brev.` and `Han kan læse dansk.`
+Supply `at læse` and distinguish reading written Danish from speaking it. Source checking
+uses the selected ability sense and infinitive construction. [DDO kunne](https://ordnet.dk/ddo/ordbog/11028611) · [Infinitive](https://lex.dk/infinitiv) · [DDO læse](https://ordnet.dk/ddo/ordbog/l%C3%A6se)
+
+Choices contain exactly `læse`, `læser` and `at læse`. Combine the seed with the stable
+authored task identity to vary positions. Diagnose the infinitive marker before generic
+multiword input. A selected supplied alternative satisfies choice shape even when its
+form is wrong. Typed `at læse` also violates the one-word response constraint. Preserve
+raw input, distinguish casing from verb form, and withhold corrections for unknowns.
+Keep selection and recall summary rows separate. Existing named-present profiles keep
+their pinned behavior. The 109 catalogue clauses retain their original licensing.
+
+L033 introduces ability-only `kunne/kan`. Scope C014 to the two supplied reading frames,
+with finite and non-finite verb roles, and extend the six authored/worked subject records.
+L011 supplies the selected reading sense, L018 the letter and L031 the language complement.
+Record prompt, required-teaching, hint and feedback exposure separately. Direct entry and
+explicit continuation from S09 use the existing chooser. The final profile opens the
+chooser on repeat and creates no subsequent run automatically.

@@ -4,13 +4,13 @@
 
 This is a **proposed review process**, not a user-approved rubric, an arranged specialist
 engagement, or evidence that a specialist has reviewed or approved the content. It covers the
-private beginner preview at app **0.14.0**, content `pilot-12`, generator `generator-12`
-and evaluation `evaluation-12`. Its language state remains `draft-not-teacher-reviewed`.
-See the [course slice](module-one-course-slice.md#s09-names-homes-and-languages).
+private beginner preview at app **0.15.0**, content `pilot-13`, generator `generator-13`
+and evaluation `evaluation-13`. Its language state remains `draft-not-teacher-reviewed`.
+See the [course slice](module-one-course-slice.md#s10-bare-infinitive-after-kan).
 
-The current bounded inventory is 32 lexical records, 109 licensed catalogue clauses and
-twenty-five standalone exercise formats. Nine guided profiles cover first steps through
-names, homes and languages. The proposed review covers their teaching and visible feedback.
+The current bounded inventory is 33 lexical records, 109 licensed catalogue clauses and
+twenty-seven standalone exercise formats. Ten Module 1 profiles cover first steps through
+bare-infinitive practice. The proposed review covers their teaching and visible feedback.
 
 Software and source checks cover identifiers, deterministic generation, references, frozen
 compatibility and bounded inventories. They cannot decide whether Danish is natural, explanations
@@ -22,8 +22,8 @@ and [first-step activation contract](module-one-activation.md).
 ## Prepare the current review packet
 
 - From the repository root, run `./gradlew :engine:exportPilotReview`. The current output is
-  `engine/build/review/pilot-12.md`. Confirm content `pilot-12`, generator
-  `generator-12` and review state `draft-not-teacher-reviewed`. Record the exact source commit,
+  `engine/build/review/pilot-13.md`. Confirm content `pilot-13`, generator
+  `generator-13` and review state `draft-not-teacher-reviewed`. Record the exact source commit,
   application version and command result with the review.
 - Give the reviewer that export together with the [vocabulary seed](danish-vocabulary-seed.md),
   [Module 1 language pack](module-one-language-pack.md), [beginner-slice specification](beginner-slice-spec.md),
@@ -44,19 +44,20 @@ and [first-step activation contract](module-one-activation.md).
 
 | Review surface | Current exported coverage |
 | --- | --- |
-| Lexicon and clauses | All 32 lexical records and all 109 licensed catalogue clauses |
-| Reproducible examples | Two seed-47 prompt summaries for each E001–E025 |
+| Lexicon and clauses | All 33 lexical records and all 109 licensed catalogue clauses |
+| Reproducible examples | Two seed-47 prompt summaries for each E001–E027 |
 | E009 writing | 99 complete cue/reference/hint units |
 | E010 reading | 24 complete passages, questions, choice sets and private answers |
 | E011 word choice | All four selected meanings, choices and answers |
 | E012/E013 tiles | 99 units per format, including licensed orders and distractors |
 | E014 matching | Four boards and their private correspondences |
 | E015 two gaps | 92 units with displayed slots and private expected choices |
-| First-step profiles | Nine full required introductions and pinned policy metadata. Review each profile's feedback live. |
+| First-step profiles | Ten full required introductions and pinned policy metadata. Review each profile's feedback live. |
 | E016–E019 | All 30 standalone authored tasks: 7 E016, 7 E017, 8 E018 and 8 E019 |
 | E020/E021 | Four inanimate-reference tasks, two selection and two recall, including antecedent/sense/context metadata; inspect per-item lessons and hints live |
 | E022/E023 | Sixteen named-present tasks, including four possession and six personal-statement tasks, with scoped form targets and exact teaching exposure |
 | E024/E025 | Six subject-first ordering tasks covering whole constituents and individual words |
+| E026/E027 | Four ability-frame tasks with exact bare-infinitive alternatives, selected/typed constraints and teaching |
 
 For standalone first-step traversal at fixed seed `47`, use indices `0..6` for each
 E016/E017 with G003, and `0..7` for each E018/E019 with G004. Each range traverses its
@@ -113,7 +114,7 @@ unsupported answers rather than only the answer key. In particular:
   finite/infinitive selection must not collapse meaning, grammar and response shape.
 - **E015:** review all verb/article combinations and per-slot feedback, including one correct and
   one wrong or missing slot. Primary verb and supporting article outcomes must remain separate.
-- **E016–E025:** apply the Module 1 checklist below in addition to reviewing the standalone entry.
+- **E016–E027:** apply the Module 1 checklist below in addition to reviewing the standalone entry.
 
 Across all formats, ask whether prerequisites are introduced in a sensible order, whether answer
 disclosure is intentional and recorded as supported practice, whether English meanings and hints
@@ -123,7 +124,7 @@ completed activity is not independent performance or mastery.
 
 ## Module 1: First steps review checklist
 
-Review each of the eight profiles both by direct entry and in the recommended sequence. For every
+Review each of the ten Module 1 profiles both by direct entry and in the recommended sequence. For every
 profile and reachable task:
 
 - Confirm the complete required introduction appears and is saved before assessment. Check the
@@ -155,6 +156,9 @@ profile and reachable task:
 - For S08, review the printed-magazine meaning and the three familiar reading-material senses.
   Check each complete article+noun choice and the meaning-selection label. Review the
   difference between an exposed choice and a confirmed cue-to-meaning mapping.
+- For S10, inspect ability contexts and both reading complements. Compare selected and typed
+  `at læse`, finite `læser`, casing and unsupported writing. Check that the modal is supplied
+  and that form choice, typing constraints and meaning remain separate.
 - Exercise correct, related-wrong, casing-only, multiword, blank and unsupported responses.
   Inspect the actual UI feedback and completed sentence, not only export metadata. Unknown latest
   answers must keep support/retry available and block Continue; a revision-defined known

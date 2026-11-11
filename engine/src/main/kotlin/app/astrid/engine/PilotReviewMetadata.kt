@@ -25,9 +25,14 @@ internal object PilotReviewMetadata {
         referencePronouns: List<PronounEntry> = emptyList(),
         fixedWords: List<FixedWordEntry> = emptyList(),
     ): List<LexicalReviewRecord> =
-        pronounRecords(pronouns, identifyingPronoun, moduleOne) +
+        pronounRecords(
+            pronouns,
+            identifyingPronoun,
+            moduleOne,
+            verbs.any { it.lexicalId == "L033" },
+        ) +
             referencePronounRecords(referencePronouns) + verbRecords(verbs, moduleOne) + nounRecords(nouns, matching) +
-            articleRecords() + fixedWordRecords(fixedWords)
+            articleRecords() + fixedWordRecords(fixedWords, verbs.any { it.lexicalId == "L033" })
 
     private fun referencePronounRecords(pronouns: List<PronounEntry>): List<LexicalReviewRecord> =
         pronouns.map { entry ->
@@ -45,6 +50,7 @@ internal object PilotReviewMetadata {
         pronouns: List<PronounEntry>,
         identifyingPronoun: PronounEntry,
         moduleOne: Boolean,
+        includesAbilityFrames: Boolean,
     ): List<LexicalReviewRecord> {
         val pronounDetails =
             mapOf(
@@ -65,10 +71,15 @@ internal object PilotReviewMetadata {
             )
         val records = pronouns.map { entry ->
             val detail = pronounDetails.getValue(entry.id)
-            val constraints = detail.second + if (moduleOne) moduleOneConstraints[entry.id].orEmpty() else ""
+            val extension = pronounScopeExtension(
+                entry.id,
+                includesAbilityFrames,
+            )
+            val constraints = detail.second + (if (moduleOne) moduleOneConstraints[entry.id].orEmpty() else "") + extension.first
             record(
                 entry.id, entry.text, detail.first, mapOf("subject" to entry.text), constraints, PRONOUN_SOURCE,
-                additionalSources = if (entry.id == "L006") listOf(UPPERCASE_PRONOUN_SOURCE) else emptyList(),
+                additionalSources =
+                    ((if (entry.id == "L006") listOf(UPPERCASE_PRONOUN_SOURCE) else emptyList()) + extension.second).distinct(),
             )
         }
         val identifying =
@@ -83,7 +94,22 @@ internal object PilotReviewMetadata {
         return records + identifying
     }
 
+    private fun pronounScopeExtension(
+        lexicalId: String,
+        includesAbilityFrames: Boolean,
+    ): Pair<String, List<String>> {
+        val ability = includesAbilityFrames && lexicalId in MODAL_SUBJECT_IDS
+        val constraints = buildString {
+            if (ability) append(" Pair thirteen additionally licenses the reviewed C014 modal subjects.")
+        }
+        val sources = buildList {
+            if (ability) addAll(listOf(INFINITIVE_SOURCE, VERB_SOURCES.getValue("L033")))
+        }.distinct()
+        return constraints to sources
+    }
+
     private fun verbRecords(verbs: List<Verb>, moduleOne: Boolean): List<LexicalReviewRecord> {
+        val includesAbilityFrame = verbs.any { it.lexicalId == AbilityContent.MODAL_LEXICAL_ID }
         val details =
             mapOf(
                 "L009" to ("possess or have available" to "C002 with a human subject and licensed count noun; auxiliary uses excluded."),
@@ -95,15 +121,23 @@ internal object PilotReviewMetadata {
                 "L028" to ("bear a stated name" to "Pair twelve authored C004 name frames only; other senses excluded."),
                 "L029" to ("live or reside in a place" to "Pair twelve authored C006 i + city residence frames only."),
                 "L030" to ("speak a language" to "Pair twelve authored C002-family dansk language-complement frames only."),
+                "L033" to (
+                    "be able to" to
+                        "Pair thirteen authored C014 ability frames only; kan is the supplied finite modal and " +
+                        "broader modality is excluded."
+                ),
             )
         return verbs.map { verb ->
             val detail = details.getValue(verb.lexicalId)
-            val constraints = if (moduleOne && verb.lexicalId == "L010") {
-                detail.second.removeSuffix(" only; other copular and auxiliary uses excluded.") +
-                    "; pair eight additionally licenses the ten enumerated C004 name and occupation clauses. " +
-                    "Other copular and auxiliary uses remain excluded."
-            } else {
-                detail.second
+            val constraints = when {
+                moduleOne && verb.lexicalId == "L010" ->
+                    detail.second.removeSuffix(" only; other copular and auxiliary uses excluded.") +
+                        "; pair eight additionally licenses the ten enumerated C004 name and occupation clauses. " +
+                        "Other copular and auxiliary uses remain excluded."
+                includesAbilityFrame && verb.lexicalId == AbilityContent.READ_LEXICAL_ID ->
+                    detail.second.removeSuffix(" only.") +
+                        "; pair thirteen additionally licenses the C014 written-language ability frames."
+                else -> detail.second
             }
             record(
                 verb.lexicalId,
@@ -112,6 +146,7 @@ internal object PilotReviewMetadata {
                 mapOf("infinitive" to verb.lemma, "finite-present" to verb.present),
                 constraints,
                 VERB_SOURCES.getValue(verb.lexicalId),
+                additionalSources = if (verb.lexicalId == "L033") listOf(INFINITIVE_SOURCE) else emptyList(),
             )
         }
     }
@@ -169,12 +204,17 @@ internal object PilotReviewMetadata {
             ),
         )
 
-    private fun fixedWordRecords(words: List<FixedWordEntry>): List<LexicalReviewRecord> {
+    private fun fixedWordRecords(words: List<FixedWordEntry>, ability: Boolean): List<LexicalReviewRecord> {
         val details = mapOf(
             "L031" to Triple(
                 "Danish language",
                 mapOf("language-complement" to "dansk"),
-                "Fixed supplied language complement in the pair-twelve tale frame; adjective and nationality uses excluded.",
+                if (ability) {
+                    "Fixed supplied language complement in the tale frame and C014 written-language reading frame; " +
+                        "adjective and nationality uses excluded."
+                } else {
+                    "Fixed supplied language complement in the pair-twelve tale frame; adjective and nationality uses excluded."
+                },
             ),
             "L032" to Triple(
                 "in at a city location",
@@ -215,7 +255,10 @@ internal object PilotReviewMetadata {
             "L028" to "https://ordnet.dk/ddo/ordbog/hedde",
             "L029" to "https://ordnet.dk/ddo/ordbog/bo",
             "L030" to "https://ordnet.dk/ddo/ordbog/tale",
+            "L033" to "https://ordnet.dk/ddo/ordbog/11028611",
         )
+    private const val INFINITIVE_SOURCE = "https://lex.dk/infinitiv"
+    private val MODAL_SUBJECT_IDS = setOf("L001", "L002", "L003", "L004", "L005", "L007")
     private val FIXED_WORD_SOURCES = mapOf(
         "L031" to "https://ordnet.dk/ddo/ordbog/dansk",
         "L032" to "https://ordnet.dk/ddo/ordbog/i",
