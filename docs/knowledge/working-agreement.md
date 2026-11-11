@@ -1,5 +1,15 @@
 # Project Working Agreement
 
+## Vocabulary authoring continuation — 11–12 November 2026
+
+The user selected the complete five-session work/study packet and implementation contract,
+then requested useful continued work until **07:30 Europe/Warsaw on 12 November**, before an
+08:00 laptop shutdown. The [execution plan](vocabulary-expansion-activation.md) records the
+bounded content/source/review queue and safe stopping points. Preserve the standing focused
+commit/merge/push and complete-check workflow. Runtime activation was offered as a separate
+scope clarification; unanswered clarification does not select it. S14 remains paused,
+existing noun-only recall stays unchanged, and Danish teaching approval is separate.
+
 ## Confirmed documentation rule
 
 From 6 November 2026 onward, continuously document project assumptions, requirements, constraints, open points, questions, decisions, rules, conventions, principles, and tenets. Maintain a separate work backlog with `[next]`, `[todo]`, `[new]`, `[parked]`, and `[blocked]` statuses. This is a standing user instruction, not an occasional documentation task.
