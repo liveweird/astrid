@@ -53,7 +53,18 @@
 4. In written recall, submit the unsupported form `havde`, reload, then retry with `har`.
    - Expected: the latest unknown blocks continuation and survives reload without disclosing a solution. Retry clears the field, `har` succeeds, and the summary separates two selection from two recall items with exact first/latest outcomes.
 5. Reload the completed summary.
-   - Expected: it is retained, passes the configured accessibility and reflow scan, and offers no unimplemented next session.
+   - Expected: it is retained, passes the configured accessibility and reflow scan, and offers **Words for things you read** as the next session.
+
+## Scenario: reading words retain related meaning choices and per-sense results
+
+1. Enter **Words for things you read** directly and attempt the first item through the API before opening the required introduction.
+   - Expected: the four-item retained pair-five session has no grammar prerequisite, rejects assessment before teaching, and records no attempt. Each item has one lexical meaning target and no grammar scope, mode or sub-assessment.
+2. Open the introduction and inspect `et magasin`, `en bog`, `en avis` and `et brev`.
+   - Expected: the new printed-magazine meaning and the three reviewed reading-word bundles carry Danish language metadata. Every activity shows an English meaning and the same four complete Danish article-and-noun choices.
+3. On the printed-magazine item, choose the known but wrong `en bog`, retry, focus `et magasin` and submit it with the keyboard. Complete book, newspaper and written letter in their exact authored order.
+   - Expected: the wrong related meaning is acceptable Danish but misses the target and can advance; the retry succeeds without treating the article as a separate assessment. All cues and choices retain their language metadata.
+4. Inspect and reload the completed summary.
+   - Expected: four exact one-item sense rows are labelled **Meaning selection** rather than written headword recall, retain first/latest outcomes and the five-answer/one-retry totals, and survive reload. No next session is offered.
 
 ## Scenario: first steps preserve ambiguous ${correction.raw} casing without a wrong-person diagnosis
 

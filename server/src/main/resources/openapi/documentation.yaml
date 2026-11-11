@@ -1,5 +1,5 @@
 openapi: 3.0.3
-info: { title: Astrid pilot API, version: 0.12.0 }
+info: { title: Astrid pilot API, version: 0.13.0 }
 servers: [{ url: 'http://localhost:8088' }]
 # Every operation needs the development session cookie except the three that declare `security: []`.
 security:
@@ -2810,7 +2810,7 @@ components:
       properties:
         ownerSessionId: { type: string, format: uuid }
         sessionExpiresAt: { type: integer, format: int64 }
-        profiles: { type: array, minItems: 10, maxItems: 10, items: { $ref: '#/components/schemas/PracticeProfile' } }
+        profiles: { type: array, minItems: 11, maxItems: 11, items: { $ref: '#/components/schemas/PracticeProfile' } }
     PracticeProfile:
       oneOf:
         - type: object
@@ -2850,6 +2850,7 @@ components:
         - { $ref: '#/components/schemas/ModuleOnePresentProfile' }
         - { $ref: '#/components/schemas/ModuleOneOrderProfile' }
         - { $ref: '#/components/schemas/ModuleOnePossessionProfile' }
+        - { $ref: '#/components/schemas/ModuleOneReadingWordsProfile' }
     ModuleOneSingularProfile: &ModuleOneProfile
       type: object
       additionalProperties: false
@@ -2906,6 +2907,15 @@ components:
         planRevision: { type: string, enum: [module-one-possession-1] }
         title: { type: string, enum: [Saying what someone has] }
         itemCount: { type: integer, enum: [4] }
+    ModuleOneReadingWordsProfile:
+      <<: *ModuleOneProfile
+      properties:
+        <<: *ModuleOneProfileProperties
+        focusId: { type: string, enum: [module-one-reading-words] }
+        planRevision: { type: string, enum: [module-one-reading-words-1] }
+        title: { type: string, enum: [Words for things you read] }
+        itemCount: { type: integer, enum: [4] }
+        prerequisiteSkillIds: { type: array, maxItems: 0, items: { type: string } }
     PracticeSessionRequest:
       oneOf:
         - type: object
@@ -2939,6 +2949,7 @@ components:
         - { $ref: '#/components/schemas/ModuleOnePresentSessionRequest' }
         - { $ref: '#/components/schemas/ModuleOneOrderSessionRequest' }
         - { $ref: '#/components/schemas/ModuleOnePossessionSessionRequest' }
+        - { $ref: '#/components/schemas/ModuleOneReadingWordsSessionRequest' }
     ModuleOneSingularSessionRequest: &ModuleOneSessionRequest
       type: object
       additionalProperties: false
@@ -2966,6 +2977,9 @@ components:
     ModuleOnePossessionSessionRequest:
       <<: *ModuleOneSessionRequest
       properties: { <<: *ModuleOneSessionRequestProperties, focusId: { type: string, enum: [module-one-possession] }, planRevision: { type: string, enum: [module-one-possession-1] } }
+    ModuleOneReadingWordsSessionRequest:
+      <<: *ModuleOneSessionRequest
+      properties: { <<: *ModuleOneSessionRequestProperties, focusId: { type: string, enum: [module-one-reading-words] }, planRevision: { type: string, enum: [module-one-reading-words-1] } }
     PracticeSupportRequest:
       type: object
       additionalProperties: false
@@ -3164,6 +3178,20 @@ components:
                   allOf:
                     - { $ref: '#/components/schemas/PairElevenNamedPresentExercise' }
                     - { type: object, additionalProperties: true, properties: { targetScopeId: { type: string, enum: [have-possession-present] } } }
+            - type: object
+              additionalProperties: true
+              required: [focusId, planRevision, contentRevision, generatorRevision, evaluationRevision, itemCount, introductionRequired]
+              not: { anyOf: [{ required: [followUp] }, { required: [followUpPlanRevision] }] }
+              properties:
+                focusId: { type: string, enum: [module-one-reading-words] }
+                planRevision: { type: string, enum: [module-one-reading-words-1] }
+                contentRevision: { type: string, enum: [pilot-5] }
+                generatorRevision: { type: string, enum: [generator-5] }
+                evaluationRevision: { type: string, enum: [evaluation-5] }
+                itemCount: { type: integer, enum: [4] }
+                introductionRequired: { type: boolean, enum: [true] }
+                items: { type: array, minItems: 4, maxItems: 4, items: { $ref: '#/components/schemas/ModuleOneReadingWordsPracticeItem' } }
+                currentExercise: { $ref: '#/components/schemas/PairFiveDanishChoiceExercise' }
     PracticeFollowUp:
       type: object
       additionalProperties: false
@@ -3418,6 +3446,16 @@ components:
         targetScopeId: { type: string, enum: [have-possession-present] }
         assessmentMode: { type: string, enum: [recall] }
         assessments: { type: array, minItems: 1, maxItems: 1, items: { $ref: '#/components/schemas/ModuleOnePossessionRecallAssessment' } }
+    ModuleOneReadingWordsPracticeItem:
+      allOf:
+        - { $ref: '#/components/schemas/PracticeItem' }
+        - type: object
+          additionalProperties: true
+          required: [formatId, lexicalTarget]
+          not: { anyOf: [{ required: [targetSkillId] }, { required: [targetScopeId] }, { required: [assessmentMode] }, { required: [assessments] }] }
+          properties:
+            formatId: { type: string, enum: [E011] }
+            lexicalTarget: { $ref: '#/components/schemas/DanishChoiceLexicalTarget' }
     PracticeAssessment:
       oneOf:
         - { $ref: '#/components/schemas/GuidedGapPracticeAssessment' }

@@ -82,6 +82,7 @@ class OpenApiContractTest {
             "module-one-present" to "module-one-present-1",
             "module-one-order" to "module-one-order-1",
             "module-one-possession" to "module-one-possession-1",
+            "module-one-reading-words" to "module-one-reading-words-1",
         )
         for (focus in supportedPairs.map { it.first }) {
             for (revision in supportedPairs.map { it.second }) {
@@ -1333,7 +1334,7 @@ class OpenApiContractTest {
             cookie("astrid_session", cookie)
         }.bodyAsText().asObject().getValue("ownerSessionId").jsonPrimitive.content
         val practiceId = UUID.randomUUID()
-        val created = pairTenPracticePost(cookie, owner, "/api/v1/practice-sessions",
+        val created = moduleOnePost(cookie, owner, "/api/v1/practice-sessions",
             """{"practiceSessionId":"$practiceId","focusId":"module-one-order","planRevision":"module-one-order-1","seed":47}""",
         )
         assertEquals(201, created.status.value)
@@ -1344,7 +1345,7 @@ class OpenApiContractTest {
         assertEquals(409, submitAttempt(cookie, firstExerciseId, AttemptAnswerDto.Order(firstOrder)).status.value)
 
         val supportPath = "/api/v1/practice-sessions/$practiceId/support"
-        val supported = pairTenPracticePost(cookie, owner, supportPath, """{"kind":"introduction"}""")
+        val supported = moduleOnePost(cookie, owner, supportPath, """{"kind":"introduction"}""")
         assertEquals(200, supported.status.value)
         validate(HttpMethod.Post, supportPath, supported)
         state = supported.bodyAsText().asObject()
@@ -1354,7 +1355,7 @@ class OpenApiContractTest {
         val order = canonicalPairTenOrder(cookie, inspectorKey, exerciseId)
         val request = AttemptRequest(UUID.randomUUID().toString(), exerciseId, AttemptAnswerDto.Order(order.take(2)), false)
         val body = wireJson.encodeToString(request)
-        val partial = pairTenPracticePost(cookie, owner, "/api/v1/attempts", body)
+        val partial = moduleOnePost(cookie, owner, "/api/v1/attempts", body)
         assertEquals(200, partial.status.value)
         validate(HttpMethod.Post, "/api/v1/attempts", partial)
         val partialText = partial.bodyAsText()
@@ -1369,7 +1370,7 @@ class OpenApiContractTest {
         val advanced = advanceModuleOne(cookie, owner, practiceId, 3)
         assertEquals(200, advanced.status.value)
         validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/advance", advanced)
-        assertEquals(partialText, pairTenPracticePost(cookie, owner, "/api/v1/attempts", body).bodyAsText())
+        assertEquals(partialText, moduleOnePost(cookie, owner, "/api/v1/attempts", body).bodyAsText())
         state = advanced.bodyAsText().asObject()
         repeat(2) { state = completePairTenOrder(cookie, owner, practiceId, inspectorKey, state) }
         assertEquals("completed", state.getValue("state").jsonPrimitive.content)
@@ -1408,6 +1409,83 @@ class OpenApiContractTest {
         }
     }
 
+    @Test
+    fun `reading words preserve four lexical meanings and only confirmed feedback exposure`() = testApplication {
+        application { astridModule(config(), InMemoryStores()) }
+        val cookie = moduleOneCookie()
+        val owner = client.get("/api/v1/practice-context") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+        }.bodyAsText().asObject().getValue("ownerSessionId").jsonPrimitive.content
+        val practiceId = UUID.randomUUID()
+        val created = moduleOnePost(
+            cookie, owner, "/api/v1/practice-sessions",
+            """{"practiceSessionId":"$practiceId","focusId":"module-one-reading-words","planRevision":"module-one-reading-words-1","seed":47}""",
+        )
+        assertEquals(201, created.status.value)
+        validate(HttpMethod.Post, "/api/v1/practice-sessions", created)
+        val initial = created.bodyAsText().asObject()
+        assertEquals("pilot-5", initial.getValue("contentRevision").jsonPrimitive.content)
+        assertTrue(initial.getValue("introductionRequired").jsonPrimitive.content.toBoolean())
+        val firstId = currentExerciseId(initial)
+        assertEquals(409, submitAttempt(cookie, firstId, AttemptAnswerDto.Text("et magasin")).status.value)
+        val supportPath = "/api/v1/practice-sessions/$practiceId/support"
+        val supported = moduleOnePost(cookie, owner, supportPath, """{"kind":"introduction"}""")
+        assertEquals(200, supported.status.value)
+        validate(HttpMethod.Post, supportPath, supported)
+        var state = supported.bodyAsText().asObject()
+
+        assertEquals(400, submitAttempt(cookie, firstId, AttemptAnswerDto.Text("magasin")).status.value)
+        val wrong = submitAttempt(cookie, firstId, AttemptAnswerDto.Text("en bog"))
+        validate(HttpMethod.Post, "/api/v1/attempts", wrong)
+        val wrongGrade = wrong.bodyAsText().asObject()
+        assertEquals("not-met", wrongGrade.getValue("targetSatisfaction").jsonPrimitive.content)
+        assertEquals("acceptable", wrongGrade.getValue("linguisticStatus").jsonPrimitive.content)
+        assertTrue(readModuleOnePractice(cookie, practiceId).getValue("items").jsonArray.first().jsonObject
+            .getValue("canAdvance").jsonPrimitive.content.toBoolean())
+
+        val answers = listOf("et magasin", "en bog", "en avis", "et brev")
+        val senses = listOf("L024-S01", "L014-S01", "L015-S01", "L018-S01")
+        for ((position, answer) in answers.withIndex()) {
+            val exercise = state.getValue("currentExercise").jsonObject
+            assertEquals("E011", exercise.getValue("formatId").jsonPrimitive.content)
+            assertEquals(senses[position], exercise.getValue("lexicalTarget").jsonObject.getValue("senseId").jsonPrimitive.content)
+            val attempt = submitAttempt(cookie, currentExerciseId(state), AttemptAnswerDto.Text(answer))
+            validate(HttpMethod.Post, "/api/v1/attempts", attempt)
+            assertEquals("met", attempt.bodyAsText().asObject().getValue("targetSatisfaction").jsonPrimitive.content)
+            if (position == 0) assertReadingConfirmation(cookie, practiceId, firstId)
+            val advanced = advanceModuleOne(cookie, owner, practiceId, position)
+            assertEquals(200, advanced.status.value)
+            validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/advance", advanced)
+            state = advanced.bodyAsText().asObject()
+        }
+        assertEquals("completed", state.getValue("state").jsonPrimitive.content)
+        val rows = state.getValue("summary").jsonObject.getValue("rows").jsonArray.map { it.jsonObject }
+        assertEquals(senses.toSet(), rows.map {
+            it.getValue("lexicalTarget").jsonObject.getValue("senseId").jsonPrimitive.content
+        }.toSet())
+        assertTrue(rows.all { "assessmentMode" !in it && "targetSkillId" !in it })
+    }
+
+    private suspend fun ApplicationTestBuilder.assertReadingConfirmation(cookie: String, practiceId: UUID, exerciseId: String) {
+        fun feedbackExposure(state: JsonObject) =
+            state.getValue("items").jsonArray.first().jsonObject.getValue("lastAttemptContext").jsonObject
+                .getValue("priorExposure").jsonArray.filter {
+                    it.jsonObject.getValue("source").jsonPrimitive.content == "feedback"
+                }
+        assertTrue(feedbackExposure(readModuleOnePractice(cookie, practiceId)).isEmpty())
+        val repeated = submitAttempt(cookie, exerciseId, AttemptAnswerDto.Text("et magasin"))
+        assertEquals(200, repeated.status.value)
+        val prior = feedbackExposure(readModuleOnePractice(cookie, practiceId)).single().jsonObject
+        assertEquals("module-one:reading-meaning:L024-S01", prior.getValue("keys").jsonArray.single().jsonPrimitive.content)
+    }
+
+    private suspend fun ApplicationTestBuilder.readModuleOnePractice(cookie: String, practiceId: UUID) =
+        client.get("/api/v1/practice-sessions/$practiceId") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+        }.bodyAsText().asObject()
+
     private suspend fun ApplicationTestBuilder.moduleOneCookie(): String =
         client.post("/api/v1/development-session") {
             trustedHost()
@@ -1416,7 +1494,7 @@ class OpenApiContractTest {
             setBody("{}")
         }.headers[HttpHeaders.SetCookie]!!.substringAfter("astrid_session=").substringBefore(';')
 
-    private suspend fun ApplicationTestBuilder.pairTenPracticePost(
+    private suspend fun ApplicationTestBuilder.moduleOnePost(
         cookie: String,
         owner: String,
         path: String,

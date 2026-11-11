@@ -57,7 +57,10 @@ function targetKind(row: PracticeSummaryRow) {
   if (row.targetSkillId === "G006" && row.assessmentMode === "selection") return "Article selection";
   if (row.targetSkillId === "G006" && row.assessmentMode === "recall") return "Written article recall";
   if (row.targetSkillId) return "Grammar";
-  return row.lexicalTarget?.direction === "da-en" ? "Meaning recognition" : "Written headword recall";
+  if (row.lexicalTarget?.facet === "meaning") {
+    return row.lexicalTarget.direction === "da-en" ? "Meaning recognition" : "Meaning selection";
+  }
+  return "Written headword recall";
 }
 
 export default function PracticeSummary({

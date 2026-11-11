@@ -3,13 +3,14 @@ import { expect, test, type Page } from "@playwright/test";
 import { choosePractice, ownerHeaders, readPractice, type PracticeState } from "../support/practice.js";
 
 type CourseExercise = {
-  id: string; formatId: string; targetScopeId: string; context: string;
+  id: string; formatId: string; targetScopeId?: string; context: string;
+  lexicalTarget?: { entryId: string; senseId: string; facet: string; direction: string };
   prompt: {
     before?: string; after?: string; cue?: string; cueLanguage?: string; answerLanguage?: string;
     choices: string[]; blocks?: { id: string; text: string }[]; tileMode?: string;
   };
 };
-type CourseItem = PracticeState["items"][number] & { canAdvance?: boolean; targetScopeId: string; assessmentMode: string };
+type CourseItem = PracticeState["items"][number] & { canAdvance?: boolean; targetScopeId?: string; assessmentMode?: string };
 type CourseState = Omit<PracticeState, "items" | "currentExercise"> & {
   focusId: string; planRevision: string; contentRevision: string; generatorRevision: string;
   introductionOpened: boolean; introductionRequired: boolean;
@@ -32,6 +33,12 @@ const PRESENT_FORMS: Record<string, string> = {
 const POSSESSION_FORMS: Record<string, string> = {
   "Han | et brev.": "har", "Vi | en avis.": "har", "Du | en bog.": "har", "De | et brev.": "har",
 };
+const READING_WORDS: Record<string, { answer: string; entryId: string; senseId: string; label: string }> = {
+  "magazine (printed publication)": { answer: "et magasin", entryId: "L024", senseId: "L024-S01", label: "Magazine (printed publication)" },
+  book: { answer: "en bog", entryId: "L014", senseId: "L014-S01", label: "Book" },
+  newspaper: { answer: "en avis", entryId: "L015", senseId: "L015-S01", label: "Newspaper" },
+  "letter (written message)": { answer: "et brev", entryId: "L018", senseId: "L018-S01", label: "Letter (written message)" },
+};
 const SUBJECT_FIRST_ORDERS: Record<string, string[]> = {
   "We work.": ["vi", "arbejder"],
   "You sleep.": ["du", "sover"],
@@ -44,6 +51,11 @@ async function stateFor(page: Page) {
   return await readPractice(page.request, new URL(page.url()).searchParams.get("session")!) as unknown as CourseState;
 }
 function answerFor(exercise: CourseExercise) {
+  if (exercise.formatId === "E011") {
+    const target = READING_WORDS[exercise.prompt.cue ?? ""];
+    expect(target, "The literal authored English meaning identifies one Danish bundle").toBeDefined();
+    return target!.answer;
+  }
   if (exercise.targetScopeId === "have-possession-present") {
     const answer = POSSESSION_FORMS[`${exercise.prompt.before ?? ""}|${exercise.prompt.after ?? ""}`];
     expect(answer, "The literal supplied possession frame identifies har").toBeDefined();
@@ -303,12 +315,103 @@ test("possession with har requires teaching and retains literal first and latest
       latestOutcomes: expect.objectContaining({ fullyMet: 2 }),
     }),
   ]));
-  await expect(page.getByRole("button", { name: /^Next:/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Next: Words for things you read", exact: true }).click();
+  await expect(page.getByRole("radio", { name: "Words for things you read", exact: true })).toBeChecked();
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
   expect((await stateFor(page)).summary).toEqual(state.summary);
   await page.setViewportSize({ width: 320, height: 720 });
   await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+  await scan(page);
+});
+
+test("reading words retain related meaning choices and per-sense results", async ({ page }) => {
+  let state = await openCourse(page, "Words for things you read");
+  expect(state).toMatchObject({
+    focusId: "module-one-reading-words", planRevision: "module-one-reading-words-1",
+    contentRevision: "pilot-5", generatorRevision: "generator-5",
+    introductionRequired: true, introductionOpened: false, itemCount: 4, prerequisiteSkillIds: [],
+  });
+  const expectedTargets = Object.values(READING_WORDS).map(({ entryId, senseId }) => ({
+    entryId, senseId, facet: "meaning", direction: "en-da",
+  }));
+  expect(state.items.map((item) => item.lexicalTarget)).toEqual(expectedTargets);
+  for (const item of state.items) {
+    expect(item).not.toHaveProperty("targetSkillId");
+    expect(item).not.toHaveProperty("targetScopeId");
+    expect(item).not.toHaveProperty("assessmentMode");
+    expect(item).not.toHaveProperty("assessments");
+  }
+  const early = await page.request.post("/api/v1/attempts", {
+    headers: { "X-Astrid-Client": "playground" },
+    data: { attemptId: crypto.randomUUID(), exerciseId: state.currentExercise!.id, answer: { kind: "text", text: "et magasin" }, hintUsed: false },
+  });
+  expect(early.status()).toBe(409);
+  expect((await stateFor(page)).summary.attemptCount).toBe(0);
+
+  state = await beginCourse(page);
+  const introduction = page.getByRole("region", { name: "Session introduction", exact: true });
+  for (const phrase of ["et magasin", "en bog", "en avis", "et brev"]) {
+    await expect(introduction.getByText(phrase, { exact: true })).toHaveAttribute("lang", "da");
+  }
+  await scan(page);
+
+  const seen: string[] = [];
+  while (state.state !== "completed") {
+    const exercise = state.currentExercise!;
+    const target = READING_WORDS[exercise.prompt.cue ?? ""]!;
+    seen.push(exercise.prompt.cue!);
+    expect(exercise).toMatchObject({
+      formatId: "E011", lexicalTarget: { entryId: target.entryId, senseId: target.senseId, facet: "meaning", direction: "en-da" },
+    });
+    expect(new Set(exercise.prompt.choices)).toEqual(new Set(Object.values(READING_WORDS).map(({ answer }) => answer)));
+    await expect(page.getByText(exercise.prompt.cue!, { exact: true })).toHaveAttribute("lang", "en");
+    const choices = page.getByRole("group", { name: "Answer choices", exact: true });
+    for (const choice of exercise.prompt.choices) {
+      await expect(choices.getByText(choice, { exact: true })).toHaveAttribute("lang", "da");
+    }
+
+    if (state.cursor === 0) {
+      await submit(page, exercise, "en bog");
+      const wrong = await stateFor(page);
+      expect(latest(wrong)).toMatchObject({ targetSatisfaction: "not-met", linguisticStatus: "acceptable" });
+      expect(wrong.items[0]!.canAdvance).toBe(true);
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      const correct = choices.getByRole("button", { name: target.answer, exact: true });
+      await correct.focus();
+      await page.keyboard.press("Enter");
+      await page.getByRole("button", { name: "Check answer", exact: true }).click();
+      await expect(page.getByRole("status")).toBeFocused();
+    } else {
+      await submit(page, exercise, target.answer);
+    }
+    await expect(page.getByRole("status").getByText("Good work", { exact: true })).toBeVisible();
+    state = await next(page, await stateFor(page));
+  }
+
+  expect(seen).toEqual(Object.keys(READING_WORDS));
+  expect(state.summary).toMatchObject({ completedItems: 4, attemptedItems: 4, attemptCount: 5, retryCount: 1 });
+  expect(state.summary.rows).toHaveLength(4);
+  for (const [cue, target] of Object.entries(READING_WORDS)) {
+    expect(state.summary.rows).toContainEqual(expect.objectContaining({
+      label: target.label,
+      lexicalTarget: { entryId: target.entryId, senseId: target.senseId, facet: "meaning", direction: "en-da" },
+      plannedItems: 1, attemptedItems: 1, advancedItems: 1,
+      attemptCount: cue.startsWith("magazine") ? 2 : 1,
+      retryCount: cue.startsWith("magazine") ? 1 : 0,
+      firstOutcomes: expect.objectContaining(cue.startsWith("magazine") ? { targetNotMet: 1 } : { fullyMet: 1 }),
+      latestOutcomes: expect.objectContaining({ fullyMet: 1 }),
+      firstWithSupport: 1, firstWithPriorExposure: 1,
+    }));
+  }
+  await expect(page.getByText("Meaning selection", { exact: true })).toHaveCount(4);
+  await expect(page.getByText("Written headword recall", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Next:/ })).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+  expect((await stateFor(page)).summary).toEqual(state.summary);
   await scan(page);
 });
 
@@ -618,7 +721,7 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/practice");
       await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
       await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-      await expect(page.getByRole("radio")).toHaveCount(10);
+      await expect(page.getByRole("radio")).toHaveCount(11);
       await scan(page);
       const groupSession = page.getByRole("radio", { name: PROFILES[1].title, exact: true });
       await groupSession.focus(); await page.keyboard.press("Space");

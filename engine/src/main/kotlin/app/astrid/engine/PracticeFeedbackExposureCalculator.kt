@@ -11,6 +11,8 @@ object PracticeFeedbackExposureCalculator {
             when (exposurePolicyId) {
                 MODULE_ONE_EXPOSURE_POLICY -> if (attempts.any { it.disclosesModuleOneAnswer() }) candidateKeys else emptyList()
                 MODULE_ONE_ORDER_EXPOSURE_POLICY -> if (attempts.any { it.disclosesModuleOneOrder() }) candidateKeys else emptyList()
+                ReadingWordsPracticePlanner.EXPOSURE_POLICY_ID ->
+                    if (attempts.any { it.confirmsReadingMeaning() }) candidateKeys else emptyList()
                 else -> error("Unsupported exposure policy: $exposurePolicyId")
             }
         } else if (assessments.isEmpty()) {
@@ -29,6 +31,11 @@ object PracticeFeedbackExposureCalculator {
             candidateKeys.filter { it !in conditionalKeys || it in released }
         }
     }
+
+    private fun PracticeFeedbackAttemptObservation.confirmsReadingMeaning(): Boolean =
+        targetStatus == TargetStatus.MET &&
+            linguisticStatus == LinguisticStatus.ACCEPTABLE &&
+            responseConstraintStatus == ResponseConstraintStatus.MET
 
     private fun PracticeFeedbackAttemptObservation.disclosesModuleOneAnswer(): Boolean =
         targetStatus != TargetStatus.UNEVALUABLE ||

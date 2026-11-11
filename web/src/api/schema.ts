@@ -4542,7 +4542,7 @@ export interface components {
             /** @enum {integer} */
             itemCount: 4;
             prerequisiteSkillIds: ("G001" | "G002" | "G003" | "G005")[];
-        } | components["schemas"]["ModuleOneSingularProfile"] | components["schemas"]["ModuleOneGroupsProfile"] | components["schemas"]["ModuleOneErProfile"] | components["schemas"]["ModuleOneThingsProfile"] | components["schemas"]["ModuleOnePresentProfile"] | components["schemas"]["ModuleOneOrderProfile"] | components["schemas"]["ModuleOnePossessionProfile"];
+        } | components["schemas"]["ModuleOneSingularProfile"] | components["schemas"]["ModuleOneGroupsProfile"] | components["schemas"]["ModuleOneErProfile"] | components["schemas"]["ModuleOneThingsProfile"] | components["schemas"]["ModuleOnePresentProfile"] | components["schemas"]["ModuleOneOrderProfile"] | components["schemas"]["ModuleOnePossessionProfile"] | components["schemas"]["ModuleOneReadingWordsProfile"];
         ModuleOneSingularProfile: {
             /** @enum {string} */
             focusId: "module-one-singular";
@@ -4627,6 +4627,18 @@ export interface components {
             itemCount: 4;
             prerequisiteSkillIds: string[];
         };
+        ModuleOneReadingWordsProfile: {
+            /** @enum {string} */
+            focusId: "module-one-reading-words";
+            /** @enum {string} */
+            planRevision: "module-one-reading-words-1";
+            /** @enum {string} */
+            title: "Words for things you read";
+            description: string;
+            /** @enum {integer} */
+            itemCount: 4;
+            prerequisiteSkillIds: string[];
+        };
         PracticeSessionRequest: {
             /** Format: uuid */
             practiceSessionId: string;
@@ -4651,7 +4663,7 @@ export interface components {
             /** @enum {string} */
             planRevision: "present-verbs-1";
             seed: number;
-        } | components["schemas"]["ModuleOneSingularSessionRequest"] | components["schemas"]["ModuleOneGroupsSessionRequest"] | components["schemas"]["ModuleOneErSessionRequest"] | components["schemas"]["ModuleOneThingsSessionRequest"] | components["schemas"]["ModuleOnePresentSessionRequest"] | components["schemas"]["ModuleOneOrderSessionRequest"] | components["schemas"]["ModuleOnePossessionSessionRequest"];
+        } | components["schemas"]["ModuleOneSingularSessionRequest"] | components["schemas"]["ModuleOneGroupsSessionRequest"] | components["schemas"]["ModuleOneErSessionRequest"] | components["schemas"]["ModuleOneThingsSessionRequest"] | components["schemas"]["ModuleOnePresentSessionRequest"] | components["schemas"]["ModuleOneOrderSessionRequest"] | components["schemas"]["ModuleOnePossessionSessionRequest"] | components["schemas"]["ModuleOneReadingWordsSessionRequest"];
         ModuleOneSingularSessionRequest: {
             /** Format: uuid */
             practiceSessionId: string;
@@ -4713,6 +4725,15 @@ export interface components {
             focusId: "module-one-possession";
             /** @enum {string} */
             planRevision: "module-one-possession-1";
+            seed: number;
+        };
+        ModuleOneReadingWordsSessionRequest: {
+            /** Format: uuid */
+            practiceSessionId: string;
+            /** @enum {string} */
+            focusId: "module-one-reading-words";
+            /** @enum {string} */
+            planRevision: "module-one-reading-words-1";
             seed: number;
         };
         PracticeSupportRequest: {
@@ -4971,6 +4992,25 @@ export interface components {
             });
         } & {
             [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            focusId: "module-one-reading-words";
+            /** @enum {string} */
+            planRevision: "module-one-reading-words-1";
+            /** @enum {string} */
+            contentRevision: "pilot-5";
+            /** @enum {string} */
+            generatorRevision: "generator-5";
+            /** @enum {string} */
+            evaluationRevision: "evaluation-5";
+            /** @enum {integer} */
+            itemCount: 4;
+            /** @enum {boolean} */
+            introductionRequired: true;
+            items?: components["schemas"]["ModuleOneReadingWordsPracticeItem"][];
+            currentExercise?: components["schemas"]["PairFiveDanishChoiceExercise"];
+        } & {
+            [key: string]: unknown;
         }));
         PracticeFollowUp: {
             /** Format: uuid */
@@ -5202,6 +5242,13 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        ModuleOneReadingWordsPracticeItem: components["schemas"]["PracticeItem"] & ({
+            /** @enum {string} */
+            formatId: "E011";
+            lexicalTarget: components["schemas"]["DanishChoiceLexicalTarget"];
+        } & {
+            [key: string]: unknown;
+        });
         PracticeAssessment: components["schemas"]["GuidedGapPracticeAssessment"] | components["schemas"]["GuidedVerbFollowUpAssessment"] | components["schemas"]["GuidedArticleFollowUpAssessment"] | components["schemas"]["ModuleOnePracticeAssessment"] | components["schemas"]["ModuleOneOrderWordAssessment"] | components["schemas"]["ModuleOneOrderConstituentAssessment"] | components["schemas"]["ModuleOnePresentRecallAssessment"] | components["schemas"]["ModuleOnePossessionRecallAssessment"] | components["schemas"]["ModuleOnePresentSelectionAssessment"] | components["schemas"]["ModuleOnePossessionSelectionAssessment"];
         ModuleOnePracticeAssessment: {
             label: string;

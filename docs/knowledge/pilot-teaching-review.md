@@ -4,13 +4,13 @@
 
 This is a **proposed review process**, not a user-approved rubric, an arranged specialist
 engagement, or evidence that a specialist has reviewed or approved the content. It covers the
-private beginner preview at app **0.12.0**, content `pilot-11`, generator `generator-11`
+private beginner preview at app **0.13.0**, content `pilot-11`, generator `generator-11`
 and evaluation `evaluation-11`. Its language state remains `draft-not-teacher-reviewed`.
 See the [course slice](module-one-course-slice.md#s07-possession-with-har).
 
 The current bounded inventory is 27 lexical records, 109 licensed catalogue clauses and
-twenty-five standalone exercise formats. Seven guided profiles cover first steps through
-possession with `har`. The proposed review covers their teaching material and visible feedback.
+twenty-five standalone exercise formats. Eight guided profiles cover first steps through
+reading-material vocabulary. The proposed review covers their teaching and visible feedback.
 
 Software and source checks cover identifiers, deterministic generation, references, frozen
 compatibility and bounded inventories. They cannot decide whether Danish is natural, explanations
@@ -52,7 +52,7 @@ and [first-step activation contract](module-one-activation.md).
 | E012/E013 tiles | 99 units per format, including licensed orders and distractors |
 | E014 matching | Four boards and their private correspondences |
 | E015 two gaps | 92 units with displayed slots and private expected choices |
-| First-step profiles | Seven full required introductions and pinned policy metadata |
+| First-step profiles | Seven full required introductions and pinned policy metadata. Review S08's separate required introduction and meaning feedback live. |
 | E016–E019 | All 30 standalone authored tasks: 7 E016, 7 E017, 8 E018 and 8 E019 |
 | E020/E021 | Four inanimate-reference tasks, two selection and two recall, including antecedent/sense/context metadata; inspect per-item lessons and hints live |
 | E022/E023 | Ten named-present tasks, including four possession tasks, with scoped form targets and exact teaching exposure |
@@ -122,7 +122,7 @@ completed activity is not independent performance or mastery.
 
 ## Module 1: First steps review checklist
 
-Review each of the seven profiles both by direct entry and in the recommended sequence. For every
+Review each of the eight profiles both by direct entry and in the recommended sequence. For every
 profile and reachable task:
 
 - Confirm the complete required introduction appears and is saved before assessment. Check the
@@ -151,6 +151,9 @@ profile and reachable task:
   regular pattern in S05 and the stored possession form in S07. For E024/E025, check the
   transition from constituents to words and the separation of requested placement, missing
   words and linguistic judgment.
+- For S08, review the printed-magazine meaning and the three familiar reading-material senses.
+  Check each complete article+noun choice and the meaning-selection label. Review the
+  difference between an exposed choice and a confirmed cue-to-meaning mapping.
 - Exercise correct, related-wrong, casing-only, multiword, blank and unsupported responses.
   Inspect the actual UI feedback and completed sentence, not only export metadata. Unknown latest
   answers must keep support/retry available and block Continue; a revision-defined known

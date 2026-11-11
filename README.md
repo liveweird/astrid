@@ -97,6 +97,10 @@ and the [S05–S06 activity cards](docs/knowledge/module-one-course-slice.md#fol
 The possession session keeps the subject and object supplied while learners choose or type the
 stored present form `har`. See the [S07 activity cards](docs/knowledge/module-one-course-slice.md#s07-possession-with-har).
 
+**Words for things you read** introduces `et magasin` and reviews three familiar reading-material
+words in four meaning selections. Each Danish choice includes its article, and results stay
+separate by sense. See the [S08 contract](docs/knowledge/module-one-course-slice.md#s08-reading-material-vocabulary-bridge).
+
 Practice saves operation identities in this browser before sending them. Refresh resumes the URL-bound session and replays uncertain operations with their original identities; confirmed grades are read back without regrading. Recovery requires the original valid development cookie and browser storage. If either is unavailable, use **Start new practice**; old server history remains intact. Unsent drafts need not survive refresh. The standalone playground retains its existing in-tab recovery behavior.
 
 From a completed mixed/verb/guided-gap summary, select individual grammar or vocabulary targets and choose **Start selected review**. Recognition and written recall stay separate. Vocabulary targets add one item each; selecting grammar adds distinct sentences for a short run of up to eight items. No targets are selected automatically. Present-verb summaries keep selection, written recall and repair separate; choosing one, two or three operations produces four, four or six review items. The review saves its source link and possible earlier exposure, and keeps the original session's results intact. A single-word review can contain one item because repeating its cue would not add meaningful variation.

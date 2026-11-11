@@ -38,6 +38,8 @@ The six-item `module-one-present-1` and `module-one-order-1` plans pin pair ten.
 S06 has its own completion and exposure policies for order corrections and partial word banks.
 The four-item `module-one-possession-1` plan pins pair eleven. Its stored-form practice reuses
 the existing named-form completion and exposure policies.
+The four-item `module-one-reading-words-1` plan pins the existing pair-five E011 choices.
+Its `module-one-reading-word-exposure-1` policy records meaning confirmation on correct choices.
 Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 
 ## What is stored, and what that implies

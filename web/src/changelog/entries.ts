@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.13.0",
+    date: "2026-11-11",
+    body: `**Learn Danish words for things you read.**
+
+- **Words for things you read** adds four meaning activities for a printed magazine, a book, a newspaper and a written letter.
+- Read the required introduction to learn et magasin and review en bog, en avis and et brev as complete Danish article-and-noun phrases.
+- Choose among the same four related phrases. The supplied article is part of each choice; these activities assess the requested meaning, not article recall.
+- See a separate result for each meaning, retry a known wrong choice, reload the saved summary, or repeat the session.
+- Continue from **Saying what someone has** or enter the session directly. The material remains a draft awaiting Danish teaching review.`,
+  },
+  {
     version: "0.12.0",
     date: "2026-11-11",
     body: `**Say what someone has with har.**

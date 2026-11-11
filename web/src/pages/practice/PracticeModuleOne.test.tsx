@@ -113,6 +113,7 @@ it.each([
   ["Using present verb forms", "module-one-present", "module-one-present-1"],
   ["Building subject-first statements", "module-one-order", "module-one-order-1"],
   ["Saying what someone has", "module-one-possession", "module-one-possession-1"],
+  ["Words for things you read", "module-one-reading-words", "module-one-reading-words-1"],
 ] as const)("creates %s only after its exact catalog choice", async (title, focusId, planRevision) => {
   let body = "";
   vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
@@ -330,7 +331,7 @@ it("offers S05 after S04 without claiming a targeted review", async () => {
   expect(screen.queryByRole("button", { name: "Start selected review" })).not.toBeInTheDocument();
 });
 
-it("offers S07 after S06 and stops the explicit Module 1 sequence after S07", async () => {
+it("offers S07 after S06 and S08 after S07", async () => {
   saveRunRecovery({
     ownerSessionId: owner, practiceSessionId: practiceId,
     focusId: "module-one-order", planRevision: "module-one-order-1", seed: 47,
@@ -362,6 +363,45 @@ it("offers S07 after S06 and stops the explicit Module 1 sequence after S07", as
   });
   window.history.replaceState(null, "", `/practice?session=${practiceId}`);
   renderWithProviders(<Practice />);
-  expect(await screen.findByRole("button", { name: "Repeat this session" })).toBeVisible();
+  const next = await screen.findByRole("button", { name: "Next: Words for things you read" });
+  await user.click(next);
+  expect(screen.getByRole("radio", { name: "Words for things you read" })).toBeChecked();
+});
+
+it("labels S08 meaning selection and stops the explicit sequence after S08", async () => {
+  saveRunRecovery({
+    ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "module-one-reading-words", planRevision: "module-one-reading-words-1", seed: 47,
+  });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const targets = [
+    ["Magazine (printed publication)", "L024", "L024-S01"],
+    ["Book", "L014", "L014-S01"],
+    ["Newspaper", "L015", "L015-S01"],
+    ["Letter (written message)", "L018", "L018-S01"],
+  ];
+  const completed = moduleOneState({
+    focusId: "module-one-reading-words", planRevision: "module-one-reading-words-1", title: "Words for things you read",
+    state: "completed", cursor: 4, itemCount: 4, currentExercise: null, introductionOpened: true,
+    summary: {
+      ...completedState().summary, plannedItems: 4, completedItems: 4, attemptedItems: 4,
+      rows: targets.map(([label, entryId, senseId]) => ({
+        label, lexicalTarget: { entryId, senseId, facet: "meaning", direction: "en-da" },
+        plannedItems: 1, attemptedItems: 1, advancedItems: 1, attemptCount: 1, retryCount: 0,
+        firstOutcomes: outcomes, latestOutcomes: outcomes, firstWithSupport: 1, firstWithPriorExposure: 1,
+        lessonOpenedItems: 0, hintOpenedItems: 0,
+      })),
+    },
+  });
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.includes("/practice-sessions/")) return json(completed);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Practice />);
+
+  expect(await screen.findAllByText("Meaning selection")).toHaveLength(4);
+  for (const [label] of targets) expect(screen.getByRole("article", { name: label })).toBeVisible();
+  expect(screen.queryByText("Written headword recall")).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /^Next:/ })).not.toBeInTheDocument();
 });
