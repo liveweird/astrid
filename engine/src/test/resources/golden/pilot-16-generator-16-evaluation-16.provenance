@@ -1,0 +1,11 @@
+releaseSourceCommit=9bb10ae5633edb192651dc3d6956ff269b2a61eb
+releaseVersion=0.18.0
+captureDate=2026-11-11
+contentRevision=pilot-16
+generatorRevision=generator-16
+evaluationRevision=evaluation-16
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=3459
+fixtureSha256=c9805dd8cc2189d62efbbd7217fc987eb40eccef3889072b405cdc85b37d5ee8
+reviewSha256=aca468c27942fc9cfe583ebb772b8cafe580cc18c4a5db0650c9f92f5be6be20
+description=All thirty pair-sixteen format cycles and boundaries plus every authored E016-E030 task, all sixty E029 and twenty E030 complete permutations, complete private neutral-question task/source/exposure fields, G018/E030/L039/L040 metadata, canonical, partial, malformed and wrong-kind evaluations.

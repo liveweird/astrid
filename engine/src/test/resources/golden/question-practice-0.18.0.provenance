@@ -1,0 +1,9 @@
+releaseSourceCommit=9bb10ae5633edb192651dc3d6956ff269b2a61eb
+releaseVersion=0.18.0
+captureDate=2026-11-11
+planPairs=module-one-questions-1:pilot-16/generator-16/evaluation-16
+planRevisions=module-one-questions-1
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=55
+fixtureSha256=c9f15bce123ee7c350fe19eae24a950b0cec3f55de19631cb0238f267b885624
+description=The published four-item S13 neutral-question plan at four seeds, with the full task bank, required introduction, ordered exposure keys, prior-exposure/support/first-latest summaries, order-v1 policy boundaries, canonical and known-order outcomes, partial, malformed, wrong-kind and replayable evaluations.

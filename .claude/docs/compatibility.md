@@ -99,6 +99,10 @@ Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 | `server/.../pilot-10-generator-10-wire.tsv` (3,746) | `PilotTenWireCompatibilityTest` (SHA-256 pinned) | pair-ten public and inspector wire, attempts and reproduction fingerprints |
 | `engine/.../present-order-practice-0.11.0.tsv` (23) | `PresentOrderPracticeCompatibilityTest` (SHA-256 pinned) | S05/S06 teaching, plans, scoped outcomes, eligibility and exposure |
 | `server/.../present-order-practice-0.11.0-wire.tsv` (67) | `PresentOrderPracticeWireCompatibilityTest` (SHA-256 pinned) | S05/S06 saved requests, private plan/context, public lifecycle and replay |
+| `engine/.../pilot-16-generator-16-evaluation-16.tsv` (3,459) | `PilotSixteenCompatibilityGoldenTest` (SHA-256 pinned) | all thirty format cycles and boundaries, actual private question keys, inherited raw/Unicode grading cases, all E029/E030 permutations and byte-exact review |
+| `server/.../pilot-16-generator-16-wire.tsv` (4,193) | `PilotSixteenWireCompatibilityTest` (SHA-256 pinned) | pair-sixteen public/private wire, inspector, fingerprints, malformed-attempt persistence boundary, grades and exact replay |
+| `engine/.../question-practice-0.18.0.tsv` (55) | `QuestionPracticeCompatibilityTest` (SHA-256 pinned) | S13 four-item plan teaching/support, policies, scoped outcomes, ordered exposure, eligibility and replayable evaluations |
+| `server/.../question-practice-0.18.0-wire.tsv` (37) | `QuestionPracticeWireCompatibilityTest` (SHA-256 pinned) | S13 selected profile, saved request/private plan/context, public lifecycle, support, eligibility and exact replay wire |
 | `server/.../published-fingerprints.tsv` (978) | `PublishedFingerprintCompatibilityTest` (SHA-256 pinned) | original reproduction fingerprints of pilot-1/2 |
 
 Plus `PracticeWireCompatibilityTest` (legacy plan payload and practice item/response stay byte-stable when new optional fields are absent).
@@ -162,6 +166,15 @@ Pair fifteen and S12 were frozen from released 0.17.0 source `0f1b322` in
 `80fc257` before S13 production changes. The four archives contain 7,611 rows and
 pin actual private circumstance keys, review bytes and public/private lifecycle.
 
+Pair sixteen and S13 were frozen from the unchanged released 0.18.0 source
+`9bb10ae5633edb192651dc3d6956ff269b2a61eb` before S14 production changes. The four
+archives contain 7,744 rows and pin all thirty format pools, actual private neutral-question
+keys, review SHA-256 `aca468c27942fc9cfe583ebb772b8cafe580cc18c4a5db0650c9f92f5be6be20`,
+the four-item plan's teaching/support/outcome/exposure/eligibility projection, and exact
+public/private/saved-payload/replay wire. A later pair-seventeen change must switch the
+test-source moving adapters to literal `pilotSixteenSnapshot` and
+`renderPilotSixteenMarkdown()` without changing any captured byte.
+
 ## Export tasks
 
 | Task | Output |
@@ -198,5 +211,7 @@ pin actual private circumstance keys, review bytes and public/private lifecycle.
 | `:server:exportPilotThreeWireCompatibility` | writes a **new** wire fixture + provenance (refuses to overwrite) |
 | `:engine:exportPilotFifteenCompatibility` / `:server:exportPilotFifteenWireCompatibility` | add pair-fifteen evidence and provenance only (refuse overwrite) |
 | `:engine:exportCircumstancePracticeCompatibility` / `:server:exportCircumstancePracticeWireCompatibility` | add published S12 plan evidence and provenance only (refuse overwrite) |
+| `:engine:exportPilotSixteenCompatibility` / `:server:exportPilotSixteenWireCompatibility` | add pair-sixteen evidence and provenance only (refuse overwrite) |
+| `:engine:exportQuestionPracticeCompatibility` / `:server:exportQuestionPracticeWireCompatibility` | add published S13 evidence and provenance only (refuse overwrite) |
 
 Review exports are deterministic evidence for teaching review; they are not approval. The production engine does no file I/O.

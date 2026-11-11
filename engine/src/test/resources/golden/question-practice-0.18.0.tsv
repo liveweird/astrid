@@ -1,0 +1,55 @@
+CATALOG	5b188bb11dc3a6c58e892d755422b885908b3fd67b89c7faf612c8b01bba981d
+PLAN	module-one-questions	0	192b72837ebe79931eee23a888c17e84dc18939faf6f16e5d95b423ff0adfe71
+PLAN	module-one-questions	1	95c329285c33e8c75acff39c1d464a8917fd92ccf7966fc9c1d69f91137f2957
+PLAN	module-one-questions	47	ae00ca243642538a87d67466a7401990cbe01825c55cfe99cc4b06397b4567ff
+PLAN	module-one-questions	2147483647	45066c1192cf998ed18b6ed4a22ef899543b4abf37131058031057faf68aa83d
+SUMMARY	module-one-questions	bc3cce4cc5cfeaca6a378a6a714ce763804cbfe3ddf731bbef16ec3405430312
+EXPOSURE	module-one-questions	0	wrong	module-one:exact-order:question-read-newspapermodule-one:pattern:neutral-positive-yes-no
+EXPOSURE	module-one-questions	0	right	module-one:exact-order:question-read-newspapermodule-one:pattern:neutral-positive-yes-no
+EXPOSURE	module-one-questions	0	wrong-then-right	module-one:exact-order:question-read-newspapermodule-one:pattern:neutral-positive-yes-no
+EXPOSURE	module-one-questions	1	wrong	module-one:exact-order:question-workmodule-one:pattern:neutral-positive-yes-no
+EXPOSURE	module-one-questions	1	right	module-one:exact-order:question-workmodule-one:pattern:neutral-positive-yes-no
+EXPOSURE	module-one-questions	1	wrong-then-right	module-one:exact-order:question-workmodule-one:pattern:neutral-positive-yes-no
+EXPOSURE	module-one-questions	2	wrong	module-one:exact-order:question-residence-pluralmodule-one:pattern:neutral-positive-yes-no
+EXPOSURE	module-one-questions	2	right	module-one:exact-order:question-residence-pluralmodule-one:pattern:neutral-positive-yes-no
+EXPOSURE	module-one-questions	2	wrong-then-right	module-one:exact-order:question-residence-pluralmodule-one:pattern:neutral-positive-yes-no
+EXPOSURE	module-one-questions	3	wrong	module-one:exact-order:question-possession-lettermodule-one:pattern:neutral-positive-yes-no
+EXPOSURE	module-one-questions	3	right	module-one:exact-order:question-possession-lettermodule-one:pattern:neutral-positive-yes-no
+EXPOSURE	module-one-questions	3	wrong-then-right	module-one:exact-order:question-possession-lettermodule-one:pattern:neutral-positive-yes-no
+EVALUATION	0	E030	canonical	086a0df7a676946ea178382c97b3797aaadb2d728aebaa3071fd82a0f5a36cc6
+EVALUATION	0	E030	question-order-wrong	0eb7a0d2d62ca03d51dc54a55cb41d9c6c4ec467553eca9c3345112e845044ba
+EVALUATION	0	E030	partial-missing	d30658b2f8a0898ccbdf84efd07dc9f166ab3e6c6367fb857e48dcd15dff1b35
+EVALUATION	0	E030	reversed	e0cd6be46e2a7d0b73fc5b1492f1a33e7acc311afc20086dd1282bb83d49496b
+EVALUATION	0	E030	blank	003ed271037f576df867be7919baad48149917c780c5388ac85118b6733b42b0
+EVALUATION	0	E030	duplicate	735993b74c8489ed9005ce2fb6aa3c425bbf25039d57477e46f19a66a0f186f5
+EVALUATION	0	E030	unknown	35e40f699d21e9e78b1189b523b0ca0879ac84d033150bc2bca7f16e108c44bd
+EVALUATION	0	E030	wrong-kind	986eeaaee02161e77b399c11ce7c64fd876d6835a47b0b9677541d39fb63333b
+EVALUATION	1	E030	canonical	df3738c2d874ce74d4cf2fc68ab34545df0450f578214e349f58b723b776a185
+EVALUATION	1	E030	question-order-wrong	a3ff2974a6fad20a2b38916ed0ddf936eeb7e28b6d165b10843a584837742ee1
+EVALUATION	1	E030	partial-missing	cd3f60509ae00825a58c195400e1a5b3944f299e6eed31f20c5497f3cae80133
+EVALUATION	1	E030	reversed	a3ff2974a6fad20a2b38916ed0ddf936eeb7e28b6d165b10843a584837742ee1
+EVALUATION	1	E030	blank	003ed271037f576df867be7919baad48149917c780c5388ac85118b6733b42b0
+EVALUATION	1	E030	duplicate	bab6f029f5dbe9da8ae0aacfa53adda2eec8e4f91067205c9eb62c3e416780b3
+EVALUATION	1	E030	unknown	35e40f699d21e9e78b1189b523b0ca0879ac84d033150bc2bca7f16e108c44bd
+EVALUATION	1	E030	wrong-kind	986eeaaee02161e77b399c11ce7c64fd876d6835a47b0b9677541d39fb63333b
+EVALUATION	2	E030	canonical	96229fd2cff652ec363403c224119aceff8d57f97236c4ec81df74a01b576c0e
+EVALUATION	2	E030	question-order-wrong	d0002a6cb9e8cdba7ab98a63a6fe01e9f0e9e0f456514f92fa170e85b0a0347b
+EVALUATION	2	E030	partial-missing	b475be0cf076065cef2b58053eb042b6a92a1bce23eea3680fd9d31664980d30
+EVALUATION	2	E030	reversed	2c9fe7f3cb30c5315dd8df3e41eac9c9ede31388713226fdfb19e01bd14722df
+EVALUATION	2	E030	blank	003ed271037f576df867be7919baad48149917c780c5388ac85118b6733b42b0
+EVALUATION	2	E030	duplicate	199788609139fe436a5e9731c6173939bca16e7a1f433d26223732d57e2704fc
+EVALUATION	2	E030	unknown	35e40f699d21e9e78b1189b523b0ca0879ac84d033150bc2bca7f16e108c44bd
+EVALUATION	2	E030	wrong-kind	986eeaaee02161e77b399c11ce7c64fd876d6835a47b0b9677541d39fb63333b
+EVALUATION	3	E030	canonical	760ba47a45dcc9bcc7c71d8989d9285417cfee8e976deaf5b70ce6171e45da64
+EVALUATION	3	E030	question-order-wrong	987bca7b4b7cf5f60a00f960675acaae74e751195c547d8bc6fd977512f49e89
+EVALUATION	3	E030	partial-missing	0babbb03d1253d41e48ed4bec6b974040afc49af046063a489c166f4c38b862e
+EVALUATION	3	E030	reversed	8e6fb9ffb531fbae90a06e85ca9356b83158c32da6499da7930e3da81e514f72
+EVALUATION	3	E030	blank	003ed271037f576df867be7919baad48149917c780c5388ac85118b6733b42b0
+EVALUATION	3	E030	duplicate	199788609139fe436a5e9731c6173939bca16e7a1f433d26223732d57e2704fc
+EVALUATION	3	E030	unknown	35e40f699d21e9e78b1189b523b0ca0879ac84d033150bc2bca7f16e108c44bd
+EVALUATION	3	E030	wrong-kind	986eeaaee02161e77b399c11ce7c64fd876d6835a47b0b9677541d39fb63333b
+COMPLETION	module-one-order-outcome-1	missing-attempt	false
+COMPLETION	module-one-order-outcome-1	met	true
+COMPLETION	module-one-order-outcome-1	missing-correction	true
+COMPLETION	module-one-order-outcome-1	known-order-error-advances	true
+COMPLETION	module-one-order-outcome-1	malformed	false

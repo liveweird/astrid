@@ -1085,3 +1085,64 @@ release tag retain source `9bb10ae`.
 S14 remains a proposal. If selected, freeze the actual tagged 0.18.0 source before
 advancing CURRENT, and preserve the released browser runner, strict runtime bootstrap,
 mirror selector and existing client/API corrections while integrating the older draft.
+
+## S14 activation — 11 November 2026
+
+**User-confirmed selection:** the user's “S14” selects **Starting with time or place**
+(BL-063) after S13 delivery. This supersedes S14's proposal status in the historical
+completion note above. Implement app 0.19.0 / pair seventeen, E031/G021 scope
+`fronted-time-place-v2`, profile `module-one-fronting-1`. S15 remains unselected.
+The standing independent review, full Docker-backed gates, focused commit/merge/push,
+annotated release, verified backup restore and app-only private-preview workflow apply.
+
+Freeze the actual published 0.18.0 source `9bb10ae5633edb192651dc3d6956ff269b2a61eb`
+before changing CURRENT. The current master descendant adds only delivery notes and a
+runner-test annotation fix; the release tag remains the freeze authority. Capture all
+thirty formats, private question keys, review bytes and complete S13 practice wire/lifecycle.
+Older rehearsal exports and placeholder hashes are not published-source evidence.
+
+| Supplied original | Requested first part | Requested answer |
+| --- | --- | --- |
+| `Jeg arbejder i dag.` | `i dag` | `I dag arbejder jeg.` |
+| `Hun læser et brev nu.` | `nu` | `Nu læser hun et brev.` |
+| `Vi bor i Aarhus.` | `i Aarhus` | `I Aarhus bor vi.` |
+| `I læser en avis i dag.` | `i dag` | `I dag læser I en avis.` |
+
+Supply the full English meaning, explicit subject reference, intact Danish constituents
+and full stop. Require saved teaching with three separate worked transformations and
+meanings. V2 counts constituents: `i dag` and `i Aarhus` each fill one position. Keep
+lexical uppercase `I` when it follows the verb. Reuse the 40 lexical records, preserve the
+109 catalogue sentences and add only scoped C008 permissions for the authored/worked frames.
+The Danish Language Council's [V2 explanation](https://dsn.dk/nyt-fra-sprognaevnet/maj-2021/fire-maader-hvorpaa-engelsk-har-praeget-dansk-grammatik/)
+describes inversion after an initial adverbial and discusses exceptions outside this slice.
+Its [constituent guide](https://sproget.dk/typiske-problemer/saetningsled/) explains that a
+sentence part may contain several words. These source checks do not confer teaching approval.
+
+The structural predicate tests finite verb second and subject third. The response constraint
+also requires the specified opening and complete requested order. The exact original SVO
+statement stays acceptable with preserved meaning, target not met and request not met.
+Only the authored front–subject–verb corruption receives `FRONTED_FINITE_VERB_POSITION`,
+known-issue language and preserved meaning within that bounded frame. Other permutations
+retain unknown language/meaning; an object-first order such as `et brev | læser | hun | nu`
+can meet the structural target while missing the requested order. Every complete off-request
+response carries `REQUESTED_ORDER_CONSTRAINT` and discloses the requested answer.
+
+Fingerprint both distinct inspector orders by kind: the requested frame and
+`subject-first-outside-request`. Bind private front identity, original order, frame,
+roles, forms and answer key to that representation; mutate the actual private source in tests.
+Close all four prompt-to-bank correlations and summary/profile/revision correlations.
+Reject incomplete, duplicate, foreign and wrong-kind submissions before saving an attempt.
+Cover all 60 permutations, same-task deterministic bank variation and boundary indices,
+uppercase `I`, required teaching/exposure, retry, summaries and exact owner-bound replay.
+
+S13's stored plan and full response bytes remain unchanged. Next-profile navigation is
+client-derived, so adding explicit S13→S14 chooser continuation is a deliberate additive UI
+change, not a rewrite of stored S13 wire data. S13 keeps no legacy follow-up fallback;
+S14 supports direct entry and repeat and is terminal until another selection.
+
+**Integration constraints:** the old draft removes released question/circumstance private-key
+checks and question teaching meanings, drops strict prompt matrices/validator self-tests and
+omits both real client order serializers. Integrate bounded new files into current source;
+preserve lazy response-only validation/cache two, closed summary schemas, full-bank readiness,
+retry retention, narrow summary wrapping, all retained plans/pools/goldens, and the delivered
+CI browser/Node and strict APT/mirror guards. No migration, dependency or heap change is planned.

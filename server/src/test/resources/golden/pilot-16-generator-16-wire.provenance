@@ -1,0 +1,10 @@
+releaseSourceCommit=9bb10ae5633edb192651dc3d6956ff269b2a61eb
+releaseVersion=0.18.0
+captureDate=2026-11-11
+contentRevision=pilot-16
+generatorRevision=generator-16
+evaluationRevision=evaluation-16
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=4193
+fixtureSha256=76a7605da791cf067c5071897cd748fa07d946a08556ca87c8d9b352af14ac18
+description=All thirty pair-sixteen formats: finite cycles and boundaries, bounded E014 samples, all E016-E030 tasks/scopes, sixty E029 and twenty E030 complete permutations, public and inspector wire, question-position grades, malformed 400/no-persist contract, fingerprints and replay.

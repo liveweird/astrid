@@ -475,6 +475,39 @@ tasks.register<JavaExec>("exportCircumstancePracticeWireCompatibility") {
     outputs.files(circumstancePracticeWireFixture, circumstancePracticeWireProvenance)
 }
 
+val pilotSixteenWireFixture = layout.projectDirectory.file("src/test/resources/golden/pilot-16-generator-16-wire.tsv")
+val pilotSixteenWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-16-generator-16-wire.provenance")
+
+tasks.register<JavaExec>("exportPilotSixteenWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-16 public and private wire compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.PilotSixteenWireCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(pilotSixteenWireFixture.asFile.absolutePath, pilotSixteenWireProvenance.asFile.absolutePath)
+    })
+    outputs.files(pilotSixteenWireFixture, pilotSixteenWireProvenance)
+}
+
+val questionPracticeWireFixture =
+    layout.projectDirectory.file("src/test/resources/golden/question-practice-0.18.0-wire.tsv")
+val questionPracticeWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/question-practice-0.18.0-wire.provenance")
+
+tasks.register<JavaExec>("exportQuestionPracticeWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.18.0 Module One S13 question practice wire fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.QuestionPracticeWireCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(questionPracticeWireFixture.asFile.absolutePath, questionPracticeWireProvenance.asFile.absolutePath)
+    })
+    outputs.files(questionPracticeWireFixture, questionPracticeWireProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

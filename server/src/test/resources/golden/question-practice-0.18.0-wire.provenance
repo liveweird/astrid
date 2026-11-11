@@ -1,0 +1,8 @@
+releaseSourceCommit=9bb10ae5633edb192651dc3d6956ff269b2a61eb
+releaseVersion=0.18.0
+captureDate=2026-11-11
+planPairs=module-one-questions-1:pilot-16/generator-16/evaluation-16
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=37
+fixtureSha256=7f6698e10b465dfd12b216e3f5931c8e5bb0133d84818b1f4e1429d985cb7bca
+description=The four-item S13 neutral-question plan at four seeds; exact profile/request/private-plan and public lifecycle wire including before-teaching 409, full task bank, required teaching, support/prior exposure, first/latest summary outcomes, scoped eligibility, frozen context and exact replay. No follow-up fallback.
