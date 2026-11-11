@@ -692,11 +692,15 @@ an explicit system CA bundle restored public REST read access with certificate
 verification enabled. Exact-source CI run `42960995220` is confirmed complete and
 successful, with all five jobs successful. Its full browser log has not yet been
 retrieved because that endpoint requires authentication. Authenticated delivery is
-still blocked. Git’s keychain helper fails and `gh auth token` cannot retrieve a
-credential after logout. A fresh desktop login and credential-access retry are needed. [Candidate CI](https://github.com/liveweird/astrid/actions/runs/42960995220)
+still blocked in the agent's execution environment. Git's keychain helper fails
+and `gh auth token` cannot retrieve a credential there. The user subsequently
+confirmed that `gh auth status` succeeds in their normal Terminal. The underlying
+environment difference is unconfirmed; the earlier desktop-logout suggestion
+was premature. Do not remove credentials, change permissions or require a desktop
+logout. [Candidate CI](https://github.com/liveweird/astrid/actions/runs/42960995220)
 
-Resume by restoring credential access, reading the exact-source CI browser log,
-and completing Chromium/WebKit checks in a working native or packaged environment.
+Resume by restoring execution-shell credential access and reading the exact-source
+CI browser log. Browser verification history for this candidate follows.
 The additional packaged Linux run finished with 404 of 406 tests passing, two
 WebKit accessibility-sweep timeouts, and no skipped tests, retries or flakies.
 All 203 Chromium tests passed. Trace inspection shows that both sweeps reached
@@ -705,15 +709,20 @@ exceeded the existing 30-second test deadline. Eleven scans had completed, with
 each Axe blank-page aggregation phase taking about 1.6 seconds. The browser
 remained alive and every subsequent WebKit test completed. This identifies a
 cumulative test-budget overrun; the performance difference between native and
-packaged Linux WebKit is not isolated to a particular cause. No full-suite pass
-is claimed. Logs, traces and the final result remain under `.local/s11/`.
+packaged Linux WebKit is not isolated to a particular cause. That failed run
+supplies no full-suite pass. Logs, traces and the final result remain under `.local/s11/`.
 The bounded correction separates format/feedback and recovery sweeps in each
 theme, preserving every scan and transition, timeout and retry policy. Keep its
 verification separate from the original failed run and the earlier BL-055 issue.
 Independent review found no remaining actionable defect. All eight split sweeps
 passed in packaged Chromium and WebKit against the unchanged S11 image, with
-zero retries. The revised full suite lists 410 tests; a full run is still pending.
-The repository gate passed, including PostgreSQL tests. GitHub credential
+zero retries. The revised full packaged suite then passed all 410 tests in
+41.5 minutes: 205 Chromium and 205 WebKit, with no failures, skips, interruptions,
+retries or flakies. App source and image remain unchanged; the reviewed test
+harness is `2c3f577abe519920aaff8a7eaf1a55059a9b813c`, with E2E tree
+`73e27cc71ee73e0277f88f62da3e90928be73601`. Evidence is retained in
+`.local/s11/split-full-proof.json` and `split-full-linux.log`; preserve the earlier
+failed run separately. The repository gate passed, including PostgreSQL tests. GitHub credential
 retrieval and native server-free WebKit startup still fail on resumption.
 A successful native macOS run is an additional
 local check chosen during implementation. Preserve required both-engine coverage
@@ -722,6 +731,28 @@ release, restore a restricted-permission backup in isolation, promote only the a
 verify saved history and preview smoke checks, and remove owned QA resources.
 The S11 QA stack remains for this work. Verify ownership before cleanup.
 Do not change login/security settings or treat the host failure as an app defect.
+
+**Compaction handoff after full verification:** the accessibility correction is
+committed and merged locally at `2c3f577`; it and documentation commit `b5b6185`
+remain unpushed. The current handoff adds another documentation-only commit.
+No release or promotion has run, and the owned S11 QA stack remains healthy.
+Resume by checking whether the execution shell can resolve GitHub and retrieve
+its existing credential; approved elevated execution did not resolve either
+failure during this session. Public REST access with verified TLS confirmed
+remote master still at `9dd787c`. The user's working Terminal is separate evidence,
+not a reason to change their GitHub login.
+
+An independently reviewed, ignored helper, `.local/s11/github-bridge.py`, was
+prepared to fetch authenticated CI logs, push specific commits, publish the
+annotated `v0.16.0` release at `9dd787c`, then wait for actual promotion/cleanup
+before a final documentation push. It has not been run. The user asked about its
+scope; no helper process or release/promotion proof existed at handoff. It is
+optional session tooling, not an established repository command. **Do not ask the
+user to run it unchanged:** its first-publication guard requires HEAD exactly
+`2c3f577`, so this newer handoff makes that guard fail. Reassess the need and
+review any adaptation before use; prefer restoring ordinary Git/gh execution.
+Its underlying delivery helpers and `.local/s11/RELEASE-RESUME.md` preserve the
+remaining operations. No credential was copied or exported.
 
 ### Prepared S12–S15 continuation — 11 November 2026
 
