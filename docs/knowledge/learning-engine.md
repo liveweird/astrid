@@ -181,3 +181,76 @@ Repeat/next opens the chooser without automatically starting a run; these profil
 targeted-review fallback. The [contract and verified delivery](module-one-activation.md#observed-runtime-delivery--10-november-2026) record bounds,
 recovery, independent review and release evidence. Broader Module 1 activation, scheduling,
 mastery, learner review and Danish teaching validation remain separate work.
+
+## Learner navigation, cumulative review and richer content — 11 November 2026
+
+**User feedback and requested direction:** tidy the main menu; clarify whether Practice lists
+specific lessons and mixes grammar/vocabulary; explore cumulative practice, less repetitive
+vocabulary and more realistic sentences. The following layout and delivery order are assistant
+proposals for discussion, not shipped functionality or approval of every proposed feature.
+S14 remains paused at its documented checkpoint; this discussion does not select S15.
+
+### Current behavior
+
+App 0.18.0 opens the developer playground. Practice lists fifteen Module 1 sessions and three
+other profiles. Grammar and vocabulary already coexist: Mixed practice combines lexical
+recognition/recall with ordering/articles, and Module 1 includes Words for things you read.
+That mixed plan is fixed to its original revision; it does not draw from everything a learner
+has studied. Targeted follow-up starts from one completed source run, not cumulative history.
+
+The catalogue's forty lexical records and 109 licensed clauses overstate the variety visible
+in individual activities: E007/E008 use three noun senses, and E011/E014 use four. Several newer
+grammar sessions deliberately have a few fixed tasks. Shuffling options cannot broaden these
+assessment pools. The authored grammar/construction maps are not all executable language rules.
+
+### Proposed navigation and session structure
+
+- **Lessons:** default landing page; modules, topic units and their short sessions, with a clear
+  continue/resume action. Label sessions Grammar, Vocabulary or Combined without splitting
+  the synchronized course into unrelated tracks. Show observed started/completed state, not
+  invented mastery. Keep active/uncertain run recovery intact when navigating.
+- **Review:** mixed practice across studied material, plus focused grammar/vocabulary choices.
+  Preserve source-linked reviews and existing stored plans; do not relabel the old mixed plan
+  as adaptive cumulative review. New sessions require a new planning contract.
+- **Vocabulary:** introduced words and phrases grouped by situations, with article/form bundles,
+  meanings, examples and recognition/recall practice. It shares lexical identities with Lessons;
+  it is not a second content database. Broader browsing and learner-specific introduced status
+  need implementation; no empty destination should be presented as complete.
+- Retain the playground for content authoring/debugging under secondary **Developer tools**;
+  move Changelog to the existing version/footer area. Preserve the sibling shell and red brand.
+
+For cumulative review, choose eligible skills, senses and operations from stored teaching and
+practice evidence; completion alone does not demonstrate knowledge. Combine different targets
+across a short run while keeping each exercise's primary target explicit. Prefer unseen licensed
+examples, avoid adjacent repeated prompts/formats and rotate recognition, recall, tiles and reading.
+If the eligible pool is small, allow honest repetition or a shorter run. Keep support, exposure,
+first/latest attempts and unknown outcomes distinct. Persist the selected items and revisions so
+resume/retry is exact. Cross-session evidence aggregation and longer-lived learner identity are
+additional work; current development-session ownership is not a cross-device progress account.
+
+### Proposed vocabulary and sentence expansion
+
+Reuse the [thematic blueprint](vocabulary-course-blueprint.md) and
+[Module 1 language pack](module-one-language-pack.md). Expand a small everyday situation first
+(identity/home or daily routines), with nouns, verbs and useful chunks together. Each new packet
+needs stable sense IDs, introduced forms, noun gender/countability, verb complements/collocations,
+English meanings, grammar prerequisites, licensed examples and review/source status. Extend the
+actual exercise pools, including recall and matching; adding unused dictionary rows is insufficient.
+
+Generate from a licensed meaning/frame, then select compatible vocabulary, inflect it and realize
+the requested word order. Subjects, objects, time/place phrases and question forms can vary only
+where morphology, valency, meaning and taught prerequisites permit. For example, extend a simple
+work statement with a useful time/place context, then contrast statement/question/fronted variants
+as each structure is activated. Later add short connected messages and dialogues; longer sentences
+are not automatically more useful. These are authoring directions, not newly approved Danish cards.
+
+Separate structural generation from exercise rendering and grading. Keep semantic restrictions
+(e.g. what a verb can naturally take as an object), accepted variants and target-specific distractors.
+Seeded sampling plus recent-item avoidance provides reproducible variety; preserve the resulting
+plan and every published generator/grader. Runtime free-form AI generation is not selected.
+
+**Proposed sequence:** learner navigation first (BL-065), one reusable thematic packet under
+BL-004/BL-046 with generation work under BL-010, then cumulative review (BL-066, coordinated with
+BL-011). This is a proposed reprioritization, not a change to S14's selected backlog status.
+Before cumulative implementation, define what counts as introduced material, history ownership
+and review eligibility; scheduling and mastery thresholds remain separate decisions.
