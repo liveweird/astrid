@@ -970,3 +970,42 @@ PostgreSQL process/mounts and Flyway versions 1–3. All 128 live-preview
 browser checks passed without retries; ownership-verified cleanup removed only the QA
 resources. This supersedes the earlier 0.16.0 running-preview statement. Danish teaching
 review and S13–S15 remain separate work.
+
+## S13 activation — 11 November 2026
+
+**User-confirmed selection:** after verified S12 delivery, the user said “go with S13
+then”. Implement the prepared four-item **Asking yes or no questions** profile as
+app 0.18.0 / pair sixteen. Freeze the actual published 0.17.0 / pair-fifteen source
+before production edits. Supply the statement, English meaning and complete Danish
+constituents; assess finite verb first and subject second in neutral positive yes/no
+questions. Preserve lexical uppercase `I`, intact complements, required teaching,
+scoped G018 outcomes, exact saved replay and all earlier contracts.
+
+The standing focused commit/merge/push, independent review, complete Docker-backed
+and both-browser verification, annotated release, verified backup/restore and app-only
+private-preview promotion workflow applies. S14 and S15 remain unselected. Prepared
+drafts require integration against the released S12 client, schema and validator fixes;
+isolated rehearsal results do not establish delivery or Danish teaching approval.
+
+**Source check and teaching boundary:** the [sproget.dk word-order explanation](https://sproget.dk/sprogviden/spoergsmaal-og-svar/maal-og-maele/ledstilling-i-ja-nej-spoergsmaal/)
+distinguishes finite-verb-first questions from intonation questions and questions
+introduced by `mon`. S13 requests only the neutral finite-verb-first pattern; an
+off-request order receives bounded structural feedback, without a general claim that
+all other Danish question orders are ungrammatical. The source is an older explanatory
+article, not specialist approval of these authored cards. [DDO `ja¹`, sense 1](https://ordnet.dk/ddo/ordbog/ja)
+and [DDO `nej¹`, sense 1](https://ordnet.dk/ddo/ordbog/nej) support the introduced
+affirmative/negative short answers to positive questions. These are lesson support,
+not scored vocabulary recall; negative questions and `jo` remain outside this package.
+
+**Integration findings:** prepared drafts predate the released S12 private-key
+consistency guard, exact summary-schema correlations, response-only validator lifecycle,
+client order dispatch/retry retention and enlarged-text regressions. Preserve those
+released corrections while adding S13; do not overlay old core files or infer successful
+integration from the rehearsal's passing tests.
+
+**CI envelope check:** the released S12 exact-source image job used 2,007 seconds,
+including 1,728 seconds in packaged browser journeys, leaving 393 seconds under
+the existing 40-minute outer budget. Keep that budget, full browser suite, timeouts,
+workers, retry policy and scans unchanged for this bounded S13 addition; verify the
+actual integrated runtime before release. This headroom is an observed prior run,
+not a guaranteed duration.

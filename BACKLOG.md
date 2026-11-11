@@ -22,7 +22,7 @@ assistant's design proposals.
 
 ## Exercises and engine
 
-- [new] **BL-062 — Activate S13 neutral yes/no questions.** After S12, transform supplied positive statements into finite-verb-first questions. Preserve uppercase `I`, scoped G018 evidence, required teaching, malformed-request isolation and versioned replay. An isolated implementation draft exists. Follow the [continuation contract](docs/knowledge/module-one-course-slice.md#prepared-s12s15-continuation--11-november-2026).
+- [next] **BL-062 — Activate S13 neutral yes/no questions.** After S12, transform supplied positive statements into finite-verb-first questions. Preserve uppercase `I`, scoped G018 evidence, required teaching, malformed-request isolation and versioned replay. An isolated implementation draft exists. Follow the [continuation contract](docs/knowledge/module-one-course-slice.md#prepared-s12s15-continuation--11-november-2026).
 
 - [new] **BL-063 — Activate S14 fronted time/place V2.** After S13, request a supplied initial constituent and distinguish the structural target from the exact requested order. Preserve valid subject-first feedback and fingerprint all private grading inputs. An isolated implementation draft exists. Follow the [continuation contract](docs/knowledge/module-one-course-slice.md#prepared-s12s15-continuation--11-november-2026).
 

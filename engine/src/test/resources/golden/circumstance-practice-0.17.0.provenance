@@ -1,0 +1,9 @@
+releaseSourceCommit=0f1b322903fc243871b3b7293a26b52af80dd0dc
+releaseVersion=0.17.0
+captureDate=2026-11-11
+planPairs=module-one-circumstances-1:pilot-15/generator-15/evaluation-15
+planRevisions=module-one-circumstances-1
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=60
+fixtureSha256=1504cdd5a0b624b4a148352182e910535b11dc7410c92d100ea38bd2ca228c4f
+description=The published four-item S12 final-circumstance plan at four seeds, with the full task bank, required introduction, ordered exposure keys, prior-exposure/support/first-latest summaries, order-v1 policy boundaries, complete permutations, partial, malformed, wrong-kind and replayable evaluations.

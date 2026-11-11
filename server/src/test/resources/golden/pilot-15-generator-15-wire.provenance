@@ -1,0 +1,10 @@
+releaseSourceCommit=0f1b322903fc243871b3b7293a26b52af80dd0dc
+releaseVersion=0.17.0
+captureDate=2026-11-11
+contentRevision=pilot-15
+generatorRevision=generator-15
+evaluationRevision=evaluation-15
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=4119
+fixtureSha256=123f43796739da3761facc0736e617ef4f32412e5e6c75de9140240b010558c5
+description=All twenty-nine pair-fifteen formats: finite cycles and boundaries, bounded E014 samples, all E016-E029 tasks/scopes, four E029 tasks and sixty complete permutations, public and inspector wire, target-last versus core-order grades, malformed 400/no-persist contract, fingerprints and replay.

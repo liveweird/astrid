@@ -480,6 +480,43 @@ tasks.register<JavaExec>("exportModalRoundPracticeCompatibility") {
     outputs.files(modalRoundPracticeCompatibilityFixture, modalRoundPracticeCompatibilityProvenance)
 }
 
+val pilotFifteenCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-15-generator-15-evaluation-15.tsv")
+val pilotFifteenCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-15-generator-15-evaluation-15.provenance")
+
+tasks.register<JavaExec>("exportPilotFifteenCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-15 engine generation and evaluation compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PilotFifteenCompatibilityGoldenExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(pilotFifteenCompatibilityFixture.asFile.absolutePath, pilotFifteenCompatibilityProvenance.asFile.absolutePath)
+    })
+    outputs.files(pilotFifteenCompatibilityFixture, pilotFifteenCompatibilityProvenance)
+}
+
+val circumstancePracticeCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/circumstance-practice-0.17.0.tsv")
+val circumstancePracticeCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/circumstance-practice-0.17.0.provenance")
+
+tasks.register<JavaExec>("exportCircumstancePracticeCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.17.0 Module One S12 circumstance practice fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.CircumstancePracticeCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(
+            circumstancePracticeCompatibilityFixture.asFile.absolutePath,
+            circumstancePracticeCompatibilityProvenance.asFile.absolutePath,
+        )
+    })
+    outputs.files(circumstancePracticeCompatibilityFixture, circumstancePracticeCompatibilityProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

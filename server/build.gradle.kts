@@ -442,6 +442,39 @@ tasks.register<JavaExec>("exportModalRoundPracticeWireCompatibility") {
     outputs.files(modalRoundPracticeWireFixture, modalRoundPracticeWireProvenance)
 }
 
+val pilotFifteenWireFixture = layout.projectDirectory.file("src/test/resources/golden/pilot-15-generator-15-wire.tsv")
+val pilotFifteenWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-15-generator-15-wire.provenance")
+
+tasks.register<JavaExec>("exportPilotFifteenWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-15 public and private wire compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.PilotFifteenWireCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(pilotFifteenWireFixture.asFile.absolutePath, pilotFifteenWireProvenance.asFile.absolutePath)
+    })
+    outputs.files(pilotFifteenWireFixture, pilotFifteenWireProvenance)
+}
+
+val circumstancePracticeWireFixture =
+    layout.projectDirectory.file("src/test/resources/golden/circumstance-practice-0.17.0-wire.tsv")
+val circumstancePracticeWireProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/circumstance-practice-0.17.0-wire.provenance")
+
+tasks.register<JavaExec>("exportCircumstancePracticeWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.17.0 Module One S12 circumstance practice wire fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.CircumstancePracticeWireCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(circumstancePracticeWireFixture.asFile.absolutePath, circumstancePracticeWireProvenance.asFile.absolutePath)
+    })
+    outputs.files(circumstancePracticeWireFixture, circumstancePracticeWireProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

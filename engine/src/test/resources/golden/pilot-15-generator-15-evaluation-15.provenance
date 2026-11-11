@@ -1,0 +1,11 @@
+releaseSourceCommit=0f1b322903fc243871b3b7293a26b52af80dd0dc
+releaseVersion=0.17.0
+captureDate=2026-11-11
+contentRevision=pilot-15
+generatorRevision=generator-15
+evaluationRevision=evaluation-15
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=3395
+fixtureSha256=753cd5742e90d30500af5ae55c7de7d0fb6aa9988d85180451a535acb17d4a19
+reviewSha256=af3a0d37be95a1ffd9428bd2006c6b31341958ea78955fc0dc32b64326ac2518
+description=All twenty-nine pair-fifteen format cycles and boundaries plus every authored E016-E029 task, all four E029 tasks and all sixty complete permutations across them, complete private final-circumstance task/source/exposure fields, G016/E029/L032/L037/L038 metadata, canonical, partial, malformed and wrong-kind evaluations.
