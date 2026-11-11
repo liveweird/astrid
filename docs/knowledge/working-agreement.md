@@ -67,6 +67,13 @@ Use the applicable escalation/approval mechanism for Git writes and network comm
 
 Earlier attempts to create the work branch and reach GitHub failed under the prior policy. The fallback patch groups preserved the reviewed commit boundaries and were used to stage those four commits without changing the final working files. BL-023 is now complete in the [backlog](../../BACKLOG.md); the earlier permission/network failures are historical rather than active blockers.
 
+**11 November 2026 — Scoped Git authentication observed:** the default `osxkeychain`
+helper returned `-128` during the S13 diagnostic-branch push while authenticated `gh`
+requests worked. Later authorized master/tag pushes succeeded with `gh auth git-credential`
+as a per-command helper, clearing the default helper only for that invocation. No global Git
+configuration or login state changed. Recheck normal Git access in a future session rather
+than assuming this local helper failure persists.
+
 ## Engine playground authorization
 
 **7 November 2026 — Confirmed user decision:** “OK, go for it!” authorizes the proposed first runnable engine playground. Implement the connected beginner slice, reuse the agreed Flow stack and UI family, retain Docker Compose and Kubernetes, verify the result, and deliver reasonably sized commits merged and pushed to GitHub. This supersedes discovery-only restrictions, without authorizing public production exposure, broader course content, audio, or mobile packaging. See the [implementation decisions](implementation-decisions.md) and [reuse manifest](flow-reuse-manifest.md).

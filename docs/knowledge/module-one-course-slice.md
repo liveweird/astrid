@@ -813,14 +813,14 @@ teaching review remains open.
 ### Prepared S12–S15 continuation — 11 November 2026
 
 These are bounded implementation choices under the user's continuation approval.
-S12 is delivered in the [observed record](#observed-s12-delivery). S13–S14 retain
-isolated engine/API/web/test drafts and review evidence; those later packages have
-not been merged, released or promoted. Local scratch material is under
+S12 and S13 are delivered in their observed records below. S14 retains isolated
+engine/API/web/test drafts and review evidence; that later package has not been
+merged, released or promoted. Local scratch material is under
 `.local/s12/`, `.local/s13/` and `.local/s14/`; this tracked outline preserves the
 contracts if those ignored directories are unavailable. S15 has a plan only.
 Freeze each unchanged predecessor in its own commit before advancing the current
 pair. Preserve previous archives, teaching exports, plans and saved replay.
-S12's assignment is delivered; the later version assignments remain proposals.
+S12 and S13 assignments are delivered; S14 and S15 assignments remain proposals.
 
 | Unit | App / pair | Profile | Target and format |
 | --- | --- | --- | --- |
@@ -1018,3 +1018,70 @@ new, unpublished question contract and its positive/negative matrices before rel
 preserve every published prompt branch. HTTP no-save checks also cover all three
 non-order answer kinds, and fingerprint checks cover all four cards including the
 location complement. These are verification requirements, not expanded lesson scope.
+
+### Observed S13 delivery
+
+App 0.18.0, source `9bb10ae`, is the current private preview. Four **Asking yes or
+no questions** activities pin pair sixteen and E030/G018 scope
+`neutral-positive-yes-no`. Required teaching supplies statement/question examples,
+English meanings, uppercase `I` versus preposition `i`, and support-only `ja`/`nej`.
+The learner arranges intact supplied constituents with the finite verb first and
+subject second. S12 opens the explicit S13 chooser; S13 is terminal.
+[GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.18.0)
+
+Freeze `80fc257` captured 7,611 rows from actual released 0.17.0 source `0f1b322`
+before CURRENT advanced: full pair-fifteen generation/grading/private keys, review
+bytes and circumstance-plan public/private lifecycle. Independent review verified
+unchanged archive bytes and meaningful source mutation guards. S13 adds all 20
+complete question permutations, boundary generation, malformed no-save requests,
+private-key/inspector consistency checks and exact schema correlations while
+preserving earlier plans, pools, snapshots, review exports and saved results.
+
+Integration preserves the released lazy response-only API validators, two-entry
+schema cache, order serialization/readiness/retry retention and narrow summary
+wrapping. Actual transport/outbox tests, full-bank submission, uppercase `I`,
+committed-loss replay, explicit chooser continuation and light/dark enlarged-text
+teaching/feedback/summary checks cover the new operation. Desktop/light teaching
+and feedback plus an enlarged dark mobile summary were visually inspected.
+The exact image `sha256:c8a1441cf95e264ce447b61ce50ec5423080e7ef97ba63765d135a527be4e846` passed Trivy.
+A read-only, network-disabled probe identified it as `linux/arm64` and verified
+both APT packages at `2.8.4ubuntu0.1`; its ordinary source defaults remain intact.
+
+The complete Docker-backed gate passed 366 engine tests plus the
+fresh Arabic-locale run, 243 server tests and 251
+web tests with unchanged coverage floors. All five exact-source CI jobs passed,
+including 430 Linux browser journeys. All 430 native
+Chromium/WebKit journeys passed against the exact image without retries/flakies.
+[Release CI](https://github.com/liveweird/astrid/actions/runs/43058818834)
+
+Two earlier image-job attempts at `f3c5249` were stopped during Ubuntu package-fetch DNS
+failures before browser tests ran. Commit `ecc3463` moved CI and nightly browsers into the
+pinned Playwright image with guarded Node 24.22.1; actual focused, failure and cancellation
+probes passed. Its later CI completed all 430 Linux journeys but correctly failed the runtime
+scan: Ubuntu index warnings had left apt/libapt at 2.8.3 instead of the fixed 2.8.4ubuntu0.1.
+
+Commit `5679040` ports Flow's security floors and makes index errors fatal with acquisition
+retries disabled. The hosted paired probe failed in both default and host networking;
+Canonical's official feed reported a DNS major outage. A separate hosted Kernel.org HTTPS mirror
+probe verified the full signed Ubuntu bootstrap and passed the runtime-base scan. The final
+source uses only that allowlisted optional CI build selector; ordinary local defaults and
+Ubuntu's keyring, suites, signature and TLS checks remain intact. These diagnostics are separate
+from the final five-job release CI above.
+
+Two earlier S12/S11 sessions and one S13 session replayed byte for byte after an
+observed app restart: three sessions and 16 attempts. A 5,349,657-byte
+mode-`0600` backup restored into an isolated database and reproduced every prior row
+in all six history tables before app-only promotion. PostgreSQL process/mounts,
+existing rows and Flyway versions 1–3 were preserved. All 136 live-preview
+checks passed without retries; ownership-verified cleanup removed only the QA
+resources. This supersedes the earlier 0.17.0 running-preview statement. Danish
+teaching review and S14/S15 remain separate work.
+
+The completion follow-up defers runner-test annotations so macOS Python 3.9 can
+import the same checks; all 19 script tests passed under Python 3.9 and 3.15.
+This follow-up changes tests and documentation; the running image and immutable
+release tag retain source `9bb10ae`.
+
+S14 remains a proposal. If selected, freeze the actual tagged 0.18.0 source before
+advancing CURRENT, and preserve the released browser runner, strict runtime bootstrap,
+mirror selector and existing client/API corrections while integrating the older draft.

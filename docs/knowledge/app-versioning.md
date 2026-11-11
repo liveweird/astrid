@@ -126,3 +126,10 @@ private preview and adds four final time/place activities. Five exact-source CI 
 retries/flakies. Verified backup restoration preceded app-only promotion; all
 128 live-preview checks and owned QA cleanup passed.
 [Delivery record](module-one-course-slice.md#observed-s12-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.17.0)
+
+**Subsequent release — 11 November 2026:** App 0.18.0, source `9bb10ae`, is the current
+private preview and adds four neutral yes/no question activities. Five exact-source CI
+jobs, 430 Linux and 430 native browser journeys passed
+without retries/flakies. Verified backup restoration preceded app-only promotion;
+all 136 live-preview checks and owned QA cleanup passed.
+[Delivery record](module-one-course-slice.md#observed-s13-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.18.0)

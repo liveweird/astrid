@@ -22,6 +22,10 @@ Runs from any directory, needs Docker (Testcontainers) and `kubectl`. Steps, in 
 It does **not** run the Playwright suite (needs a stack), `npm audit`, Trivy or kubeconform (live databases / downloaded tools: CI only).
 Whenever you touch UI or API behaviour also run the e2e suite (`testing.md`). Never skip Docker tests and call the suite green.
 
+The browser-runner unit tests postpone annotations to remain importable with macOS's
+bundled Python 3.9. The original `str | None` annotation raised `TypeError` there; the
+test-only completion fix passed all 19 script tests under both Python 3.9 and 3.15.
+
 ## CI (`.github/workflows/ci.yml`)
 
 Triggers: push to `master`, pull requests, manual dispatch; `permissions: contents: read`; a superseded run is cancelled only for pull requests
@@ -129,12 +133,12 @@ Gradle), uid 10001, `ASTRID_DEVELOPMENT_MODE=false`, `ASTRID_BIND_HOST=0.0.0.0`,
 (measure first: BL-044).
 
 The runtime bootstrap keeps the full signed Ubuntu upgrade and curl install. It disables APT
-acquisition retries and makes any index error fatal; it does not change mirrors or disable
-signature/TLS verification. Post-upgrade guards require `apt` and `libapt-pkg6.0t64` at least
+acquisition retries and makes any index error fatal while retaining repository signature
+and TLS verification. Post-upgrade guards require `apt` and `libapt-pkg6.0t64` at least
 `2.8.4ubuntu0.1`. Exact Ubuntu revisions remain live-repository inputs rather than Dockerfile
 pins (`dependency-reproducibility.md`).
 
-Local and native builds leave `ASTRID_UBUNTU_MIRROR` empty and retain the pinned image's
+Normal local image builds leave `ASTRID_UBUNTU_MIRROR` empty and retain the pinned image's
 default sources. CI's direct build and the nightly Compose build pass the one allowed value:
 `https://mirrors.edge.kernel.org/ubuntu/`. The selector accepts only that exact HTTPS URL and
 amd64, verifies the expected two-stanza Noble `ubuntu.sources` shape, and rewrites only its two
@@ -144,14 +148,14 @@ setting is added: this is only a scoped build argument on the two workflow build
 a general mirror configuration surface. `check-toolchain.py` keeps both workflows and the
 Dockerfile allowlist correlated.
 
-**Observed failure, pending final validation.** At `ecc3463`, CI run
+**Historical failure and correction.** At `ecc3463`, CI run
 [`43047887486`](https://github.com/liveweird/astrid/actions/runs/43047887486) completed all
 430 Linux browser journeys in about 30.5 minutes, then the runtime scan found two fixable HIGH
 findings: `apt` and `libapt-pkg6.0t64` remained at `2.8.3` while Ubuntu offered
 `2.8.4ubuntu0.1`. The image build had logged an Ubuntu index DNS warning, but unguarded
 `apt-get update` returned success and the following upgrade changed no packages. The stricter
-bootstrap addresses that false-success path; an exact-source GitHub image build and scan are
-still required. A disposable exact-image local amd64 run completed the full guarded bootstrap
+bootstrap addressed that false-success path; a fresh exact-source GitHub image build and scan
+remained required after the local probes. A disposable exact-image local amd64 run completed the full guarded bootstrap
 at both floors; forcing its index through an unreachable proxy failed immediately with status
 100 and no retries. These checks validated the mechanism but did not establish GitHub runner
 network behavior; the paired probe and architecture decision below resolve that earlier
@@ -159,15 +163,21 @@ decision boundary.
 
 The later hosted diagnostic
 [`43055420763`](https://github.com/liveweird/astrid/actions/runs/43055420763) reproduced DNS
-failure from both the runner host and its default Docker network while Canonical's saved status
-feed ([live RSS](https://status.canonical.com/index.rss)) reported a DNS major outage at
+failure on the runner host and in Docker builds using both default and host networking while Canonical's saved status
+feed ([live RSS](https://status.canonical.com/rss)) reported a DNS major outage at
 14:26 UTC. A second hosted probe
 [`43056349808`](https://github.com/liveweird/astrid/actions/runs/43056349808) at diagnostic
 source `59be95a` completed the current fail-closed bootstrap through the HTTPS kernel.org mirror.
 Its release-policy Trivy scan also passed with zero findings. This validates the hosted mirror
-path; the selector is implemented, while release acceptance still requires the fresh
-exact-source gate. The endpoint is operated by the [Linux Kernel Archives](https://www.kernel.org/)
+path; those diagnostics remained separate from the final exact-source acceptance below. The endpoint is operated by the [Linux Kernel Archives](https://www.kernel.org/)
 and appears in Ubuntu's [registered archive mirrors](https://launchpad.net/ubuntu/+archivemirrors).
+
+**Final S13 acceptance.** Source `9bb10ae` passed all five
+[release CI jobs](https://github.com/liveweird/astrid/actions/runs/43058818834), including
+430 Linux browser journeys without retries/flakies and the unchanged packaged-image scan.
+The image job took 1,711 seconds, including 1,289 seconds in browser execution and 35 seconds
+in the runtime scan: 689 seconds below the existing 40-minute budget. Recheck headroom before
+another browser batch because observed hosted-runner durations vary.
 
 After a separately reviewed healthy upstream probe, remove both workflow build arguments and
 their correlation assertion in `check-toolchain.py` to return CI/nightly to the empty default.

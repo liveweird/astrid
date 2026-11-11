@@ -247,7 +247,8 @@ Node `v24.22.1` through `/astrid-node/node`; HTML and result artifacts exported.
 Intentional CLI failure and SIGTERM probes preserved exit codes 1 and 143 and
 left no owned container behind. Independent review also verified that ownership,
 removal or export errors cannot turn a passing browser run into a false green.
-These are runner acceptance checks; final exact-source CI and release remain required.
+These were runner acceptance checks; final exact-source CI and release remained required
+at that stage.
 
 ## Runtime APT fail-closed bootstrap — 11 November 2026
 
@@ -272,22 +273,22 @@ The exact base image succeeded against the current repositories in local arm64 a
 probes. The amd64 probe completed the full guarded upgrade and reported both packages at
 `2.8.4ubuntu0.1`; an intentionally unreachable index proxy returned status 100 with retries
 disabled. Those observations validate the local success and fail-closed paths, but do not
-establish GitHub-hosted network behavior or close the CI gate. Final acceptance requires a
-fresh exact-source GitHub image build and clean runtime scan. Mirror changes remain out of
-scope at this stage; the separately reviewed paired probe and architecture decision below
+establish GitHub-hosted network behavior or close the CI gate. A fresh exact-source image
+build and clean runtime scan remained required. Mirror changes were outside the initial fix; the separately reviewed paired probe and architecture decision below
 provide the later evidence.
 
 ### Scoped hosted mirror selector
 
 The paired diagnostic supplied the missing hosted evidence. Run
 [`43055420763`](https://github.com/liveweird/astrid/actions/runs/43055420763) reproduced DNS
-failure on the GitHub host and the default Docker network. The saved official Canonical status
-feed ([live RSS](https://status.canonical.com/index.rss)) reported **DNS — Major Outage** at
+failure on the GitHub host and in Docker builds using both default and host networking. The saved official Canonical status
+feed ([live RSS](https://status.canonical.com/rss)) reported **DNS — Major Outage** at
 14:26 UTC on 11 November. A second hosted run
 [`43056349808`](https://github.com/liveweird/astrid/actions/runs/43056349808), diagnostic source
 `59be95a`, completed the current full guarded bootstrap using the kernel.org Ubuntu mirror over
 HTTPS, installed both fixed APT packages and passed the release-policy Trivy scan with zero
-findings. These facts support the bounded selector but do not yet establish release acceptance.
+findings. Those diagnostics supported the bounded selector; final release acceptance followed
+in the separately verified source below.
 
 The selector is closed rather than configurable infrastructure: its default is empty, and its
 only accepted nonempty value is `https://mirrors.edge.kernel.org/ubuntu/`. CI/nightly opt in,
@@ -305,3 +306,18 @@ After a separately reviewed healthy upstream probe, remove both workflow build a
 the pin-checker correlation assertion; normal empty/default builds then resume without changing
 the fail-closed index handling, retry mitigation or version floors. The failed `ecc3463` scan
 and paired outage diagnostics remain historical evidence and are not superseded by removal.
+
+### Final S13 verification
+
+Source `9bb10ae` passed all five
+[release CI jobs](https://github.com/liveweird/astrid/actions/runs/43058818834), including
+430 Linux browser journeys without retries/flakies and the unchanged packaged-image scan.
+The image job took 1,711 seconds; browser execution used 1,289 seconds and the runtime scan
+35 seconds. The 40-minute budget, test policy, coverage floors and production JVM settings
+remain unchanged. These observations close the pending integrated validation above.
+
+The exact native `linux/arm64` image also passed Trivy and 430 browser journeys without
+retries. Its ordinary default repositories produced both APT packages at `2.8.4ubuntu0.1`.
+Verified isolated backup restoration preceded app-only promotion; all 136 live-preview checks
+and owned QA cleanup passed. The [S13 delivery record](module-one-course-slice.md#observed-s13-delivery)
+records the source/image, immutable-history and database-process safeguards.
