@@ -80,6 +80,24 @@ const CIRCUMSTANCE_ORDERS = {
   "Vi arbejder.": { context: "Supplied clause: We work. Supplied circumstance: in Aarhus.", canonical: ["vi", "arbejder", "i Aarhus"] },
   "De læser en avis.": { context: "Supplied clause: They read a newspaper. Supplied circumstance: today.", canonical: ["de", "læser", "en avis", "i dag"] },
 } as const;
+const QUESTION_ORDERS = {
+  "Du læser en avis.": {
+    english: "Do you read a newspaper?", reference: "The subject is one addressee.",
+    canonical: ["læser", "du", "en avis"],
+  },
+  "Hun arbejder.": {
+    english: "Does she work?", reference: "The subject is one stated woman.",
+    canonical: ["arbejder", "hun"],
+  },
+  "I bor i Aarhus.": {
+    english: "Do you all live in Aarhus?", reference: "The subject is more than one addressee.",
+    canonical: ["bor", "I", "i Aarhus"],
+  },
+  "De har et brev.": {
+    english: "Do they have a letter?", reference: "The subject is several other people; the formal singular address reading is excluded.",
+    canonical: ["har", "de", "et brev"],
+  },
+} as const;
 const SUBJECT_FIRST_ORDERS: Record<string, string[]> = {
   "We work.": ["vi", "arbejder"],
   "You sleep.": ["du", "sover"],
@@ -157,6 +175,16 @@ async function chooseCircumstanceOrder(page: Page, exercise: CourseExercise, par
 }
 async function submitCircumstanceOrder(page: Page, exercise: CourseExercise, parts: readonly string[]) {
   await chooseCircumstanceOrder(page, exercise, parts);
+  await page.getByRole("button", { name: "Check answer", exact: true }).click();
+  await expect(page.getByRole("status")).toBeFocused();
+}
+async function chooseQuestionOrder(page: Page, exercise: CourseExercise, parts: readonly string[]) {
+  expect(exercise.formatId).toBe("E030");
+  const available = page.getByRole("group", { name: "Available sentence parts", exact: true });
+  for (const part of parts) await available.getByRole("button", { name: part, exact: true }).press("Enter");
+}
+async function submitQuestionOrder(page: Page, exercise: CourseExercise, parts: readonly string[]) {
+  await chooseQuestionOrder(page, exercise, parts);
   await page.getByRole("button", { name: "Check answer", exact: true }).click();
   await expect(page.getByRole("status")).toBeFocused();
 }
@@ -919,7 +947,9 @@ test("final circumstances retain clause-core and requested-end evidence", async 
     }),
     latestOutcomes: expect.objectContaining({ fullyMet: 4, targetMet: 4 }),
   })]);
-  await expect(page.getByRole("button", { name: /^Next:/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Next: Asking yes or no questions", exact: true }).click();
+  await expect(page.getByRole("radio", { name: "Asking yes or no questions", exact: true })).toBeChecked();
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
   await page.reload();
   await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
   const reloaded = await stateFor(page);
@@ -977,6 +1007,190 @@ for (const theme of ["light", "dark"] as const) {
       const task = CIRCUMSTANCE_ORDERS[exercise.prompt.cue as keyof typeof CIRCUMSTANCE_ORDERS];
       expect(task).toBeDefined();
       await submitCircumstanceOrder(page, exercise, task.canonical);
+      if (!scannedFeedback) {
+        await scan(page);
+        scannedFeedback = true;
+      }
+      state = await next(page, await stateFor(page));
+    }
+    await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+    await scan(page);
+  });
+}
+
+test("neutral yes/no questions retain verb-first and subject-second evidence", async ({ page }) => {
+  let state = await openCourse(page, "Asking yes or no questions");
+  expect(state).toMatchObject({
+    focusId: "module-one-questions", planRevision: "module-one-questions-1",
+    contentRevision: "pilot-16", generatorRevision: "generator-16",
+    introductionRequired: true, introductionOpened: false, itemCount: 4,
+    prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  });
+  expect(state.items.every((item) => item.targetScopeId === "neutral-positive-yes-no")).toBe(true);
+  expect(state.items.every((item) => item.assessmentMode === "constituent-order")).toBe(true);
+  const early = await page.request.post("/api/v1/attempts", {
+    headers: { "X-Astrid-Client": "playground" },
+    data: {
+      attemptId: crypto.randomUUID(), exerciseId: state.currentExercise!.id,
+      answer: { kind: "order", blockIds: [] }, hintUsed: false,
+    },
+  });
+  expect(early.status()).toBe(409);
+  expect((await stateFor(page)).summary.attemptCount).toBe(0);
+
+  state = await beginCourse(page);
+  const introduction = page.getByRole("region", { name: "Session introduction", exact: true });
+  await expect(introduction.getByText("finite verb | subject | supplied remainder", { exact: true })).toBeVisible();
+  await expect(introduction.getByText(
+    "Move the supplied finite verb before the subject. Danish uses no English do auxiliary in these frames.",
+    { exact: true },
+  )).toBeVisible();
+  for (const example of ["Han læser en bog.", "Læser han en bog?", "I arbejder.", "Arbejder I?"]) {
+    await expect(introduction.getByText(example, { exact: true })).toHaveAttribute("lang", "da");
+  }
+  for (const form of ["I", "i", "i Aarhus", "ja", "nej"]) {
+    await expect(introduction.getByText(form, { exact: true })).toHaveAttribute("lang", "da");
+  }
+  for (const meaning of ["you all", "in", "in Aarhus", "yes", "no"]) {
+    await expect(introduction.getByText(meaning, { exact: true })).toBeVisible();
+  }
+  await expect(introduction.getByText(
+    "This round requests only neutral positive yes/no questions. Modal, negative, echo, and sentence-initial modal-particle questions are excluded.",
+    { exact: true },
+  )).toBeVisible();
+  await expect(page.getByText("Neutral yes/no question order", { exact: true }).and(page.locator("span"))).toBeVisible();
+  await scan(page);
+
+  const seen = new Set<string>();
+  while (state.state !== "completed") {
+    const exercise = state.currentExercise!;
+    const task = QUESTION_ORDERS[exercise.prompt.cue as keyof typeof QUESTION_ORDERS];
+    expect(task, "The exact Danish proposition identifies one English question and requested order").toBeDefined();
+    expect(exercise).toMatchObject({ formatId: "E030", targetScopeId: "neutral-positive-yes-no" });
+    expect(exercise.prompt.answerLanguage).toBe("da");
+    expect(exercise.prompt.cueLanguage).toBe("da");
+    expect(exercise.prompt).not.toHaveProperty("tileMode");
+    expect(exercise.prompt).not.toHaveProperty("requiredTileCount");
+    expect(exercise.context).toBe(`${task.reference} English question: ${task.english}`);
+    expect(exercise.context).not.toContain("ja");
+    expect(exercise.context).not.toContain("nej");
+    expect(exercise.prompt.blocks!.map(({ text }) => text).sort()).toEqual([...task.canonical].sort());
+    expect(seen.has(exercise.prompt.cue!)).toBe(false);
+    seen.add(exercise.prompt.cue!);
+    await expect(page.getByText(exercise.prompt.cue!, { exact: true })).toHaveAttribute("lang", "da");
+    await expect(page.getByText(exercise.context, { exact: true })).toBeVisible();
+    await expect(page.getByRole("group", { name: "Available sentence parts", exact: true })).toBeVisible();
+    await expect(page.getByText("Use every word tile.", { exact: true })).toHaveCount(0);
+
+    if (state.cursor <= 1) {
+      await chooseQuestionOrder(page, exercise, task.canonical.slice(0, 1));
+      await expect(page.getByRole("button", { name: "Check answer", exact: true })).toBeDisabled();
+      await clearChosenOrder(page);
+      const firstOrder = [task.canonical[1]!, task.canonical[0]!, ...task.canonical.slice(2)];
+      await submitQuestionOrder(page, exercise, firstOrder);
+      const saved = await stateFor(page);
+      expect(latest(saved)).toMatchObject({
+        targetSatisfaction: "not-met", meaningSatisfaction: "unknown", linguisticStatus: "unknown",
+        responseConstraintStatus: "not-met", issues: [{ code: "REQUESTED_ORDER_CONSTRAINT" }],
+      });
+      expect(saved.items[saved.cursor]!.canAdvance).toBe(true);
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await expectChosenOrder(page, firstOrder);
+      await clearChosenOrder(page);
+      await submitQuestionOrder(page, exercise, task.canonical);
+    } else if (state.cursor === 2) {
+      expect(task.canonical).toEqual(["bor", "I", "i Aarhus"]);
+      await submitQuestionOrder(page, exercise, task.canonical);
+      const saved = await stateFor(page);
+      const expectedIds = task.canonical.map((text) => exercise.prompt.blocks!.find((block) => block.text === text)!.id);
+      expect(saved.items[saved.cursor]!.lastAnswer).toEqual({ kind: "order", blockIds: expectedIds });
+      await page.reload();
+      await expect(page.getByRole("button", { name: "Remove I from position 2", exact: true })).toHaveText("I");
+      await expect(page.getByRole("button", { name: "Remove i Aarhus from position 3", exact: true })).toHaveText("i Aarhus");
+      await expect(page.getByLabel("Your sentence", { exact: true })).toContainText("?");
+      expect((await stateFor(page)).items[state.cursor]!.lastAnswer).toEqual({ kind: "order", blockIds: expectedIds });
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await expectChosenOrder(page, task.canonical);
+      await clearChosenOrder(page);
+      await submitQuestionOrder(page, exercise, task.canonical);
+    } else {
+      await submitQuestionOrder(page, exercise, task.canonical);
+    }
+    expect(latest(await stateFor(page))).toMatchObject({
+      targetSatisfaction: "met", meaningSatisfaction: "met", linguisticStatus: "acceptable",
+      responseConstraintStatus: "met", issues: [],
+    });
+    state = await next(page, await stateFor(page));
+  }
+
+  expect(seen).toEqual(new Set(Object.keys(QUESTION_ORDERS)));
+  expect(state.summary).toMatchObject({ completedItems: 4, attemptedItems: 4, attemptCount: 7, retryCount: 3 });
+  expect(state.summary.rows).toEqual([expect.objectContaining({
+    targetSkillId: "G018", targetScopeId: "neutral-positive-yes-no", assessmentMode: "constituent-order", plannedItems: 4,
+    firstOutcomes: expect.objectContaining({
+      fullyMet: 2, targetMet: 2, targetNotMet: 2, languageUnknown: 2, responseConstraintNotMet: 2,
+    }),
+    latestOutcomes: expect.objectContaining({ fullyMet: 4, targetMet: 4 }),
+  })]);
+  await expect(page.getByText("Question order", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Next:/ })).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+  const reloaded = await stateFor(page);
+  expect(reloaded.introductionOpened).toBe(true);
+  expect(reloaded.summary).toEqual(state.summary);
+  await scan(page);
+});
+
+test("a neutral-question order replays byte-identically after committed response loss", async ({ page }) => {
+  await openCourse(page, "Asking yes or no questions");
+  const state = await beginCourse(page);
+  const exercise = state.currentExercise!;
+  const task = QUESTION_ORDERS[exercise.prompt.cue as keyof typeof QUESTION_ORDERS];
+  expect(task).toBeDefined();
+  const bodies: string[] = [];
+  await page.route("**/api/v1/attempts", async (route) => {
+    bodies.push(route.request().postData()!);
+    if (bodies.length === 1) {
+      await route.fetch();
+      await route.abort("connectionfailed");
+    } else await route.continue();
+  });
+
+  await chooseQuestionOrder(page, exercise, task.canonical);
+  await page.getByRole("button", { name: "Check answer", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Retry saved operation", exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("status").getByText("Good work", { exact: true })).toBeVisible();
+  expect(bodies).toHaveLength(2);
+  expect(bodies[1]).toBe(bodies[0]);
+  const request = JSON.parse(bodies[0]!) as {
+    attemptId: string; exerciseId: string; answer: { kind: string; blockIds: string[] };
+  };
+  expect(request).toMatchObject({ exerciseId: exercise.id, answer: { kind: "order" } });
+  expect(request.answer.blockIds).toEqual(task.canonical.map(
+    (text) => exercise.prompt.blocks!.find((block) => block.text === text)!.id,
+  ));
+  const recovered = await stateFor(page);
+  expect(recovered.items[recovered.cursor]!).toMatchObject({
+    attemptCount: 1, lastAnswer: request.answer, canAdvance: true,
+  });
+});
+
+for (const theme of ["light", "dark"] as const) {
+  test(`neutral-question teaching feedback and summary reflow in ${theme} at 320`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.setViewportSize({ width: 320, height: 844 });
+    await openCourse(page, "Asking yes or no questions", true);
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize)).toBe("32px");
+    let state = await beginCourse(page);
+    await scan(page);
+    let scannedFeedback = false;
+    while (state.state !== "completed") {
+      const exercise = state.currentExercise!;
+      const task = QUESTION_ORDERS[exercise.prompt.cue as keyof typeof QUESTION_ORDERS];
+      expect(task).toBeDefined();
+      await submitQuestionOrder(page, exercise, task.canonical);
       if (!scannedFeedback) {
         await scan(page);
         scannedFeedback = true;
@@ -1294,7 +1508,7 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/practice");
       await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
       await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-      await expect(page.getByRole("radio")).toHaveCount(17);
+      await expect(page.getByRole("radio")).toHaveCount(18);
       await scan(page);
       const groupSession = page.getByRole("radio", { name: PROFILES[1].title, exact: true });
       await groupSession.focus(); await page.keyboard.press("Space");

@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.18.0",
+    date: "2026-11-11",
+    body: `**Ask a neutral yes or no question.**
+
+- **Asking yes or no questions** adds four activities that turn a supplied positive statement into a neutral Danish question.
+- Read the required introduction, including ja and nej as possible short answers, then put the finite verb first, the subject second and keep each supplied remainder intact.
+- Use every supplied constituent. The question mark is already supplied, and uppercase I remains distinct from the lowercase preposition i.
+- See separate question-pattern and requested-order evidence, retry or recover saved work, and reload the completed summary.
+- Continue from **Adding when and where** or enter directly. The material remains a draft awaiting Danish teaching review. Modal, negative and echo questions remain outside this round.`,
+  },
+  {
     version: "0.17.0",
     date: "2026-11-11",
     body: `**Add when and where to a familiar clause.**

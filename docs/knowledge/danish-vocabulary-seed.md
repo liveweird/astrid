@@ -207,3 +207,19 @@ locative support in the work frame. L011 covers the two authored C007 reading pr
 and the separate worked reading example. Scope subject permissions to the exact assessed
 and taught frames. Prior records remain literal. The [S12 contract](module-one-course-slice.md#s12-adding-when-and-where)
 records the supplied core, constituent units, final placement and exposure boundaries.
+
+## Pair-sixteen positive-question support additions
+
+| ID | Selected meaning | Teaching form | Active scope and source |
+| --- | --- | --- | --- |
+| L039 | affirmative answer to a positive question | ja | L039-S01, introduced short-answer support only. [DDO ja¹, sense 1](https://ordnet.dk/ddo/ordbog/ja). |
+| L040 | negative answer to a positive question | nej | L040-S01, introduced short-answer support only. [DDO nej¹, sense 1](https://ordnet.dk/ddo/ordbog/nej). |
+
+The selected S13 package contains 40 lexical records and the same 109 catalogue
+clauses. The new entries enter required teaching and its recorded exposure, not
+prompt-supplied component exposure or an independent vocabulary test. Scoped C010
+permissions cover the exact reading, work, residence and possession question cards
+and their separate worked examples. Existing noun/verb bundles and prior generation
+pools retain their published behavior. Negative questions, `jo`, echo questions and
+`mon` remain outside the [S13 activation](module-one-course-slice.md#s13-activation--11-november-2026).
+Teaching review remains open.

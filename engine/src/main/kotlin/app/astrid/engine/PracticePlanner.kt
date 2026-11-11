@@ -80,7 +80,12 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
             description = AbilityPracticePlanner.DESCRIPTION,
             itemCount = AbilityPracticePlanner.ITEM_COUNT,
             prerequisiteSkillIds = AbilityPracticePlanner.PREREQUISITES,
-        ) + ModalRoundPracticePlanner.profiles() + CircumstancePracticePlanner.profile()
+        ) + advancedProfiles()
+
+    private fun advancedProfiles() =
+        ModalRoundPracticePlanner.profiles() +
+            CircumstancePracticePlanner.profile() +
+            QuestionPracticePlanner.profile()
 
     fun plan(
         focusId: String,
@@ -88,6 +93,7 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
         seed: Int,
     ): PracticePlan {
         require(seed >= 0) { "seed must be non-negative" }
+        latePlan(focusId, planRevision, seed)?.let { return it }
         return when (focusId to planRevision) {
             READING_FOCUS_ID to READING_PLAN_REVISION -> readingPlan(focusId, planRevision, seed)
             PRESENT_VERBS_FOCUS_ID to PRESENT_VERBS_PLAN_REVISION -> presentVerbsPlan(focusId, planRevision, seed)
@@ -113,11 +119,18 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
             "module-one-obligation" to "module-one-obligation-1",
             "module-one-permission" to "module-one-permission-1",
             -> ModalRoundPracticePlanner(engine).plan(focusId, seed)
-            CircumstancePracticePlanner.FOCUS_ID to CircumstancePracticePlanner.PLAN_REVISION ->
-                CircumstancePracticePlanner(engine).plan(focusId, seed)
             else -> throw IllegalArgumentException("Unsupported practice profile: $focusId/$planRevision")
         }
     }
+
+    private fun latePlan(focusId: String, planRevision: String, seed: Int): PracticePlan? =
+        when (focusId to planRevision) {
+            CircumstancePracticePlanner.FOCUS_ID to CircumstancePracticePlanner.PLAN_REVISION ->
+                CircumstancePracticePlanner(engine).plan(focusId, seed)
+            QuestionPracticePlanner.FOCUS_ID to QuestionPracticePlanner.PLAN_REVISION ->
+                QuestionPracticePlanner(engine).plan(focusId, seed)
+            else -> null
+        }
 
     private fun readingPlan(
         focusId: String,

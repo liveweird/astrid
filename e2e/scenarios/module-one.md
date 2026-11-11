@@ -144,7 +144,7 @@
 6. Save the canonical third answer, reload it, retry the restored constituent order, and finish the fourth card.
    - Expected: raw block identity and visible order survive reload. The summary has one four-item G016 constituent-order row, seven attempts, three retries, distinct first target/constraint evidence and four fully met latest outcomes.
 7. Reload the completed run.
-   - Expected: teaching confirmation and summary are unchanged, accessibility/reflow checks still pass, and no later session is offered.
+   - Expected: teaching confirmation and summary are unchanged, accessibility/reflow checks still pass, and **Asking yes or no questions** is explicitly selected without starting it.
 
 ## Scenario: a final-circumstance order replays byte-identically after committed response loss
 
@@ -161,6 +161,39 @@
    - Expected: the complete-bank controls and feedback remain readable and accessible at the bounded viewport.
 3. Inspect the completed four-item summary.
    - Expected: the G016 constituent-order result, counts and terminal actions reflow without horizontal overflow, clipped summary text or configured Axe violations.
+
+## Scenario: neutral yes/no questions retain verb-first and subject-second evidence
+
+1. Enter **Asking yes or no questions** directly and try an empty order before opening the required introduction.
+   - Expected: the pair-sixteen four-item run exposes G001–G005 prerequisites, blocks assessment before teaching, records no attempt and keeps every item under G018 / **Neutral positive yes/no question — constituent order**.
+2. Open the introduction and inspect `finite verb | subject | supplied remainder`, both statement-to-question transformations, the no-`do` explanation, and separate Danish forms `I`, `i`, `i Aarhus`, `ja`, and `nej` with their English meanings.
+   - Expected: every Danish form, statement and question has Danish language metadata. Short answers are teaching support only; there is no answer selection or lexical score. The target badge reads **Neutral yes/no question order** and the boundary excludes modal, negative, echo and sentence-initial modal-particle questions.
+3. Inspect the four exact positive Danish propositions, reference contexts and English question glosses.
+   - Expected: each Danish proposition is the Danish cue. Its reference context and complete English question stay in English context, without repeating `ja` or `nej`. The banks contain finite verb, subject and optional intact object/location complement. Public word-tile metadata is absent, the question mark is supplied, and **Check answer** stays disabled until every constituent is chosen.
+4. For the newspaper and work cards, submit subject before finite verb, inspect the saved result, then retry canonically.
+   - Expected: the requested target and response constraint are not met, Danish and meaning remain unknown, `REQUESTED_ORDER_CONSTRAINT` is saved, and the complete previous order remains visible on retry before correction.
+5. Build and save `Bor I i Aarhus?`, reload, and inspect the restored order before retrying it.
+   - Expected: `Bor` is capitalized at position one, lexical subject `I` remains uppercase at position two, `i Aarhus` remains one lowercase-preposition constituent, raw block IDs and the complete retry order survive, and the supplied question mark remains visible.
+6. Complete the possession question and inspect the summary.
+   - Expected: one four-item G018 **Question order** row retains two wrong first responses, four fully met latest responses, seven answers and three retries. The completed run has no S14 continuation.
+7. Reload the terminal summary.
+   - Expected: teaching confirmation and summary remain exact and accessibility/reflow checks still pass.
+
+## Scenario: a neutral-question order replays byte-identically after committed response loss
+
+1. Open the required teaching, arrange the first yes/no question canonically and lose the attempt response after server commit.
+   - Expected: recovery retains the exact constituent order and question task identity.
+2. Reload and let the saved operation replay.
+   - Expected: the second request is byte-identical, one attempt is stored, the restored question is fully met and continuation is available.
+
+## Scenario: neutral-question teaching feedback and summary reflow in ${theme} at 320
+
+1. Open **Asking yes or no questions** in the selected colour scheme at 320 px with 200% text, then open its required introduction.
+   - Expected: question teaching has no horizontal overflow, clipped text or configured Axe violations.
+2. Complete the first constituent order and inspect its confirmed feedback before completing the remaining cards.
+   - Expected: complete-bank controls, uppercase `I`, lowercase `i`, supplied punctuation and feedback remain readable and accessible.
+3. Inspect the completed four-item summary.
+   - Expected: the G018 **Question order** result, counts and terminal actions reflow without horizontal overflow, clipped summary text or configured Axe violations.
 
 ## Scenario: first steps preserve ambiguous ${correction.raw} casing without a wrong-person diagnosis
 
@@ -216,7 +249,7 @@
 
 ## Scenario: first-step chooser keeps all profiles keyboard-accessible in ${theme} at ${viewport.width}
 
-1. Open the chooser with seventeen profiles, including 14 Module 1 sessions, in both themes, narrow portrait and short landscape, at 200% text.
+1. Open the chooser with eighteen profiles, including 15 Module 1 sessions, in both themes, narrow portrait and short landscape, at 200% text.
    - Expected: its first-step grouping and every profile remain accessible, without page/text overflow or configured Axe violations.
 2. Focus the group-pronoun radio and select it with Space.
    - Expected: the choice is checked and Start practice is enabled; no session is created automatically.

@@ -472,6 +472,68 @@ async function verifyFinalCircumstanceOrder() {
   });
 }
 
+async function verifyNeutralQuestionOrder() {
+  const sixteenthSession = {
+    ...session, contentRevision: "pilot-16", generatorRevision: "generator-16", evaluationRevision: "evaluation-16",
+  };
+  const sixteenthCatalog = {
+    ...catalog,
+    contentRevision: "pilot-16", generatorRevision: "generator-16", evaluationRevision: "evaluation-16",
+    formats: [{ id: "E030", title: "Arrange a neutral yes or no question", targetSkillId: "G018" }],
+  };
+  const orderExercise = {
+    ...exercise,
+    id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", formatId: "E030", targetSkillId: "G018",
+    targetScopeId: "neutral-positive-yes-no", contentRevision: "pilot-16", generatorRevision: "generator-16",
+    instruction: "Turn the supplied positive statement into a neutral yes/no question.",
+    context: "The subject is more than one addressee. English question: Do you all live in Aarhus?",
+    prompt: {
+      before: "", after: "", choices: [], punctuation: "?", cue: "I bor i Aarhus.",
+      cueLanguage: "da", answerLanguage: "da", blocks: [
+        { id: "v", text: "bor" }, { id: "s", text: "I" }, { id: "l", text: "i Aarhus" },
+      ],
+    },
+    introduction: [],
+  };
+  const attemptBodies: string[] = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json(sixteenthSession);
+    if (path.endsWith("catalog")) return json(sixteenthCatalog);
+    if (path.endsWith("exercises")) return json(orderExercise);
+    attemptBodies.push(String(init?.body));
+    if (attemptBodies.length === 1) throw new TypeError("response connection closed");
+    const request = JSON.parse(attemptBodies[1]!);
+    return json({
+      ...attempt, attemptId: request.attemptId, exerciseId: orderExercise.id,
+      targetSatisfaction: "met", meaningSatisfaction: "met", responseConstraintStatus: "met",
+      linguisticStatus: "acceptable", linguisticScope: "danish-sentence",
+      evaluationRevision: "evaluation-16", feedback: "The finite verb is first and the subject is second.",
+      completedSentence: "Bor I i Aarhus?",
+    });
+  }));
+
+  await renderPlayground();
+  const check = await screen.findByRole("button", { name: "Check answer" });
+  await userEvent.click(screen.getByRole("button", { name: "bor" }));
+  await userEvent.click(screen.getByRole("button", { name: "I" }));
+  expect(check).toBeDisabled();
+  await userEvent.click(screen.getByRole("button", { name: "i Aarhus" }));
+  expect(check).toBeEnabled();
+  expect(screen.getByLabelText("Your sentence", { exact: true })).toHaveTextContent("BorIi Aarhus?");
+  await userEvent.click(check);
+
+  expect(await screen.findByText("The result is not confirmed")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Remove I from position 2" })).toBeDisabled();
+  await userEvent.click(screen.getByRole("button", { name: "Check the same attempt" }));
+
+  expect(await screen.findByText("Good work", { exact: true })).toBeVisible();
+  expect(attemptBodies[1]).toBe(attemptBodies[0]);
+  expect(JSON.parse(attemptBodies[1]!)).toMatchObject({
+    exerciseId: orderExercise.id,
+    answer: { kind: "order", blockIds: ["v", "s", "l"] },
+  });
+}
+
 describe("Playground formats", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -491,6 +553,8 @@ describe("Playground formats", () => {
   it("requires every supplied constituent before submitting standalone subject-first order", verifySuppliedConstituentOrder);
 
   it("submits and exactly replays a complete standalone final-circumstance order", verifyFinalCircumstanceOrder);
+
+  it("submits and exactly replays a complete standalone neutral-question order", verifyNeutralQuestionOrder);
 
   it("commits the auto-highlighted exact search with Enter", () => verifyKeyboardFormatSelection(false));
 

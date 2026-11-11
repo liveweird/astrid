@@ -30,6 +30,7 @@ class PracticePresentVerbPlannerTest {
                 "module-one-obligation/module-one-obligation-1",
                 "module-one-permission/module-one-permission-1",
                 "module-one-circumstances/module-one-circumstances-1",
+                "module-one-questions/module-one-questions-1",
             ),
             planner.profiles().map { "${it.focusId}/${it.planRevision}" },
         )
@@ -51,9 +52,10 @@ class PracticePresentVerbPlannerTest {
             "Understanding a requirement",
             "Understanding permission",
             "Adding when and where",
+            "Asking yes or no questions",
         ),
             planner.profiles().map { it.title })
-        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4, 6, 6, 4, 4, 6, 4, 2, 2, 2, 4), planner.profiles().map { it.itemCount })
+        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4, 6, 6, 4, 4, 6, 4, 2, 2, 2, 4, 4), planner.profiles().map { it.itemCount })
         assertEquals("Words and simple statements", planner.plan("reading-basics", "practice-1", 0).title)
     }
 

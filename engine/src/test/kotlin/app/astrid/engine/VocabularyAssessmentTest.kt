@@ -29,11 +29,12 @@ class VocabularyAssessmentTest {
                 RevisionPair("pilot-13", "generator-13"),
                 RevisionPair("pilot-14", "generator-14"),
                 RevisionPair("pilot-15", "generator-15"),
+                RevisionPair("pilot-16", "generator-16"),
             ),
             engine.supportedRevisionPairs(),
         )
         assertEquals("evaluation-3", engine.evaluationRevision("pilot-3", "generator-3"))
-        assertEquals((1..29).map { "E${it.toString().padStart(3, '0')}" }, engine.catalog().formats.map { it.id })
+        assertEquals((1..30).map { "E${it.toString().padStart(3, '0')}" }, engine.catalog().formats.map { it.id })
         assertEquals(LexicalTask("meaning", "da-en"), engine.catalog().formats.single { it.id == "E007" }.lexicalTask)
         assertEquals(LexicalTask("singular-headword", "en-da"), engine.catalog().formats.single { it.id == "E008" }.lexicalTask)
     }

@@ -131,6 +131,7 @@ class OpenApiContractTest {
             "module-one-obligation" to "module-one-obligation-1",
             "module-one-permission" to "module-one-permission-1",
             "module-one-circumstances" to "module-one-circumstances-1",
+            "module-one-questions" to "module-one-questions-1",
         )
         for (focus in supportedPairs.map { it.first }) {
             for (revision in supportedPairs.map { it.second }) {
@@ -214,6 +215,7 @@ class OpenApiContractTest {
             exerciseRequest("E028", "G030", "pilot-14", "generator-14"),
             exerciseRequest("E025", "G005", "pilot-14", "generator-14"),
             exerciseRequest("E029", "G016", "pilot-15", "generator-15"),
+            exerciseRequest("E030", "G018", "pilot-16", "generator-16"),
         )
         val rejected = listOf(
             exerciseRequest("E009", null, "pilot-4", "generator-4"),
@@ -258,6 +260,9 @@ class OpenApiContractTest {
             exerciseRequest("E029", "G016", "pilot-14", "generator-14"),
             exerciseRequest("E029", "G005", "pilot-15", "generator-15"),
             exerciseRequest("E028", "G030", "pilot-15", "generator-14"),
+            exerciseRequest("E030", "G018", "pilot-15", "generator-15"),
+            exerciseRequest("E030", "G016", "pilot-16", "generator-16"),
+            exerciseRequest("E029", "G016", "pilot-16", "generator-15"),
             exerciseRequest("E021", null, "pilot-9", "generator-9"),
             exerciseRequest("E020", "G038", "pilot-8", "generator-8"),
             exerciseRequest("E020", "G038", "pilot-9", "generator-8"),
@@ -336,6 +341,10 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E028", "G030", "modal-permission-meaning", "pilot-14"),
             moduleOneExerciseResponse("E025", "G005", "supplied-modal-order", "pilot-14"),
             moduleOneExerciseResponse("E029", "G016", "one-final-circumstance", "pilot-15"),
+            moduleOneExerciseResponse("E030", "G018", "neutral-positive-yes-no", "pilot-16"),
+            questionExerciseResponse(questionPrompt("Hun arbejder.", WORK_QUESTION_BLOCKS)),
+            questionExerciseResponse(questionPrompt("I bor i Aarhus.", RESIDENCE_QUESTION_BLOCKS)),
+            questionExerciseResponse(questionPrompt("De har et brev.", POSSESSION_QUESTION_BLOCKS)),
         )
         val rejected = listOf(
             exerciseResponse("E009", "pilot-4", "generator-4"),
@@ -439,6 +448,28 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E025", "G030", "supplied-modal-order", "pilot-14"),
             moduleOneExerciseResponse("E029", "G005", "one-final-circumstance", "pilot-15"),
             moduleOneExerciseResponse("E029", "G016", "subject-first-supplied", "pilot-15"),
+            moduleOneExerciseResponse("E030", "G016", "neutral-positive-yes-no", "pilot-16"),
+            moduleOneExerciseResponse("E030", "G018", "one-final-circumstance", "pilot-16"),
+            moduleOneExerciseResponse("E030", "G018", "neutral-positive-yes-no", "pilot-15"),
+            questionExerciseResponse(questionPrompt(blocks = "[]")),
+            questionExerciseResponse(questionPrompt(blocks = """[{"id":"b0","text":"læser"},{"id":"b1","text":"du"}]""")),
+            questionExerciseResponse(questionPrompt(blocks = """[{"id":"b0","text":"læser"},{"id":"b1","text":"du"},{"id":"b2","text":"en avis"},{"id":"b3","text":"ekstra"}]""")),
+            questionExerciseResponse(questionPrompt(blocks = """[{"id":"b0","text":"læser"},{"id":"b1","text":"læser"},{"id":"b2","text":"en avis"}]""")),
+            questionExerciseResponse(questionPrompt(blocks = WORK_QUESTION_BLOCKS)),
+            questionExerciseResponse(questionPrompt(cue = "Du læser et brev.")),
+            questionExerciseResponse(questionPrompt(punctuation = ".")),
+            questionExerciseResponse(questionPrompt(cueLanguage = "en")),
+            questionExerciseResponse(questionPrompt(answerLanguage = "en")),
+            questionExerciseResponse(questionPrompt(before = "Start")),
+            questionExerciseResponse(questionPrompt(after = "End")),
+            questionExerciseResponse(questionPrompt(choices = "[\"læser\"]")),
+            questionExerciseResponse(questionPrompt(extra = ",\"inputLabel\":\"Question\"")),
+            questionExerciseResponse(questionPrompt(extra = ",\"replacementWord\":\"x\"")),
+            questionExerciseResponse(questionPrompt(extra = ",\"passage\":[\"x\"]")),
+            questionExerciseResponse(questionPrompt(extra = ",\"matchingColumns\":{\"left\":[],\"right\":[]}")),
+            questionExerciseResponse(questionPrompt(extra = ",\"gapPrompt\":{\"segments\":[],\"slots\":[]}")),
+            questionExerciseResponse(questionPrompt(extra = ",\"tileMode\":\"use-all\"")),
+            questionExerciseResponse(questionPrompt(extra = ",\"requiredTileCount\":3")),
         )
 
         accepted.forEach { assertExerciseResponseValidity(it, expected = true) }
@@ -543,7 +574,7 @@ class OpenApiContractTest {
         )
         validate(HttpMethod.Post, "/api/v1/attempts", matchingAttempt)
         assertEquals(
-            "evaluation-15",
+            "evaluation-16",
             wireJson.parseToJsonElement(matchingAttempt.bodyAsText()).jsonObject
                 .getValue("evaluationRevision").jsonPrimitive.content,
         )
@@ -562,7 +593,7 @@ class OpenApiContractTest {
         val gapAttempt = submitAttempt(cookie, gapId, AttemptAnswerDto.Gaps(gapSelections))
         validate(HttpMethod.Post, "/api/v1/attempts", gapAttempt)
         assertEquals(
-            "evaluation-15",
+            "evaluation-16",
             wireJson.parseToJsonElement(gapAttempt.bodyAsText()).jsonObject
                 .getValue("evaluationRevision").jsonPrimitive.content,
         )
@@ -1545,6 +1576,145 @@ class OpenApiContractTest {
             assertEquals("constituent-order", summaryRow.getValue("assessmentMode").jsonPrimitive.content)
         }
 
+    @Test
+    fun `neutral question practice requires teaching validates the complete bank and preserves Danish inspector metadata`() =
+        testApplication {
+            val inspectorKey = "q".repeat(32)
+            application { astridModule(config(inspectorKey = inspectorKey), InMemoryStores()) }
+            val cookie = moduleOneCookie()
+            val context = client.get("/api/v1/practice-context") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+            }
+            validate(HttpMethod.Get, "/api/v1/practice-context", context)
+            val owner = context.bodyAsText().asObject().getValue("ownerSessionId").jsonPrimitive.content
+            val practiceId = UUID.randomUUID()
+            val creation = moduleOnePost(
+                cookie,
+                owner,
+                "/api/v1/practice-sessions",
+                """{"practiceSessionId":"$practiceId","focusId":"module-one-questions","planRevision":"module-one-questions-1","seed":47}""",
+            )
+            validate(HttpMethod.Post, "/api/v1/practice-sessions", creation)
+            var state = creation.bodyAsText().asObject()
+            assertEquals("pilot-16", state.getValue("contentRevision").jsonPrimitive.content)
+            assertEquals("Asking yes or no questions", state.getValue("title").jsonPrimitive.content)
+            assertEquals(4, state.getValue("itemCount").jsonPrimitive.content.toInt())
+            val introduction = state.getValue("introduction").jsonArray.map { it.jsonObject }
+            assertTrue(introduction.any {
+                it.getValue("body").jsonPrimitive.content == "Læser han en bog?" &&
+                    it.getValue("bodyLanguage").jsonPrimitive.content == "da"
+            })
+            assertTrue(introduction.any {
+                it.getValue("body").jsonPrimitive.content == "Arbejder I?" &&
+                    it.getValue("bodyLanguage").jsonPrimitive.content == "da"
+            })
+
+            val early = submitAttempt(cookie, currentExerciseId(state), AttemptAnswerDto.Order(emptyList()))
+            validate(HttpMethod.Post, "/api/v1/attempts", early)
+            assertEquals(409, early.status.value)
+            val support = moduleOnePost(
+                cookie,
+                owner,
+                "/api/v1/practice-sessions/$practiceId/support",
+                """{"kind":"introduction"}""",
+            )
+            validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/support", support)
+            state = support.bodyAsText().asObject()
+
+            val expectedCues = listOf("Du læser en avis.", "Hun arbejder.", "I bor i Aarhus.", "De har et brev.")
+            val expectedKinds = listOf(
+                "s13-read-count-noun-question",
+                "s13-work-question",
+                "s13-residence-question",
+                "s13-possession-question",
+            )
+            repeat(4) { position ->
+                val exercise = state.getValue("currentExercise").jsonObject
+                val exerciseId = currentExerciseId(state)
+                assertEquals("E030", exercise.getValue("formatId").jsonPrimitive.content)
+                assertEquals("G018", exercise.getValue("targetSkillId").jsonPrimitive.content)
+                assertEquals("neutral-positive-yes-no", exercise.getValue("targetScopeId").jsonPrimitive.content)
+                val prompt = exercise.getValue("prompt").jsonObject
+                assertEquals(expectedCues[position], prompt.getValue("cue").jsonPrimitive.content)
+                assertEquals("da", prompt.getValue("cueLanguage").jsonPrimitive.content)
+                assertEquals("da", prompt.getValue("answerLanguage").jsonPrimitive.content)
+                assertEquals("?", prompt.getValue("punctuation").jsonPrimitive.content)
+                assertFalse("tileMode" in prompt)
+                assertFalse("requiredTileCount" in prompt)
+
+                val inspector = inspectExercise(cookie, inspectorKey, exerciseId)
+                assertEquals("C010", inspector.getValue("constructionId").jsonPrimitive.content)
+                val inspectorPrompt = inspector.getValue("exercise").jsonObject.getValue("prompt").jsonObject
+                assertEquals(expectedCues[position], inspectorPrompt.getValue("cue").jsonPrimitive.content)
+                assertEquals("da", inspectorPrompt.getValue("cueLanguage").jsonPrimitive.content)
+                assertEquals("da", inspectorPrompt.getValue("answerLanguage").jsonPrimitive.content)
+                val source = inspector.getValue("tileSource").jsonObject
+                val tokens = source.getValue("tokens").jsonArray.map { it.jsonObject }
+                assertTrue(tokens.all {
+                    it.getValue("form").jsonPrimitive.content in
+                        setOf("finite-verb", "subject", "object", "location-complement")
+                })
+                val licensed = source.getValue("licensedOrders").jsonArray.single().jsonObject
+                assertEquals(expectedKinds[position], licensed.getValue("kind").jsonPrimitive.content)
+                val order = licensed.getValue("blockIds").jsonArray.map { it.jsonPrimitive.content }
+                if (position == 2) {
+                    assertTrue(prompt.getValue("blocks").jsonArray.any { it.jsonObject.getValue("text").jsonPrimitive.content == "I" })
+                    assertTrue(prompt.getValue("blocks").jsonArray.any { it.jsonObject.getValue("text").jsonPrimitive.content == "i Aarhus" })
+                    assertTrue(inspector.getValue("canonicalSentence").jsonPrimitive.content.contains(" I "))
+                }
+                if (position == 0) {
+                    val malformed = listOf(
+                        AttemptAnswerDto.Order(emptyList()),
+                        AttemptAnswerDto.Order(order.dropLast(1)),
+                        AttemptAnswerDto.Order(order.dropLast(1) + order.first()),
+                        AttemptAnswerDto.Order(order.dropLast(1) + "foreign"),
+                        AttemptAnswerDto.Text("Læser du en avis?"),
+                        AttemptAnswerDto.Matching(emptyList()),
+                        AttemptAnswerDto.Gaps(emptyList()),
+                    )
+                    malformed.forEach { answer ->
+                        val rejected = submitAttempt(cookie, exerciseId, answer)
+                        validate(HttpMethod.Post, "/api/v1/attempts", rejected)
+                        assertEquals(400, rejected.status.value)
+                        val unchanged = client.get("/api/v1/practice-sessions/$practiceId") {
+                            trustedHost()
+                            cookie("astrid_session", cookie)
+                        }
+                        validate(HttpMethod.Get, "/api/v1/practice-sessions/$practiceId", unchanged)
+                        assertEquals(
+                            0,
+                            unchanged.bodyAsText().asObject().getValue("items").jsonArray.first().jsonObject
+                                .getValue("attemptCount").jsonPrimitive.content.toInt(),
+                        )
+                    }
+                    val wrongTarget = order.toMutableList().also { java.util.Collections.swap(it, 0, 1) }
+                    val constrained = submitAttempt(cookie, exerciseId, AttemptAnswerDto.Order(wrongTarget))
+                    validate(HttpMethod.Post, "/api/v1/attempts", constrained)
+                    val outcome = constrained.bodyAsText().asObject()
+                    assertEquals("not-met", outcome.getValue("targetSatisfaction").jsonPrimitive.content)
+                    assertEquals("not-met", outcome.getValue("responseConstraintStatus").jsonPrimitive.content)
+                    assertEquals("unknown", outcome.getValue("linguisticStatus").jsonPrimitive.content)
+                    assertEquals("unknown", outcome.getValue("meaningSatisfaction").jsonPrimitive.content)
+                }
+                val canonical = submitAttempt(cookie, exerciseId, AttemptAnswerDto.Order(order))
+                validate(HttpMethod.Post, "/api/v1/attempts", canonical)
+                val outcome = canonical.bodyAsText().asObject()
+                assertEquals("met", outcome.getValue("targetSatisfaction").jsonPrimitive.content)
+                assertEquals("met", outcome.getValue("responseConstraintStatus").jsonPrimitive.content)
+                assertEquals("acceptable", outcome.getValue("linguisticStatus").jsonPrimitive.content)
+                val advanced = advanceModuleOne(cookie, owner, practiceId, position)
+                validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/advance", advanced)
+                state = advanced.bodyAsText().asObject()
+            }
+            assertEquals("completed", state.getValue("state").jsonPrimitive.content)
+            val summaryRow = state.getValue("summary").jsonObject.getValue("rows").jsonArray.single().jsonObject
+            assertEquals("Neutral positive yes/no question — constituent order", summaryRow.getValue("label").jsonPrimitive.content)
+            assertEquals("G018", summaryRow.getValue("targetSkillId").jsonPrimitive.content)
+            assertEquals("neutral-positive-yes-no", summaryRow.getValue("targetScopeId").jsonPrimitive.content)
+            assertEquals("constituent-order", summaryRow.getValue("assessmentMode").jsonPrimitive.content)
+        }
+
     private suspend fun validate(method: HttpMethod, path: String, response: HttpResponse) {
         val body = response.bodyAsText()
         if (response.status.value >= 400) {
@@ -1855,7 +2025,7 @@ class OpenApiContractTest {
         cookie: String,
         formatId: String,
         targetSkillId: String? = null,
-        pair: Int = 15,
+        pair: Int = 16,
     ): JsonObject {
         val target = targetSkillId?.let { "\"targetSkillId\":\"$it\"," }.orEmpty()
         val response = client.post("/api/v1/exercises") {
@@ -2096,11 +2266,31 @@ class OpenApiContractTest {
         content: String = "pilot-8",
     ): String {
         val choices = if (format in setOf("E016", "E018", "E020")) "[\"den\",\"det\"]" else "[]"
-        val cueLanguage = if (format == "E029") "da" else "en"
-        val prompt = """{"before":"","after":"","choices":$choices,"blocks":[],"punctuation":"","inputLabel":"Danish word","cue":"English cue","cueLanguage":"$cueLanguage","answerLanguage":"da"}"""
+        val prompt = if (format == "E030") {
+            questionPrompt()
+        } else {
+            val cueLanguage = if (format == "E029") "da" else "en"
+            """{"before":"","after":"","choices":$choices,"blocks":[],"punctuation":"","inputLabel":"Danish word","cue":"English cue","cueLanguage":"$cueLanguage","answerLanguage":"da"}"""
+        }
         val generator = content.replace("pilot-", "generator-")
         return """{"id":"00000000-0000-0000-0000-000000000001","formatId":"$format","targetSkillId":"$target","targetScopeId":"$scope","supportSkillIds":[],"contentRevision":"$content","generatorRevision":"$generator","instruction":"Instruction","context":"Context","prompt":$prompt,"introduction":[],"hint":"Hint"}"""
     }
+
+    private fun questionExerciseResponse(prompt: String) =
+        moduleOneExerciseResponse("E030", "G018", "neutral-positive-yes-no", "pilot-16")
+            .replace(questionPrompt(), prompt)
+
+    private fun questionPrompt(
+        cue: String = "Du læser en avis.",
+        blocks: String = READ_QUESTION_BLOCKS,
+        punctuation: String = "?",
+        cueLanguage: String = "da",
+        answerLanguage: String = "da",
+        before: String = "",
+        after: String = "",
+        choices: String = "[]",
+        extra: String = "",
+    ) = """{"before":"$before","after":"$after","choices":$choices,"blocks":$blocks,"punctuation":"$punctuation","cue":"$cue","cueLanguage":"$cueLanguage","answerLanguage":"$answerLanguage"$extra}"""
 
     private fun io.ktor.client.request.HttpRequestBuilder.trustedHost() {
         header(HttpHeaders.Host, "localhost:8088")
@@ -2136,5 +2326,12 @@ class OpenApiContractTest {
         const val SCHEMA_CACHE_ENTRIES = 2
         const val EXERCISE_REQUEST =
             """{"formatId":"E001","targetSkillId":"G004","seed":7,"index":0,"contentRevision":"pilot-1","generatorRevision":"generator-1"}"""
+        const val READ_QUESTION_BLOCKS =
+            """[{"id":"b0","text":"læser"},{"id":"b1","text":"du"},{"id":"b2","text":"en avis"}]"""
+        const val WORK_QUESTION_BLOCKS = """[{"id":"b0","text":"arbejder"},{"id":"b1","text":"hun"}]"""
+        const val RESIDENCE_QUESTION_BLOCKS =
+            """[{"id":"b0","text":"bor"},{"id":"b1","text":"I"},{"id":"b2","text":"i Aarhus"}]"""
+        const val POSSESSION_QUESTION_BLOCKS =
+            """[{"id":"b0","text":"har"},{"id":"b1","text":"de"},{"id":"b2","text":"et brev"}]"""
     }
 }

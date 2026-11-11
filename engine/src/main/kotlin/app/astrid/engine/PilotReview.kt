@@ -16,6 +16,8 @@ object PilotReview {
 
     fun renderPilotFourteenMarkdown(): String = renderSnapshot(PilotContent.pilotFourteenSnapshot)
 
+    fun renderPilotFifteenMarkdown(): String = renderSnapshot(PilotContent.pilotFifteenSnapshot)
+
     fun renderPilotEightMarkdown(): String = renderSnapshot(PilotContent.pilotEightSnapshot)
 
     fun renderPilotNineMarkdown(): String = renderSnapshot(PilotContent.pilotNineSnapshot)
@@ -73,6 +75,7 @@ object PilotReview {
         if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -80,19 +83,28 @@ object PilotReview {
         }
         if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
             append(ModalRoundReviewRenderer.render(snapshot, REVIEW_SEED))
         }
-        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+        if (snapshot.contentRevision in setOf(
+                PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
+                PilotContent.CURRENT_CONTENT_REVISION,
+            )
+        ) {
             CircumstanceReviewRenderer.appendTo(this, snapshot, REVIEW_SEED)
+        }
+        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            QuestionReviewRenderer.appendTo(this, snapshot, REVIEW_SEED)
         }
         if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_ELEVEN_CONTENT_REVISION,
                 PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
                 PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -102,62 +114,8 @@ object PilotReview {
 
     private fun StringBuilder.appendLaterProfileTeaching(snapshot: PilotContentSnapshot) {
         val planner = PracticePlanner()
-        val retainedProfiles = listOf(
-            PresentOrderPracticePlanner.PRESENT_FOCUS_ID to PresentOrderPracticePlanner.PRESENT_PLAN_REVISION,
-            PresentOrderPracticePlanner.ORDER_FOCUS_ID to PresentOrderPracticePlanner.ORDER_PLAN_REVISION,
-            PossessionPracticePlanner.FOCUS_ID to PossessionPracticePlanner.PLAN_REVISION,
-        )
-        val profiles = if (snapshot.contentRevision in setOf(
-                PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
-                PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
-                PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
-                PilotContent.CURRENT_CONTENT_REVISION,
-            )
-        ) {
-            retainedProfiles + listOf(
-                ReadingWordsPracticePlanner.FOCUS_ID to ReadingWordsPracticePlanner.PLAN_REVISION,
-                PersonalIntroductionPracticePlanner.FOCUS_ID to PersonalIntroductionPracticePlanner.PLAN_REVISION,
-            )
-        } else {
-            retainedProfiles
-        }
-        val reviewedProfiles = if (snapshot.contentRevision in setOf(
-                PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
-                PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
-                PilotContent.CURRENT_CONTENT_REVISION,
-            )
-        ) {
-            profiles + (AbilityPracticePlanner.FOCUS_ID to AbilityPracticePlanner.PLAN_REVISION)
-        } else {
-            profiles
-        }
-        val modalProfiles = if (snapshot.contentRevision in setOf(
-                PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
-                PilotContent.CURRENT_CONTENT_REVISION,
-            )
-        ) {
-            reviewedProfiles + ModalRoundContent.definitions.map { definition ->
-                definition.focusId to ModalRoundPracticePlanner.planRevision(definition)
-            }
-        } else {
-            reviewedProfiles
-        }
-        val allProfiles = if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
-            modalProfiles + (CircumstancePracticePlanner.FOCUS_ID to CircumstancePracticePlanner.PLAN_REVISION)
-        } else {
-            modalProfiles
-        }
-        appendLine(
-            when {
-                snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION -> "## S05–S12 required teaching"
-                snapshot.contentRevision == PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION ->
-                    "## S05–S11 required teaching"
-                snapshot.contentRevision == PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION ->
-                    "## S05–S10 required teaching"
-                allProfiles.size == retainedProfiles.size -> "## S05–S07 required teaching"
-                else -> "## S05–S09 required teaching"
-            },
-        )
+        val allProfiles = laterTeachingProfiles(snapshot)
+        appendLine(laterTeachingHeading(snapshot, allProfiles.size))
         appendLine()
         for ((focus, revision) in allProfiles) {
             val plan = planner.plan(focus, revision, REVIEW_SEED)
@@ -172,6 +130,56 @@ object PilotReview {
             }
             appendLine()
         }
+    }
+
+    private fun laterTeachingProfiles(snapshot: PilotContentSnapshot): List<Pair<String, String>> {
+        val retainedProfiles = retainedTeachingProfiles()
+        val profiles = if (snapshot.contentRevision in PERSONAL_TEACHING_REVISIONS) {
+            retainedProfiles + listOf(
+                ReadingWordsPracticePlanner.FOCUS_ID to ReadingWordsPracticePlanner.PLAN_REVISION,
+                PersonalIntroductionPracticePlanner.FOCUS_ID to PersonalIntroductionPracticePlanner.PLAN_REVISION,
+            )
+        } else {
+            retainedProfiles
+        }
+        val reviewedProfiles = if (snapshot.contentRevision in ABILITY_TEACHING_REVISIONS) {
+            profiles + (AbilityPracticePlanner.FOCUS_ID to AbilityPracticePlanner.PLAN_REVISION)
+        } else {
+            profiles
+        }
+        val modalProfiles = if (snapshot.contentRevision in MODAL_TEACHING_REVISIONS) {
+            reviewedProfiles + ModalRoundContent.definitions.map { definition ->
+                definition.focusId to ModalRoundPracticePlanner.planRevision(definition)
+            }
+        } else {
+            reviewedProfiles
+        }
+        val circumstanceProfiles = if (snapshot.contentRevision in CIRCUMSTANCE_TEACHING_REVISIONS) {
+            modalProfiles + (CircumstancePracticePlanner.FOCUS_ID to CircumstancePracticePlanner.PLAN_REVISION)
+        } else {
+            modalProfiles
+        }
+        return if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
+            circumstanceProfiles + (QuestionPracticePlanner.FOCUS_ID to QuestionPracticePlanner.PLAN_REVISION)
+        } else {
+            circumstanceProfiles
+        }
+    }
+
+    private fun retainedTeachingProfiles() =
+        listOf(
+            PresentOrderPracticePlanner.PRESENT_FOCUS_ID to PresentOrderPracticePlanner.PRESENT_PLAN_REVISION,
+            PresentOrderPracticePlanner.ORDER_FOCUS_ID to PresentOrderPracticePlanner.ORDER_PLAN_REVISION,
+            PossessionPracticePlanner.FOCUS_ID to PossessionPracticePlanner.PLAN_REVISION,
+        )
+
+    private fun laterTeachingHeading(snapshot: PilotContentSnapshot, profileCount: Int): String = when {
+        snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION -> "## S05–S13 required teaching"
+        snapshot.contentRevision == PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION -> "## S05–S12 required teaching"
+        snapshot.contentRevision == PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION -> "## S05–S11 required teaching"
+        snapshot.contentRevision == PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION -> "## S05–S10 required teaching"
+        profileCount == retainedTeachingProfiles().size -> "## S05–S07 required teaching"
+        else -> "## S05–S09 required teaching"
     }
 
     private fun StringBuilder.appendLexicalInventory(records: List<LexicalReviewRecord>) {
@@ -610,16 +618,19 @@ object PilotReview {
             PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
             PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+            PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
             PilotContent.CURRENT_CONTENT_REVISION,
         )
         val includePersonal = snapshot.contentRevision in setOf(
             PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
             PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+            PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
             PilotContent.CURRENT_CONTENT_REVISION,
         )
         val includeModalConstruction = snapshot.contentRevision in setOf(
             PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+            PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
             PilotContent.CURRENT_CONTENT_REVISION,
         )
         listOf("E022", "E023", "E024", "E025").flatMap { formatId ->
@@ -672,4 +683,17 @@ object PilotReview {
     private const val TILE_UNIT_COUNT = 99
     private const val MATCHING_UNIT_COUNT = 4
     private const val GAP_UNIT_COUNT = 92
+    private val PERSONAL_TEACHING_REVISIONS = setOf(
+        PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
+        PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
+        PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+        PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
+        PilotContent.CURRENT_CONTENT_REVISION,
+    )
+    private val ABILITY_TEACHING_REVISIONS = PERSONAL_TEACHING_REVISIONS -
+        PilotContent.RETAINED_TWELVE_CONTENT_REVISION
+    private val MODAL_TEACHING_REVISIONS = ABILITY_TEACHING_REVISIONS -
+        PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION
+    private val CIRCUMSTANCE_TEACHING_REVISIONS = MODAL_TEACHING_REVISIONS -
+        PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION
 }

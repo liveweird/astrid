@@ -94,6 +94,7 @@ object PracticeTargetKeys {
         "G038" to setOf("selection", "recall"),
         "G030" to setOf("selection", "recall"),
         "G016" to setOf("constituent-order"),
+        "G018" to setOf("constituent-order"),
     )
 
     private data class ScopedAssessment(
@@ -126,6 +127,7 @@ object PracticeTargetKeys {
         ScopedAssessment("G030", "modal-permission-meaning", "selection"),
         ScopedAssessment("G005", "supplied-modal-order", "word-order"),
         ScopedAssessment("G016", "one-final-circumstance", "constituent-order"),
+        ScopedAssessment("G018", "neutral-positive-yes-no", "constituent-order"),
     )
 }
 

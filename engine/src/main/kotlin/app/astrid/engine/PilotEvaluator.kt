@@ -6,6 +6,15 @@ internal object PilotEvaluator {
     fun evaluate(
         exercise: GeneratedExercise,
         answer: Answer,
+    ): Evaluation = if (exercise.formatId == "E030") {
+        NeutralQuestionExerciseEvaluator.evaluate(exercise, answer)
+    } else {
+        evaluateRetainedFormats(exercise, answer)
+    }
+
+    private fun evaluateRetainedFormats(
+        exercise: GeneratedExercise,
+        answer: Answer,
     ): Evaluation = when (exercise.formatId) {
         "E029" -> FinalCircumstanceExerciseEvaluator.evaluate(exercise, answer)
         "E028" -> ModalRoundExerciseEvaluator.evaluateInterpretation(exercise, answer)

@@ -16,9 +16,7 @@ object PilotFifteenCompatibilityGoldenExportMain {
 }
 
 internal fun publishedPairFifteenReviewBytes(): ByteArray {
-    // Capture from 0.17.0 with renderMarkdown(); switch to renderPilotFifteenMarkdown() as soon as
-    // the freeze commit retains pair fifteen and before S13 advances the moving current snapshot.
-    return PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
+    return PilotReview.renderPilotFifteenMarkdown().toByteArray(Charsets.UTF_8)
 }
 
 internal object PilotFifteenCompatibilityGolden {
@@ -118,7 +116,7 @@ internal object PilotFifteenCompatibilityGolden {
     }.finish()
 
     private fun CanonicalHasher.pairFifteenMetadata() {
-        val skills = PilotContent.currentSnapshot.skills.filter { it.id == "G016" }
+        val skills = PilotContent.pilotFifteenSnapshot.skills.filter { it.id == "G016" }
         integer("pairFifteenSkills.count", skills.size)
         skills.forEachIndexed { index, skill ->
             field("pairFifteenSkills[$index].id", skill.id)
@@ -126,7 +124,7 @@ internal object PilotFifteenCompatibilityGolden {
             field("pairFifteenSkills[$index].explanation", skill.explanation)
             strings("pairFifteenSkills[$index].prerequisiteIds", skill.prerequisiteIds)
         }
-        val formats = PilotContent.currentSnapshot.formats.filter { it.id == "E029" }
+        val formats = PilotContent.pilotFifteenSnapshot.formats.filter { it.id == "E029" }
         integer("pairFifteenFormats.count", formats.size)
         formats.forEachIndexed { index, format ->
             field("pairFifteenFormats[$index].id", format.id)
@@ -142,7 +140,7 @@ internal object PilotFifteenCompatibilityGolden {
                 field("pairFifteenFormats[$index].readingTask.facet", it.facet)
             }
         }
-        val records = PilotContent.currentSnapshot.lexicalReview.filter { it.id in PAIR_FIFTEEN_METADATA_IDS }
+        val records = PilotContent.pilotFifteenSnapshot.lexicalReview.filter { it.id in PAIR_FIFTEEN_METADATA_IDS }
             .sortedBy { it.id }
         integer("pairFifteenLexicalMetadata.count", records.size)
         records.forEachIndexed { index, record -> lexicalRecord("pairFifteenLexicalMetadata[$index]", record) }
@@ -418,10 +416,8 @@ internal object PilotFifteenCompatibilityGolden {
     }
 
     private fun requireLiteralPairFifteen() {
-        // Capture against currentSnapshot at released 0.17.0, then replace this moving hook with
-        // pilotFifteenSnapshot in the freeze commit before S13 advances current.
-        require(PilotContent.currentSnapshot.contentRevision == CONTENT_REVISION)
-        require(PilotContent.currentSnapshot.generatorRevision == GENERATOR_REVISION)
+        require(PilotContent.pilotFifteenSnapshot.contentRevision == CONTENT_REVISION)
+        require(PilotContent.pilotFifteenSnapshot.generatorRevision == GENERATOR_REVISION)
         require(engine.evaluationRevision(CONTENT_REVISION, GENERATOR_REVISION) == EVALUATION_REVISION)
     }
 

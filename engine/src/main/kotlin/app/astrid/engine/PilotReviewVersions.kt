@@ -15,6 +15,12 @@ internal object PilotReviewVersions {
                 "docs/knowledge/module-one-language-pack.md (L024 packet), " +
                 "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks), " +
                 "docs/knowledge/inanimate-reference-activation.md (L026 and G038 reference tasks), and " +
+                "docs/knowledge/module-one-course-slice.md (L027-L040 and S05-S13 tasks; 2026-11-11)"
+        PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION ->
+            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
+                "docs/knowledge/module-one-language-pack.md (L024 packet), " +
+                "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks), " +
+                "docs/knowledge/inanimate-reference-activation.md (L026 and G038 reference tasks), and " +
                 "docs/knowledge/module-one-course-slice.md (L027-L038 and S05-S12 tasks; 2026-11-11)"
         PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION ->
             "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
@@ -66,6 +72,12 @@ internal object PilotReviewVersions {
 
     fun sourceReview(snapshot: PilotContentSnapshot): String = when (snapshot.contentRevision) {
         PilotContent.CURRENT_CONTENT_REVISION ->
+            "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
+                "2026-11-09 L025/C004/Module 1 source checks; 2026-11-10 L026/G038 and L027/S05-S06 source checks; " +
+                "2026-11-11 S07-S13 source checks; see docs/knowledge/pilot-source-review.md, " +
+                "docs/knowledge/module-one-language-pack.md, docs/knowledge/module-one-activation.md, " +
+                "docs/knowledge/inanimate-reference-activation.md and docs/knowledge/module-one-course-slice.md"
+        PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION ->
             "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
                 "2026-11-09 L025/C004/Module 1 source checks; 2026-11-10 L026/G038 and L027/S05-S06 source checks; " +
                 "2026-11-11 S07-S12 source checks; see docs/knowledge/pilot-source-review.md, " +
@@ -131,6 +143,7 @@ internal object PilotReviewVersions {
         PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
         PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
         PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+        PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
         PilotContent.CURRENT_CONTENT_REVISION,
     )
     private val WORD_CHOICE_REVISIONS = WRITING_REVISIONS - PilotContent.RETAINED_FOUR_CONTENT_REVISION

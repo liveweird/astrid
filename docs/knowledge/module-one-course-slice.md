@@ -1009,3 +1009,12 @@ the existing 40-minute outer budget. Keep that budget, full browser suite, timeo
 workers, retry policy and scans unchanged for this bounded S13 addition; verify the
 actual integrated runtime before release. This headroom is an observed prior run,
 not a guaranteed duration.
+
+**S13 response-contract decision:** correlate each authored question cue with its
+complete supplied bank and constrain the unused prompt fields. Independent API
+review found that inheriting the broad prompt schema admitted an empty bank and
+unrelated controls despite passing the original conformance fixture. Tighten the
+new, unpublished question contract and its positive/negative matrices before release;
+preserve every published prompt branch. HTTP no-save checks also cover all three
+non-order answer kinds, and fingerprint checks cover all four cards including the
+location complement. These are verification requirements, not expanded lesson scope.

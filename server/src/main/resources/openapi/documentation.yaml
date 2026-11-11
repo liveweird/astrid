@@ -1,5 +1,5 @@
 openapi: 3.0.3
-info: { title: Astrid pilot API, version: 0.17.0 }
+info: { title: Astrid pilot API, version: 0.18.0 }
 servers: [{ url: 'http://localhost:8088' }]
 # Every operation needs the development session cookie except the three that declare `security: []`.
 security:
@@ -239,9 +239,9 @@ components:
       properties:
         mode: { type: string, enum: [development] }
         inspectorEnabled: { type: boolean }
-        contentRevision: { type: string, enum: [pilot-15] }
-        generatorRevision: { type: string, enum: [generator-15] }
-        evaluationRevision: { type: string, enum: [evaluation-15] }
+        contentRevision: { type: string, enum: [pilot-16] }
+        generatorRevision: { type: string, enum: [generator-16] }
+        evaluationRevision: { type: string, enum: [evaluation-16] }
     Catalog:
       type: object
       additionalProperties: false
@@ -267,7 +267,7 @@ components:
       additionalProperties: false
       required: [id, title]
       properties:
-        id: { type: string, enum: [E001, E002, E003, E004, E005, E006, E007, E008, E009, E010, E011, E012, E013, E014, E015, E016, E017, E018, E019, E020, E021, E022, E023, E024, E025, E026, E027, E028, E029] }
+        id: { type: string, enum: [E001, E002, E003, E004, E005, E006, E007, E008, E009, E010, E011, E012, E013, E014, E015, E016, E017, E018, E019, E020, E021, E022, E023, E024, E025, E026, E027, E028, E029, E030] }
         title: { type: string }
         targetSkillId: { type: string, nullable: true }
         lexicalTask: { $ref: '#/components/schemas/LexicalTask' }
@@ -485,6 +485,30 @@ components:
         - { $ref: '#/components/schemas/PairFifteenAbilityRequest' }
         - { $ref: '#/components/schemas/PairFifteenModalMeaningRequest' }
         - { $ref: '#/components/schemas/PairFifteenCircumstanceRequest' }
+        - { $ref: '#/components/schemas/PairSixteenPresentRequest' }
+        - { $ref: '#/components/schemas/PairSixteenArticleRequest' }
+        - { $ref: '#/components/schemas/PairSixteenOrderRequest' }
+        - { $ref: '#/components/schemas/PairSixteenWritingRequest' }
+        - { $ref: '#/components/schemas/PairSixteenUseAllTilesRequest' }
+        - { $ref: '#/components/schemas/PairSixteenSpareTilesRequest' }
+        - { $ref: '#/components/schemas/PairSixteenGapRequest' }
+        - { $ref: '#/components/schemas/PairSixteenSubjectSelectionRequest' }
+        - { $ref: '#/components/schemas/PairSixteenSubjectRecallRequest' }
+        - { $ref: '#/components/schemas/PairSixteenErSelectionRequest' }
+        - { $ref: '#/components/schemas/PairSixteenErRecallRequest' }
+        - { $ref: '#/components/schemas/PairSixteenReferenceSelectionRequest' }
+        - { $ref: '#/components/schemas/PairSixteenReferenceRecallRequest' }
+        - { $ref: '#/components/schemas/PairSixteenLexicalRequest' }
+        - { $ref: '#/components/schemas/PairSixteenReadingRequest' }
+        - { $ref: '#/components/schemas/PairSixteenMatchingRequest' }
+        - { $ref: '#/components/schemas/PairSixteenNamedPresentSelectionRequest' }
+        - { $ref: '#/components/schemas/PairSixteenNamedPresentRecallRequest' }
+        - { $ref: '#/components/schemas/PairSixteenConstituentOrderRequest' }
+        - { $ref: '#/components/schemas/PairSixteenWordOrderRequest' }
+        - { $ref: '#/components/schemas/PairSixteenAbilityRequest' }
+        - { $ref: '#/components/schemas/PairSixteenModalMeaningRequest' }
+        - { $ref: '#/components/schemas/PairSixteenCircumstanceRequest' }
+        - { $ref: '#/components/schemas/PairSixteenQuestionRequest' }
     PairOnePresentRequest:
       type: object
       additionalProperties: false
@@ -1391,6 +1415,84 @@ components:
     PairFifteenCircumstanceRequest:
       <<: *PairFifteenTargetedRequest
       properties: { <<: *PairFifteenTargetedRequestProperties, formatId: { type: string, enum: [E029] }, targetSkillId: { type: string, enum: [G016] } }
+    PairSixteenPresentRequest: &PairSixteenTargetedRequest
+      <<: *PairEightTargetedRequest
+      properties: &PairSixteenTargetedRequestProperties
+        <<: *PairEightTargetedRequestProperties
+        contentRevision: { type: string, enum: [pilot-16] }
+        generatorRevision: { type: string, enum: [generator-16] }
+    PairSixteenArticleRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E002, E006] }, targetSkillId: { type: string, enum: [G006] } }
+    PairSixteenOrderRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E003] }, targetSkillId: { type: string, enum: [G005] } }
+    PairSixteenWritingRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E009] }, targetSkillId: { type: string, enum: [G005] } }
+    PairSixteenUseAllTilesRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E012] }, targetSkillId: { type: string, enum: [G005] } }
+    PairSixteenSpareTilesRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E013] }, targetSkillId: { type: string, enum: [G004] } }
+    PairSixteenGapRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E015] }, targetSkillId: { type: string, enum: [G004] } }
+    PairSixteenSubjectSelectionRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E016] }, targetSkillId: { type: string, enum: [G003] } }
+    PairSixteenSubjectRecallRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E017] }, targetSkillId: { type: string, enum: [G003] } }
+    PairSixteenErSelectionRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E018] }, targetSkillId: { type: string, enum: [G004] } }
+    PairSixteenErRecallRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E019] }, targetSkillId: { type: string, enum: [G004] } }
+    PairSixteenReferenceSelectionRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E020] }, targetSkillId: { type: string, enum: [G038] } }
+    PairSixteenReferenceRecallRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E021] }, targetSkillId: { type: string, enum: [G038] } }
+    PairSixteenLexicalRequest: &PairSixteenUntargetedRequest
+      <<: *PairEightUntargetedRequest
+      properties: &PairSixteenUntargetedRequestProperties
+        <<: *PairEightUntargetedRequestProperties
+        contentRevision: { type: string, enum: [pilot-16] }
+        generatorRevision: { type: string, enum: [generator-16] }
+    PairSixteenReadingRequest:
+      <<: *PairSixteenUntargetedRequest
+      properties: { <<: *PairSixteenUntargetedRequestProperties, formatId: { type: string, enum: [E010] } }
+    PairSixteenMatchingRequest:
+      <<: *PairSixteenUntargetedRequest
+      properties: { <<: *PairSixteenUntargetedRequestProperties, formatId: { type: string, enum: [E014] } }
+    PairSixteenNamedPresentSelectionRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E022] }, targetSkillId: { type: string, enum: [G004] } }
+    PairSixteenNamedPresentRecallRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E023] }, targetSkillId: { type: string, enum: [G004] } }
+    PairSixteenConstituentOrderRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E024] }, targetSkillId: { type: string, enum: [G005] } }
+    PairSixteenWordOrderRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E025] }, targetSkillId: { type: string, enum: [G005] } }
+    PairSixteenAbilityRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E026, E027] }, targetSkillId: { type: string, enum: [G030] } }
+    PairSixteenModalMeaningRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E028] }, targetSkillId: { type: string, enum: [G030] } }
+    PairSixteenCircumstanceRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E029] }, targetSkillId: { type: string, enum: [G016] } }
+    PairSixteenQuestionRequest:
+      <<: *PairSixteenTargetedRequest
+      properties: { <<: *PairSixteenTargetedRequestProperties, formatId: { type: string, enum: [E030] }, targetSkillId: { type: string, enum: [G018] } }
     Exercise:
       oneOf:
         - { $ref: '#/components/schemas/GrammarExercise' }
@@ -1408,6 +1510,7 @@ components:
         - { $ref: '#/components/schemas/PairThirteenExercise' }
         - { $ref: '#/components/schemas/PairFourteenExercise' }
         - { $ref: '#/components/schemas/PairFifteenExercise' }
+        - { $ref: '#/components/schemas/PairSixteenExercise' }
     GrammarExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairOnePresentExerciseObject' }
@@ -2867,6 +2970,183 @@ components:
     PairFifteenCircumstanceExercise:
       <<: *PairFifteenScopedExercise
       properties: { <<: *PairFifteenScopedExerciseProperties, formatId: { type: string, enum: [E029] }, targetSkillId: { type: string, enum: [G016] }, targetScopeId: { type: string, enum: [one-final-circumstance] }, prompt: { $ref: '#/components/schemas/CircumstancePrompt' } }
+    PairSixteenExercise:
+      oneOf:
+        - { $ref: '#/components/schemas/PairSixteenGrammarExercise' }
+        - { $ref: '#/components/schemas/PairSixteenArticleExercise' }
+        - { $ref: '#/components/schemas/PairSixteenOrderExercise' }
+        - { $ref: '#/components/schemas/PairSixteenLexicalExercise' }
+        - { $ref: '#/components/schemas/PairSixteenReadingExercise' }
+        - { $ref: '#/components/schemas/PairSixteenMatchingExercise' }
+        - { $ref: '#/components/schemas/PairSixteenGapExercise' }
+        - { $ref: '#/components/schemas/PairSixteenSubjectExercise' }
+        - { $ref: '#/components/schemas/PairSixteenErExercise' }
+        - { $ref: '#/components/schemas/PairSixteenReferenceExercise' }
+        - { $ref: '#/components/schemas/PairSixteenNamedPresentExercise' }
+        - { $ref: '#/components/schemas/PairSixteenSubjectFirstExercise' }
+        - { $ref: '#/components/schemas/PairSixteenAbilityExercise' }
+        - { $ref: '#/components/schemas/PairSixteenModalMeaningExercise' }
+        - { $ref: '#/components/schemas/PairSixteenModalOrderExercise' }
+        - { $ref: '#/components/schemas/PairSixteenCircumstanceExercise' }
+        - { $ref: '#/components/schemas/PairSixteenQuestionExercise' }
+    PairSixteenGrammarExercise: &PairSixteenTargetedExercise
+      type: object
+      additionalProperties: false
+      required: [id, formatId, targetSkillId, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [targetScopeId] }, { required: [lexicalTarget] }, { required: [lexicalTargets] }, { required: [readingTarget] }] }
+      properties: &PairSixteenTargetedExerciseProperties
+        id: { type: string, format: uuid }
+        formatId: { type: string, enum: [E001, E004, E005, E013] }
+        targetSkillId: { type: string, enum: [G004] }
+        targetScopeId: { type: string }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        lexicalTargets: { type: array, items: { $ref: '#/components/schemas/LexicalTarget' } }
+        readingTarget: { $ref: '#/components/schemas/ReadingTask' }
+        supportSkillIds: { type: array, items: { type: string } }
+        contentRevision: { type: string, enum: [pilot-16] }
+        generatorRevision: { type: string, enum: [generator-16] }
+        instruction: { type: string }
+        context: { type: string }
+        prompt: { $ref: '#/components/schemas/PairEightPrompt' }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        hint: { type: string }
+    PairSixteenArticleExercise:
+      <<: *PairSixteenTargetedExercise
+      properties: { <<: *PairSixteenTargetedExerciseProperties, formatId: { type: string, enum: [E002, E006] }, targetSkillId: { type: string, enum: [G006] } }
+    PairSixteenOrderExercise:
+      <<: *PairSixteenTargetedExercise
+      properties: { <<: *PairSixteenTargetedExerciseProperties, formatId: { type: string, enum: [E003, E009, E012] }, targetSkillId: { type: string, enum: [G005] } }
+    PairSixteenLexicalExercise:
+      type: object
+      additionalProperties: false
+      required: [id, formatId, lexicalTarget, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [targetSkillId] }, { required: [targetScopeId] }, { required: [lexicalTargets] }, { required: [readingTarget] }] }
+      properties:
+        <<: *PairSixteenTargetedExerciseProperties
+        formatId: { type: string, enum: [E007, E008, E011] }
+        targetSkillId: { type: string, nullable: true }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+    PairSixteenReadingExercise:
+      type: object
+      additionalProperties: false
+      required: [id, formatId, readingTarget, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [targetSkillId] }, { required: [targetScopeId] }, { required: [lexicalTarget] }, { required: [lexicalTargets] }] }
+      properties:
+        <<: *PairSixteenTargetedExerciseProperties
+        formatId: { type: string, enum: [E010] }
+        targetSkillId: { type: string, nullable: true }
+        readingTarget: { $ref: '#/components/schemas/ReadingTask' }
+    PairSixteenMatchingExercise:
+      type: object
+      additionalProperties: false
+      required: [id, formatId, lexicalTargets, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [targetSkillId] }, { required: [targetScopeId] }, { required: [lexicalTarget] }, { required: [readingTarget] }] }
+      properties:
+        <<: *PairSixteenTargetedExerciseProperties
+        formatId: { type: string, enum: [E014] }
+        targetSkillId: { type: string, nullable: true }
+        lexicalTargets: { type: array, minItems: 4, maxItems: 4, uniqueItems: true, items: { $ref: '#/components/schemas/MatchingLexicalTarget' } }
+        prompt: { $ref: '#/components/schemas/MatchingPrompt' }
+    PairSixteenGapExercise:
+      <<: *PairSixteenTargetedExercise
+      properties: { <<: *PairSixteenTargetedExerciseProperties, formatId: { type: string, enum: [E015] }, targetSkillId: { type: string, enum: [G004] }, prompt: { $ref: '#/components/schemas/GapExercisePrompt' } }
+    PairSixteenSubjectExercise: &PairSixteenScopedExercise
+      type: object
+      additionalProperties: false
+      required: [id, formatId, targetSkillId, targetScopeId, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [lexicalTarget] }, { required: [lexicalTargets] }, { required: [readingTarget] }] }
+      properties: &PairSixteenScopedExerciseProperties
+        <<: *PairSixteenTargetedExerciseProperties
+        formatId: { type: string, enum: [E016, E017] }
+        targetSkillId: { type: string, enum: [G003] }
+        targetScopeId: { type: string, enum: [human-singular, human-group] }
+    PairSixteenErExercise:
+      <<: *PairSixteenScopedExercise
+      properties: { <<: *PairSixteenScopedExerciseProperties, formatId: { type: string, enum: [E018, E019] }, targetSkillId: { type: string, enum: [G004] }, targetScopeId: { type: string, enum: [vaere-present] } }
+    PairSixteenReferenceExercise:
+      <<: *PairSixteenScopedExercise
+      properties: { <<: *PairSixteenScopedExerciseProperties, formatId: { type: string, enum: [E020, E021] }, targetSkillId: { type: string, enum: [G038] }, targetScopeId: { type: string, enum: [inanimate-singular-subject] } }
+    PairSixteenNamedPresentExercise:
+      <<: *PairSixteenScopedExercise
+      properties: { <<: *PairSixteenScopedExerciseProperties, formatId: { type: string, enum: [E022, E023] }, targetSkillId: { type: string, enum: [G004] }, targetScopeId: { type: string, enum: [named-three-verbs-present, have-possession-present, personal-introduction-present] } }
+    PairSixteenSubjectFirstExercise:
+      <<: *PairSixteenScopedExercise
+      properties: { <<: *PairSixteenScopedExerciseProperties, formatId: { type: string, enum: [E024, E025] }, targetSkillId: { type: string, enum: [G005] }, targetScopeId: { type: string, enum: [subject-first-supplied] } }
+    PairSixteenAbilityExercise:
+      <<: *PairSixteenScopedExercise
+      properties: { <<: *PairSixteenScopedExerciseProperties, formatId: { type: string, enum: [E026, E027] }, targetSkillId: { type: string, enum: [G030] }, targetScopeId: { type: string, enum: [kan-bare-infinitive] } }
+    PairSixteenModalMeaningExercise:
+      <<: *PairSixteenScopedExercise
+      properties: { <<: *PairSixteenScopedExerciseProperties, formatId: { type: string, enum: [E028] }, targetSkillId: { type: string, enum: [G030] }, targetScopeId: { type: string, enum: [modal-volition-meaning, modal-obligation-meaning, modal-permission-meaning] } }
+    PairSixteenModalOrderExercise:
+      <<: *PairSixteenScopedExercise
+      properties: { <<: *PairSixteenScopedExerciseProperties, formatId: { type: string, enum: [E025] }, targetSkillId: { type: string, enum: [G005] }, targetScopeId: { type: string, enum: [supplied-modal-order] } }
+    PairSixteenCircumstanceExercise:
+      <<: *PairSixteenScopedExercise
+      properties: { <<: *PairSixteenScopedExerciseProperties, formatId: { type: string, enum: [E029] }, targetSkillId: { type: string, enum: [G016] }, targetScopeId: { type: string, enum: [one-final-circumstance] }, prompt: { $ref: '#/components/schemas/CircumstancePrompt' } }
+    PairSixteenQuestionExercise:
+      <<: *PairSixteenScopedExercise
+      properties: { <<: *PairSixteenScopedExerciseProperties, formatId: { type: string, enum: [E030] }, targetSkillId: { type: string, enum: [G018] }, targetScopeId: { type: string, enum: [neutral-positive-yes-no] }, prompt: { $ref: '#/components/schemas/QuestionPrompt' } }
+    QuestionPrompt:
+      oneOf:
+        - { $ref: '#/components/schemas/ReadNewspaperQuestionPrompt' }
+        - { $ref: '#/components/schemas/WorkQuestionPrompt' }
+        - { $ref: '#/components/schemas/ResidenceQuestionPrompt' }
+        - { $ref: '#/components/schemas/PossessionQuestionPrompt' }
+    ReadNewspaperQuestionPrompt: &QuestionPromptObject
+      type: object
+      additionalProperties: false
+      required: [before, after, choices, blocks, punctuation, cue, cueLanguage, answerLanguage]
+      properties: &QuestionPromptProperties
+        before: { type: string, enum: [""] }
+        after: { type: string, enum: [""] }
+        choices: { type: array, maxItems: 0, items: { type: string } }
+        blocks:
+          type: array
+          items: { $ref: '#/components/schemas/Block' }
+          enum:
+            - [{ id: b0, text: "læser" }, { id: b1, text: "du" }, { id: b2, text: "en avis" }]
+            - [{ id: b0, text: "du" }, { id: b1, text: "en avis" }, { id: b2, text: "læser" }]
+            - [{ id: b0, text: "en avis" }, { id: b1, text: "læser" }, { id: b2, text: "du" }]
+        punctuation: { type: string, enum: ["?"] }
+        cue: { type: string, enum: ["Du læser en avis."] }
+        cueLanguage: { type: string, enum: [da] }
+        answerLanguage: { type: string, enum: [da] }
+    WorkQuestionPrompt:
+      <<: *QuestionPromptObject
+      properties:
+        <<: *QuestionPromptProperties
+        blocks:
+          type: array
+          items: { $ref: '#/components/schemas/Block' }
+          enum:
+            - [{ id: b0, text: "arbejder" }, { id: b1, text: "hun" }]
+            - [{ id: b0, text: "hun" }, { id: b1, text: "arbejder" }]
+        cue: { type: string, enum: ["Hun arbejder."] }
+    ResidenceQuestionPrompt:
+      <<: *QuestionPromptObject
+      properties:
+        <<: *QuestionPromptProperties
+        blocks:
+          type: array
+          items: { $ref: '#/components/schemas/Block' }
+          enum:
+            - [{ id: b0, text: "bor" }, { id: b1, text: "I" }, { id: b2, text: "i Aarhus" }]
+            - [{ id: b0, text: "I" }, { id: b1, text: "i Aarhus" }, { id: b2, text: "bor" }]
+            - [{ id: b0, text: "i Aarhus" }, { id: b1, text: "bor" }, { id: b2, text: "I" }]
+        cue: { type: string, enum: ["I bor i Aarhus."] }
+    PossessionQuestionPrompt:
+      <<: *QuestionPromptObject
+      properties:
+        <<: *QuestionPromptProperties
+        blocks:
+          type: array
+          items: { $ref: '#/components/schemas/Block' }
+          enum:
+            - [{ id: b0, text: "har" }, { id: b1, text: "de" }, { id: b2, text: "et brev" }]
+            - [{ id: b0, text: "de" }, { id: b1, text: "et brev" }, { id: b2, text: "har" }]
+            - [{ id: b0, text: "et brev" }, { id: b1, text: "har" }, { id: b2, text: "de" }]
+        cue: { type: string, enum: ["De har et brev."] }
     CircumstancePrompt:
       allOf:
         - { $ref: '#/components/schemas/PairEightPrompt' }
@@ -3417,7 +3697,7 @@ components:
         issues: { type: array, items: { $ref: '#/components/schemas/Issue' } }
         feedback: { type: string }
         completedSentence: { type: string, maxLength: 0 }
-        evaluationRevision: { type: string, enum: [evaluation-6, evaluation-7, evaluation-8, evaluation-9, evaluation-10, evaluation-11, evaluation-12, evaluation-13, evaluation-14, evaluation-15] }
+        evaluationRevision: { type: string, enum: [evaluation-6, evaluation-7, evaluation-8, evaluation-9, evaluation-10, evaluation-11, evaluation-12, evaluation-13, evaluation-14, evaluation-15, evaluation-16] }
         hintUsed: { type: boolean }
         retryNumber: { type: integer, minimum: 1 }
         createdAt: { type: integer, format: int64 }
@@ -3489,7 +3769,7 @@ components:
         issues: { type: array, items: { $ref: '#/components/schemas/Issue' } }
         feedback: { type: string }
         completedSentence: { type: string }
-        evaluationRevision: { type: string, enum: [evaluation-7, evaluation-8, evaluation-9, evaluation-10, evaluation-11, evaluation-12, evaluation-13, evaluation-14, evaluation-15] }
+        evaluationRevision: { type: string, enum: [evaluation-7, evaluation-8, evaluation-9, evaluation-10, evaluation-11, evaluation-12, evaluation-13, evaluation-14, evaluation-15, evaluation-16] }
         hintUsed: { type: boolean }
         retryNumber: { type: integer, minimum: 1 }
         createdAt: { type: integer, format: int64 }
@@ -3613,7 +3893,7 @@ components:
       properties:
         ownerSessionId: { type: string, format: uuid }
         sessionExpiresAt: { type: integer, format: int64 }
-        profiles: { type: array, minItems: 17, maxItems: 17, items: { $ref: '#/components/schemas/PracticeProfile' } }
+        profiles: { type: array, minItems: 18, maxItems: 18, items: { $ref: '#/components/schemas/PracticeProfile' } }
     PracticeProfile:
       oneOf:
         - type: object
@@ -3660,6 +3940,7 @@ components:
         - { $ref: '#/components/schemas/ModuleOneObligationProfile' }
         - { $ref: '#/components/schemas/ModuleOnePermissionProfile' }
         - { $ref: '#/components/schemas/ModuleOneCircumstancesProfile' }
+        - { $ref: '#/components/schemas/ModuleOneQuestionsProfile' }
     ModuleOneSingularProfile: &ModuleOneProfile
       type: object
       additionalProperties: false
@@ -3778,6 +4059,19 @@ components:
           minItems: 5
           maxItems: 5
           items: { type: string, enum: [G001, G002, G003, G004, G005] }
+    ModuleOneQuestionsProfile:
+      <<: *ModuleOneProfile
+      properties:
+        <<: *ModuleOneProfileProperties
+        focusId: { type: string, enum: [module-one-questions] }
+        planRevision: { type: string, enum: [module-one-questions-1] }
+        title: { type: string, enum: ["Asking yes or no questions"] }
+        itemCount: { type: integer, enum: [4] }
+        prerequisiteSkillIds:
+          type: array
+          minItems: 5
+          maxItems: 5
+          items: { type: string, enum: [G001, G002, G003, G004, G005] }
     PracticeSessionRequest:
       oneOf:
         - type: object
@@ -3818,6 +4112,7 @@ components:
         - { $ref: '#/components/schemas/ModuleOneObligationSessionRequest' }
         - { $ref: '#/components/schemas/ModuleOnePermissionSessionRequest' }
         - { $ref: '#/components/schemas/ModuleOneCircumstancesSessionRequest' }
+        - { $ref: '#/components/schemas/ModuleOneQuestionsSessionRequest' }
     ModuleOneSingularSessionRequest: &ModuleOneSessionRequest
       type: object
       additionalProperties: false
@@ -3866,6 +4161,9 @@ components:
     ModuleOneCircumstancesSessionRequest:
       <<: *ModuleOneSessionRequest
       properties: { <<: *ModuleOneSessionRequestProperties, focusId: { type: string, enum: [module-one-circumstances] }, planRevision: { type: string, enum: [module-one-circumstances-1] } }
+    ModuleOneQuestionsSessionRequest:
+      <<: *ModuleOneSessionRequest
+      properties: { <<: *ModuleOneSessionRequestProperties, focusId: { type: string, enum: [module-one-questions] }, planRevision: { type: string, enum: [module-one-questions-1] } }
     PracticeSupportRequest:
       type: object
       additionalProperties: false
@@ -4185,6 +4483,25 @@ components:
                 introductionRequired: { type: boolean, enum: [true] }
                 items: { type: array, minItems: 4, maxItems: 4, items: { $ref: '#/components/schemas/ModuleOneCircumstancesPracticeItem' } }
                 currentExercise: { $ref: '#/components/schemas/PairFifteenCircumstanceExercise' }
+            - type: object
+              additionalProperties: true
+              required: [focusId, planRevision, contentRevision, generatorRevision, evaluationRevision, itemCount, prerequisiteSkillIds, introductionRequired]
+              not: { anyOf: [{ required: [followUp] }, { required: [followUpPlanRevision] }] }
+              properties:
+                focusId: { type: string, enum: [module-one-questions] }
+                planRevision: { type: string, enum: [module-one-questions-1] }
+                contentRevision: { type: string, enum: [pilot-16] }
+                generatorRevision: { type: string, enum: [generator-16] }
+                evaluationRevision: { type: string, enum: [evaluation-16] }
+                itemCount: { type: integer, enum: [4] }
+                prerequisiteSkillIds:
+                  type: array
+                  minItems: 5
+                  maxItems: 5
+                  items: { type: string, enum: [G001, G002, G003, G004, G005] }
+                introductionRequired: { type: boolean, enum: [true] }
+                items: { type: array, minItems: 4, maxItems: 4, items: { $ref: '#/components/schemas/ModuleOneQuestionsPracticeItem' } }
+                currentExercise: { $ref: '#/components/schemas/PairSixteenQuestionExercise' }
     PracticeFollowUp:
       type: object
       additionalProperties: false
@@ -4203,7 +4520,7 @@ components:
         targetSkillId: { type: string, nullable: true }
         lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
         assessmentMode: { type: string, enum: [selection, recall, repair, constituent-order, word-order] }
-        targetScopeId: { type: string, enum: [human-singular, human-group, vaere-present, inanimate-singular-subject, named-three-verbs-present, subject-first-supplied, have-possession-present, personal-introduction-present, kan-bare-infinitive, modal-volition-meaning, modal-obligation-meaning, modal-permission-meaning, supplied-modal-order, one-final-circumstance] }
+        targetScopeId: { type: string, enum: [human-singular, human-group, vaere-present, inanimate-singular-subject, named-three-verbs-present, subject-first-supplied, have-possession-present, personal-introduction-present, kan-bare-infinitive, modal-volition-meaning, modal-obligation-meaning, modal-permission-meaning, supplied-modal-order, one-final-circumstance, neutral-positive-yes-no] }
         canAdvance: { type: boolean }
         assessments:
           type: array
@@ -4302,6 +4619,7 @@ components:
             - { $ref: '#/components/schemas/ModuleOneModalMeaningItemProperties' }
             - { $ref: '#/components/schemas/ModuleOneModalOrderItemProperties' }
             - { $ref: '#/components/schemas/ModuleOneCircumstancesItemProperties' }
+            - { $ref: '#/components/schemas/ModuleOneQuestionsItemProperties' }
     PracticeExercise:
       oneOf:
         - { $ref: '#/components/schemas/GrammarExercise' }
@@ -4318,6 +4636,7 @@ components:
         - { $ref: '#/components/schemas/PairThirteenExercise' }
         - { $ref: '#/components/schemas/PairFourteenExercise' }
         - { $ref: '#/components/schemas/PairFifteenExercise' }
+        - { $ref: '#/components/schemas/PairSixteenExercise' }
     LegacyPracticeItem:
       allOf:
         - { $ref: '#/components/schemas/PracticeItem' }
@@ -4570,6 +4889,20 @@ components:
         targetScopeId: { type: string, enum: [one-final-circumstance] }
         assessmentMode: { type: string, enum: [constituent-order] }
         assessments: { type: array, minItems: 1, maxItems: 1, items: { $ref: '#/components/schemas/ModuleOneCircumstancesAssessment' } }
+    ModuleOneQuestionsPracticeItem:
+      allOf:
+        - { $ref: '#/components/schemas/PracticeItem' }
+        - { $ref: '#/components/schemas/ModuleOneQuestionsItemProperties' }
+    ModuleOneQuestionsItemProperties:
+      type: object
+      additionalProperties: true
+      required: [targetSkillId, targetScopeId, assessmentMode, assessments]
+      properties:
+        formatId: { type: string, enum: [E030] }
+        targetSkillId: { type: string, enum: [G018] }
+        targetScopeId: { type: string, enum: [neutral-positive-yes-no] }
+        assessmentMode: { type: string, enum: [constituent-order] }
+        assessments: { type: array, minItems: 1, maxItems: 1, items: { $ref: '#/components/schemas/ModuleOneQuestionsAssessment' } }
     PracticeAssessment:
       oneOf:
         - { $ref: '#/components/schemas/GuidedGapPracticeAssessment' }
@@ -4584,6 +4917,7 @@ components:
         - { $ref: '#/components/schemas/ModuleOneModalOrderAssessment' }
         - { $ref: '#/components/schemas/ModuleOneModalMeaningAssessment' }
         - { $ref: '#/components/schemas/ModuleOneCircumstancesAssessment' }
+        - { $ref: '#/components/schemas/ModuleOneQuestionsAssessment' }
         - { $ref: '#/components/schemas/ModuleOnePossessionRecallAssessment' }
         - { $ref: '#/components/schemas/ModuleOnePresentSelectionAssessment' }
         - { $ref: '#/components/schemas/ModuleOnePersonalSelectionAssessment' }
@@ -4752,6 +5086,17 @@ components:
         assessmentMode: { type: string, enum: [constituent-order] }
         assessmentRole: { type: string, enum: [primary] }
         targetScopeId: { type: string, enum: [one-final-circumstance] }
+    ModuleOneQuestionsAssessment:
+      type: object
+      additionalProperties: false
+      required: [label, targetSkillId, assessmentMode, assessmentRole, targetScopeId]
+      not: { required: [slotId] }
+      properties:
+        label: { type: string, enum: ["Neutral positive yes/no question — constituent order"] }
+        targetSkillId: { type: string, enum: [G018] }
+        assessmentMode: { type: string, enum: [constituent-order] }
+        assessmentRole: { type: string, enum: [primary] }
+        targetScopeId: { type: string, enum: [neutral-positive-yes-no] }
     GuidedGapPracticeAssessment:
       oneOf:
         - type: object
@@ -4832,7 +5177,7 @@ components:
         lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
         assessmentMode: { type: string, enum: [selection, recall, repair, constituent-order, word-order] }
         assessmentRole: { type: string, enum: [primary, support] }
-        targetScopeId: { type: string, enum: [human-singular, human-group, vaere-present, inanimate-singular-subject, named-three-verbs-present, subject-first-supplied, have-possession-present, personal-introduction-present, kan-bare-infinitive, modal-volition-meaning, modal-obligation-meaning, modal-permission-meaning, supplied-modal-order, one-final-circumstance] }
+        targetScopeId: { type: string, enum: [human-singular, human-group, vaere-present, inanimate-singular-subject, named-three-verbs-present, subject-first-supplied, have-possession-present, personal-introduction-present, kan-bare-infinitive, modal-volition-meaning, modal-obligation-meaning, modal-permission-meaning, supplied-modal-order, one-final-circumstance, neutral-positive-yes-no] }
         plannedItems: { type: integer }
         attemptedItems: { type: integer }
         advancedItems: { type: integer }
@@ -4906,6 +5251,13 @@ components:
               properties:
                 targetSkillId: { type: string, enum: [G016] }
                 targetScopeId: { type: string, enum: [one-final-circumstance] }
+                assessmentMode: { type: string, enum: [constituent-order] }
+            - type: object
+              additionalProperties: true
+              required: [targetSkillId, targetScopeId, assessmentMode]
+              properties:
+                targetSkillId: { type: string, enum: [G018] }
+                targetScopeId: { type: string, enum: [neutral-positive-yes-no] }
                 assessmentMode: { type: string, enum: [constituent-order] }
     PracticeOutcomeCounts:
       type: object
@@ -5034,13 +5386,13 @@ components:
       properties:
         blockId: { type: string }
         lexicalId: { type: string }
-        form: { type: string, enum: [subject, finite-present, infinitive, article, singular-headword, supplied-noun-bundle, finite-modal, bare-infinitive, finite-verb, object, circumstance] }
+        form: { type: string, enum: [subject, finite-present, infinitive, article, singular-headword, supplied-noun-bundle, finite-modal, bare-infinitive, finite-verb, object, circumstance, location-complement] }
     TileLicensedOrder:
       type: object
       additionalProperties: false
       required: [kind, blockIds]
       properties:
-        kind: { type: string, enum: [subject-first, fronted, subject-modal-infinitive-object, s12-work-final-time, s12-read-final-time, s12-work-final-place] }
+        kind: { type: string, enum: [subject-first, fronted, subject-modal-infinitive-object, s12-work-final-time, s12-read-final-time, s12-work-final-place, s13-read-count-noun-question, s13-work-question, s13-residence-question, s13-possession-question] }
         blockIds: { type: array, minItems: 2, maxItems: 5, items: { type: string } }
     TileDistractor:
       type: object

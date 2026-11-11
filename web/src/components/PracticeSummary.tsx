@@ -52,6 +52,7 @@ const SCOPED_TARGET_KINDS: Record<string, string> = {
   "modal-permission-meaning:selection": "Meaning selection",
   "supplied-modal-order:word-order": "Word order",
   "one-final-circumstance:constituent-order": "Constituent order",
+  "neutral-positive-yes-no:constituent-order": "Question order",
 };
 
 function targetKind(row: PracticeSummaryRow) {

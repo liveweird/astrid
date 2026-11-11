@@ -19,10 +19,11 @@ class PilotEngine {
 
     fun generate(request: GenerationRequest): GeneratedExercise {
         validate(request)
-        if (request.formatId == FINAL_CIRCUMSTANCE_FORMAT_ID) {
-            return FinalCircumstanceExerciseGenerator.generate(request)
+        return when (request.formatId) {
+            NEUTRAL_QUESTION_FORMAT_ID -> NeutralQuestionExerciseGenerator.generate(request)
+            FINAL_CIRCUMSTANCE_FORMAT_ID -> FinalCircumstanceExerciseGenerator.generate(request)
+            else -> generateRetained(request)
         }
-        return generateRetained(request)
     }
 
     private fun generateRetained(request: GenerationRequest): GeneratedExercise =
@@ -103,6 +104,7 @@ class PilotEngine {
                 "E027" to "G030",
                 MODAL_INTERPRETATION_FORMAT_ID to "G030",
                 FINAL_CIRCUMSTANCE_FORMAT_ID to "G016",
+                NEUTRAL_QUESTION_FORMAT_ID to "G018",
             )[request.formatId]
         require(expectedTarget != null || request.formatId in LEXICAL_FORMAT_IDS || request.formatId == READING_FORMAT_ID) {
             "Unsupported format: ${request.formatId}"
@@ -620,6 +622,11 @@ class PilotEngine {
                 PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_FOURTEEN_GENERATOR_REVISION,
             )
+        val PILOT_FIFTEEN_REVISION_PAIR =
+            RevisionPair(
+                PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_FIFTEEN_GENERATOR_REVISION,
+            )
         val SUPPORTED_REVISION_PAIRS =
             listOf(
                 LEGACY_REVISION_PAIR,
@@ -636,6 +643,7 @@ class PilotEngine {
                 PILOT_TWELVE_REVISION_PAIR,
                 PILOT_THIRTEEN_REVISION_PAIR,
                 PILOT_FOURTEEN_REVISION_PAIR,
+                PILOT_FIFTEEN_REVISION_PAIR,
                 CURRENT_REVISION_PAIR,
             )
         val LEGACY_FORMAT_IDS = setOf("E001", "E002", "E003")
@@ -656,7 +664,8 @@ class PilotEngine {
         val ABILITY_FORMAT_IDS = setOf("E026", "E027")
         val PILOT_THIRTEEN_FORMAT_IDS = PILOT_TWELVE_FORMAT_IDS + ABILITY_FORMAT_IDS
         val PILOT_FOURTEEN_FORMAT_IDS = PILOT_THIRTEEN_FORMAT_IDS + MODAL_INTERPRETATION_FORMAT_ID
-        val CURRENT_FORMAT_IDS = PILOT_FOURTEEN_FORMAT_IDS + FINAL_CIRCUMSTANCE_FORMAT_ID
+        val PILOT_FIFTEEN_FORMAT_IDS = PILOT_FOURTEEN_FORMAT_IDS + FINAL_CIRCUMSTANCE_FORMAT_ID
+        val CURRENT_FORMAT_IDS = PILOT_FIFTEEN_FORMAT_IDS + NEUTRAL_QUESTION_FORMAT_ID
         val EVALUATION_REVISION_BY_PAIR = mapOf(
             LEGACY_REVISION_PAIR to PilotContent.LEGACY_EVALUATION_REVISION,
             PILOT_TWO_REVISION_PAIR to PilotContent.RETAINED_EVALUATION_REVISION,
@@ -672,6 +681,7 @@ class PilotEngine {
             PILOT_TWELVE_REVISION_PAIR to PilotContent.RETAINED_TWELVE_EVALUATION_REVISION,
             PILOT_THIRTEEN_REVISION_PAIR to PilotContent.RETAINED_THIRTEEN_EVALUATION_REVISION,
             PILOT_FOURTEEN_REVISION_PAIR to PilotContent.RETAINED_FOURTEEN_EVALUATION_REVISION,
+            PILOT_FIFTEEN_REVISION_PAIR to PilotContent.RETAINED_FIFTEEN_EVALUATION_REVISION,
             CURRENT_REVISION_PAIR to PilotContent.CURRENT_EVALUATION_REVISION,
         )
         val FORMAT_IDS_BY_REVISION_PAIR = mapOf(
@@ -689,6 +699,7 @@ class PilotEngine {
             PILOT_TWELVE_REVISION_PAIR to PILOT_TWELVE_FORMAT_IDS,
             PILOT_THIRTEEN_REVISION_PAIR to PILOT_THIRTEEN_FORMAT_IDS,
             PILOT_FOURTEEN_REVISION_PAIR to PILOT_FOURTEEN_FORMAT_IDS,
+            PILOT_FIFTEEN_REVISION_PAIR to PILOT_FIFTEEN_FORMAT_IDS,
             CURRENT_REVISION_PAIR to CURRENT_FORMAT_IDS,
         )
         val TILE_FORMAT_IDS = setOf("E012", "E013")
@@ -703,6 +714,7 @@ class PilotEngine {
         const val MULTIPLE_GAP_FORMAT_ID = "E015"
         const val MODAL_INTERPRETATION_FORMAT_ID = "E028"
         const val FINAL_CIRCUMSTANCE_FORMAT_ID = "E029"
+        const val NEUTRAL_QUESTION_FORMAT_ID = "E030"
         const val GOLDEN_GAMMA = -7046029254386353131L
         const val MIX_MULTIPLIER_ONE = -4658895280553007687L
         const val MIX_MULTIPLIER_TWO = -7723592293110705685L

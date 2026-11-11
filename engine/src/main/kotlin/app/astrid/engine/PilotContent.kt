@@ -53,8 +53,10 @@ internal object PilotContent {
     const val RETAINED_THIRTEEN_GENERATOR_REVISION = "generator-13"
     const val RETAINED_FOURTEEN_CONTENT_REVISION = "pilot-14"
     const val RETAINED_FOURTEEN_GENERATOR_REVISION = "generator-14"
-    const val CURRENT_CONTENT_REVISION = "pilot-15"
-    const val CURRENT_GENERATOR_REVISION = "generator-15"
+    const val RETAINED_FIFTEEN_CONTENT_REVISION = "pilot-15"
+    const val RETAINED_FIFTEEN_GENERATOR_REVISION = "generator-15"
+    const val CURRENT_CONTENT_REVISION = "pilot-16"
+    const val CURRENT_GENERATOR_REVISION = "generator-16"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
     const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
@@ -69,7 +71,8 @@ internal object PilotContent {
     const val RETAINED_TWELVE_EVALUATION_REVISION = "evaluation-12"
     const val RETAINED_THIRTEEN_EVALUATION_REVISION = "evaluation-13"
     const val RETAINED_FOURTEEN_EVALUATION_REVISION = "evaluation-14"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-15"
+    const val RETAINED_FIFTEEN_EVALUATION_REVISION = "evaluation-15"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-16"
 
     val humanPronouns =
         listOf(
@@ -102,6 +105,10 @@ internal object PilotContent {
     val circumstanceFixedWords = listOf(
         FixedWordEntry("L037", "i dag", "today on the current calendar day"),
         FixedWordEntry("L038", "nu", "now at the stated time"),
+    )
+    val questionFixedWords = listOf(
+        FixedWordEntry("L039", "ja", "yes as a positive short answer"),
+        FixedWordEntry("L040", "nej", "no as a negative short answer"),
     )
 
     val nouns =
@@ -258,6 +265,9 @@ internal object PilotContent {
 
     val circumstanceFormats =
         modalRoundFormats + ExerciseFormat("E029", "Add a supplied final circumstance", "G016")
+
+    val questionFormats =
+        circumstanceFormats + ExerciseFormat("E030", "Arrange a neutral yes or no question", "G018")
 
     val snapshot =
         PilotContentSnapshot(
@@ -499,10 +509,10 @@ internal object PilotContent {
             ),
         )
 
-    val currentSnapshot =
+    val pilotFifteenSnapshot =
         pilotFourteenSnapshot.copy(
-            contentRevision = CURRENT_CONTENT_REVISION,
-            generatorRevision = CURRENT_GENERATOR_REVISION,
+            contentRevision = RETAINED_FIFTEEN_CONTENT_REVISION,
+            generatorRevision = RETAINED_FIFTEEN_GENERATOR_REVISION,
             skills = pilotFourteenSnapshot.skills + Skill(
                 "G016",
                 "Time, place, and manner adverbials",
@@ -523,6 +533,30 @@ internal object PilotContent {
             ),
         )
 
+    val currentSnapshot =
+        pilotFifteenSnapshot.copy(
+            contentRevision = CURRENT_CONTENT_REVISION,
+            generatorRevision = CURRENT_GENERATOR_REVISION,
+            skills = pilotFifteenSnapshot.skills + Skill(
+                "G018",
+                "Neutral yes or no questions",
+                "Ask one reviewed neutral positive yes/no question with the finite verb first and subject second.",
+                listOf("G005"),
+            ),
+            formats = questionFormats,
+            fixedWords = personalIntroductionFixedWords + circumstanceFixedWords + questionFixedWords,
+            lexicalReview = PilotReviewMetadata.records(
+                humanPronouns,
+                identifyingPronoun,
+                pilotFifteenSnapshot.verbs,
+                moduleOneNouns,
+                matching = true,
+                moduleOne = true,
+                referencePronouns = inanimateReferencePronouns,
+                fixedWords = personalIntroductionFixedWords + circumstanceFixedWords + questionFixedWords,
+            ),
+        )
+
     init {
         PilotContentValidator.requireValid(snapshot)
         PilotContentValidator.requireValid(pilotTwoSnapshot)
@@ -538,6 +572,7 @@ internal object PilotContent {
         PilotContentValidator.requireValid(pilotTwelveSnapshot)
         PilotContentValidator.requireValid(pilotThirteenSnapshot)
         PilotContentValidator.requireValid(pilotFourteenSnapshot)
+        PilotContentValidator.requireValid(pilotFifteenSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

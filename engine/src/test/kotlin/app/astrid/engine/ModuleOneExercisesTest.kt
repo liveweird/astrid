@@ -14,14 +14,14 @@ class ModuleOneExercisesTest {
 
     @Test
     fun `pair eight publishes four bounded formats while retaining every older pair`() {
-        assertEquals((1..29).map { "E${it.toString().padStart(3, '0')}" }, engine.catalog().formats.map { it.id })
+        assertEquals((1..30).map { "E${it.toString().padStart(3, '0')}" }, engine.catalog().formats.map { it.id })
         assertEquals(109, engine.catalog().sentenceCount)
-        assertEquals("pilot-15", engine.catalog().contentRevision)
-        assertEquals("generator-15", engine.catalog().generatorRevision)
-        assertEquals(15, engine.supportedRevisionPairs().size)
+        assertEquals("pilot-16", engine.catalog().contentRevision)
+        assertEquals("generator-16", engine.catalog().generatorRevision)
+        assertEquals(16, engine.supportedRevisionPairs().size)
         assertEquals("evaluation-7", engine.evaluationRevision("pilot-7", "generator-7"))
         assertEquals("evaluation-8", engine.evaluationRevision("pilot-8", "generator-8"))
-        assertEquals(38, PilotContent.currentSnapshot.lexicalReview.size)
+        assertEquals(40, PilotContent.currentSnapshot.lexicalReview.size)
         assertEquals(109, PilotContent.currentSnapshot.sentences.size)
         assertEquals(99, PilotContent.pilotSevenSnapshot.sentences.size)
         assertFailsWith<IllegalArgumentException> {

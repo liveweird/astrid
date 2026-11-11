@@ -57,6 +57,12 @@ class PilotContentValidatorTest {
             circumstance.id,
             "expected target G016",
         )
+        val question = current.formats.single { it.id == "E030" }
+        assertIssue(
+            current.copy(formats = current.formats.replace(question, question.copy(targetSkillId = "G005"))),
+            question.id,
+            "expected target G018",
+        )
     }
 
     @Test

@@ -91,6 +91,7 @@ it.each([
   ["modal-permission-meaning", "G030", "Permission in context"],
   ["supplied-modal-order", "G005", "Supplied-modal statement order"],
   ["one-final-circumstance", "G016", "Time or place at the end"],
+  ["neutral-positive-yes-no", "G018", "Neutral yes/no question order"],
 ] as const)("shows a learning label instead of the %s implementation scope", async (targetScopeId, targetSkillId, label) => {
   saveModuleOneRun();
   const scopedExercise = { ...subjectExercise, targetScopeId, targetSkillId };
@@ -127,6 +128,7 @@ it.each([
   ["Understanding a requirement", "module-one-obligation", "module-one-obligation-1"],
   ["Understanding permission", "module-one-permission", "module-one-permission-1"],
   ["Adding when and where", "module-one-circumstances", "module-one-circumstances-1"],
+  ["Asking yes or no questions", "module-one-questions", "module-one-questions-1"],
 ] as const)("creates %s only after its exact catalog choice", async (title, focusId, planRevision) => {
   let body = "";
   vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
@@ -516,7 +518,7 @@ it("offers circumstances after the permission round", async () => {
   expect(screen.getByRole("radio", { name: "Adding when and where" })).toBeChecked();
 });
 
-it("stops the explicit sequence after circumstances", async () => {
+it("offers yes/no questions after circumstances", async () => {
   saveRunRecovery({
     ownerSessionId: owner, practiceSessionId: practiceId,
     focusId: "module-one-circumstances", planRevision: "module-one-circumstances-1", seed: 47,
@@ -545,7 +547,42 @@ it("stops the explicit sequence after circumstances", async () => {
   }));
   renderWithProviders(<Practice />);
 
-  expect(await screen.findByRole("button", { name: "Repeat this session" })).toBeVisible();
+  expect(await screen.findByRole("button", { name: "Next: Asking yes or no questions" })).toBeVisible();
   expect(screen.getByText("Constituent order", { exact: true })).toBeVisible();
+  await userEvent.setup().click(screen.getByRole("button", { name: "Next: Asking yes or no questions" }));
+  expect(screen.getByRole("radio", { name: "Asking yes or no questions" })).toBeChecked();
+});
+
+it("stops the explicit sequence after yes/no questions", async () => {
+  saveRunRecovery({
+    ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "module-one-questions", planRevision: "module-one-questions-1", seed: 47,
+  });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const completed = moduleOneState({
+    focusId: "module-one-questions", planRevision: "module-one-questions-1", title: "Asking yes or no questions",
+    state: "completed", cursor: 4, itemCount: 4, currentExercise: null, introductionOpened: true,
+    summary: {
+      ...completedState().summary, plannedItems: 4, completedItems: 4, attemptedItems: 4,
+      rows: [{
+        label: "Neutral positive yes/no question — constituent order", targetSkillId: "G018",
+        targetScopeId: "neutral-positive-yes-no", assessmentMode: "constituent-order", assessmentRole: "primary",
+        plannedItems: 4, attemptedItems: 4, advancedItems: 4, attemptCount: 4, retryCount: 0,
+        firstOutcomes: { ...outcomes, fullyMet: 4, targetMet: 4, targetNotMet: 0 },
+        latestOutcomes: { ...outcomes, fullyMet: 4, targetMet: 4, targetNotMet: 0 },
+        firstWithSupport: 4, firstWithPriorExposure: 4,
+        lessonOpenedItems: 0, hintOpenedItems: 0,
+      }],
+    },
+  });
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.includes("/practice-sessions/")) return json(completed);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Practice />);
+
+  expect(await screen.findByRole("button", { name: "Repeat this session" })).toBeVisible();
+  expect(screen.getByText("Question order", { exact: true })).toBeVisible();
   expect(screen.queryByRole("button", { name: /^Next:/ })).not.toBeInTheDocument();
 });

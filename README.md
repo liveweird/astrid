@@ -1,6 +1,6 @@
 # Astrid
 
-A Danish reading and writing engine for English-speaking beginners. Guided practice includes fourteen Module 1 profiles, alongside a standalone playground with twenty-nine exercise formats covering grammar, vocabulary, constrained writing and short reading. The current inventory has 38 lexical records and 109 catalogue sentences plus scoped task frames. Generation and grading are deterministic; content remains a linguistic draft awaiting Danish teaching review.
+A Danish reading and writing engine for English-speaking beginners. Guided practice includes fifteen Module 1 profiles, alongside a standalone playground with thirty exercise formats covering grammar, vocabulary, constrained writing and short reading. The current inventory has 40 lexical records and 109 catalogue sentences plus scoped task frames. Generation and grading are deterministic; content remains a linguistic draft awaiting Danish teaching review.
 
 ## Run the complete app
 
@@ -57,6 +57,7 @@ Native development binds to `127.0.0.1:8088`; `ASTRID_BIND_HOST` and `ASTRID_POR
 - **Named present forms:** choose or type the present of `arbejde`, `læse` or `sove` with the rest of the statement supplied.
 - **Subject-first assembly:** arrange whole constituents or individual words to express the supplied statement.
 - **Final time or place:** keep a supplied Danish clause in order and add one intact circumstance last, with separate target and requested-order feedback.
+- **Neutral yes/no questions:** turn a supplied statement into a question by placing the finite verb first and subject second; keep every supplied phrase intact.
 
 Feedback reports both the requested target and the supported linguistic judgment. An acceptable fronted statement can miss the subject-first target. Unknown writing is not automatically invalid Danish. Vocabulary feedback also separates knowing the headword from supplying the requested one-word response; `en avis` can identify the word while needing correction to the response format. Hints and retries are recorded; there is no mastery or adaptive scheduling claim.
 
@@ -121,6 +122,13 @@ Meaning and word-order results stay separate. See the
 Place the intact addition last, with separate final-position and requested-core-order results.
 See the [S12 contract](docs/knowledge/module-one-course-slice.md#s12-adding-when-and-where).
 
+**Asking yes or no questions** adds four supplied statement-to-question activities.
+Read the required introduction, then arrange the finite verb, subject and intact
+remaining phrase. The question mark is supplied. Uppercase `I` (“you all”) stays
+distinct from lowercase `i` (“in”); `ja` and `nej` are introduced support. Continue
+from S12 through the chooser or enter directly. See the
+[S13 contract](docs/knowledge/module-one-course-slice.md#s13-activation--11-november-2026).
+
 Practice saves operation identities in this browser before sending them. Refresh resumes the URL-bound session and replays uncertain operations with their original identities; confirmed grades are read back without regrading. Recovery requires the original valid development cookie and browser storage. If either is unavailable, use **Start new practice**; old server history remains intact. Unsent drafts need not survive refresh. The standalone playground retains its existing in-tab recovery behavior.
 
 From a completed mixed/verb/guided-gap summary, select individual grammar or vocabulary targets and choose **Start selected review**. Recognition and written recall stay separate. Vocabulary targets add one item each; selecting grammar adds distinct sentences for a short run of up to eight items. No targets are selected automatically. Present-verb summaries keep selection, written recall and repair separate; choosing one, two or three operations produces four, four or six review items. The review saves its source link and possible earlier exposure, and keeps the original session's results intact. A single-word review can contain one item because repeating its cue would not add meaningful variation.
@@ -146,7 +154,7 @@ For a user-visible feature, bump the minor application version; for a fix, bump 
 | `e2e/` | Browser journeys against the assembled app |
 | `k8s/` | Private single-replica playground deployment |
 | `docs/knowledge/` | Requirements, decisions, language drafts, sources and open points |
-| `BACKLOG.md` | Planned work and completed delivery evidence |
+| `BACKLOG.md` | Open work with status tags; delivery evidence lives in the knowledge base |
 
 Use four-space Kotlin and two-space TypeScript indentation, PascalCase types/components, and camelCase functions/properties. Keep domain logic out of routes and React components. Public API objects are explicit mappings: never serialize an engine object containing an answer key. Prefer focused files and behavior-based tests. Preserve raw answers, version generation and evaluation changes, and add regression cases for grading fixes.
 
@@ -188,7 +196,7 @@ CI repeats the gates on pull requests and master, validates Kubernetes schemas a
 ./gradlew :engine:exportPilotReview
 ```
 
-The current deterministic report is `engine/build/review/pilot-15.md`. It covers 38 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotTenReview` for `pilot-10-retained.md`. See the [export and compatibility inventory](.claude/docs/compatibility.md).
+The current deterministic report is `engine/build/review/pilot-16.md`. It covers 40 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotTenReview` for `pilot-10-retained.md`. See the [export and compatibility inventory](.claude/docs/compatibility.md).
 
 Vocabulary introduces a forward migration permitting a null grammar target; its separate lexical target lives in the stored presentation. After vocabulary writes, rollback requires a reader compatible with new metadata and nullable targets; a bare older image is unsafe. See the [contract](docs/knowledge/vocabulary-assessment.md).
 

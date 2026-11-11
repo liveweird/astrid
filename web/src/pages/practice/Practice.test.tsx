@@ -548,6 +548,80 @@ it("saves and submits an E029 order, then retains every constituent for retry", 
   }
 });
 
+it("saves and submits a complete E030 order, then retains every constituent for retry", async () => {
+  const ordering = {
+    ...exercise, id: "99999999-9999-4999-8999-999999999999", formatId: "E030", lexicalTarget: undefined,
+    targetSkillId: "G018", targetScopeId: "neutral-positive-yes-no",
+    contentRevision: "pilot-16", generatorRevision: "generator-16",
+    instruction: "Turn the supplied positive statement into a neutral yes/no question.",
+    context: "The subject is more than one addressee. English question: Do you all live in Aarhus?", introduction: [],
+    prompt: {
+      before: "", after: "", choices: [], punctuation: "?", cue: "I bor i Aarhus.",
+      cueLanguage: "da", answerLanguage: "da", blocks: [
+        { id: "v", text: "bor" }, { id: "s", text: "I" }, { id: "l", text: "i Aarhus" },
+      ],
+    },
+  };
+  const run = {
+    ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "module-one-questions", planRevision: "module-one-questions-1", seed: 47,
+  };
+  saveRunRecovery(run);
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const item = {
+    ...state().items[0]!, exerciseId: ordering.id, formatId: "E030", lexicalTarget: undefined,
+    targetSkillId: "G018", targetScopeId: "neutral-positive-yes-no", assessmentMode: "constituent-order",
+  };
+  let serverState = state({
+    focusId: run.focusId, planRevision: run.planRevision, title: "Asking yes or no questions",
+    contentRevision: "pilot-16", generatorRevision: "generator-16", evaluationRevision: "evaluation-16",
+    itemCount: 4, introductionOpened: true, currentExercise: ordering as never, items: [item as never],
+  });
+  let submitted = "";
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.endsWith("/attempts")) {
+      submitted = String(init?.body);
+      const pending = listOutbox(practiceId);
+      expect(pending).toHaveLength(1);
+      expect(pending[0]).toMatchObject({ kind: "attempt", body: submitted });
+      const request = JSON.parse(submitted);
+      const saved = {
+        ...wrongAttempt, exerciseId: ordering.id, attemptId: request.attemptId,
+        targetSatisfaction: "met", meaningSatisfaction: "met", linguisticStatus: "acceptable",
+        responseConstraintStatus: "met", issues: [], completedSentence: "Bor I i Aarhus?",
+        evaluationRevision: "evaluation-16",
+      };
+      serverState = state({ ...serverState, items: [{
+        ...serverState.items[0]!, attemptCount: 1, firstAttempt: saved, lastAttempt: saved,
+        firstAnswer: request.answer, lastAnswer: request.answer, canAdvance: true,
+      } as never] });
+      return json(saved);
+    }
+    if (path.includes("/practice-sessions/")) return json(serverState);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  renderWithProviders(<Practice />);
+
+  const check = await screen.findByRole("button", { name: "Check answer" });
+  await user.click(screen.getByRole("button", { name: "bor" }));
+  await user.click(screen.getByRole("button", { name: "I" }));
+  expect(check).toBeDisabled();
+  await user.click(screen.getByRole("button", { name: "i Aarhus" }));
+  expect(check).toBeEnabled();
+  await user.click(check);
+
+  expect(JSON.parse(submitted)).toMatchObject({
+    answer: { kind: "order", blockIds: ["v", "s", "l"] },
+  });
+  expect(listOutbox(practiceId)).toEqual([]);
+  await user.click(await screen.findByRole("button", { name: "Try again" }));
+  for (const [position, part] of ["bor", "I", "i Aarhus"].entries()) {
+    expect(screen.getByRole("button", { name: `Remove ${part} from position ${position + 1}` })).toBeEnabled();
+  }
+});
+
 it("reports source-practice exposure separately from exposure inside the current run", async () => {
   saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId: "targeted-review", planRevision: "follow-up-1", seed: 47,
     sourcePracticeSessionId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", selectedTargetKeys: ["lexical:L014:L014-S01:meaning:da-en"] });

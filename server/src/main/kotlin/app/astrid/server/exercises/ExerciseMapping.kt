@@ -258,6 +258,7 @@ private val SCOPED_FINGERPRINT_PAIRS = setOf(
     "pilot-13" to "generator-13",
     "pilot-14" to "generator-14",
     "pilot-15" to "generator-15",
+    "pilot-16" to "generator-16",
 )
 
 private fun scopedFingerprintFrame(
@@ -271,6 +272,7 @@ private fun scopedFingerprintFrame(
     "pilot-13" -> framedList(listOf("pair-thirteen", canonical))
     "pilot-14" -> scopedFingerprintFrameWithModal("pair-fourteen", canonical, modalSource)
     "pilot-15" -> scopedFingerprintFrameWithModal("pair-fifteen", canonical, modalSource)
+    "pilot-16" -> scopedFingerprintFrameWithModal("pair-sixteen", canonical, modalSource)
     else -> canonical
 }
 

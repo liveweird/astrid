@@ -13,16 +13,16 @@ class CircumstanceExercisesTest {
     @Test
     fun `pair fifteen adds only G016 E029 and two lexical records over retained pair fourteen`() {
         val retained = PilotContent.pilotFourteenSnapshot
-        val current = PilotContent.currentSnapshot
+        val current = PilotContent.pilotFifteenSnapshot
         assertEquals(109, retained.sentences.size)
         assertEquals(109, current.sentences.size)
         assertEquals(retained.formats.map { it.id } + "E029", current.formats.map { it.id })
         assertEquals(retained.skills.map { it.id } + "G016", current.skills.map { it.id })
         assertEquals(listOf("G005"), current.skills.single { it.id == "G016" }.prerequisiteIds)
         assertEquals(retained.fixedWords.map { it.id } + listOf("L037", "L038"), current.fixedWords.map { it.id })
-        assertEquals("pilot-15", engine.catalog().contentRevision)
-        assertEquals("generator-15", engine.catalog().generatorRevision)
-        assertEquals(29, engine.catalog().formats.size)
+        assertEquals("pilot-15", current.contentRevision)
+        assertEquals("generator-15", current.generatorRevision)
+        assertEquals(29, current.formats.size)
         assertEquals("evaluation-14", engine.evaluationRevision("pilot-14", "generator-14"))
         assertEquals("evaluation-15", engine.evaluationRevision("pilot-15", "generator-15"))
     }
@@ -86,7 +86,7 @@ class CircumstanceExercisesTest {
 
     @Test
     fun `current location metadata includes C007 while retained pair fourteen stays literal`() {
-        val current = PilotContent.currentSnapshot.lexicalReview.single { it.id == "L032" }
+        val current = PilotContent.pilotFifteenSnapshot.lexicalReview.single { it.id == "L032" }
         val retained = PilotContent.pilotFourteenSnapshot.lexicalReview.single { it.id == "L032" }
         assertTrue("C007" in current.constraints)
         assertTrue("Aarhus" in current.constraints)
@@ -94,13 +94,13 @@ class CircumstanceExercisesTest {
             "Fixed supplied preposition before Aarhus or Odense in the pair-twelve residence frame only.",
             retained.constraints,
         )
-        val currentRow = PilotReview.renderMarkdown().lineSequence().single { it.startsWith("| L032 |") }
+        val currentRow = PilotReview.renderPilotFifteenMarkdown().lineSequence().single { it.startsWith("| L032 |") }
         assertTrue("C007" in currentRow)
     }
 
     @Test
     fun `reading metadata licenses both assessed C007 cards and the separate worked example`() {
-        val current = PilotContent.currentSnapshot.lexicalReview.single { it.id == "L011" }
+        val current = PilotContent.pilotFifteenSnapshot.lexicalReview.single { it.id == "L011" }
         val retained = PilotContent.pilotFourteenSnapshot.lexicalReview.single { it.id == "L011" }
         assertTrue("the two authored C007 reading propositions" in current.constraints)
         assertTrue("separate worked reading example" in current.constraints)
@@ -109,14 +109,14 @@ class CircumstanceExercisesTest {
 
     @Test
     fun `circumstance subjects add C007 evidence over retained pair fourteen`() {
-        val current = PilotContent.currentSnapshot.lexicalReview.single { it.id == "L001" }
+        val current = PilotContent.pilotFifteenSnapshot.lexicalReview.single { it.id == "L001" }
         val retained = PilotContent.pilotFourteenSnapshot.lexicalReview.single { it.id == "L001" }
         assertTrue("C014 modal subjects" in current.constraints)
         assertTrue("C007 circumstance subjects" in current.constraints)
         assertTrue("C014 modal subjects" in retained.constraints)
         assertFalse("C007" in retained.constraints)
         assertTrue("sv00006990" in current.sourceUrls.single { "sv00006990" in it })
-        val reviewRow = PilotReview.renderMarkdown().lineSequence().single { it.startsWith("| L001 |") }
+        val reviewRow = PilotReview.renderPilotFifteenMarkdown().lineSequence().single { it.startsWith("| L001 |") }
         assertTrue("C007 circumstance subjects" in reviewRow)
     }
 

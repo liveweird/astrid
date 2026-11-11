@@ -15,4 +15,5 @@ export const PILOT_FORMAT_TITLES = [
   "Match English and Danish words",
   "Choose a present verb and article",
   "Add a supplied final circumstance",
+  "Arrange a neutral yes or no question",
 ] as const;

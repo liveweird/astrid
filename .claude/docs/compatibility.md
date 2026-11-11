@@ -29,7 +29,8 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-12` / `generator-12` | `evaluation-12` | E022/E023 add scoped name, residence and language tasks | published and frozen; S09 pins this pair |
 | `pilot-13` / `generator-13` | `evaluation-13` | + E026/E027 bare infinitive after supplied ability modal | published and frozen; S10 pins this pair |
 | `pilot-14` / `generator-14` | `evaluation-14` | + E028 contextual modal meaning and E025 modal construction | published and frozen; S11 pins this pair |
-| `pilot-15` / `generator-15` | `evaluation-15` | + E029 supplied core with final time/place constituent | CURRENT; S12 pins this pair |
+| `pilot-15` / `generator-15` | `evaluation-15` | + E029 supplied core with final time/place constituent | published and frozen; S12 pins this pair |
+| `pilot-16` / `generator-16` | `evaluation-16` | + E030 supplied neutral positive yes/no question | CURRENT; S13 pins this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
@@ -51,6 +52,8 @@ The two-item `module-one-volition-1`, `module-one-obligation-1` and
 record meaning selection and supplied word order.
 The four-item `module-one-circumstances-1` plan pins pair fifteen and retains the existing
 order outcome and exposure policies.
+The four-item `module-one-questions-1` plan pins pair sixteen and retains those same
+order policies; ja/nej remain introduced support rather than assessed vocabulary.
 Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 
 ## What is stored, and what that implies
@@ -155,11 +158,16 @@ Pair fourteen and the three S11 modal rounds were frozen from released 0.16.0
 source in `aca3c5d` before S12 production changes. The projection covers complete modal
 private inputs, the full previous ability source and all 28 format pools.
 
+Pair fifteen and S12 were frozen from released 0.17.0 source `0f1b322` in
+`80fc257` before S13 production changes. The four archives contain 7,611 rows and
+pin actual private circumstance keys, review bytes and public/private lifecycle.
+
 ## Export tasks
 
 | Task | Output |
 | --- | --- |
-| `:engine:exportPilotReview` | `engine/build/review/pilot-15.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotReview` | `engine/build/review/pilot-16.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotFifteenReview` | `engine/build/review/pilot-15-retained.md` |
 | `:engine:exportPilotFourteenReview` | `engine/build/review/pilot-14-retained.md` |
 | `:engine:exportPilotThirteenReview` | `engine/build/review/pilot-13-retained.md` |
 | `:engine:exportPilotTwelveReview` | `engine/build/review/pilot-12-retained.md` |
@@ -188,5 +196,7 @@ private inputs, the full previous ability source and all 28 format pools.
 | `:engine:exportPilotFourteenCompatibility` / `:server:exportPilotFourteenWireCompatibility` | add pair-fourteen evidence and provenance only (refuse overwrite) |
 | `:engine:exportModalRoundPracticeCompatibility` / `:server:exportModalRoundPracticeWireCompatibility` | add published S11 plan evidence and provenance only (refuse overwrite) |
 | `:server:exportPilotThreeWireCompatibility` | writes a **new** wire fixture + provenance (refuses to overwrite) |
+| `:engine:exportPilotFifteenCompatibility` / `:server:exportPilotFifteenWireCompatibility` | add pair-fifteen evidence and provenance only (refuse overwrite) |
+| `:engine:exportCircumstancePracticeCompatibility` / `:server:exportCircumstancePracticeWireCompatibility` | add published S12 plan evidence and provenance only (refuse overwrite) |
 
 Review exports are deterministic evidence for teaching review; they are not approval. The production engine does no file I/O.

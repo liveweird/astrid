@@ -97,14 +97,14 @@ class PilotFifteenCompatibilityGoldenTest {
         assertTrue(tasks.all { it.feedbackExposureKeys.last() == "module-one:pattern:one-final-circumstance" })
         assertEquals(
             PAIR_FIFTEEN_IDS,
-            PilotContent.currentSnapshot.lexicalReview.map { it.id }.filter { it in PAIR_FIFTEEN_IDS }.toSet(),
+            PilotContent.pilotFifteenSnapshot.lexicalReview.map { it.id }.filter { it in PAIR_FIFTEEN_IDS }.toSet(),
         )
         assertEquals("C007", FinalCircumstanceContent.CONSTRUCTION_ID)
-        assertTrue(PilotContent.currentSnapshot.lexicalReview.single { it.id == "L032" }.constraints.contains("C007"))
+        assertTrue(PilotContent.pilotFifteenSnapshot.lexicalReview.single { it.id == "L032" }.constraints.contains("C007"))
         assertTrue(!PilotContent.pilotFourteenSnapshot.lexicalReview.single { it.id == "L032" }.constraints.contains("C007"))
         assertEquals(
             (1..29).map { "E${it.toString().padStart(3, '0')}" }.toSet(),
-            PilotContent.currentSnapshot.formats.map { it.id }.toSet(),
+            PilotContent.pilotFifteenSnapshot.formats.map { it.id }.toSet(),
         )
         assertEquals(
             (1..28).map { "E${it.toString().padStart(3, '0')}" }.toSet(),

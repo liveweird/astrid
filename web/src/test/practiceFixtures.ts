@@ -156,6 +156,9 @@ export function profiles(ownerSessionId = owner) {
       { focusId: "module-one-circumstances", planRevision: "module-one-circumstances-1", title: "Adding when and where",
         description: "Keep a supplied clause core in order and add one supplied time or place circumstance at the end.", itemCount: 4,
         prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
+      { focusId: "module-one-questions", planRevision: "module-one-questions-1", title: "Asking yes or no questions",
+        description: "Arrange supplied Danish constituents into neutral positive yes/no questions.", itemCount: 4,
+        prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
       { focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
         description: "Mixed existing skills.", itemCount: 8, prerequisiteSkillIds: [] },
       { focusId: "present-verbs", planRevision: "present-verbs-1", title: "Present verb forms",
@@ -169,7 +172,7 @@ export function profiles(ownerSessionId = owner) {
 
 export async function choosePractice(
   user: ReturnType<typeof userEvent.setup>,
-  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Saying what someone has" | "Words for things you read" | "Names, homes and languages" | "Using a verb after kan" | "Expressing an intention" | "Understanding a requirement" | "Understanding permission" | "Adding when and where" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" = "Mixed practice",
+  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Saying what someone has" | "Words for things you read" | "Names, homes and languages" | "Using a verb after kan" | "Expressing an intention" | "Understanding a requirement" | "Understanding permission" | "Adding when and where" | "Asking yes or no questions" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" = "Mixed practice",
 ) {
   await screen.findByRole("heading", { name: "Choose your practice" });
   await user.click(screen.getByRole("radio", { name }));

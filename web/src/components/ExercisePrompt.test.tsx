@@ -217,6 +217,33 @@ describe("ExercisePrompt present and order formats", () => {
     expect(onOrder).toHaveBeenCalledWith(["c"]);
   });
 
+  it("renders a yes/no question with lexical I distinct from lowercase i", () => {
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E030" as Exercise["formatId"], {
+              before: "", after: "", cue: "I bor i Aarhus.", cueLanguage: "da", answerLanguage: "da",
+              choices: [], punctuation: "?", blocks: [
+                { id: "l", text: "i Aarhus" }, { id: "s", text: "I" }, { id: "v", text: "bor" },
+              ],
+            }),
+            contentRevision: "pilot-16", generatorRevision: "generator-16",
+            targetSkillId: "G018", targetScopeId: "neutral-positive-yes-no",
+          } as Exercise}
+          text="" order={["v", "s", "l"]} disabled={false} onText={vi.fn()} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByLabelText("Remove bor from position 1")).toHaveTextContent("Bor");
+    expect(screen.getByLabelText("Remove I from position 2")).toHaveTextContent("I");
+    expect(screen.getByLabelText("Remove i Aarhus from position 3")).toHaveTextContent("i Aarhus");
+    expect(screen.getByLabelText("Your sentence", { exact: true })).toHaveTextContent("BorIi Aarhus?");
+    expect(screen.getByText("I bor i Aarhus.", { exact: true })).toHaveAttribute("lang", "da");
+    expect(screen.queryByText("Use every word tile.")).not.toBeInTheDocument();
+  });
+
   it("allows a proper subset of supplied word tiles to remain checkable", () => {
     render(
       <MantineProvider env="test">

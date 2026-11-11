@@ -332,8 +332,8 @@ internal object CircumstancePracticeCompatibilityFixture {
     ) = PracticeCompletionAttemptObservation(target, linguistic, constraint, issues)
 
     private fun requireLiteralPairs() {
-        require(PilotContent.currentSnapshot.contentRevision == "pilot-15")
-        require(PilotContent.currentSnapshot.generatorRevision == "generator-15")
+        require(PilotContent.pilotFifteenSnapshot.contentRevision == "pilot-15")
+        require(PilotContent.pilotFifteenSnapshot.generatorRevision == "generator-15")
         require(engine.evaluationRevision("pilot-15", "generator-15") == "evaluation-15")
     }
 

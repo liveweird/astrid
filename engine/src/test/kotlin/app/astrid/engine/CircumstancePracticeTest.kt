@@ -78,7 +78,7 @@ class CircumstancePracticeTest {
     @Test
     fun `review inventory exposes every literal card source and boundary`() {
         val review = buildString {
-            CircumstanceReviewRenderer.appendTo(this, PilotContent.currentSnapshot, 47)
+            CircumstanceReviewRenderer.appendTo(this, PilotContent.pilotFifteenSnapshot, 47)
         }
         FinalCircumstanceContent.tasks.forEach { task ->
             assertTrue(task.id in review)
