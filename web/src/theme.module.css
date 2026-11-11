@@ -96,6 +96,9 @@
 .reviewSection {
   border-block-start: 1px solid var(--astrid-border);
   padding-block-start: var(--mantine-spacing-xl);
+}
+
+.reviewHeading {
   scroll-margin-block-start: calc(var(--app-shell-header-height, 3rem) + var(--mantine-spacing-md));
 }
 

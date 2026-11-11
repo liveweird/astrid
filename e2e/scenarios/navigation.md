@@ -59,6 +59,9 @@ Runs once with a light preference and once with a dark preference.
    - *Expected*: its expanded state is exposed; **Lessons**, **Review**, **Engine playground** and
      footer **Changelog** are visible, **Developer tools** labels the secondary
      destination, the unread marker remains visible, and the open drawer also passes axe/reflow.
+3. They follow **Review** from the drawer.
+   - *Expected*: `/#review` focuses a visible, unclipped Review heading below the fixed header; the
+     focused review section still has zero axe violations and no horizontal overflow.
 
 ## Not covered here (and why)
 

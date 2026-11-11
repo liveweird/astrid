@@ -165,7 +165,7 @@ export default function Lessons() {
       </Box>
 
       <Box component="section" aria-labelledby="review" className={classes.reviewSection}>
-        <Title id="review" tabIndex={-1} order={2} size="h2">Review</Title>
+        <Title id="review" tabIndex={-1} order={2} size="h2" className={classes.reviewHeading}>Review</Title>
         <Text c="dimmed" mt="xs" mb="md" maw={700}>
           Practise familiar words, sentence order, verb forms and articles in these focused sets.
         </Text>

@@ -215,5 +215,28 @@ for (const theme of ["light", "dark"] as const) {
     await expect(navigation.getByText("Developer tools", { exact: true })).toBeVisible();
     await expect(page.getByTitle("What's new", { exact: true })).toBeVisible();
     await scan(page);
+
+    await navigation.getByRole("link", { name: "Review", exact: true }).click();
+    await expect(page).toHaveURL(/\/#review$/);
+    const review = page.getByRole("heading", { name: "Review", exact: true });
+    await expect(review).toBeFocused();
+    await expect(review).toBeVisible();
+    const headerBox = await page.locator("header").boundingBox();
+    const reviewBox = await review.boundingBox();
+    expect(headerBox, "The fixed header must have a rendered box").not.toBeNull();
+    expect(reviewBox, "The focused Review heading must have a rendered box").not.toBeNull();
+    expect(reviewBox!.y, "The focused Review heading must clear the fixed header")
+      .toBeGreaterThanOrEqual(headerBox!.y + headerBox!.height - 1);
+    const titleBox = await review.evaluate((element) => ({
+      clientHeight: element.clientHeight,
+      clientWidth: element.clientWidth,
+      scrollHeight: element.scrollHeight,
+      scrollWidth: element.scrollWidth,
+    }));
+    expect(titleBox, "The Review heading text must remain unclipped").toMatchObject({
+      scrollHeight: titleBox.clientHeight,
+      scrollWidth: titleBox.clientWidth,
+    });
+    await scan(page);
   });
 }
