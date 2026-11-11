@@ -193,6 +193,18 @@ place/transport bundles, five motion or travel-action bundles, four location/dir
 functional chunks. Each packet must repeat P1's row-level sense, morphology, frame, source and review audit
 before its forms can be called selected.
 
+**Authoring continuation, 12 November:** the bounded
+[P2 food/shopping outline](vocabulary-food-shopping-packet.md) and
+[P3 places/journey outline](vocabulary-places-journeys-packet.md) now allocate their full
+21-row ledgers, exact active morphology, frame exclusions, direct-entry review and six session
+outlines each. Their concrete mixes supersede the approximate category allocations above:
+P2 uses 10 nominal, 6 verbal, 2 modifier and 3 functional placements; P3 uses 7 new entity,
+5 new action and 4 new spatial placements alongside its 5 reused items. P2 replaces proposed
+cheese/tea/juice clustering with a quality label and two functional expressions. The 60-placement
+budget and 20-reuse/40-new planning split remain intact. These remain authoring drafts; no P2/P3
+runtime identity, release or automatic continuation from P1 is selected. Independent recheck reconciled both ledgers and their outlines; it removed a premature Danish
+location-chunk exposure from P3 session 3 while preserving its English-only distractor.
+
 Within each packet, keep first exposure and assessment separate:
 
 - session 1 establishes meanings through Danish-to-English recognition plus a two- or three-sentence
