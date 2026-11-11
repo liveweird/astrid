@@ -38,11 +38,12 @@ is compiled into the test source set).
 Guard tests that must stay green and are never loosened to fit a change:
 
 - `OpenApiContractTest` — validates every observed response (status, body, `application/problem+json`, `Location` on 201) against
-  `documentation.yaml` with swagger-request-validator; request validation is deliberately IGNORE (decoding is tested elsewhere), but path
-  and method existence are errors. Also pins `info.version == APP_VERSION` and the closed oneOf correlations (format ↔ target ↔
+  `documentation.yaml` with swagger-request-validator. Response checks use `validateResponse` to avoid compiling ignored request
+  parameters; separate strict request matrices retain input-schema validation, and application tests cover decoding. Missing path
+  and unsupported method remain errors. Also pins `info.version == APP_VERSION` and the closed oneOf correlations (format ↔ target ↔
   revision pair). A new operation lands with its statuses exercised here.
   Its test-only compiled-schema cache is bounded at two entries using Flow's pattern.
-  The strict request validator is constructed on first use through the same builder.
+  Response and strict request validators are constructed on first use through the same builder.
   Each entry copies the expanded schema definitions. The [measurement record](../../docs/knowledge/flow-reuse-manifest.md#test-only-api-schema-cache--11-november-2026)
   explains the bound at the existing test heap.
 - `MigrationChecksumTest` — Flyway CRC32 of every `V*.sql`; the file set must equal the pinned map (`persistence.md`).

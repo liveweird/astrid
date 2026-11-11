@@ -170,3 +170,31 @@ JVM settings and application behavior are unchanged. On the current source, all 
 OpenAPI methods passed locally in 107.90 seconds and the full 231-test server check
 passed in 141.61 seconds, including detekt and Kover. The final Linux gate is required
 before release; its outcome belongs in the [S12 delivery record](module-one-course-slice.md#s12-adding-when-and-where).
+
+
+### Response-only validation and lazy models for S12
+
+The two-entry bound alone did not pass Linux CI. [Run 43021145158](https://github.com/liveweird/astrid/actions/runs/43021145158)
+at `0502670` ran 231 tests with ten failures. Its first Module 1 journey hit the one-minute
+coroutine deadline at 61.16 seconds, with no suppressed OOM; the next request matrix failed
+while deep-copying schema definitions. The four-entry run had already failed during schema
+transformation before any timeout. Timeout-induced retention is not established.
+
+Inspection of pinned validator 3.0.0 bytecode confirmed that `validate(request, response)`
+still compiles UUID path schemas before filtering ignored request reports. Each cache miss
+copies all expanded definitions twice; a cache entry limit does not bound transient bytes.
+The eager response validator also built a second unused model in request-only tests.
+
+S12 now constructs both validators lazily and uses `validateResponse(path, method, response)`
+in its three response helpers. This API uses the same operation resolver. New negative
+checks preserve unknown-path, unsupported-method, undeclared-status and invalid-body
+rejection; existing problem media-type and 201 Location checks remain intact. Strict request
+matrices, resolver levels, parser settings, two-entry bound, 512 MiB test heap, timeouts and
+coverage floors are unchanged. One test-only diagnostic records heap size, processor count
+and collector names without logging environment values.
+
+On the current local toolchain, all 20 OpenAPI methods passed in 62.37 seconds and the full
+232-test server check passed in 84.83 seconds, compared with 107.90 and 141.61 seconds for
+the two-entry combined-validation path. These are local measurements, not a claimed Linux
+pass. The exact-source Linux job remains the release gate. Application code, migrations,
+public schemas, dependencies and production JVM settings are unaffected.

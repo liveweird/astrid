@@ -31,6 +31,7 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.swagger.v3.parser.OpenAPIV3Parser
 import java.io.File
+import java.lang.management.ManagementFactory
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -54,17 +55,19 @@ class OpenApiContractTest {
             .withSchemaValidationConfiguration(ValidationConfiguration().setMaxCacheSize(SCHEMA_CACHE_ENTRIES))
 
     private val strictValidator by lazy { validatorBuilder().build() }
-    private val validator = validatorBuilder()
-        .withLevelResolver(
-            LevelResolver.create()
-                // This harness is deliberately response-only. ApplicationTest exercises positive and malformed
-                // request decoding; here path/method existence and every observed response status/body stay strict.
-                .withLevel("validation.request", ValidationReport.Level.IGNORE)
-                .withLevel("validation.request.path.missing", ValidationReport.Level.ERROR)
-                .withLevel("validation.request.operation.notAllowed", ValidationReport.Level.ERROR)
-                .withLevel("validation.response", ValidationReport.Level.ERROR)
-                .build(),
-        ).build()
+    private val validator by lazy {
+        validatorBuilder()
+            .withLevelResolver(
+                LevelResolver.create()
+                    // This harness is deliberately response-only. ApplicationTest exercises positive and malformed
+                    // request decoding; here path/method existence and every observed response status/body stay strict.
+                    .withLevel("validation.request", ValidationReport.Level.IGNORE)
+                    .withLevel("validation.request.path.missing", ValidationReport.Level.ERROR)
+                    .withLevel("validation.request.operation.notAllowed", ValidationReport.Level.ERROR)
+                    .withLevel("validation.response", ValidationReport.Level.ERROR)
+                    .build(),
+            ).build()
+    }
 
     @Test
     fun `spec info version equals the application version`() {
@@ -72,6 +75,38 @@ class OpenApiContractTest {
         val version = checkNotNull(Regex("export const APP_VERSION = \"([^\"]+)\"").find(versionSource)).groupValues[1]
         val spec = checkNotNull(OpenAPIV3Parser().readContents(rawSpec).openAPI)
         assertEquals(version, spec.info.version)
+    }
+
+    @Test
+    fun `response-only validation keeps path method status and body checks strict`() {
+        val healthPath = "/api/v1/health"
+        val valid = SimpleResponse.Builder(200)
+            .withHeader("Content-Type", "application/json")
+            .withBody("""{"status":"ok"}""")
+            .build()
+        val malformed = SimpleResponse.Builder(200)
+            .withHeader("Content-Type", "application/json")
+            .withBody("""{"unexpected":true}""")
+            .build()
+        val undeclared = SimpleResponse.Builder(418).build()
+        val unknownPath = validator.validateResponse(
+            "/api/v1/unknown",
+            SimpleRequest.Builder.get("/api/v1/unknown").build().method,
+            valid,
+        )
+        val wrongMethod = validator.validateResponse(
+            healthPath,
+            SimpleRequest.Builder.post(healthPath).build().method,
+            valid,
+        )
+
+        assertFalse(validator.validateResponse(healthPath, SimpleRequest.Builder.get(healthPath).build().method, valid).hasErrors())
+        assertTrue(unknownPath.hasErrors())
+        assertTrue(wrongMethod.hasErrors())
+        assertEquals(setOf("validation.request.path.missing"), unknownPath.messages.map { it.key }.toSet())
+        assertEquals(setOf("validation.request.operation.notAllowed"), wrongMethod.messages.map { it.key }.toSet())
+        assertTrue(validator.validateResponse(healthPath, SimpleRequest.Builder.get(healthPath).build().method, undeclared).hasErrors())
+        assertTrue(validator.validateResponse(healthPath, SimpleRequest.Builder.get(healthPath).build().method, malformed).hasErrors())
     }
 
     @Test
@@ -1524,7 +1559,7 @@ class OpenApiContractTest {
             response.headers.forEach { name, values -> values.forEach { withHeader(name, it) } }
             if (body.isNotEmpty()) withBody(body)
         }.build()
-        val report = validator.validate(request, simpleResponse)
+        val report = validator.validateResponse(path, request.method, simpleResponse)
         if (report.hasErrors()) {
             throw AssertionError(SimpleValidationReportFormat.getInstance().apply(report) + "\n$body")
         }
@@ -1930,7 +1965,7 @@ class OpenApiContractTest {
             .withHeader("Content-Type", "application/json")
             .withBody(body)
             .build()
-        val report = validator.validate(request, response)
+        val report = validator.validateResponse("/api/v1/exercises", request.method, response)
         assertEquals(expected, !report.hasErrors(), "$body\n${SimpleValidationReportFormat.getInstance().apply(report)}")
     }
 
@@ -1951,7 +1986,7 @@ class OpenApiContractTest {
             .withHeader("Location", "/api/v1/practice-sessions/00000000-0000-0000-0000-000000000001")
             .withBody(body)
             .build()
-        val report = validator.validate(request, response)
+        val report = validator.validateResponse("/api/v1/practice-sessions", request.method, response)
         assertEquals(expected, !report.hasErrors(), SimpleValidationReportFormat.getInstance().apply(report))
     }
 
@@ -2089,6 +2124,15 @@ class OpenApiContractTest {
     )
 
     private companion object {
+        init {
+            val runtime = Runtime.getRuntime()
+            val collectors = ManagementFactory.getGarbageCollectorMXBeans().joinToString(",") { it.name }
+            println(
+                "OpenApiContractTest runtime: maxMemoryMiB=${runtime.maxMemory() / (1024 * 1024)}, " +
+                    "availableProcessors=${runtime.availableProcessors()}, garbageCollectors=$collectors",
+            )
+        }
+
         const val SCHEMA_CACHE_ENTRIES = 2
         const val EXERCISE_REQUEST =
             """{"formatId":"E001","targetSkillId":"G004","seed":7,"index":0,"contentRevision":"pilot-1","generatorRevision":"generator-1"}"""
