@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.12.0",
+    date: "2026-11-11",
+    body: `**Say what someone has with har.**
+
+- **Saying what someone has** adds four activities for choosing and typing the Danish present form har in supplied statements.
+- Read the required introduction to connect at have with har and see that the present form stays the same with han, vi, du and de.
+- Distinguish the introduced present form from the infinitive, then see separate selection and written-recall results with saved retries and recovery.
+- Continue from **Building subject-first statements**, enter the session directly, or repeat it from its summary.
+- The material remains a draft awaiting Danish teaching review. Earlier exercises and saved practice keep their original behavior.`,
+  },
+  {
     version: "0.11.0",
     date: "2026-11-10",
     body: `**Use present verbs and build Danish statements.**

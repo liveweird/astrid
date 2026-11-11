@@ -3,6 +3,8 @@ package app.astrid.engine
 object PilotReview {
     fun renderMarkdown(): String = renderSnapshot(PilotContent.currentSnapshot)
 
+    fun renderPilotTenMarkdown(): String = renderSnapshot(PilotContent.pilotTenSnapshot)
+
     fun renderPilotEightMarkdown(): String = renderSnapshot(PilotContent.pilotEightSnapshot)
 
     fun renderPilotNineMarkdown(): String = renderSnapshot(PilotContent.pilotNineSnapshot)
@@ -28,129 +30,61 @@ object PilotReview {
             appendLine("- Content revision: `${snapshot.contentRevision}`")
             appendLine("- Generator revision: `${snapshot.generatorRevision}`")
             appendLine("- Review state: `${PilotReviewMetadata.REVIEW_STATE}`")
-            appendLine("- Provenance: ${reviewProvenance(snapshot)}")
-            appendLine("- Source review: ${sourceReview(snapshot)}")
+            appendLine("- Provenance: ${PilotReviewVersions.provenance(snapshot)}")
+            appendLine("- Source review: ${PilotReviewVersions.sourceReview(snapshot)}")
             appendLine("- Inventory: ${snapshot.lexicalReview.size} lexical records; ${snapshot.sentences.size} sentences")
             appendLine()
             appendLexicalInventory(snapshot.lexicalReview)
             appendSentenceInventory(snapshot.sentences)
             appendExamples(snapshot)
-            if (snapshot.contentRevision in setOf(
-                    PilotContent.RETAINED_FOUR_CONTENT_REVISION,
-                    PilotContent.RETAINED_FIVE_CONTENT_REVISION,
-                    PilotContent.RETAINED_SIX_CONTENT_REVISION,
-                    PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
-                    PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
-                    PilotContent.RETAINED_NINE_CONTENT_REVISION,
-                    PilotContent.CURRENT_CONTENT_REVISION,
-                )
-            ) {
-                appendWritingInventory(snapshot)
-                appendReadingInventory(snapshot)
-            }
-            if (snapshot.contentRevision in setOf(
-                    PilotContent.RETAINED_FIVE_CONTENT_REVISION,
-                    PilotContent.RETAINED_SIX_CONTENT_REVISION,
-                    PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
-                    PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
-                    PilotContent.RETAINED_NINE_CONTENT_REVISION,
-                    PilotContent.CURRENT_CONTENT_REVISION,
-                )
-            ) {
-                appendWordChoiceInventory(snapshot)
-                appendTileInventory(snapshot, "E012", "All-word sentence tiles")
-                appendTileInventory(snapshot, "E013", "Finite-form sentence tiles")
-            }
-            if (snapshot.contentRevision in setOf(
-                    PilotContent.RETAINED_SIX_CONTENT_REVISION,
-                    PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
-                    PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
-                    PilotContent.RETAINED_NINE_CONTENT_REVISION,
-                    PilotContent.CURRENT_CONTENT_REVISION,
-                )
-            ) {
-                appendMatchingInventory(snapshot)
-            }
-            if (snapshot.contentRevision in setOf(
-                    PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
-                    PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
-                    PilotContent.RETAINED_NINE_CONTENT_REVISION,
-                    PilotContent.CURRENT_CONTENT_REVISION,
-                )
-            ) appendGapInventory(snapshot)
-            if (snapshot.contentRevision in setOf(
-                    PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
-                    PilotContent.RETAINED_NINE_CONTENT_REVISION,
-                    PilotContent.CURRENT_CONTENT_REVISION,
-                )
-            ) {
-                appendModuleOneProfileInventory(
-                    snapshot.contentRevision in setOf(PilotContent.RETAINED_NINE_CONTENT_REVISION, PilotContent.CURRENT_CONTENT_REVISION),
-                )
-                appendModuleOneInventory()
-            }
-            if (snapshot.contentRevision in setOf(PilotContent.RETAINED_NINE_CONTENT_REVISION, PilotContent.CURRENT_CONTENT_REVISION)) {
-                appendInanimateReferenceInventory()
-            }
-            if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) appendPresentOrderInventory()
+            appendVersionedInventories(snapshot)
         }
     }
 
-    private fun reviewProvenance(snapshot: PilotContentSnapshot): String =
-        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
-            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
-                "docs/knowledge/module-one-language-pack.md (L024 packet), " +
-                "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks), " +
-                "docs/knowledge/inanimate-reference-activation.md (L026 and G038 reference tasks), and " +
-                "docs/knowledge/module-one-course-slice.md (L027 and S05-S06 tasks; 2026-11-10)"
-        } else if (snapshot.contentRevision == PilotContent.RETAINED_NINE_CONTENT_REVISION) {
-            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
-                "docs/knowledge/module-one-language-pack.md (L024 packet), " +
-                "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks), and " +
-                "docs/knowledge/inanimate-reference-activation.md (L026 and G038 reference tasks; 2026-11-10)"
-        } else if (snapshot.contentRevision == PilotContent.RETAINED_EIGHT_CONTENT_REVISION) {
-            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
-                "docs/knowledge/module-one-language-pack.md (L024 packet) and " +
-                "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks; 2026-11-09)"
-        } else if (snapshot.contentRevision in setOf(
-                PilotContent.RETAINED_FIVE_CONTENT_REVISION,
-                PilotContent.RETAINED_SIX_CONTENT_REVISION,
-                PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
-            )
-        ) {
-            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
-                "docs/knowledge/module-one-language-pack.md (L024 authoring packet, 2026-11-08)"
-        } else {
-            PilotReviewMetadata.PROVENANCE
+    private fun StringBuilder.appendVersionedInventories(snapshot: PilotContentSnapshot) {
+        if (PilotReviewVersions.hasWriting(snapshot)) {
+            appendWritingInventory(snapshot)
+            appendReadingInventory(snapshot)
         }
+        if (PilotReviewVersions.hasWordChoice(snapshot)) {
+            appendWordChoiceInventory(snapshot)
+            appendTileInventory(snapshot, "E012", "All-word sentence tiles")
+            appendTileInventory(snapshot, "E013", "Finite-form sentence tiles")
+        }
+        if (PilotReviewVersions.hasMatching(snapshot)) appendMatchingInventory(snapshot)
+        if (PilotReviewVersions.hasGaps(snapshot)) appendGapInventory(snapshot)
+        if (PilotReviewVersions.hasModuleOne(snapshot)) {
+            appendModuleOneProfileInventory(PilotReviewVersions.hasInanimateReference(snapshot))
+            appendModuleOneInventory()
+        }
+        if (PilotReviewVersions.hasInanimateReference(snapshot)) appendInanimateReferenceInventory()
+        if (PilotReviewVersions.hasPresentOrder(snapshot)) appendPresentOrderInventory(snapshot)
+        if (snapshot.contentRevision == "pilot-11") appendLaterProfileTeaching()
+    }
 
-    private fun sourceReview(snapshot: PilotContentSnapshot): String =
-        if (snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION) {
-            "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
-                "2026-11-09 L025/C004/Module 1 source checks; 2026-11-10 L026/G038 and L027/S05-S06 source checks; see " +
-                "docs/knowledge/pilot-source-review.md, docs/knowledge/module-one-language-pack.md, " +
-                "docs/knowledge/module-one-activation.md, docs/knowledge/inanimate-reference-activation.md and " +
-                "docs/knowledge/module-one-course-slice.md"
-        } else if (snapshot.contentRevision == PilotContent.RETAINED_NINE_CONTENT_REVISION) {
-            "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
-                "2026-11-09 L025/C004/Module 1 source checks; 2026-11-10 L026/G038 source checks; see " +
-                "docs/knowledge/pilot-source-review.md, docs/knowledge/module-one-language-pack.md, " +
-                "docs/knowledge/module-one-activation.md and docs/knowledge/inanimate-reference-activation.md"
-        } else if (snapshot.contentRevision == PilotContent.RETAINED_EIGHT_CONTENT_REVISION) {
-            "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
-                "2026-11-09 L025/C004/Module 1 source checks; see docs/knowledge/pilot-source-review.md, " +
-                "docs/knowledge/module-one-language-pack.md and docs/knowledge/module-one-activation.md"
-        } else if (snapshot.contentRevision in setOf(
-                PilotContent.RETAINED_FIVE_CONTENT_REVISION,
-                PilotContent.RETAINED_SIX_CONTENT_REVISION,
-                PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
-            )
-        ) {
-            "2026-11-07 retained seed; 2026-11-08 pair-five extension; see " +
-                "docs/knowledge/pilot-source-review.md and docs/knowledge/module-one-language-pack.md"
-        } else {
-            PilotReviewMetadata.SOURCE_REVIEW_DATE
+    private fun StringBuilder.appendLaterProfileTeaching() {
+        val planner = PracticePlanner()
+        val profiles = listOf(
+            PresentOrderPracticePlanner.PRESENT_FOCUS_ID to PresentOrderPracticePlanner.PRESENT_PLAN_REVISION,
+            PresentOrderPracticePlanner.ORDER_FOCUS_ID to PresentOrderPracticePlanner.ORDER_PLAN_REVISION,
+            PossessionPracticePlanner.FOCUS_ID to PossessionPracticePlanner.PLAN_REVISION,
+        )
+        appendLine("## S05–S07 required teaching")
+        appendLine()
+        for ((focus, revision) in profiles) {
+            val plan = planner.plan(focus, revision, REVIEW_SEED)
+            appendLine("### ${plan.title}")
+            appendLine()
+            appendLine("- Plan: `$revision`, `${plan.contentRevision}` / `${plan.generatorRevision}`, ${plan.items.size} items")
+            appendLine("- Completion policy: `${plan.completionRuleId}`")
+            appendLine("- Exposure policy: `${plan.exposurePolicyId}`")
+            appendLine("- Introduction exposure: ${plan.introductionExposureKeys.orEmpty().joinToString()}")
+            for (section in plan.introduction) {
+                appendLine("- ${section.title} [${section.bodyLanguage ?: "en"}]: ${section.body}")
+            }
+            appendLine()
         }
+    }
 
     private fun StringBuilder.appendLexicalInventory(records: List<LexicalReviewRecord>) {
         appendLine("## Lexical inventory")
@@ -577,22 +511,25 @@ object PilotReview {
         appendLine()
     }
 
-    private fun StringBuilder.appendPresentOrderInventory() {
+    private fun StringBuilder.appendPresentOrderInventory(snapshot: PilotContentSnapshot) {
         appendLine()
         appendLine("## Named present and supplied-order task inventory")
         appendLine()
         appendLine("| Task | Format | Scope | Canonical sentence | Answer exposure | Prompt exposure |")
         appendLine("| --- | --- | --- | --- | --- | --- |")
-        listOf("E022", "E023", "E024", "E025").flatMap(PresentOrderContent::tasks).forEach { task ->
-            val exercise = (0 until PresentOrderContent.tasks(task.formatId).size).asSequence().map { index ->
+        val includePossession = snapshot.contentRevision == PilotContent.CURRENT_CONTENT_REVISION
+        listOf("E022", "E023", "E024", "E025").flatMap { formatId ->
+            PresentOrderContent.tasks(formatId, includePossession)
+        }.forEach { task ->
+            val exercise = (0 until PresentOrderContent.tasks(task.formatId, includePossession).size).asSequence().map { index ->
                 PilotEngine().generate(
                     GenerationRequest(
                         task.formatId,
                         if (task is NamedPresentTask) "G004" else "G005",
                         REVIEW_SEED,
                         index,
-                        PilotContent.CURRENT_CONTENT_REVISION,
-                        PilotContent.CURRENT_GENERATOR_REVISION,
+                        snapshot.contentRevision,
+                        snapshot.generatorRevision,
                     ),
                 )
             }.first { (it.source as PresentOrderExerciseSource).task.id == task.id }

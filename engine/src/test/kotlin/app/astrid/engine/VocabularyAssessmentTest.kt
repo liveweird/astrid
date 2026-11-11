@@ -24,6 +24,7 @@ class VocabularyAssessmentTest {
                 RevisionPair("pilot-8", "generator-8"),
                 RevisionPair("pilot-9", "generator-9"),
                 RevisionPair("pilot-10", "generator-10"),
+                RevisionPair("pilot-11", "generator-11"),
             ),
             engine.supportedRevisionPairs(),
         )

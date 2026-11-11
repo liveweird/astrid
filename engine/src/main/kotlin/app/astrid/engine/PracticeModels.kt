@@ -109,6 +109,8 @@ object PracticeTargetKeys {
         ScopedAssessment("G004", "vaere-present", "recall"),
         ScopedAssessment("G004", "named-three-verbs-present", "selection"),
         ScopedAssessment("G004", "named-three-verbs-present", "recall"),
+        ScopedAssessment("G004", "have-possession-present", "selection"),
+        ScopedAssessment("G004", "have-possession-present", "recall"),
         ScopedAssessment("G005", "subject-first-supplied", "constituent-order"),
         ScopedAssessment("G005", "subject-first-supplied", "word-order"),
         ScopedAssessment("G038", "inanimate-singular-subject", "selection"),

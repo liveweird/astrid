@@ -17,6 +17,7 @@ const TARGET_SCOPE_LABELS: Record<string, string> = {
   "inanimate-singular-subject": "One-thing reference words",
   "named-three-verbs-present": "Present forms of three verbs",
   "subject-first-supplied": "Subject-first statement order",
+  "have-possession-present": "Present possession with har",
 };
 
 function targetBadge(exercise: NonNullable<PracticeSession["currentExercise"]>) {

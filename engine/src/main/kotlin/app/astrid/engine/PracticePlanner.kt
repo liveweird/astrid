@@ -52,7 +52,14 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
                 itemCount = PresentOrderPracticePlanner.ITEM_COUNT,
                 prerequisiteSkillIds = specification.prerequisites,
             )
-        }
+        } + PracticeProfile(
+            focusId = PossessionPracticePlanner.FOCUS_ID,
+            planRevision = PossessionPracticePlanner.PLAN_REVISION,
+            title = PossessionPracticePlanner.TITLE,
+            description = PossessionPracticePlanner.DESCRIPTION,
+            itemCount = PossessionPracticePlanner.ITEM_COUNT,
+            prerequisiteSkillIds = PossessionPracticePlanner.PREREQUISITES,
+        )
 
     fun plan(
         focusId: String,
@@ -70,6 +77,8 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
             -> ModuleOnePracticePlanner(engine).plan(focusId, planRevision, seed)
             InanimateReferencePracticePlanner.FOCUS_ID to InanimateReferencePracticePlanner.PLAN_REVISION ->
                 InanimateReferencePracticePlanner(engine).plan(seed)
+            PossessionPracticePlanner.FOCUS_ID to PossessionPracticePlanner.PLAN_REVISION ->
+                PossessionPracticePlanner(engine).plan(seed)
             PresentOrderPracticePlanner.PRESENT_FOCUS_ID to PresentOrderPracticePlanner.PRESENT_PLAN_REVISION,
             PresentOrderPracticePlanner.ORDER_FOCUS_ID to PresentOrderPracticePlanner.ORDER_PLAN_REVISION,
             -> PresentOrderPracticePlanner(engine).plan(focusId, seed)

@@ -88,11 +88,14 @@ without automatically creating a run. These three pair-eight plans offer no targ
 fallback and do not complete the whole module. See the [activation contract](docs/knowledge/module-one-activation.md).
 
 The sequence continues with **Referring to one thing** (four items), **Using present verb forms**
-(six items), and **Building subject-first statements** (six items). Each opens directly with required
+(six items), **Building subject-first statements** (six items), and **Saying what someone has**
+(four items). Each opens directly with required
 teaching. Assembly starts with whole sentence parts and moves to individual words. The summary keeps
 the two ordering operations separate. The app distinguishes a missing-word or requested-order correction
 from its assessment of the Danish. See the [S04 contract](docs/knowledge/inanimate-reference-activation.md)
 and the [S05–S06 activity cards](docs/knowledge/module-one-course-slice.md#following-package--s05-and-s06).
+The possession session keeps the subject and object supplied while learners choose or type the
+stored present form `har`. See the [S07 activity cards](docs/knowledge/module-one-course-slice.md#s07-possession-with-har).
 
 Practice saves operation identities in this browser before sending them. Refresh resumes the URL-bound session and replays uncertain operations with their original identities; confirmed grades are read back without regrading. Recovery requires the original valid development cookie and browser storage. If either is unavailable, use **Start new practice**; old server history remains intact. Unsent drafts need not survive refresh. The standalone playground retains its existing in-tab recovery behavior.
 
@@ -161,7 +164,7 @@ CI repeats the gates on pull requests and master, validates Kubernetes schemas a
 ./gradlew :engine:exportPilotReview
 ```
 
-The current deterministic report is `engine/build/review/pilot-10.md`. It covers 27 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotNineReview` for `pilot-9-retained.md` and `:engine:exportPilotEightReview` for `pilot-8-retained.md`. See the [export and compatibility inventory](.claude/docs/compatibility.md).
+The current deterministic report is `engine/build/review/pilot-11.md`. It covers 27 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotTenReview` for `pilot-10-retained.md`. See the [export and compatibility inventory](.claude/docs/compatibility.md).
 
 Vocabulary introduces a forward migration permitting a null grammar target; its separate lexical target lives in the stored presentation. After vocabulary writes, rollback requires a reader compatible with new metadata and nullable targets; a bare older image is unsafe. See the [contract](docs/knowledge/vocabulary-assessment.md).
 

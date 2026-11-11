@@ -81,6 +81,7 @@ class OpenApiContractTest {
             "module-one-things" to "module-one-things-1",
             "module-one-present" to "module-one-present-1",
             "module-one-order" to "module-one-order-1",
+            "module-one-possession" to "module-one-possession-1",
         )
         for (focus in supportedPairs.map { it.first }) {
             for (revision in supportedPairs.map { it.second }) {
@@ -154,6 +155,9 @@ class OpenApiContractTest {
             exerciseRequest("E023", "G004", "pilot-10", "generator-10"),
             exerciseRequest("E024", "G005", "pilot-10", "generator-10"),
             exerciseRequest("E025", "G005", "pilot-10", "generator-10"),
+            exerciseRequest("E022", "G004", "pilot-11", "generator-11"),
+            exerciseRequest("E023", "G004", "pilot-11", "generator-11"),
+            exerciseRequest("E025", "G005", "pilot-11", "generator-11"),
         )
         val rejected = listOf(
             exerciseRequest("E009", null, "pilot-4", "generator-4"),
@@ -186,6 +190,8 @@ class OpenApiContractTest {
             exerciseRequest("E023", "G004", "pilot-10", "generator-9"),
             exerciseRequest("E024", "G004", "pilot-10", "generator-10"),
             exerciseRequest("E025", null, "pilot-10", "generator-10"),
+            exerciseRequest("E022", "G004", "pilot-10", "generator-11"),
+            exerciseRequest("E023", "G005", "pilot-11", "generator-11"),
             exerciseRequest("E021", null, "pilot-9", "generator-9"),
             exerciseRequest("E020", "G038", "pilot-8", "generator-8"),
             exerciseRequest("E020", "G038", "pilot-9", "generator-8"),
@@ -253,6 +259,8 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E021", "G038", "inanimate-singular-subject", "pilot-9"),
             moduleOneExerciseResponse("E022", "G004", "named-three-verbs-present", "pilot-10"),
             moduleOneExerciseResponse("E024", "G005", "subject-first-supplied", "pilot-10"),
+            moduleOneExerciseResponse("E022", "G004", "have-possession-present", "pilot-11"),
+            moduleOneExerciseResponse("E023", "G004", "named-three-verbs-present", "pilot-11"),
         )
         val rejected = listOf(
             exerciseResponse("E009", "pilot-4", "generator-4"),
@@ -344,6 +352,8 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E023", "G004", "vaere-present", "pilot-10"),
             moduleOneExerciseResponse("E024", "G005", "subject-first-supplied", "pilot-9"),
             moduleOneExerciseResponse("E025", "G004", "subject-first-supplied", "pilot-10"),
+            moduleOneExerciseResponse("E022", "G004", "have-possession-present", "pilot-10"),
+            moduleOneExerciseResponse("E023", "G005", "have-possession-present", "pilot-11"),
         )
 
         accepted.forEach { assertExerciseResponseValidity(it, expected = true) }
@@ -448,7 +458,7 @@ class OpenApiContractTest {
         )
         validate(HttpMethod.Post, "/api/v1/attempts", matchingAttempt)
         assertEquals(
-            "evaluation-10",
+            "evaluation-11",
             wireJson.parseToJsonElement(matchingAttempt.bodyAsText()).jsonObject
                 .getValue("evaluationRevision").jsonPrimitive.content,
         )
@@ -467,7 +477,7 @@ class OpenApiContractTest {
         val gapAttempt = submitAttempt(cookie, gapId, AttemptAnswerDto.Gaps(gapSelections))
         validate(HttpMethod.Post, "/api/v1/attempts", gapAttempt)
         assertEquals(
-            "evaluation-10",
+            "evaluation-11",
             wireJson.parseToJsonElement(gapAttempt.bodyAsText()).jsonObject
                 .getValue("evaluationRevision").jsonPrimitive.content,
         )
@@ -991,6 +1001,7 @@ class OpenApiContractTest {
             Triple("module-one-groups", "module-one-groups-1", "human-group"),
             Triple("module-one-er", "module-one-er-1", "vaere-present"),
             Triple("module-one-present", "module-one-present-1", "named-three-verbs-present"),
+            Triple("module-one-possession", "module-one-possession-1", "have-possession-present"),
         )
         val observedFormats = mutableSetOf<String>()
 
@@ -1047,7 +1058,7 @@ class OpenApiContractTest {
 
             var checkedCaseOutcome = false
             var checkedUnknownOutcome = false
-            repeat(6) { position ->
+            repeat(state.getValue("itemCount").jsonPrimitive.content.toInt()) { position ->
                 val exercise = state.getValue("currentExercise").jsonObject
                 val exerciseId = exercise.getValue("id").jsonPrimitive.content
                 val formatId = exercise.getValue("formatId").jsonPrimitive.content
@@ -1276,7 +1287,7 @@ class OpenApiContractTest {
         val inspectorKey = "m".repeat(32)
         application { astridModule(config(inspectorKey = inspectorKey), InMemoryStores()) }
         val cookie = moduleOneCookie()
-        val selection = createCurrentExercise(cookie, "E022", "G004")
+        val selection = createCurrentExercise(cookie, "E022", "G004", pair = 10)
         val selectionId = selection.getValue("id").jsonPrimitive.content
         val choices = selection.getValue("prompt").jsonObject.getValue("choices").jsonArray
             .map { it.jsonPrimitive.content }
@@ -1291,7 +1302,7 @@ class OpenApiContractTest {
         validate(HttpMethod.Post, "/api/v1/attempts", checkedForm)
 
         for (format in listOf("E024", "E025")) {
-            val exercise = createCurrentExercise(cookie, format, "G005")
+            val exercise = createCurrentExercise(cookie, format, "G005", pair = 10)
             val exerciseId = exercise.getValue("id").jsonPrimitive.content
             val order = canonicalPairTenOrder(cookie, inspectorKey, exerciseId)
             val malformed = listOf(
@@ -1436,6 +1447,7 @@ class OpenApiContractTest {
         cookie: String,
         formatId: String,
         targetSkillId: String? = null,
+        pair: Int = 11,
     ): JsonObject {
         val target = targetSkillId?.let { "\"targetSkillId\":\"$it\"," }.orEmpty()
         val response = client.post("/api/v1/exercises") {
@@ -1444,7 +1456,7 @@ class OpenApiContractTest {
             header("X-Astrid-Client", "playground")
             contentType(ContentType.Application.Json)
             setBody(
-                """{"formatId":"$formatId",$target"seed":47,"index":0,"contentRevision":"pilot-10","generatorRevision":"generator-10"}""",
+                """{"formatId":"$formatId",$target"seed":47,"index":0,"contentRevision":"pilot-$pair","generatorRevision":"generator-$pair"}""",
             )
         }
         validate(HttpMethod.Post, "/api/v1/exercises", response)

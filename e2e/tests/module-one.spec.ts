@@ -29,6 +29,9 @@ const PRESENT_FORMS: Record<string, string> = {
   "Jeg |.": "arbejder", "Hun | en avis.": "læser", "Vi |.": "sover",
   "De |.": "arbejder", "I | en bog.": "læser", "Han |.": "sover",
 };
+const POSSESSION_FORMS: Record<string, string> = {
+  "Han | et brev.": "har", "Vi | en avis.": "har", "Du | en bog.": "har", "De | et brev.": "har",
+};
 const SUBJECT_FIRST_ORDERS: Record<string, string[]> = {
   "We work.": ["vi", "arbejder"],
   "You sleep.": ["du", "sover"],
@@ -41,6 +44,11 @@ async function stateFor(page: Page) {
   return await readPractice(page.request, new URL(page.url()).searchParams.get("session")!) as unknown as CourseState;
 }
 function answerFor(exercise: CourseExercise) {
+  if (exercise.targetScopeId === "have-possession-present") {
+    const answer = POSSESSION_FORMS[`${exercise.prompt.before ?? ""}|${exercise.prompt.after ?? ""}`];
+    expect(answer, "The literal supplied possession frame identifies har").toBeDefined();
+    return answer!;
+  }
   if (exercise.targetScopeId === "named-three-verbs-present") {
     const answer = PRESENT_FORMS[`${exercise.prompt.before ?? ""}|${exercise.prompt.after ?? ""}`];
     expect(answer, "The literal supplied sentence frame identifies the named present form").toBeDefined();
@@ -196,11 +204,109 @@ test("subject-first assembly checks constituents and partial word tiles with sav
     state = await next(page, await stateFor(page));
   }
   expect(partialChecked).toBe(true);
-  await expect(page.getByRole("button", { name: /^Next:/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Next: Saying what someone has", exact: true }).click();
+  await expect(page.getByRole("radio", { name: "Saying what someone has", exact: true })).toBeChecked();
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
   expect(state.summary.rows).toEqual(expect.arrayContaining([
     expect.objectContaining({ targetScopeId: "subject-first-supplied", assessmentMode: "constituent-order", plannedItems: 3 }),
     expect.objectContaining({ targetScopeId: "subject-first-supplied", assessmentMode: "word-order", plannedItems: 3 }),
   ]));
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+  await scan(page);
+});
+
+test("possession with har requires teaching and retains literal first and latest outcomes", async ({ page }) => {
+  let state = await openCourse(page, "Saying what someone has");
+  expect(state).toMatchObject({
+    focusId: "module-one-possession", planRevision: "module-one-possession-1",
+    contentRevision: "pilot-11", generatorRevision: "generator-11",
+    introductionRequired: true, introductionOpened: false, itemCount: 4,
+    prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  });
+  expect(state.items.every((item) => item.targetScopeId === "have-possession-present")).toBe(true);
+  const early = await page.request.post("/api/v1/attempts", {
+    headers: { "X-Astrid-Client": "playground" },
+    data: { attemptId: crypto.randomUUID(), exerciseId: state.currentExercise!.id, answer: { kind: "text", text: "har" }, hintUsed: false },
+  });
+  expect(early.status()).toBe(409);
+  expect((await stateFor(page)).summary.attemptCount).toBe(0);
+
+  state = await beginCourse(page);
+  const introduction = page.getByRole("region", { name: "Session introduction", exact: true });
+  await expect(introduction.getByText("at have → har", { exact: true })).toHaveAttribute("lang", "da");
+  await expect(introduction.getByText("Jeg har en bog.", { exact: true })).toHaveAttribute("lang", "da");
+  await expect(introduction.getByText(/same present form with each subject/i)).toBeVisible();
+  await expect(page.getByText("Present possession with har", { exact: true }).and(page.locator("span"))).toBeVisible();
+  await scan(page);
+
+  let checkedInfinitive = false;
+  let checkedUnknown = false;
+  while (state.state !== "completed") {
+    const exercise = state.currentExercise!;
+    expect(answerFor(exercise)).toBe("har");
+    expect(exercise.prompt.answerLanguage).toBe("da");
+    const sentence = page.getByRole("group", { name: exercise.prompt.choices.length ? "Danish present verb choices" : "Danish sentence cloze" });
+    await expect(sentence).toBeVisible();
+    await expect(page.getByText(exercise.prompt.cue!, { exact: true })).toHaveAttribute("lang", "da");
+    if (exercise.prompt.choices.length) {
+      await expect(sentence).toHaveAttribute("lang", "da");
+      for (const choice of exercise.prompt.choices) {
+        await expect(sentence.getByText(choice, { exact: true })).toHaveAttribute("lang", "da");
+      }
+    } else {
+      await expect(page.getByRole("textbox")).toHaveAttribute("lang", "da");
+    }
+
+    if (exercise.prompt.choices.length && !checkedInfinitive) {
+      checkedInfinitive = true;
+      await submit(page, exercise, "have");
+      const saved = await stateFor(page);
+      expect(latest(saved)).toMatchObject({ targetSatisfaction: "not-met", linguisticStatus: "known-issue" });
+      expect(saved.items[saved.cursor]!.canAdvance).toBe(true);
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await submit(page, exercise, "har");
+    } else if (!exercise.prompt.choices.length && !checkedUnknown) {
+      checkedUnknown = true;
+      await submit(page, exercise, "havde");
+      const unknown = await stateFor(page);
+      expect(latest(unknown)).toMatchObject({ targetSatisfaction: "unevaluable", linguisticStatus: "unknown" });
+      expect(unknown.items[unknown.cursor]!.canAdvance).toBe(false);
+      await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeDisabled();
+      const savedAttempt = latest(unknown).attemptId;
+      await page.reload();
+      await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeDisabled();
+      expect(latest(await stateFor(page)).attemptId).toBe(savedAttempt);
+      await page.getByRole("button", { name: "Try again", exact: true }).click();
+      await expect(page.getByRole("textbox")).toHaveValue("");
+      await submit(page, exercise, "har");
+    } else {
+      await submit(page, exercise);
+    }
+    await expect(page.getByRole("status").getByText("Good work", { exact: true })).toBeVisible();
+    state = await next(page, await stateFor(page));
+  }
+
+  expect(checkedInfinitive).toBe(true);
+  expect(checkedUnknown).toBe(true);
+  expect(state.summary).toMatchObject({ completedItems: 4, attemptedItems: 4, attemptCount: 6, retryCount: 2 });
+  expect(state.summary.rows).toEqual(expect.arrayContaining([
+    expect.objectContaining({
+      targetScopeId: "have-possession-present", assessmentMode: "selection", plannedItems: 2,
+      firstOutcomes: expect.objectContaining({ fullyMet: 1, targetNotMet: 1, languageKnownIssue: 1 }),
+      latestOutcomes: expect.objectContaining({ fullyMet: 2 }),
+    }),
+    expect.objectContaining({
+      targetScopeId: "have-possession-present", assessmentMode: "recall", plannedItems: 2,
+      firstOutcomes: expect.objectContaining({ fullyMet: 1, unevaluable: 1, languageUnknown: 1 }),
+      latestOutcomes: expect.objectContaining({ fullyMet: 2 }),
+    }),
+  ]));
+  await expect(page.getByRole("button", { name: /^Next:/ })).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeVisible();
+  expect((await stateFor(page)).summary).toEqual(state.summary);
   await page.setViewportSize({ width: 320, height: 720 });
   await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
   await scan(page);
@@ -512,7 +618,7 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/practice");
       await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
       await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-      await expect(page.getByRole("radio")).toHaveCount(9);
+      await expect(page.getByRole("radio")).toHaveCount(10);
       await scan(page);
       const groupSession = page.getByRole("radio", { name: PROFILES[1].title, exact: true });
       await groupSession.focus(); await page.keyboard.press("Space");

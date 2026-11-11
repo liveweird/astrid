@@ -44,8 +44,8 @@ class PilotGenerationTest {
         assertEquals((1..6).map { "G${it.toString().padStart(3, '0')}" } + "G038", catalog.skills.map { it.id })
         assertEquals((1..25).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
         assertEquals(109, catalog.sentenceCount)
-        assertEquals("pilot-10", catalog.contentRevision)
-        assertEquals("generator-10", catalog.generatorRevision)
+        assertEquals("pilot-11", catalog.contentRevision)
+        assertEquals("generator-11", catalog.generatorRevision)
     }
 
     @Test

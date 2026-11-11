@@ -26,6 +26,7 @@ class PilotEngine {
             PILOT_SEVEN_REVISION_PAIR -> PilotContent.RETAINED_SEVEN_EVALUATION_REVISION
             PILOT_EIGHT_REVISION_PAIR -> PilotContent.RETAINED_EIGHT_EVALUATION_REVISION
             PILOT_NINE_REVISION_PAIR -> PilotContent.RETAINED_NINE_EVALUATION_REVISION
+            PILOT_TEN_REVISION_PAIR -> PilotContent.RETAINED_TEN_EVALUATION_REVISION
             CURRENT_REVISION_PAIR -> PilotContent.CURRENT_EVALUATION_REVISION
             else -> null
         }
@@ -132,6 +133,7 @@ class PilotEngine {
             PILOT_SEVEN_REVISION_PAIR -> PILOT_SEVEN_FORMAT_IDS
             PILOT_EIGHT_REVISION_PAIR -> PILOT_EIGHT_FORMAT_IDS
             PILOT_NINE_REVISION_PAIR -> PILOT_NINE_FORMAT_IDS
+            PILOT_TEN_REVISION_PAIR -> CURRENT_FORMAT_IDS
             CURRENT_REVISION_PAIR -> CURRENT_FORMAT_IDS
             else -> emptySet()
         }
@@ -618,6 +620,8 @@ class PilotEngine {
             RevisionPair(PilotContent.RETAINED_NINE_CONTENT_REVISION, PilotContent.RETAINED_NINE_GENERATOR_REVISION)
         val CURRENT_REVISION_PAIR =
             RevisionPair(PilotContent.CURRENT_CONTENT_REVISION, PilotContent.CURRENT_GENERATOR_REVISION)
+        val PILOT_TEN_REVISION_PAIR =
+            RevisionPair(PilotContent.RETAINED_TEN_CONTENT_REVISION, PilotContent.RETAINED_TEN_GENERATOR_REVISION)
         val SUPPORTED_REVISION_PAIRS =
             listOf(
                 LEGACY_REVISION_PAIR,
@@ -629,6 +633,7 @@ class PilotEngine {
                 PILOT_SEVEN_REVISION_PAIR,
                 PILOT_EIGHT_REVISION_PAIR,
                 PILOT_NINE_REVISION_PAIR,
+                PILOT_TEN_REVISION_PAIR,
                 CURRENT_REVISION_PAIR,
             )
         val LEGACY_FORMAT_IDS = setOf("E001", "E002", "E003")

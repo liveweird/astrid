@@ -16,8 +16,7 @@ object PilotTenCompatibilityGoldenExportMain {
 }
 
 internal fun publishedPairTenReviewBytes(): ByteArray {
-    // S07 changes this single call to the retained pair-ten renderer after the release is archived.
-    return PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
+    return PilotReview.renderPilotTenMarkdown().toByteArray(Charsets.UTF_8)
 }
 
 internal object PilotTenCompatibilityGolden {
@@ -335,8 +334,8 @@ internal object PilotTenCompatibilityGolden {
 
     private fun requireLiteralPairTen() {
         // S07 changes these two snapshot references to the retained literal pair-ten snapshot.
-        require(PilotContent.currentSnapshot.contentRevision == CONTENT_REVISION)
-        require(PilotContent.currentSnapshot.generatorRevision == GENERATOR_REVISION)
+        require(PilotContent.pilotTenSnapshot.contentRevision == CONTENT_REVISION)
+        require(PilotContent.pilotTenSnapshot.generatorRevision == GENERATOR_REVISION)
         require(engine.evaluationRevision(CONTENT_REVISION, GENERATOR_REVISION) == EVALUATION_REVISION)
     }
 

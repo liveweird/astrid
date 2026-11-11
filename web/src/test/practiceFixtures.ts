@@ -132,6 +132,9 @@ export function profiles(ownerSessionId = owner) {
       { focusId: "module-one-order", planRevision: "module-one-order-1", title: "Building subject-first statements",
         description: "Put Danish sentence parts and words in order.", itemCount: 6,
         prerequisiteSkillIds: ["G001", "G002", "G003", "G004"] },
+      { focusId: "module-one-possession", planRevision: "module-one-possession-1", title: "Saying what someone has",
+        description: "Choose and type the Danish present form har for possession.", itemCount: 4,
+        prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
       { focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
         description: "Mixed existing skills.", itemCount: 8, prerequisiteSkillIds: [] },
       { focusId: "present-verbs", planRevision: "present-verbs-1", title: "Present verb forms",
@@ -145,7 +148,7 @@ export function profiles(ownerSessionId = owner) {
 
 export async function choosePractice(
   user: ReturnType<typeof userEvent.setup>,
-  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" = "Mixed practice",
+  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Saying what someone has" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" = "Mixed practice",
 ) {
   await screen.findByRole("heading", { name: "Choose your practice" });
   await user.click(screen.getByRole("radio", { name }));

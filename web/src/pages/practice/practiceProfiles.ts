@@ -40,6 +40,11 @@ const PRESENTATION_PROFILES = [
     itemCount: 6, prerequisiteSkillIds: ["G001", "G002", "G003", "G004"],
   },
   {
+    focusId: "module-one-possession", planRevision: "module-one-possession-1", title: "Saying what someone has",
+    description: "Choose and type the Danish present form har for possession.",
+    itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  },
+  {
     focusId: "reading-basics", planRevision: "practice-1", title: "Mixed practice",
     description: "Practise familiar words, sentence order and articles in eight varied parts.",
     itemCount: 8, prerequisiteSkillIds: [],
@@ -63,11 +68,12 @@ export const MODULE_ONE_PROFILES = [
   PRESENTATION_PROFILES[3]!,
   PRESENTATION_PROFILES[4]!,
   PRESENTATION_PROFILES[5]!,
+  PRESENTATION_PROFILES[6]!,
 ];
 export const EXISTING_PRACTICE_PROFILES = [
-  PRESENTATION_PROFILES[6]!,
   PRESENTATION_PROFILES[7]!,
   PRESENTATION_PROFILES[8]!,
+  PRESENTATION_PROFILES[9]!,
 ];
 
 export function profileKey(profile: Pick<PracticeProfile, "focusId" | "planRevision">) {
@@ -142,6 +148,8 @@ function creationRequestFor(
       return { practiceSessionId, focusId: "module-one-present", planRevision: "module-one-present-1", seed };
     case "module-one-order/module-one-order-1":
       return { practiceSessionId, focusId: "module-one-order", planRevision: "module-one-order-1", seed };
+    case "module-one-possession/module-one-possession-1":
+      return { practiceSessionId, focusId: "module-one-possession", planRevision: "module-one-possession-1", seed };
     default:
       throw new PracticeCatalogError("The selected practice profile has an unsupported revision.");
   }

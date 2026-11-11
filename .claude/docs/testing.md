@@ -89,9 +89,9 @@ a template, never a variable. There is no coverage map: the scenario files are t
 A floor is the **integer below the measured value**, written with a dated comment, raised whenever coverage improves and **never lowered**
 (not for new code either; add tests). A tight-loop Kover disable is never committed.
 
-| Gate | Where | Floor (2026-11-10) |
+| Gate | Where | Floor (2026-11-11) |
 | --- | --- | --- |
-| engine Kover | `engine/build.gradle.kts` | line 98, branch 85 |
+| engine Kover | `engine/build.gradle.kts` | line 98, branch 86 |
 | server Kover (`@Serializable` classes excluded) | `server/build.gradle.kts` | line 98, branch 81 |
 | web vitest v8 | `web/vite.config.ts` `test.coverage.thresholds` | statements 95, branches 89, functions 97, lines 97 |
 

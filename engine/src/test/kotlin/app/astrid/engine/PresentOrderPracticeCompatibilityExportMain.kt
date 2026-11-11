@@ -308,8 +308,8 @@ internal object PresentOrderPracticeCompatibilityFixture {
     ) = PracticeCompletionAttemptObservation(target, linguistic, constraint, issues)
 
     private fun requireLiteralPairTen() {
-        require(PilotContent.currentSnapshot.contentRevision == "pilot-10")
-        require(PilotContent.currentSnapshot.generatorRevision == "generator-10")
+        require(PilotContent.pilotTenSnapshot.contentRevision == "pilot-10")
+        require(PilotContent.pilotTenSnapshot.generatorRevision == "generator-10")
         require(engine.evaluationRevision("pilot-10", "generator-10") == "evaluation-10")
     }
 

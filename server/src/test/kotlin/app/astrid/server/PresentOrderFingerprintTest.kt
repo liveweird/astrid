@@ -14,6 +14,26 @@ class PresentOrderFingerprintTest {
     private val engine = PilotEngine()
 
     @Test
+    fun `pair eleven fingerprints the scoped possession task and its private grading metadata`() {
+        val exercise = (0 until 5).map { index ->
+            engine.generate(GenerationRequest("E022", "G004", 47, index, "pilot-11", "generator-11"))
+        }.first { it.targetScopeId == "have-possession-present" }
+        val source = assertNotNull(exercise.inspector.moduleOneSource)
+        val id = "00000000-0000-0000-0000-000000000001"
+        assertEquals("L009", source.targetLexicalId)
+        assertEquals("har", exercise.toInspector(id).moduleOneSource?.expectedForm)
+        assertEquals("have-possession-present", exercise.toResponse(id).targetScopeId)
+        val original = exercise.reproductionFingerprint()
+        assertNotEquals(original, exercise.reproductionFingerprint(targetScopeIdForFingerprint = "named-three-verbs-present"))
+        assertNotEquals(
+            original,
+            exercise.reproductionFingerprint(
+                inspectorForFingerprint = exercise.inspector.copy(moduleOneSource = source.copy(expectedForm = "have")),
+            ),
+        )
+    }
+
+    @Test
     fun `named present source stays private and its choices and grading metadata are fingerprinted`() {
         val exercise = engine.generate(GenerationRequest("E022", "G004", 47, 0, "pilot-10", "generator-10"))
         val source = assertNotNull(exercise.inspector.moduleOneSource)

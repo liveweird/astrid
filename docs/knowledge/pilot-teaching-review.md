@@ -4,13 +4,13 @@
 
 This is a **proposed review process**, not a user-approved rubric, an arranged specialist
 engagement, or evidence that a specialist has reviewed or approved the content. It covers the
-released private beginner preview at app **0.10.0**, content `pilot-9`, generator `generator-9`
-and evaluation `evaluation-9`; delivery state is recorded in the [S04 contract](inanimate-reference-activation.md). Its language state remains `draft-not-teacher-reviewed`.
+private beginner preview at app **0.12.0**, content `pilot-11`, generator `generator-11`
+and evaluation `evaluation-11`. Its language state remains `draft-not-teacher-reviewed`.
+See the [course slice](module-one-course-slice.md#s07-possession-with-har).
 
-The current bounded inventory is 26 lexical records, 109 complete licensed clauses and twenty-one
-standalone exercise formats. It also includes three independent six-activity **Module 1: First
-steps** profiles and a four-activity inanimate-reference profile. This handoff does not activate corrections, expand the curriculum, set a pass
-threshold, make a CEFR commitment, establish mastery, or demonstrate learning efficacy.
+The current bounded inventory is 27 lexical records, 109 licensed catalogue clauses and
+twenty-five standalone exercise formats. Seven guided profiles cover first steps through
+possession with `har`. The proposed review covers their teaching material and visible feedback.
 
 Software and source checks cover identifiers, deterministic generation, references, frozen
 compatibility and bounded inventories. They cannot decide whether Danish is natural, explanations
@@ -22,8 +22,8 @@ and [first-step activation contract](module-one-activation.md).
 ## Prepare the current review packet
 
 - From the repository root, run `./gradlew :engine:exportPilotReview`. The current output is
-  `engine/build/review/pilot-10.md`. Confirm content `pilot-10`, generator
-  `generator-10` and review state `draft-not-teacher-reviewed`. Record the exact source commit,
+  `engine/build/review/pilot-11.md`. Confirm content `pilot-11`, generator
+  `generator-11` and review state `draft-not-teacher-reviewed`. Record the exact source commit,
   application version and command result with the review.
 - Give the reviewer that export together with the [vocabulary seed](danish-vocabulary-seed.md),
   [Module 1 language pack](module-one-language-pack.md), [beginner-slice specification](beginner-slice-spec.md),
@@ -33,10 +33,8 @@ and [first-step activation contract](module-one-activation.md).
   source-review surface; the contracts explain intended senses, teaching, scope and behavior.
 - Review the matching private preview as part of the packet. The export includes the complete
   lexical and clause inventories, deterministic prompt samples, the fuller format-specific
-  inventories listed below, all four mandatory profile introductions, the thirty pair-eight tasks and the four
-  S04 tasks. It does **not** render every field exactly as the learner sees it or enumerate
-  every evaluation result, feedback card, retry state, saved exposure state, summary or
-  continuation decision. Do not approve an uninspected visible teaching unit from an export row.
+  inventories listed below, and the mandatory profile teaching. Inspect the matching live app
+  for displayed instructions, evaluation results, feedback, saved exposure, retries and summaries.
 - Capture every finding with its exact format, revision pair, seed/index or practice-session URL
   and position, visible context and answer. For a UI finding also record which introduction,
   lesson or hint had been opened, the displayed feedback, latest saved result, `canAdvance`
@@ -46,17 +44,19 @@ and [first-step activation contract](module-one-activation.md).
 
 | Review surface | Current exported coverage |
 | --- | --- |
-| Lexicon and clauses | All 26 lexical records and all 109 complete licensed clauses |
-| Reproducible examples | Two seed-47 prompt summaries for each E001–E021 |
+| Lexicon and clauses | All 27 lexical records and all 109 licensed catalogue clauses |
+| Reproducible examples | Two seed-47 prompt summaries for each E001–E025 |
 | E009 writing | 99 complete cue/reference/hint units |
 | E010 reading | 24 complete passages, questions, choice sets and private answers |
 | E011 word choice | All four selected meanings, choices and answers |
 | E012/E013 tiles | 99 units per format, including licensed orders and distractors |
 | E014 matching | Four boards and their private correspondences |
 | E015 two gaps | 92 units with displayed slots and private expected choices |
-| First-step profiles | All four full required introductions and pinned policy metadata |
+| First-step profiles | Seven full required introductions and pinned policy metadata |
 | E016–E019 | All 30 standalone authored tasks: 7 E016, 7 E017, 8 E018 and 8 E019 |
 | E020/E021 | Four inanimate-reference tasks, two selection and two recall, including antecedent/sense/context metadata; inspect per-item lessons and hints live |
+| E022/E023 | Ten named-present tasks, including four possession tasks, with scoped form targets and exact teaching exposure |
+| E024/E025 | Six subject-first ordering tasks covering whole constituents and individual words |
 
 For standalone first-step traversal at fixed seed `47`, use indices `0..6` for each
 E016/E017 with G003, and `0..7` for each E018/E019 with G004. Each range traverses its
@@ -75,6 +75,10 @@ S04 adds four authored operation/context identities: book and letter selection, 
 book and letter recall. Traverse indices `0..1` for each E020/E021 with G038 at seed 47,
 and separately inspect each profile ordering. These are two introduced forms with repeated
 reference contexts, not four new meanings or unseen transfer.
+
+At seed 47, indices `0..4` traverse each pair-eleven E022/E023 cycle and `0..2` traverse
+each E024/E025 cycle. In the guided sequence, check the six regular present items in S05,
+the six ordering items in S06, and the four possession items in S07.
 
 ## Specialist checklist
 
@@ -108,7 +112,7 @@ unsupported answers rather than only the answer key. In particular:
   finite/infinitive selection must not collapse meaning, grammar and response shape.
 - **E015:** review all verb/article combinations and per-slot feedback, including one correct and
   one wrong or missing slot. Primary verb and supporting article outcomes must remain separate.
-- **E016–E021:** apply the Module 1 checklist below in addition to reviewing the standalone entry.
+- **E016–E025:** apply the Module 1 checklist below in addition to reviewing the standalone entry.
 
 Across all formats, ask whether prerequisites are introduced in a sensible order, whether answer
 disclosure is intentional and recorded as supported practice, whether English meanings and hints
@@ -118,7 +122,7 @@ completed activity is not independent performance or mastery.
 
 ## Module 1: First steps review checklist
 
-Review each of the four profiles both by direct entry and in the recommended sequence. For every
+Review each of the seven profiles both by direct entry and in the recommended sequence. For every
 profile and reachable task:
 
 - Confirm the complete required introduction appears and is saved before assessment. Check the
@@ -143,15 +147,18 @@ profile and reachable task:
   interpretations. Check direct-entry foundation teaching without implying reference-form practice
   proves complete-clause analysis, gender recall or subject/object discrimination. Both sense
   and visible-form exposure must be recorded without claiming sense knowledge from spelling.
+- For E022/E023, check the named verb, supplied context and lowercase finite form. Check the
+  regular pattern in S05 and the stored possession form in S07. For E024/E025, check the
+  transition from constituents to words and the separation of requested placement, missing
+  words and linguistic judgment.
 - Exercise correct, related-wrong, casing-only, multiword, blank and unsupported responses.
   Inspect the actual UI feedback and completed sentence, not only export metadata. Unknown latest
   answers must keep support/retry available and block Continue; a revision-defined known
   form/shape issue may continue without becoming a success. A newer unknown must supersede an
   earlier eligible result.
-- On the summary, keep the eight scoped identities separate: singular/group/`er`/thing reference ×
-  selection/recall. Check first versus latest outcomes, earlier teaching/support exposure and
-  completion wording. Completion means six saved activities for the earlier profiles or four for S04, each
-  completion-eligible after required teaching; it does not mean all of G003/G004/G038, mastery, retention or independent recall.
+- On the summary, check each scope and operation separately, with first and latest outcomes,
+  earlier teaching/support exposure and the planned activity count. A completed session records
+  its eligible activities after required teaching.
 - Check **Repeat this session** and the suggested **Next** chooser boundary. The next profile must
   not be created silently. First-step profiles have no target-selection review and must not fall
   back to an older follow-up planner; leaving or cancelling must retain the completed run.

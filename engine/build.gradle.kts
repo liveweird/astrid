@@ -17,8 +17,12 @@ data class PilotReview(val task: String, val report: String, val flag: String?, 
 
 listOf(
     PilotReview(
-        "exportPilotReview", "pilot-10.md", null,
-        "Writes the deterministic current pilot content review to engine/build/review/pilot-10.md",
+        "exportPilotReview", "pilot-11.md", null,
+        "Writes the deterministic current pilot content review to engine/build/review/pilot-11.md",
+    ),
+    PilotReview(
+        "exportPilotTenReview", "pilot-10-retained.md", "--pilot-ten",
+        "Writes the retained pilot-10 content review to engine/build/review/pilot-10-retained.md",
     ),
     PilotReview(
         "exportPilotNineReview", "pilot-9-retained.md", "--pilot-nine",
@@ -345,7 +349,8 @@ kover {
                 minBound(98)
                 // Branch-coverage floor, same rule.
                 // 2026-11-09, Module 1 activation coverage: actual 85.16% -> floor 85.
-                minBound(85, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
+                // 2026-11-11, possession and pair-ten compatibility: actual 86.53% -> floor 86.
+                minBound(86, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
             }
         }
     }

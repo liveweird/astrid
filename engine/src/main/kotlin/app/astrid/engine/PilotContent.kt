@@ -37,8 +37,10 @@ internal object PilotContent {
     const val RETAINED_EIGHT_GENERATOR_REVISION = "generator-8"
     const val RETAINED_NINE_CONTENT_REVISION = "pilot-9"
     const val RETAINED_NINE_GENERATOR_REVISION = "generator-9"
-    const val CURRENT_CONTENT_REVISION = "pilot-10"
-    const val CURRENT_GENERATOR_REVISION = "generator-10"
+    const val RETAINED_TEN_CONTENT_REVISION = "pilot-10"
+    const val RETAINED_TEN_GENERATOR_REVISION = "generator-10"
+    const val CURRENT_CONTENT_REVISION = "pilot-11"
+    const val CURRENT_GENERATOR_REVISION = "generator-11"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
     const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
@@ -48,7 +50,8 @@ internal object PilotContent {
     const val RETAINED_SEVEN_EVALUATION_REVISION = "evaluation-7"
     const val RETAINED_EIGHT_EVALUATION_REVISION = "evaluation-8"
     const val RETAINED_NINE_EVALUATION_REVISION = "evaluation-9"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-10"
+    const val RETAINED_TEN_EVALUATION_REVISION = "evaluation-10"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-11"
 
     val humanPronouns =
         listOf(
@@ -358,10 +361,10 @@ internal object PilotContent {
             referencePronouns = inanimateReferencePronouns,
         )
 
-    val currentSnapshot =
+    val pilotTenSnapshot =
         pilotNineSnapshot.copy(
-            contentRevision = CURRENT_CONTENT_REVISION,
-            generatorRevision = CURRENT_GENERATOR_REVISION,
+            contentRevision = RETAINED_TEN_CONTENT_REVISION,
+            generatorRevision = RETAINED_TEN_GENERATOR_REVISION,
             formats = presentOrderFormats,
             verbs = verbs + PresentOrderContent.work,
             lexicalReview = PilotReviewMetadata.records(
@@ -375,6 +378,12 @@ internal object PilotContent {
             ),
         )
 
+    val currentSnapshot =
+        pilotTenSnapshot.copy(
+            contentRevision = CURRENT_CONTENT_REVISION,
+            generatorRevision = CURRENT_GENERATOR_REVISION,
+        )
+
     init {
         PilotContentValidator.requireValid(snapshot)
         PilotContentValidator.requireValid(pilotTwoSnapshot)
@@ -385,6 +394,7 @@ internal object PilotContent {
         PilotContentValidator.requireValid(pilotSevenSnapshot)
         PilotContentValidator.requireValid(pilotEightSnapshot)
         PilotContentValidator.requireValid(pilotNineSnapshot)
+        PilotContentValidator.requireValid(pilotTenSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

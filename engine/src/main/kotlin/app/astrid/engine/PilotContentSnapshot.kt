@@ -57,6 +57,7 @@ internal object PilotContentValidator {
         identityIssues("review", snapshot.lexicalReview.map { it.id })
         val expectedSkills = if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_NINE_CONTENT_REVISION,
+                PilotContent.RETAINED_TEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -77,6 +78,7 @@ internal object PilotContentValidator {
             if (snapshot.contentRevision in setOf(
                     PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
                     PilotContent.RETAINED_NINE_CONTENT_REVISION,
+                    PilotContent.RETAINED_TEN_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) CURRENT_SENTENCE_COUNT else RETAINED_SENTENCE_COUNT
@@ -96,6 +98,7 @@ internal object PilotContentValidator {
             PilotContent.RETAINED_SEVEN_CONTENT_REVISION -> EXPECTED_PILOT_SEVEN_FORMAT_IDS
             PilotContent.RETAINED_EIGHT_CONTENT_REVISION -> EXPECTED_PILOT_EIGHT_FORMAT_IDS
             PilotContent.RETAINED_NINE_CONTENT_REVISION -> EXPECTED_PILOT_NINE_FORMAT_IDS
+            PilotContent.RETAINED_TEN_CONTENT_REVISION -> EXPECTED_CURRENT_FORMAT_IDS
             PilotContent.CURRENT_CONTENT_REVISION -> EXPECTED_CURRENT_FORMAT_IDS
             else -> emptySet()
         }
@@ -109,6 +112,7 @@ internal object PilotContentValidator {
                 ) -> EXPECTED_PILOT_SEVEN_LEXICAL_IDS
             contentRevision == PilotContent.RETAINED_EIGHT_CONTENT_REVISION -> EXPECTED_PILOT_EIGHT_LEXICAL_IDS
             contentRevision == PilotContent.RETAINED_NINE_CONTENT_REVISION -> EXPECTED_PILOT_NINE_LEXICAL_IDS
+            contentRevision == PilotContent.RETAINED_TEN_CONTENT_REVISION -> EXPECTED_CURRENT_LEXICAL_IDS
             contentRevision == PilotContent.CURRENT_CONTENT_REVISION -> EXPECTED_CURRENT_LEXICAL_IDS
             else -> EXPECTED_RETAINED_LEXICAL_IDS
         }
@@ -283,6 +287,7 @@ internal object PilotContentValidator {
                 PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
                 PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
                 PilotContent.RETAINED_NINE_CONTENT_REVISION,
+                PilotContent.RETAINED_TEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
                 ->
                     setOf("L014-S01", "L015-S01", "L018-S01", "L024-S01")

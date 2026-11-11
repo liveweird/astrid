@@ -17,13 +17,14 @@ passing test never makes content teacher-approved. Current app version: `web/src
 Guided practice offers Mixed practice (eight parts), Present verb forms (six) and Verbs and articles
 together (four). The third profile and its selected-only reviews pin pair seven; older plans retain pair three.
 **Module 1: First steps** includes three independent six-item beginner profiles, literally pinned to
-pair eight, a four-item **Referring to one thing** profile pinned to pair nine, and two six-item present-form
-and sentence-assembly profiles pinned to pair ten. They require saved teaching before assessment, expose
+pair eight, a four-item **Referring to one thing** profile pinned to pair nine, two six-item present-form
+and sentence-assembly profiles pinned to pair ten, and a four-item possession profile pinned to pair eleven.
+They require saved teaching before assessment, expose
 server-computed continuation eligibility and keep results by scope and operation. Repeat and continuation
 open the chooser.
 Existing format pools and all retained pairs/plans stay unchanged; the first-step contract is
 `docs/knowledge/module-one-activation.md`; S04 is specified in
-`docs/knowledge/inanimate-reference-activation.md`. S05–S06 are specified in `docs/knowledge/module-one-course-slice.md`.
+`docs/knowledge/inanimate-reference-activation.md`. S05–S07 are specified in `docs/knowledge/module-one-course-slice.md`.
 Next work: `BACKLOG.md`. Product scope and decisions: `docs/knowledge/product-direction.md`.
 
 Brand: Danish red accent with separately labelled learning-feedback colours (`web/src/theme.ts`); the logo (a girl

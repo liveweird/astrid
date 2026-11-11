@@ -22,6 +22,7 @@ class PracticePresentVerbPlannerTest {
                 "module-one-things/module-one-things-1",
                 "module-one-present/module-one-present-1",
                 "module-one-order/module-one-order-1",
+                "module-one-possession/module-one-possession-1",
             ),
             planner.profiles().map { "${it.focusId}/${it.planRevision}" },
         )
@@ -35,9 +36,10 @@ class PracticePresentVerbPlannerTest {
             "Referring to one thing",
             "Using present verb forms",
             "Building subject-first statements",
+            "Saying what someone has",
         ),
             planner.profiles().map { it.title })
-        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4, 6, 6), planner.profiles().map { it.itemCount })
+        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4, 6, 6, 4), planner.profiles().map { it.itemCount })
         assertEquals("Words and simple statements", planner.plan("reading-basics", "practice-1", 0).title)
     }
 

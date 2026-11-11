@@ -40,7 +40,20 @@
 2. On the first individual-word activity, check one selected word and reload the saved outcome.
    - Expected: the ordered block identity is stored, the precise missing-words constraint permits continuation, feedback identifies the response constraint, and the result survives reload.
 3. Retry the saved partial selection, edit the retained tile and complete all three individual-word activities.
-   - Expected: constituent-order and word-order have separate three-item summary rows. The completed state passes Axe at 320 px and 200% text.
+   - Expected: constituent-order and word-order have separate three-item summary rows. **Saying what someone has** is offered as the explicit next session. The completed state passes Axe at 320 px and 200% text.
+
+## Scenario: possession with har requires teaching and retains literal first and latest outcomes
+
+1. Enter **Saying what someone has** directly and attempt its current exercise through the API before opening the required introduction.
+   - Expected: the four-item pair-eleven session has prerequisites G001–G005, rejects assessment before teaching, and exposes no saved attempt.
+2. Open the introduction and inspect the teaching and first activity.
+   - Expected: the introduction explains the shared present form across subjects. `at have → har`, the worked possession statement and supplied Danish answers carry Danish language metadata. The readable target is **Present possession with har**.
+3. Complete the literal frames `Han ___ et brev`, `Vi ___ en avis`, `Du ___ en bog` and `De ___ et brev`; first choose `have` once and then correct it to `har`.
+   - Expected: the introduced infinitive is a known form but does not meet the present-possession target; retrying with `har` replaces the latest outcome while preserving the first outcome.
+4. In written recall, submit the unsupported form `havde`, reload, then retry with `har`.
+   - Expected: the latest unknown blocks continuation and survives reload without disclosing a solution. Retry clears the field, `har` succeeds, and the summary separates two selection from two recall items with exact first/latest outcomes.
+5. Reload the completed summary.
+   - Expected: it is retained, passes the configured accessibility and reflow scan, and offers no unimplemented next session.
 
 ## Scenario: first steps preserve ambiguous ${correction.raw} casing without a wrong-person diagnosis
 

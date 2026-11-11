@@ -19,9 +19,10 @@ object PilotReviewExportMain {
                         "--pilot-seven",
                         "--pilot-eight",
                         "--pilot-nine",
+                        "--pilot-ten",
                     )),
         ) {
-            "Expected an output path, optionally preceded by a retained-pilot flag from --legacy through --pilot-nine"
+            "Expected an output path, optionally preceded by a retained-pilot flag from --legacy through --pilot-ten"
         }
         val output = Path.of(args.last())
         Files.createDirectories(output.parent)
@@ -35,6 +36,7 @@ object PilotReviewExportMain {
             "--pilot-seven" -> PilotReview.renderPilotSevenMarkdown()
             "--pilot-eight" -> PilotReview.renderPilotEightMarkdown()
             "--pilot-nine" -> PilotReview.renderPilotNineMarkdown()
+            "--pilot-ten" -> PilotReview.renderPilotTenMarkdown()
             else -> PilotReview.renderMarkdown()
         }
         Files.writeString(output, markdown)

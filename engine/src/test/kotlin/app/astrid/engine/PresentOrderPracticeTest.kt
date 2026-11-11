@@ -10,7 +10,7 @@ class PresentOrderPracticeTest {
 
     @Test
     fun `new profiles pin exact operations teaching policies and target keys`() {
-        val profiles = planner.profiles().takeLast(2)
+        val profiles = planner.profiles().filter { it.focusId in setOf("module-one-present", "module-one-order") }
         assertEquals(listOf("module-one-present", "module-one-order"), profiles.map { it.focusId })
         assertEquals(listOf(6, 6), profiles.map { it.itemCount })
 

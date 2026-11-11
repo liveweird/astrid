@@ -1,0 +1,90 @@
+package app.astrid.engine
+
+internal object PilotReviewVersions {
+    fun hasWriting(snapshot: PilotContentSnapshot) = snapshot.contentRevision in WRITING_REVISIONS
+    fun hasWordChoice(snapshot: PilotContentSnapshot) = snapshot.contentRevision in WORD_CHOICE_REVISIONS
+    fun hasMatching(snapshot: PilotContentSnapshot) = snapshot.contentRevision in MATCHING_REVISIONS
+    fun hasGaps(snapshot: PilotContentSnapshot) = snapshot.contentRevision in GAP_REVISIONS
+    fun hasModuleOne(snapshot: PilotContentSnapshot) = snapshot.contentRevision in MODULE_ONE_REVISIONS
+    fun hasInanimateReference(snapshot: PilotContentSnapshot) = snapshot.contentRevision in REFERENCE_REVISIONS
+    fun hasPresentOrder(snapshot: PilotContentSnapshot) = snapshot.contentRevision in PRESENT_ORDER_REVISIONS
+
+    fun provenance(snapshot: PilotContentSnapshot): String = when (snapshot.contentRevision) {
+        PilotContent.CURRENT_CONTENT_REVISION ->
+            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
+                "docs/knowledge/module-one-language-pack.md (L024 packet), " +
+                "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks), " +
+                "docs/knowledge/inanimate-reference-activation.md (L026 and G038 reference tasks), and " +
+                "docs/knowledge/module-one-course-slice.md (L027 and S05-S07 tasks; 2026-11-11)"
+        PilotContent.RETAINED_TEN_CONTENT_REVISION ->
+            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
+                "docs/knowledge/module-one-language-pack.md (L024 packet), " +
+                "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks), " +
+                "docs/knowledge/inanimate-reference-activation.md (L026 and G038 reference tasks), and " +
+                "docs/knowledge/module-one-course-slice.md (L027 and S05-S06 tasks; 2026-11-10)"
+        PilotContent.RETAINED_NINE_CONTENT_REVISION ->
+            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
+                "docs/knowledge/module-one-language-pack.md (L024 packet), " +
+                "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks), and " +
+                "docs/knowledge/inanimate-reference-activation.md (L026 and G038 reference tasks; 2026-11-10)"
+        PilotContent.RETAINED_EIGHT_CONTENT_REVISION ->
+            "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
+                "docs/knowledge/module-one-language-pack.md (L024 packet) and " +
+                "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks; 2026-11-09)"
+        in setOf(
+            PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+            PilotContent.RETAINED_SIX_CONTENT_REVISION,
+            PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
+        ) -> "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
+            "docs/knowledge/module-one-language-pack.md (L024 authoring packet, 2026-11-08)"
+        else -> PilotReviewMetadata.PROVENANCE
+    }
+
+    fun sourceReview(snapshot: PilotContentSnapshot): String = when (snapshot.contentRevision) {
+        PilotContent.CURRENT_CONTENT_REVISION ->
+            "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
+                "2026-11-09 L025/C004/Module 1 source checks; 2026-11-10 L026/G038 and L027/S05-S06 source checks; " +
+                "2026-11-11 S07 possession source checks; see docs/knowledge/pilot-source-review.md, " +
+                "docs/knowledge/module-one-language-pack.md, docs/knowledge/module-one-activation.md, " +
+                "docs/knowledge/inanimate-reference-activation.md and docs/knowledge/module-one-course-slice.md"
+        PilotContent.RETAINED_TEN_CONTENT_REVISION ->
+            "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
+                "2026-11-09 L025/C004/Module 1 source checks; 2026-11-10 L026/G038 and L027/S05-S06 source checks; see " +
+                "docs/knowledge/pilot-source-review.md, docs/knowledge/module-one-language-pack.md, " +
+                "docs/knowledge/module-one-activation.md, docs/knowledge/inanimate-reference-activation.md and " +
+                "docs/knowledge/module-one-course-slice.md"
+        PilotContent.RETAINED_NINE_CONTENT_REVISION ->
+            "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
+                "2026-11-09 L025/C004/Module 1 source checks; 2026-11-10 L026/G038 source checks; see " +
+                "docs/knowledge/pilot-source-review.md, docs/knowledge/module-one-language-pack.md, " +
+                "docs/knowledge/module-one-activation.md and docs/knowledge/inanimate-reference-activation.md"
+        PilotContent.RETAINED_EIGHT_CONTENT_REVISION ->
+            "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
+                "2026-11-09 L025/C004/Module 1 source checks; see docs/knowledge/pilot-source-review.md, " +
+                "docs/knowledge/module-one-language-pack.md and docs/knowledge/module-one-activation.md"
+        in setOf(
+            PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+            PilotContent.RETAINED_SIX_CONTENT_REVISION,
+            PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
+        ) -> "2026-11-07 retained seed; 2026-11-08 pair-five extension; see " +
+            "docs/knowledge/pilot-source-review.md and docs/knowledge/module-one-language-pack.md"
+        else -> PilotReviewMetadata.SOURCE_REVIEW_DATE
+    }
+
+    private val WRITING_REVISIONS = setOf(
+        PilotContent.RETAINED_FOUR_CONTENT_REVISION,
+        PilotContent.RETAINED_FIVE_CONTENT_REVISION,
+        PilotContent.RETAINED_SIX_CONTENT_REVISION,
+        PilotContent.RETAINED_SEVEN_CONTENT_REVISION,
+        PilotContent.RETAINED_EIGHT_CONTENT_REVISION,
+        PilotContent.RETAINED_NINE_CONTENT_REVISION,
+        PilotContent.RETAINED_TEN_CONTENT_REVISION,
+        PilotContent.CURRENT_CONTENT_REVISION,
+    )
+    private val WORD_CHOICE_REVISIONS = WRITING_REVISIONS - PilotContent.RETAINED_FOUR_CONTENT_REVISION
+    private val MATCHING_REVISIONS = WORD_CHOICE_REVISIONS - PilotContent.RETAINED_FIVE_CONTENT_REVISION
+    private val GAP_REVISIONS = MATCHING_REVISIONS - PilotContent.RETAINED_SIX_CONTENT_REVISION
+    private val MODULE_ONE_REVISIONS = GAP_REVISIONS - PilotContent.RETAINED_SEVEN_CONTENT_REVISION
+    private val REFERENCE_REVISIONS = MODULE_ONE_REVISIONS - PilotContent.RETAINED_EIGHT_CONTENT_REVISION
+    private val PRESENT_ORDER_REVISIONS = REFERENCE_REVISIONS - PilotContent.RETAINED_NINE_CONTENT_REVISION
+}
