@@ -94,3 +94,9 @@ guided possession activities with `har`. All five exact-source CI jobs passed, w
 journeys in each of the native and Linux browser suites. The private preview passed
 108 checks after backup restore verification and app-only promotion.
 [Delivery record](module-one-course-slice.md#observed-s07-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.12.0)
+
+**Subsequent release — 11 November 2026:** App 0.13.0, source `b82ad36`, adds the
+reading-material vocabulary bridge. Five exact-source CI jobs and 396 journeys in each
+browser suite passed. After backup restoration was verified, app-only promotion preserved
+history and the preview passed 110 checks.
+[Delivery record](module-one-course-slice.md#observed-s08-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.13.0)

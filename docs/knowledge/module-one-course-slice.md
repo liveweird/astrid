@@ -477,3 +477,25 @@ saved teaching before assessment and record exposure to the shown phrases separa
 to their English meanings. E011 feedback confirms a mapping on a correct choice. A wrong choice
 identifies a meaning mismatch without showing the expected mapping, so use a distinct feedback
 exposure policy. Direct entry and explicit continuation from S07 use the existing chooser.
+
+### Observed S08 delivery
+
+App 0.13.0 at source `b82ad36` adds the four reading-material meaning activities,
+with required teaching and explicit continuation from S07. The new plan pins pair five.
+Incorrect choices keep meaning confirmation unreleased, and each named sense has a
+separate result. The annotated tag, source and authored notes were read back from
+GitHub. [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.13.0)
+
+The full local repository gate passed, including PostgreSQL tests and the engine branch
+floor of 86%. All five exact-source CI jobs passed, including 396 Linux browser journeys.
+The same 396 Chromium and WebKit journeys passed locally without retries or flakies.
+The exact image `sha256:412c4d4bff634324c3bbfd7684fe85faf4c813083bdcfdeea7d379b8c154fd39` passed the repository Trivy policy.
+[Release CI](https://github.com/liveweird/astrid/actions/runs/42938674298)
+
+Saved S06 and S07 sessions replayed exactly after the upgrade. Those runs and S08,
+including wrong and corrected vocabulary answers, replayed byte for byte after an observed
+app restart. Before app-only promotion, a 4,476,625-byte mode-`0600` backup restored
+into an isolated database and reproduced prior rows in all six history tables. PostgreSQL's
+process and mounts, old immutable rows and Flyway versions 1–3 were preserved. All
+110 live-preview checks passed without retries, and the owned QA resources were
+removed. Danish teaching review remains open.
