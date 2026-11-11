@@ -6,8 +6,9 @@ The user selected the complete five-session work/study packet and implementation
 then requested useful continued work until **07:30 Europe/Warsaw on 12 November**, before an
 08:00 laptop shutdown. The [execution plan](vocabulary-expansion-activation.md) records the
 bounded content/source/review queue and safe stopping points. Preserve the standing focused
-commit/merge/push and complete-check workflow. Runtime activation was offered as a separate
-scope clarification; unanswered clarification does not select it. S14 remains paused,
+commit/merge/push and complete-check workflow. The user subsequently answered
+**“Implement and release the first unit too”**, selecting reviewed P1 activation and the
+standing versioned release/private-preview workflow. P2/P3 stay authoring drafts. S14 remains paused,
 existing noun-only recall stays unchanged, and Danish teaching approval is separate.
 
 ## Confirmed documentation rule

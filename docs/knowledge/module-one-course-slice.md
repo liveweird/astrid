@@ -1173,3 +1173,14 @@ release or cleanup has been performed; Danish teaching approval remains separate
 ### Navigation release sequencing — 11 November 2026
 
 The user subsequently selected the [learner navigation and vocabulary authoring work](learning-engine.md#selected-navigation-implementation-and-content-authoring). Its navigation-only release uses app **0.19.0**, leaving learning pair sixteen unchanged. This supersedes the original S14 app-version reservation above: the next S14 feature release is planned as **0.20.0 / pair seventeen**. S14 remains paused with its frozen 0.18.0 baseline and saved partial API patch; S15 remains unselected. App-version numbering does not alter any published learning pair, plan or fixture.
+
+**Superseded again by selected P1 activation — 12 November 2026.** The user confirmed
+implementation and release of the [work/study vocabulary unit](vocabulary-expansion-activation.md#selected-p1-implementation-contract).
+P1 now owns app **0.20.0 / pair seventeen**, formats **E031–E039** and lexical records
+**L041–L049**. S14 remains paused and tentatively follows at **0.21.0 / pair eighteen,
+E040**. Unselected S15 would follow at **0.22.0 / pair nineteen, E041–E042**, with the
+sentence-negator lexical reservation tentatively **L050** instead of historical L041.
+These are coordination reservations, not delivered content. Rebase the saved S14 draft onto
+the actual then-current source, audit all identifiers and freeze that released boundary
+before resuming; never overlay its old shared files onto P1. The historical contracts above
+remain intact as records of their original assignments.

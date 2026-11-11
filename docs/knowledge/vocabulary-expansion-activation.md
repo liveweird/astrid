@@ -12,8 +12,12 @@ The [selected vocabulary blueprint](vocabulary-course-blueprint.md#selected-expa
 owns the eighteen P1 placements and the sixty-placement three-packet budget. Runtime app
 0.19.0 remains at pair sixteen. S14 stays paused. This authoring milestone allocates no
 stable lexical IDs, changes no published generator or grader, and supplies no Danish
-specialist approval. Runtime implementation/release scope was separately offered for
-clarification; an unanswered question does not authorize that additional phase.
+specialist approval.
+
+**Runtime scope subsequently confirmed:** the user answered **“Implement and release the
+first unit too”**. Complete P1 after its content/contract review, including the standing
+versioned release, exact-source verification and backed-up app-only private-preview delivery.
+P2 and P3 remain authoring drafts. This supersedes the initial pending scope clarification.
 
 Retain noun-only recall under its existing contract. Teach count nouns with articles;
 mass uses, language nouns and chunks have explicitly different realizations. Q27 remains
@@ -42,18 +46,168 @@ is selected, reserve time for exact-source CI/browser checks, a real backup rest
 app-only promotion and ownership-scoped QA cleanup; a partially verified build is not a
 release. Documentation-only deliveries keep app 0.19.0 and do not redeploy the preview.
 
-## Implementation contract
+## Selected P1 implementation contract
 
-In preparation. The architecture pass must inspect actual lexical target types, choice
-pool assumptions, reading/tile representations, practice summaries and saved exposure
-before selecting operation reuse. “Same exercise family” does not prove a verb, mass noun
-or multiword chunk fits a noun-headword operation. Keep current plans literally pinned.
+The [complete P1 packet](vocabulary-work-study-packet.md) owns the teaching, exact readings,
+23 activity slots and authored answers. This section owns implementation policy. Independent
+architecture review found substantive gaps in noun-only lexical sources, fixed four-pair
+matching, fixed object-query readings, article+noun tile tokenization and guided matching
+transport/summary. Reuse the existing UI controls and answer transports while adding bounded
+packet sources and projections; do not pretend these generators already support every kind.
 
-The minimum design must specify what is newly taught per session, which later slots may
-use it, how direct entry supplies missing teaching, and how unknown outcomes affect
-continuation. Do not infer persistent cross-session learning history from an open lesson
-or a browser-local completed-run link. Broader cumulative review and the Vocabulary library
-remain BL-066 and BL-067.
+### Release and content assignments
+
+The selected first-unit release is **app 0.20.0**, learning pair
+**`pilot-17/generator-17/evaluation-17`**. This explicitly supersedes S14's unpublished
+0.20.0/pair-seventeen reservation. S14 remains paused, tentatively following at 0.21.0/pair
+eighteen, subject to rechecking the actual baseline when resumed. No existing S14 draft is
+merged into P1. Keep all eighteen existing profiles literally pinned.
+
+Audit then allocate `L041` skrive, `L042` computer, `L043` studere, `L044` kursus,
+`L045` drikke, `L046` kaffe, `L047` liquid vand, `L048` static hjemme and `L049`
+fixed `om morgenen`. Reuse the exact current senses for other P1 rows. The morning expression
+is one fixed lexical chunk, like existing `i dag`; P1 never splits it into word-tile
+components or licenses productive `om + noun`. The expected lexical inventory is 49 records,
+not 49 newly learned words. Add explicit morphology, provenance and draft review metadata;
+do not insert mass or chunk entries into count-noun article parsers.
+
+Pair sixteen and S13 are already frozen **from release source `9bb10ae5633edb192651dc3d6956ff269b2a61eb`
+in freeze commit `0e98e81`**. Verify archives/provenance and rebind moving test adapters to
+literal retained-sixteen snapshot/review access before changing CURRENT. Never recapture
+or edit those bytes. Existing format pools, evaluators, fingerprints and saved results stay
+executable under their published revisions.
+
+### Operations and primary targets
+
+| Format | P1 slots | Target and answer shape |
+| --- | --- | --- |
+| E031 — Packet meaning recognition | 1.1–1.3 | One selected lexical meaning, Danish→English supplied text choice. |
+| E032 — Packet Danish choice | 2.2 | One selected lexical meaning, English→Danish supplied bundle choice; no article production score. |
+| E033 — Packet matching | 2.1, 3.1, 4.1, 5.1 | One board with 4/4/3/3 atomic lexical assessments; existing matching-pair answer shape. |
+| E034 — Packet present recall | 3.4, 4.4 | G004, scope `p1-studere-present` or `p1-drikke-present`, mode `recall`; one-word text. |
+| E035 — Packet expression recall | 3.5 | Lexical `fixed-chunk/en-da`, introduced `nu`; one-word text in this packet. |
+| E036 — Packet mass-word recall | 4.5 | Lexical `mass-headword/en-da`, selected bare liquid `vand`; one-word text. |
+| E037 — Packet all-word tiles | 3.3, 5.4, 5.5 | G005 / `p1-subject-first-supplied` / `word-order`; all supplied occurrences. |
+| E038 — Packet present-form tiles | 4.3 | G004 / `p1-drikke-present` / `selection`; three selected occurrences, one infinitive spare; subject-first is a response constraint. |
+| E039 — Packet fact reading | 1.4, 2.3, 2.4, 3.2, 4.2, 5.2, 5.3 | Explicit-fact reading target; five object questions, one place and one time; supplied English choice. |
+
+These are **nine operations across five UI families**. The spare-form activity tests a finite
+form; it must not invent a G005 score. Conversely, an all-word order activity supplies its
+verb and creates no independent G004 success. Recognition, matching and production evidence
+remain distinct. E007/E008, Q27 and all existing article assessment stay unchanged.
+
+Each candidate freezes a neutral task ID, entry/sense/form references, source frame/fact IDs,
+cue, ordered choice bank with rationales, accepted answer/realizations, reviewed errors and
+exposure keys. A theme tag creates no valid combination. P1 lexical sources distinguish
+count-bundle, verb form, mass word, bare language noun, adverb and fixed chunk; never use an
+empty article to force a value into the legacy noun-only source type.
+
+### Reading, matching and tile sources
+
+Every reading question points to exactly one supporting authored fact. Facts record referent,
+predicate, object or circumstance, rendered sentence and all visible lexical/form exposures.
+Derive the expected answer from that fact and requested role; do not store place/time in an
+`answerNounId`. A distractor absent from the passage must not receive the old “appears in
+another fact” feedback. Named subjects disambiguate P1's final reading.
+
+Matching uses independently shuffled opaque item IDs and a private correspondence table.
+Validate three/four cardinality and unique left/right IDs. Keep each pair's target identity
+independent of its displayed index. A public pre-answer descriptor may identify the board
+and count; it must not join left and right columns through a private assessment label/key.
+Each pair has its own result, exposure and summary row while the board remains one activity
+and one attempt.
+
+Tile banks use occurrence IDs plus explicit lexical/form identities, not a universal
+article+noun tokenizer. Freeze canonical orders and only these exact grammatical off-target
+alternatives: `Nu læser hun en bog` for 3.3 and `I Odense arbejder jeg` for 5.5. Their meaning
+and language facets are met/acceptable, while the subject-first constraint fails. This is
+bounded diagnostic coverage, not S14 generation or a general fronting lesson. Other
+unsupported orders remain unknown, not automatically ungrammatical.
+
+For 4.3, `Nora drikker vand` is fully met; `Nora drikke vand` is the exact reviewed
+`INFINITIVE_USED` clause error with meaning/response shape met and G004 not met. All four
+tokens, a partial clause or both verb occurrences are unevaluable, meaning/language unknown
+and shape not met; finding `drikker` somewhere never awards success. Mass-object fronting
+is not licensed in this task. Selection/count/start constraints are independently decidable;
+an unsupported order that satisfies them can have shape met while language remains unknown.
+
+### Typed grading and completion defaults
+
+For the four new typed slots, preserve raw input and compare NFC-normalized, outer-whitespace
+trimmed isolated words with `Locale.ROOT` case folding. Capitalization is not an assessed
+skill in these isolated prompts. No accent removal, transliteration, fuzzy/prefix matching
+or acceptance of trailing prose is selected. Internal extra words fail the one-word shape.
+Keep legacy normalization literally unchanged.
+
+Isolated `studere`/`drikke` are known acceptable infinitives that miss the requested present
+form, rather than malformed sentences. Another introduced word can be known and off-target;
+unintroduced synonyms/forms remain unknown. `en vand`/`et vand` fail the selected bare-word
+shape and do not establish the selected mass meaning. Do not claim all article-bearing
+Danish uses are wrong. A correct headword embedded in arbitrary prose earns no prefix success.
+
+Use new literal completion policy `vocabulary-p1-outcome-1`. Require saved teaching and
+evaluate the latest saved attempt under the existing owner lock. Known correct or known wrong
+shape-valid outcomes may continue; unknown or partial results may not. A matching board must
+be a complete bijection even when one selected pair is wrong. The two exact reviewed
+fronted alternatives above may continue as known off-target outcomes using a P1-only
+subject-first issue-code allowlist; they never count as fully met. A later unknown attempt
+supersedes an earlier eligible one. No score threshold or mastery rule is added.
+
+### Profiles, exposure, saved evidence and summaries
+
+Publish five independent profiles `vocabulary-p1-s1` … `vocabulary-p1-s5`, literal plan
+revisions `vocabulary-p1-s1-1` … `vocabulary-p1-s5-1`, with 4/4/5/5/5 activities. Each run
+always supplies full required teaching and that session's prerequisite review, including
+support pronouns, order, possession and names as needed. Repeat/next opens the chooser;
+creation remains an explicit saved operation. There is no course-wide unlock, shortened
+teaching inferred from browser history or ordinary-start cross-run exposure. Existing
+source-linked follow-ups remain unchanged; P1 adds no targeted-review planner.
+
+Use new literal exposure policy `vocabulary-p1-exposure-1`. Freeze meaning, form, bundle,
+proposition, order and support keys with each plan. Reading records visible forms and
+complete facts. English-only distractors do not expose later Danish counterparts. Matching
+prompt exposure records displayed forms; feedback records only mappings actually confirmed
+for correct pairs, not every expected mapping after a wrong/partial board. Record answer
+reveal/retry as possible exposure, never as proof of learning or independent recall.
+
+Extend guided descriptors/observations additively for reading and matching, preserving all
+legacy target keys and omitted-default serialization. Matching summary projects by exact
+lexical identity and mode, never displayed column or grammar-gap slot IDs. Reading summaries
+identify the explicit-fact role. Carry meaning outcomes for P1; fully met requires every
+applicable facet. Preserve whole-run activity/attempt/retry counts and separate first/latest,
+unknown, correction, support and prior-exposure evidence. Old summary bytes remain unchanged.
+
+No new endpoint/table/migration is expected: V3's eight-activity bound fits each profile.
+The server must persist all private plan/source/projection metadata, use explicit DTO mapping,
+fingerprint every public/private grading input and preserve exact creation/attempt bodies.
+Reject malformed new closed-choice IDs/out-of-bank responses after ownership checks without
+persisting an attempt; do not tighten old formats' validation. Apply the existing mutation
+guard and transaction order. New payload readers must remain available for old saved work;
+rollback after P1 writes needs a compatible reader, not an incompatible older binary.
+
+### Delivery acceptance and ownership
+
+One engine implementer owns shared engine models, content/dispatch, new packet generators,
+graders, planners, summaries/policies, review exports and meaningful literal tests. A separate
+server implementer owns wire/private payload mapping, validation/fingerprints, OpenAPI and
+generated schema plus HTTP/fake/PostgreSQL contracts. The coordinator integrates guided web
+matching/state/recovery, learner directory, version/changelog and E2E/scenarios against those
+interfaces. Parallel writers own disjoint files; independent reviewers check each substantive
+boundary after implementation.
+
+Acceptance covers all 23 slots, every introduction and direct-entry prerequisite, both board
+sizes and partial/full outcomes, per-pair exposure, exact fact answers, typed known/unknown/
+shape cases, tile alternatives, latest-attempt continuation, fingerprint mutations, security
+ordering/private-answer absence, old serialization and sixteen retained revisions. Prove
+lost-response replay, actual restart, expiry/cross-tab recovery, keyboard/language markup,
+Axe, both themes and 320px/200% reflow. Run the full Docker-backed gate, native and packaged
+Linux browser suites, exact-source CI, image/package scans, actual isolated backup restore,
+app-only promotion, live smoke and owned-QA cleanup before claiming release delivery.
+
+Danish specialist validation remains BL-022 and must be disclosed as pending. Independent
+source/content review is required for this implementation; it does not establish specialist
+approval or add a new human-approval gate. Cumulative review and the Vocabulary library
+remain separate BL-066/BL-067 work.
 
 ## Source verification — 11 November 2026
 
@@ -83,13 +237,18 @@ selected use. No dictionary definitions or corpus sentences are imported.
 [morgen](https://ordnet.dk/ddo/ordbog/morgen) ·
 [arbejde](https://ordnet.dk/ddo/ordbog/arbejde)
 
-The COR liquid-water record confirms neuter morphology. Its JSON response did not
-expose the earlier audit's `væske` disambiguator: that selected liquid meaning is
-authored content, not a new semantic finding from the morphology response. Likewise,
+The COR liquid-water record confirms neuter morphology and its JSON includes the
+`væske` disambiguator. The initial extraction omitted that field; an independent
+recheck corrected the extraction limitation. The selected English meaning and mass-use
+policy remain authored content. Likewise,
 bare mass `kaffe/vand` and the full `om morgenen` chunk need explicit teaching/frame
 review; an indefinite-form code does not require an indefinite article in every use.
 
 ## Observed delivery
 
-No completed packet or runtime activation is claimed by this initial work plan. Record
-actual source verification, reviews, checks and Git delivery here as packages finish.
+The initial execution plan and first source audit passed the complete local gate and were
+committed/pushed as `40e1011`. Five P1 scripts (23 activities) and the P2/P3 authoring packets
+are drafted. Independent P1 review found ambiguous study/read context, two answer-category
+leaks, matching-target ambiguity, a pronoun link, an invented specialist gate and freeze
+provenance wording; the coordinator is reconciling those findings in the canonical contract
+and packet. No runtime P1 activation or specialist approval is yet claimed.
