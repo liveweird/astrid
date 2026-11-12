@@ -141,3 +141,12 @@ verified legacy/current restart replay, isolated backup restore, app-only promot
 main-preview checks and owned cleanup passed. The [repair record](matching-restart-compatibility.md#observed-delivery)
 supersedes the 0.20.0 running-version statement while preserving its historical evidence,
 published notes and pair-seventeen plans.
+
+**Subsequent release — 12 November 2026:** App [0.21.0](https://github.com/liveweird/astrid/releases/tag/v0.21.0), source
+`eab86c6`, adds cumulative mixed review across introduced lessons. All five
+[exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/43307108048), 492 native and 492 packaged-Linux journeys,
+actual restart/replay, isolated backup restore, app-only promotion and 196 live checks
+passed without retries/flakies. [Delivery evidence](cumulative-review.md#observed-delivery)
+records preservation and owned cleanup. Existing graders remain pinned per exercise;
+`per-item` is a composite-plan marker, not a new engine revision. Prior tags, notes,
+lesson plans and learner history remain unchanged.

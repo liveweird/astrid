@@ -140,3 +140,51 @@ for new states. Run the full Docker-backed gate, existing immutable compatibilit
 and both browser projects. Verify exact-source CI, tag/release, actual isolated backup
 restore, backed-up app-only promotion preserving history/database, smoke and owned cleanup
 before claiming delivery. Record observed outcomes here when complete.
+
+## Observed delivery
+
+**12 November 2026.** Released app [0.21.0](https://github.com/liveweird/astrid/releases/tag/v0.21.0), source `eab86c6`, after all five
+[exact-master CI jobs](https://github.com/liveweird/astrid/actions/runs/43307108048) passed, including **492 packaged-Linux
+Chromium/WebKit journeys** without retries or flakies. All **492 native journeys**
+also passed against the exact committed candidate. The full Docker-backed local gate
+passed **434 engine tests**, the fresh Arabic-locale suite, **293 server tests** and
+**298 web tests**, with no skipped tests. Independent architecture, engine/API/UI and
+release-operation reviews closed their findings.
+
+Cumulative preparation is explicit and passive browsing stays unchanged. Review draws
+from the twenty taught lesson families in the current fixed-lifetime development session,
+with up to eight unique activities and honest empty/short pools. Actual released legacy
+review material contributes freshness/exposure evidence without becoming an eligibility
+source. Results retain scopes, operations, senses and reading/matching distinctions.
+The static catalogue remains twenty lessons plus three unchanged fixed Review sets.
+
+An actual candidate upgrade kept six old saved-run responses and two saved attempts
+byte-identical. Saved cumulative selection remained unchanged while additional teaching
+expanded current eligibility. After a real QA process restart, all eight mixed activities
+first-graded and replayed using their actual original evaluation revisions; three old
+pending exercises also first-graded at retry one and replayed. The saved private plan,
+new exercise rows and all previously captured rows stayed unchanged. A separate six-item
+S05 review retained `hedder` as unknown under evaluation ten, rejected continuation,
+replayed that answer and accepted the correct second attempt.
+
+The exact image passed the unchanged HIGH/CRITICAL vulnerability policy and runtime
+package floors with networking disabled. A **6,458,396-byte**, mode-0600 backup was
+actually restored into an isolated owned database and compared before app-only preview
+promotion. All six learner tables were exactly equal immediately across promotion;
+PostgreSQL process/mounts and Flyway versions 1/2/3 were preserved. All **196 live-preview
+checks** passed without retries/flakies after correcting a test synchronization race;
+owned QA resources were removed while main
+processes/mounts stayed unchanged.
+
+The first live smoke had 195 passes and one test race: a direct state GET began 1 ms
+before creation POST. The app then rendered its teaching screen correctly. The test now
+waits for that visible creation confirmation before inspecting state; the failed trace
+is retained separately and the full corrected smoke passed with retries disabled.
+Application code and the published release image did not change.
+
+All 115 pinned compatibility/migration/legacy resources retained their original bytes.
+Engine/server floors stayed 98/86 and 98/82; web branch coverage crossed 90%, so its floors
+ratcheted to 95/90/98/98. No migration, new linguistic content, new engine pair, account,
+scheduler or mastery policy was added. Direct old-binary rollback after cumulative writes
+still requires a compatible reader. BL-066 is complete; learner review remains BL-035,
+Danish teaching review remains BL-022, P2/P3 stay unactivated and S14 stays paused.

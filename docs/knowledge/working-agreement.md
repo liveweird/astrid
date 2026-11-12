@@ -333,3 +333,15 @@ pending-first-grade/restart/retry evidence, isolated backup restore, app-only pr
 186 main-preview checks and owned cleanup. The [repair evidence](matching-restart-compatibility.md#observed-delivery)
 closes BL-069. Current P1 revision-two plans pin pair eighteen; retained revision-one
 plans stay on seventeen and other profiles keep their published pins. P2/P3 remain unactivated, S14 remains paused and BL-022 remains open.
+
+**12 November 2026 — Cumulative mixed review delivered:** App
+[0.21.0](https://github.com/liveweird/astrid/releases/tag/v0.21.0), source `eab86c6`, passed independent review, the full
+Docker-backed gate, all five [exact-master CI jobs](https://github.com/liveweird/astrid/actions/runs/43307108048), 492 native and
+492 packaged-Linux journeys, real upgrade/restart/grading/replay, an actual isolated
+backup restore, backed-up app-only promotion and 196 live-preview checks. Owned cleanup
+passed; [the delivery record](cumulative-review.md#observed-delivery) closes BL-066.
+The current development-session scope, unchanged old review sets and per-item graders
+remain explicit. P2/P3 and the Vocabulary library remain later milestones; S14 stays paused.
+Git writes used the authenticated `gh` credential helper per command after the default
+macOS helper returned `-128`; no global Git or proxy setting changed. This completion
+follow-up changes tests and documentation only; the preview keeps the tagged source.

@@ -23,8 +23,10 @@
 2. Three more distinct lessons record their introductions and the learner refreshes preparation.
    - *Expected*: the server advertises eight items from multiple source lessons and the visible
      prepared summary receives focus.
-3. They start the review and inspect its persisted server plan.
-   - *Expected*: the URL binds the cumulative run, which has eight items and more than one target.
+3. They start the review, wait for the visible **Session introduction** confirming creation,
+   and inspect its persisted server plan.
+   - *Expected*: the URL binds the cumulative run, which has eight items and more than one target;
+     navigation alone does not imply that the server has committed the run yet.
 
 ## Scenario: cumulative review replays an exact saved creation and resumes the URL-bound run
 

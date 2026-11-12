@@ -137,6 +137,7 @@ test("cumulative review reports short and full eligible pools and mixes introduc
 
   await page.getByRole("button", { name: "Start mixed review", exact: true }).click();
   await expect(page).toHaveURL(/\/practice\?session=/);
+  await expect(page.getByRole("button", { name: "Session introduction", exact: true })).toBeVisible();
   const id = new URL(page.url()).searchParams.get("session")!;
   const state = await readPractice(page.request, id);
   const targets = new Set(state.items.map((item) =>
