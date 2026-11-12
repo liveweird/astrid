@@ -85,7 +85,8 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
     private fun advancedProfiles() =
         ModalRoundPracticePlanner.profiles() +
             CircumstancePracticePlanner.profile() +
-            QuestionPracticePlanner.profile()
+            QuestionPracticePlanner.profile() +
+            VocabularyP1PracticePlanner.SPECIFICATIONS.map(VocabularyP1PracticePlanner.Specification::profile)
 
     fun plan(
         focusId: String,
@@ -129,6 +130,8 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
                 CircumstancePracticePlanner(engine).plan(focusId, seed)
             QuestionPracticePlanner.FOCUS_ID to QuestionPracticePlanner.PLAN_REVISION ->
                 QuestionPracticePlanner(engine).plan(focusId, seed)
+            in VocabularyP1PracticePlanner.SPECIFICATIONS.map { it.focusId to it.planRevision } ->
+                VocabularyP1PracticePlanner(engine).plan(focusId, planRevision, seed)
             else -> null
         }
 

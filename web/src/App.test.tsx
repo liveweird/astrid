@@ -6,7 +6,7 @@ import { renderWithProviders } from "./test/render";
 
 vi.mock("./pages/playground/Playground", () => ({ default: () => <div>Learning workspace</div> }));
 vi.mock("./pages/lessons/Lessons", () => ({ default: () => (
-  <div><h1>Module 1: First steps</h1><h2 id="review" tabIndex={-1}>Review</h2></div>
+  <div><h1>Learn Danish</h1><h2 id="review" tabIndex={-1}>Review</h2></div>
 ) }));
 const practiceTestState = vi.hoisted(() => ({ mounts: 0 }));
 vi.mock("./pages/practice/Practice", async () => {
@@ -223,7 +223,7 @@ describe("App routes", () => {
 
     expect(screen.getByRole("heading", { name: "Page not found" })).toBeVisible();
     await userEvent.click(screen.getByRole("link", { name: "Go to Lessons" }));
-    expect(screen.getByRole("heading", { name: "Module 1: First steps" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Learn Danish" })).toBeVisible();
     await userEvent.click(screen.getByRole("link", { name: "Engine playground" }));
     expect(window.location.pathname).toBe("/playground");
     expect(screen.getByText("Learning workspace")).toBeVisible();
@@ -232,7 +232,7 @@ describe("App routes", () => {
     expect(screen.getByRole("link", { name: "Skip to main content" })).toBeVisible();
     await userEvent.click(screen.getByRole("link", { name: "Lessons" }));
     expect(window.location.pathname).toBe("/");
-    expect(screen.getByRole("heading", { name: "Module 1: First steps" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Learn Danish" })).toBeVisible();
   });
 
   it("focuses the review heading for pushed same-page and cross-page review navigation", async () => {

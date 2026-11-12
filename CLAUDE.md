@@ -7,8 +7,8 @@ Codex reads `AGENTS.md`, which points here.
 
 Astrid is a Danish reading and writing engine for English-speaking complete beginners. Today it is a
 **private development preview**: a learner lesson directory (`/`), a standalone engine playground (`/playground`) and short guided practice sessions
-(`/practice`) over a connected beginner slice with 40 vocabulary entries, 109 licensed sentences in the
-catalogue and separate scoped task frames. The thirty exercise entries include grammar selection/supply/order/repair, vocabulary recognition/recall, constrained
+(`/practice`) over a connected beginner slice with 49 vocabulary entries, 109 licensed sentences in the
+catalogue and separate scoped task frames. The thirty-nine exercise entries include grammar selection/supply/order/repair, vocabulary recognition/recall, constrained
 sentence writing, short reading comprehension, English→Danish word choice and all/spare word tiles,
 bilingual matching, verb/article gaps, and scoped subject reference, present-form practice and sentence assembly.
 Generation and grading are deterministic and reproducible
@@ -26,6 +26,12 @@ profile pins pair fifteen, followed by a four-item neutral-question profile pinn
 They require saved teaching before assessment, expose
 server-computed continuation eligibility and keep results by scope and operation. Repeat and continuation
 open the chooser.
+Five independent **A day of work and study** vocabulary sessions add 4/4/5/5/5 activities,
+literally pinned to pair seventeen, with complete direct-entry teaching, three/four-pair meaning
+matching, isolated verb/chunk/mass-word recall and explicit object/place/time reading facts.
+The learner directory has twenty lessons and three unchanged Review sets. P1 uses separate
+completion/exposure policies; its outcomes do not enter existing follow-up planners.
+The activation contract is `docs/knowledge/vocabulary-expansion-activation.md`.
 Existing format pools and all retained pairs/plans stay unchanged; the first-step contract is
 `docs/knowledge/module-one-activation.md`; S04 is specified in
 `docs/knowledge/inanimate-reference-activation.md`. S05–S13 are specified in `docs/knowledge/module-one-course-slice.md`.

@@ -2,7 +2,7 @@ import { Box, Group, Loader, Progress, Stack, Text } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { loadPracticeContext, loadPracticeProfiles } from "../../api/client";
-import type { Attempt, AttemptAnswer, AttemptRequest, GapSelection, PracticeSession } from "../../api/models";
+import type { Attempt, AttemptAnswer, AttemptRequest, GapSelection, MatchingPair, PracticeSession } from "../../api/models";
 import PracticeSummary from "../../components/PracticeSummary";
 import classes from "../../theme.module.css";
 import ActivePractice from "./ActivePractice";
@@ -10,10 +10,10 @@ import PracticeChooser, { EmptyPractice, PracticeHeading } from "./PracticeChoos
 import { PracticeError } from "./PracticeMessages";
 import {
   answerFor, answerValues, attemptFromEntry, handleOperationFailure, type OperationHandlers, operationCallbacks, outboxEntry,
-  practiceError, reconcileOutbox,
+  practiceAnswerKind, practiceError, reconcileOutbox,
 } from "./practiceOperations";
 import {
-  followUpRevisionFor, moduleOneProfileKey, nextModuleOneProfile, prepareFollowUpCreation, preparePracticeCreation,
+  followUpRevisionFor, taughtProfileKey, nextTaughtProfile, prepareFollowUpCreation, preparePracticeCreation,
   profileKey, validateProfiles,
 } from "./practiceProfiles";
 import {
@@ -27,9 +27,11 @@ function restoreAnswer(
   setText: (value: string) => void,
   setOrder: (value: string[]) => void,
   setGapSelections: (value: GapSelection[]) => void,
+  setMatchingPairs: (value: MatchingPair[]) => void,
 ) {
   const restored = answerValues(answer);
   setText(restored.text); setOrder(restored.order); setGapSelections(restored.gapSelections);
+  setMatchingPairs(restored.matchingPairs);
 }
 
 function sameCurrentAnswer(before: PracticeSession | null, next: PracticeSession) {
@@ -37,6 +39,20 @@ function sameCurrentAnswer(before: PracticeSession | null, next: PracticeSession
   const previous = before.items.find((item) => item.position === before.cursor);
   const current = next.items.find((item) => item.position === next.cursor);
   return previous?.lastAttempt?.attemptId === current?.lastAttempt?.attemptId;
+}
+
+function selectedTargetSet(current: Set<string>, targetKey: string, selected: boolean) {
+  const next = new Set(current);
+  if (selected) next.add(targetKey); else next.delete(targetKey);
+  return next;
+}
+
+function PracticeProgress({ session }: { session: PracticeSession }) {
+  const progress = session.itemCount > 0 ? (session.cursor / session.itemCount) * 100 : 0;
+  return <Box>
+    <Group justify="space-between" mb={6}><Text size="sm" fw={650}>{session.state === "completed" ? "Complete" : `Part ${session.cursor + 1} of ${session.itemCount}`}</Text><Text size="sm" c="dimmed">{session.cursor}/{session.itemCount} continued</Text></Group>
+    <Progress value={progress} aria-label={`${session.cursor} of ${session.itemCount} practice items continued`} />
+  </Box>;
 }
 
 export default function Practice() {
@@ -54,6 +70,7 @@ export default function Practice() {
   const [text, setText] = useState("");
   const [order, setOrder] = useState<string[]>([]);
   const [gapSelections, setGapSelections] = useState<GapSelection[]>([]);
+  const [matchingPairs, setMatchingPairs] = useState<MatchingPair[]>([]);
   const [attempt, setAttempt] = useState<Attempt | null>(null);
   const [busy, setBusy] = useState(true);
   const [uncertain, setUncertain] = useState<AttemptRequest | null>(null);
@@ -61,7 +78,7 @@ export default function Practice() {
   const [error, setError] = useState("");
   const [recoveryUnavailable, setRecoveryUnavailable] = useState(false), [selectedTargets, setSelectedTargets] = useState<Set<string>>(() => new Set());
   const [chooserOpen, setChooserOpen] = useState(false), [selectedProfile, setSelectedProfile] = useState<string | null>(null);
-  const { errorRef, feedbackRef, gapFocusRef, hintRef, introductionContentRef, introductionControlRef, itemHeadingRef,
+  const { errorRef, feedbackRef, gapFocusRef, matchingFocusRef, hintRef, introductionContentRef, introductionControlRef, itemHeadingRef,
     lessonContentRef, requestFocus, summaryHeadingRef } = usePracticeFocusQueue(error);
   const generationRef = useRef(0), chooserReturnErrorRef = useRef(""); useEffect(() => () => { generationRef.current += 1; }, []);
 
@@ -70,12 +87,12 @@ export default function Practice() {
     if (preserveDraft && sameCurrentAnswer(session, next)) return;
     const item = next.items.find((candidate) => candidate.position === next.cursor);
     setAttempt(item?.lastAttempt ?? null);
-    restoreAnswer(item?.lastAnswer as AttemptAnswer | undefined, setText, setOrder, setGapSelections);
+    restoreAnswer(item?.lastAnswer as AttemptAnswer | undefined, setText, setOrder, setGapSelections, setMatchingPairs);
     setSelectedTargets(new Set());
   };
 
   useInitialPracticeRecovery(boundId, {
-    applyState, bindUrl, setBusy, setError, setGapSelections, setOrder, setPendingEntry, setRecoveryUnavailable,
+    applyState, bindUrl, setBusy, setError, setGapSelections, setMatchingPairs, setOrder, setPendingEntry, setRecoveryUnavailable,
     setRun, setText, setUncertain, requestFocus,
     showFreshChooser: (_catalog, message = "") => {
       setSelectedProfile(null);
@@ -84,7 +101,7 @@ export default function Practice() {
     },
   });
 
-  const operationHandlers: OperationHandlers = { applyState, setError, setGapSelections, setOrder,
+  const operationHandlers: OperationHandlers = { applyState, setError, setGapSelections, setMatchingPairs, setOrder,
     setPending: setPendingEntry, setRecoveryUnavailable, setText, setUncertain };
   const perform = async (
     entry: PracticeOutboxEntry,
@@ -105,7 +122,7 @@ export default function Practice() {
       const pendingRequest = result.pending ? attemptFromEntry(result.pending) : null;
       if (pendingRequest) {
         setUncertain(pendingRequest);
-        restoreAnswer(pendingRequest.answer, setText, setOrder, setGapSelections);
+        restoreAnswer(pendingRequest.answer, setText, setOrder, setGapSelections, setMatchingPairs);
       }
       if (!result.pending) {
         setUncertain(null);
@@ -160,6 +177,7 @@ export default function Practice() {
       setSession(null);
       setAttempt(null);
       setGapSelections([]);
+      setMatchingPairs([]);
       setUncertain(null);
       setPendingEntry(creation);
       setSelectedTargets(new Set());
@@ -204,6 +222,7 @@ export default function Practice() {
       setSession(null);
       setAttempt(null);
       setGapSelections([]);
+      setMatchingPairs([]);
       setUncertain(null);
       setPendingEntry(creation);
       setSelectedTargets(new Set());
@@ -234,13 +253,12 @@ export default function Practice() {
   }
   const exercise = session.currentExercise;
   const item = session.items.find((candidate) => candidate.position === session.cursor);
-  const progress = session.itemCount > 0 ? (session.cursor / session.itemCount) * 100 : 0;
   const blocked = busy || Boolean(pendingEntry) || Boolean(uncertain);
   const submit = () => {
     if (!run || !exercise || !item) return;
     const request: AttemptRequest = {
       attemptId: crypto.randomUUID(), exerciseId: exercise.id,
-      answer: answerFor(exercise, text, order, gapSelections), hintUsed: item.lessonOpened || item.hintOpened,
+      answer: answerFor(exercise, text, order, gapSelections, matchingPairs), hintUsed: item.lessonOpened || item.hintOpened,
     };
     void perform(outboxEntry(run, "attempt", request.attemptId, request), "feedback");
   };
@@ -254,16 +272,13 @@ export default function Practice() {
     const completing = session.cursor + 1 === session.itemCount;
     void perform(outboxEntry(run, "advance", `${run.practiceSessionId}-${item.position}`, { position: item.position }), completing ? "summary" : "item");
   };
-  const nextProfile = nextModuleOneProfile(session);
+  const nextProfile = nextTaughtProfile(session);
   const nextProfileKey = nextProfile ? profileKey(nextProfile) : null;
 
   return (
     <Stack gap="lg" maw={920} className={`${classes.playground} ${classes.practice}`}>
       <PracticeHeading session={session} busy={busy} onStartNew={() => openPracticeChooser()} />
-      <Box>
-        <Group justify="space-between" mb={6}><Text size="sm" fw={650}>{session.state === "completed" ? "Complete" : `Part ${session.cursor + 1} of ${session.itemCount}`}</Text><Text size="sm" c="dimmed">{session.cursor}/{session.itemCount} continued</Text></Group>
-        <Progress value={progress} aria-label={`${session.cursor} of ${session.itemCount} practice items continued`} />
-      </Box>
+      <PracticeProgress session={session} />
       <PracticeError
         message={error}
         uncertain={Boolean(uncertain)}
@@ -282,14 +297,10 @@ export default function Practice() {
         headingRef={summaryHeadingRef}
         selectedTargets={selectedTargets}
         busy={blocked}
-        onToggleTarget={(targetKey, selected) => setSelectedTargets((current) => {
-          const next = new Set(current);
-          if (selected) next.add(targetKey); else next.delete(targetKey);
-          return next;
-        })}
+        onToggleTarget={(targetKey, selected) => setSelectedTargets((current) => selectedTargetSet(current, targetKey, selected))}
         onStartReview={() => void startFollowUp()}
         onRepeat={() => {
-          const key = moduleOneProfileKey(session);
+          const key = taughtProfileKey(session);
           if (key) openPracticeChooser(key);
         }}
         nextProfile={nextProfile && nextProfileKey
@@ -298,14 +309,18 @@ export default function Practice() {
       /> : <ActivePractice
         session={session} blocked={blocked} busy={busy} text={text} order={order}
         gapSelections={gapSelections} attempt={attempt} feedbackRef={feedbackRef} gapFocusRef={gapFocusRef}
+        matchingPairs={matchingPairs} matchingFocusRef={matchingFocusRef}
+        matchingInteractionId={pendingEntry?.kind === "attempt" ? "pending" : attempt?.attemptId}
         hintRef={hintRef} introductionRef={introductionContentRef} introductionControlRef={introductionControlRef} itemRef={itemHeadingRef} lessonRef={lessonContentRef}
-        onText={setText} onOrder={setOrder} onGapSelections={setGapSelections} onSupport={support}
+        onText={setText} onOrder={setOrder} onGapSelections={setGapSelections} onMatchingPairs={setMatchingPairs} onSupport={support}
         onSubmit={submit} onAdvance={advance}
         onRetry={() => {
           setAttempt(null);
-          if (exercise?.formatId === "E015") requestFocus("gaps");
-          else if (["E024", "E025", "E029", "E030"].includes(exercise?.formatId ?? "")) requestFocus("item");
-          else { setText(""); setOrder([]); setGapSelections([]); requestFocus("item"); }
+          const kind = exercise ? practiceAnswerKind(exercise) : "text";
+          if (kind === "matching") requestFocus("matching");
+          else if (kind === "gaps") requestFocus("gaps");
+          else if (kind === "order" && exercise?.formatId !== "E003") requestFocus("item");
+          else { setText(""); setOrder([]); setGapSelections([]); setMatchingPairs([]); requestFocus("item"); }
         }}
       />}
     </Stack>

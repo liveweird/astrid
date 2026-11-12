@@ -50,6 +50,9 @@ data class PracticeTargetDescriptor(
     val lexicalTarget: LexicalTarget?,
     val assessmentMode: String? = null,
     val targetScopeId: String? = null,
+    val readingTarget: ReadingTask? = null,
+    val readingRole: String? = null,
+    val matchingTarget: LexicalTask? = null,
 )
 
 data class PracticeAssessment(
@@ -65,25 +68,52 @@ object PracticeTargetKeys {
         lexicalTarget: LexicalTarget?,
         assessmentMode: String? = null,
         targetScopeId: String? = null,
+        readingTarget: ReadingTask? = null,
+        readingRole: String? = null,
+        matchingTarget: LexicalTask? = null,
     ): String {
-        require((targetSkillId == null) != (lexicalTarget == null)) {
-            "A practice target must identify exactly one grammar or lexical target"
+        require(listOf(targetSkillId, lexicalTarget, readingTarget, matchingTarget).count { it != null } == 1) {
+            "A practice target must identify exactly one grammar, lexical, reading, or matching target"
         }
-        require(assessmentMode == null || assessmentMode in ASSESSMENT_MODES_BY_SKILL[targetSkillId].orEmpty()) {
-            "Unsupported assessment mode for $targetSkillId: $assessmentMode"
+        return when {
+            matchingTarget != null -> matchingKey(matchingTarget, targetScopeId, assessmentMode, readingRole)
+            readingTarget != null -> readingKey(readingTarget, targetScopeId, assessmentMode, readingRole)
+            targetSkillId != null -> grammarKey(targetSkillId, targetScopeId, assessmentMode)
+            else -> lexicalKey(requireNotNull(lexicalTarget), targetScopeId, assessmentMode)
         }
-        require(
-            targetScopeId == null ||
-                ScopedAssessment(targetSkillId, targetScopeId, assessmentMode) in SCOPED_ASSESSMENTS,
-        ) {
-            "Unsupported scoped assessment for $targetSkillId/$targetScopeId/$assessmentMode"
+    }
+
+    private fun matchingKey(target: LexicalTask, scope: String?, mode: String?, role: String?): String {
+        require(scope == null && mode == null && role == null) {
+            "Matching board targets do not support scope, assessment mode, or reading role"
         }
-        return targetSkillId?.let { skillId ->
-            listOfNotNull("grammar", skillId, targetScopeId, assessmentMode).joinToString(":")
-        } ?: requireNotNull(lexicalTarget).run {
-            require(assessmentMode == null) { "Lexical practice targets do not support assessment modes" }
-            listOf("lexical", entryId, senseId, facet, direction).joinToString(":")
+        require(target == LexicalTask("meaning", "en-da")) { "Unsupported matching board target" }
+        return listOf("matching", target.facet, target.direction).joinToString(":")
+    }
+
+    private fun readingKey(target: ReadingTask, scope: String?, mode: String?, role: String?): String {
+        require(scope == null && mode == null && role in READING_ROLES) {
+            "Reading practice targets require an explicit fact role only"
         }
+        return listOf("reading", target.facet, role).joinToString(":")
+    }
+
+    private fun grammarKey(skillId: String, scope: String?, mode: String?): String {
+        require(mode == null || mode in ASSESSMENT_MODES_BY_SKILL[skillId].orEmpty()) {
+            "Unsupported assessment mode for $skillId: $mode"
+        }
+        require(scope == null || ScopedAssessment(skillId, scope, mode) in SCOPED_ASSESSMENTS) {
+            "Unsupported scoped assessment for $skillId/$scope/$mode"
+        }
+        return listOfNotNull("grammar", skillId, scope, mode).joinToString(":")
+    }
+
+    private fun lexicalKey(target: LexicalTarget, scope: String?, mode: String?): String {
+        require(scope == null) { "Lexical practice targets do not support scopes" }
+        require(mode == null || mode == MATCHING_MODE && target.facet == "meaning" && target.direction == "en-da") {
+            "Lexical practice targets support matching mode only for English-to-Danish meaning pairs"
+        }
+        return listOfNotNull("lexical", target.entryId, target.senseId, target.facet, target.direction, mode).joinToString(":")
     }
 
     private val ASSESSMENT_MODES_BY_SKILL = mapOf(
@@ -96,6 +126,8 @@ object PracticeTargetKeys {
         "G016" to setOf("constituent-order"),
         "G018" to setOf("constituent-order"),
     )
+    private val READING_ROLES = setOf("object", "place", "time")
+    private const val MATCHING_MODE = "matching"
 
     private data class ScopedAssessment(
         val skillId: String?,
@@ -128,11 +160,15 @@ object PracticeTargetKeys {
         ScopedAssessment("G005", "supplied-modal-order", "word-order"),
         ScopedAssessment("G016", "one-final-circumstance", "constituent-order"),
         ScopedAssessment("G018", "neutral-positive-yes-no", "constituent-order"),
+        ScopedAssessment("G004", "p1-studere-present", "recall"),
+        ScopedAssessment("G004", "p1-drikke-present", "recall"),
+        ScopedAssessment("G004", "p1-drikke-present", "selection"),
+        ScopedAssessment("G005", "p1-subject-first-supplied", "word-order"),
     )
 }
 
 fun PracticeTargetDescriptor.targetKey(): String =
-    PracticeTargetKeys.key(targetSkillId, lexicalTarget, assessmentMode, targetScopeId)
+    PracticeTargetKeys.key(targetSkillId, lexicalTarget, assessmentMode, targetScopeId, readingTarget, readingRole, matchingTarget)
 
 data class PracticePlanItem(
     override val position: Int,
@@ -190,6 +226,8 @@ data class PracticeSummaryAttemptObservation(
     val context: PracticeAttemptContext,
     val hintUsed: Boolean = false,
     val gapResults: List<GapResult> = emptyList(),
+    val meaningSatisfaction: MeaningSatisfaction? = null,
+    val matchingResults: List<MatchingPairResult> = emptyList(),
 )
 
 data class PracticeSummaryItemObservation(
@@ -238,6 +276,9 @@ data class PracticeTargetSummary(
     val assessmentMode: String? = null,
     val assessmentRole: String? = null,
     val targetScopeId: String? = null,
+    val readingTarget: ReadingTask? = null,
+    val readingRole: String? = null,
+    val matchingTarget: LexicalTask? = null,
 )
 
 data class PracticeFollowUpSourceItem(
@@ -252,6 +293,8 @@ data class PracticeFeedbackAttemptObservation(
     val linguisticStatus: LinguisticStatus? = null,
     val responseConstraintStatus: ResponseConstraintStatus? = null,
     val issueCodes: List<String> = emptyList(),
+    val meaningSatisfaction: MeaningSatisfaction? = null,
+    val matchingResults: List<MatchingPairResult> = emptyList(),
 )
 
 data class PracticeOutcomeCounts(
@@ -262,4 +305,7 @@ data class PracticeOutcomeCounts(
     val languageUnknown: Int = 0,
     val languageKnownIssue: Int = 0,
     val responseConstraintNotMet: Int = 0,
+    val meaningMet: Int? = null,
+    val meaningNotMet: Int? = null,
+    val meaningUnknown: Int? = null,
 )

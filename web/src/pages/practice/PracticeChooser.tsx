@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import type { PracticeSession } from "../../api/models";
 import classes from "../../theme.module.css";
 import { PracticeError } from "./PracticeMessages";
-import { EXISTING_PRACTICE_PROFILES, MODULE_ONE_PROFILES, profileKey } from "./practiceProfiles";
+import { EXISTING_PRACTICE_PROFILES, MODULE_ONE_PROFILES, VOCABULARY_P1_PROFILES, profileKey } from "./practiceProfiles";
 
 function ProfileChoices({ profiles, busy, selected, selectedRef }: {
   profiles: typeof MODULE_ONE_PROFILES;
@@ -52,6 +52,8 @@ export default function PracticeChooser({ selected, busy, canCancel, message, on
         <Stack gap="sm">
           <Title order={2} size="h3">Module 1: First steps</Title>
           <ProfileChoices profiles={MODULE_ONE_PROFILES} busy={busy} selected={selected} selectedRef={selectedRef} />
+          <Title order={2} size="h3" mt="md">A day of work and study</Title>
+          <ProfileChoices profiles={VOCABULARY_P1_PROFILES} busy={busy} selected={selected} selectedRef={selectedRef} />
           <Title order={2} size="h3" mt="md">More practice</Title>
           <ProfileChoices profiles={EXISTING_PRACTICE_PROFILES} busy={busy} selected={selected} selectedRef={selectedRef} />
         </Stack>

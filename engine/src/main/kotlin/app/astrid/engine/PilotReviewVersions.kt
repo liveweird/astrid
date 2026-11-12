@@ -11,6 +11,9 @@ internal object PilotReviewVersions {
 
     fun provenance(snapshot: PilotContentSnapshot): String = when (snapshot.contentRevision) {
         PilotContent.CURRENT_CONTENT_REVISION ->
+            "docs/knowledge/vocabulary-course-blueprint.md and docs/knowledge/vocabulary-expansion-activation.md " +
+                "(P1 L041-L049 and 23 literal activities; 2026-11-12), plus retained pair-sixteen sources"
+        PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION ->
             "docs/knowledge/danish-vocabulary-seed.md (retained seed) plus " +
                 "docs/knowledge/module-one-language-pack.md (L024 packet), " +
                 "docs/knowledge/module-one-activation.md (L025, C004 and Module 1 tasks), " +
@@ -72,6 +75,9 @@ internal object PilotReviewVersions {
 
     fun sourceReview(snapshot: PilotContentSnapshot): String = when (snapshot.contentRevision) {
         PilotContent.CURRENT_CONTENT_REVISION ->
+            "2026-11-12 official COR form checks and bounded authored P1 frame review; see " +
+                "docs/knowledge/vocabulary-expansion-activation.md and docs/knowledge/vocabulary-work-study-packet.md"
+        PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION ->
             "2026-11-07 retained seed; 2026-11-08 pair-five extension; " +
                 "2026-11-09 L025/C004/Module 1 source checks; 2026-11-10 L026/G038 and L027/S05-S06 source checks; " +
                 "2026-11-11 S07-S13 source checks; see docs/knowledge/pilot-source-review.md, " +
@@ -144,6 +150,7 @@ internal object PilotReviewVersions {
         PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
         PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
         PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
+        PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
         PilotContent.CURRENT_CONTENT_REVISION,
     )
     private val WORD_CHOICE_REVISIONS = WRITING_REVISIONS - PilotContent.RETAINED_FOUR_CONTENT_REVISION

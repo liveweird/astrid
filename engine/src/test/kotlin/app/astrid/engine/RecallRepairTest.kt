@@ -13,9 +13,9 @@ class RecallRepairTest {
     @Test
     fun `current catalog and revision APIs expose exact supported pairs`() {
         val catalog = engine.catalog()
-        assertEquals((1..30).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
-        assertEquals("pilot-16", catalog.contentRevision)
-        assertEquals("generator-16", catalog.generatorRevision)
+        assertEquals((1..39).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
+        assertEquals("pilot-17", catalog.contentRevision)
+        assertEquals("generator-17", catalog.generatorRevision)
         assertEquals(109, catalog.sentenceCount)
         assertEquals(
             listOf(
@@ -35,6 +35,7 @@ class RecallRepairTest {
                 RevisionPair("pilot-14", "generator-14"),
                 RevisionPair("pilot-15", "generator-15"),
                 RevisionPair("pilot-16", "generator-16"),
+                RevisionPair("pilot-17", "generator-17"),
             ),
             engine.supportedRevisionPairs(),
         )

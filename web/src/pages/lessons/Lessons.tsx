@@ -7,7 +7,7 @@ import type { PracticeProfile } from "../../api/models";
 import classes from "../../theme.module.css";
 import { PracticeCatalogError, practiceError } from "../practice/practiceOperations";
 import {
-  EXISTING_PRACTICE_PROFILES, MODULE_ONE_PROFILES, preparePracticeCreation, profileKey,
+  EXISTING_PRACTICE_PROFILES, MODULE_ONE_PROFILES, VOCABULARY_P1_PROFILES, preparePracticeCreation, profileKey,
 } from "../practice/practiceProfiles";
 import {
   latestRunRecoveryEntry, PracticePersistenceError, saveRunWithCreation,
@@ -125,10 +125,10 @@ export default function Lessons() {
   return (
     <Stack gap="xl" maw={960} className={`${classes.playground} ${classes.lessons}`}>
       <Box className={classes.lessonsIntro}>
-        <Group gap="xs" mb="xs"><IconBook2 size={22} aria-hidden="true" /><Text fw={650}>Learn Danish</Text></Group>
-        <Title order={1}>Module 1: First steps</Title>
+        <Group gap="xs" mb="xs"><IconBook2 size={22} aria-hidden="true" /><Text fw={650}>Reading and writing</Text></Group>
+        <Title order={1}>Learn Danish</Title>
         <Text c="dimmed" mt="xs" maw={660}>
-          Read a short explanation, then practise with fifteen focused lessons. Work through them in order or choose what you need today.
+          Explore focused grammar lessons and a vocabulary unit for everyday situations. Each session begins with teaching, so you can start where you need today.
         </Text>
       </Box>
 
@@ -155,11 +155,24 @@ export default function Lessons() {
       {error && <Alert ref={errorRef} tabIndex={-1} icon={<IconAlertCircle size={18} />} color="red" role="alert">{error}</Alert>}
 
       <Box component="section" aria-labelledby="lesson-list-heading">
-        <Title id="lesson-list-heading" order={2} size="h2" mb="md">Lessons</Title>
+        <Title id="lesson-list-heading" order={2} size="h2" mb="md">Module 1: First steps</Title>
         <Stack component="ol" className={classes.lessonList} gap="sm">
           {MODULE_ONE_PROFILES.map((profile, index) => (
             <ProfileRow key={profileKey(profile)} profile={profile} number={index + 1}
               kind={LESSON_KINDS[profile.focusId] ?? "Combined"} busy={busy} onStart={choose} />
+          ))}
+        </Stack>
+      </Box>
+
+      <Box component="section" aria-labelledby="vocabulary-p1-heading">
+        <Title id="vocabulary-p1-heading" order={2} size="h2">A day of work and study</Title>
+        <Text c="dimmed" mt="xs" mb="md" maw={700}>
+          Learn words in small batches, then match meanings, read short routines and build supplied statements.
+        </Text>
+        <Stack component="ol" className={classes.lessonList} gap="sm">
+          {VOCABULARY_P1_PROFILES.map((profile, index) => (
+            <ProfileRow key={profileKey(profile)} profile={profile} number={index + 1}
+              kind="Vocabulary" busy={busy} onStart={choose} />
           ))}
         </Stack>
       </Box>

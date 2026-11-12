@@ -8,9 +8,10 @@
 ## Scenario: home and review navigation stay passive and expose the bounded learning catalogue
 
 1. The learner opens `/` while every `/api/` request is recorded.
-   - *Expected*: **Module 1: First steps** contains exactly fifteen lesson starts and the **Review**
-     section contains exactly three fixed practice starts whose copy limits their scope to familiar
-     words, sentence order, verb forms and articles.
+   - *Expected*: **Learn Danish** is the page heading. **Module 1: First steps** retains fifteen lesson starts; **A day of work and study**
+     adds five separately named P1 starts, for exactly twenty lesson starts total. The **Review** section
+     retains exactly three fixed practice starts whose copy limits their scope to familiar words,
+     sentence order, verb forms and articles.
 2. They inspect the navigation and follow **Review**.
    - *Expected*: **Lessons** is initially active, **Engine playground** is secondary under
      **Developer tools** and links to `/playground`; Review changes the URL to `/#review`, becomes
@@ -46,7 +47,7 @@ Runs for the first fixed lesson (**Talking about one person**) and one bounded e
 1. The learner opens an unknown URL while every `/api/` request is recorded.
    - *Expected*: **Page not found** renders inside the normal shell and developer tools stay available.
 2. They press **Go to Lessons**.
-   - *Expected*: `/` and **Module 1: First steps** render, with no learning API request made.
+   - *Expected*: `/`, the **Learn Danish** page heading and **Module 1: First steps** render, with no learning API request made.
 
 ## Scenario: learner navigation reflows at 320px and 200% text in ${theme} mode
 
@@ -65,6 +66,6 @@ Runs once with a light preference and once with a dark preference.
 
 ## Not covered here (and why)
 
-- Exercise grading, full practice recovery variants and all eighteen chooser profiles remain in the
-  existing practice, recovery, topic-practice and module-one journeys. This file covers only the new
+- Exercise grading, full practice recovery variants and all twenty-three chooser profiles remain in the
+  existing practice, recovery, topic-practice, module-one and P1 vocabulary journeys. This file covers only the new
   learner-navigation handoffs and does not duplicate their matrices.

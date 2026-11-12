@@ -326,8 +326,8 @@ internal object QuestionPracticeCompatibilityFixture {
     ) = PracticeCompletionAttemptObservation(target, linguistic, constraint, issues)
 
     private fun requireLiteralPairs() {
-        require(PilotContent.currentSnapshot.contentRevision == "pilot-16")
-        require(PilotContent.currentSnapshot.generatorRevision == "generator-16")
+        require(PilotContent.pilotSixteenSnapshot.contentRevision == "pilot-16")
+        require(PilotContent.pilotSixteenSnapshot.generatorRevision == "generator-16")
         require(engine.evaluationRevision("pilot-16", "generator-16") == "evaluation-16")
     }
 

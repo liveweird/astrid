@@ -30,6 +30,7 @@ import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.swagger.v3.parser.OpenAPIV3Parser
+import io.swagger.v3.parser.core.models.ParseOptions
 import java.io.File
 import java.lang.management.ManagementFactory
 import java.util.UUID
@@ -48,10 +49,18 @@ import kotlinx.serialization.json.jsonPrimitive
 
 class OpenApiContractTest {
     private val rawSpec = checkNotNull(javaClass.getResource("/openapi/documentation.yaml")).readText()
-    // Each cached schema copies the expanded definitions. The expanded S12 contract uses two
-    // entries to bound those copies at the unchanged 512 MiB heap, following Flow's pattern.
+    // Retain schema refs so each cache entry does not copy the complete exercise union. Responses and request bodies
+    // still resolve before validation; two cache entries bound injected component-definition copies at 512 MiB.
     private fun validatorBuilder() =
         OpenApiInteractionValidator.createForInlineApiSpecification(rawSpec)
+            .withParseOptions(ParseOptions().apply {
+                isResolve = true
+                isResolveFully = false
+                isResolveResponses = true
+                isResolveRequestBody = true
+                isResolveCombinators = false
+                isExplicitObjectSchema = false
+            })
             .withSchemaValidationConfiguration(ValidationConfiguration().setMaxCacheSize(SCHEMA_CACHE_ENTRIES))
 
     private val strictValidator by lazy { validatorBuilder().build() }
@@ -75,6 +84,33 @@ class OpenApiContractTest {
         val version = checkNotNull(Regex("export const APP_VERSION = \"([^\"]+)\"").find(versionSource)).groupValues[1]
         val spec = checkNotNull(OpenAPIV3Parser().readContents(rawSpec).openAPI)
         assertEquals(version, spec.info.version)
+    }
+
+    @Test
+    fun `validator retains schema refs while resolving shared problem responses`() {
+        val options = ParseOptions().apply {
+            isResolve = true
+            isResolveFully = false
+            isResolveResponses = true
+            isResolveRequestBody = true
+            isResolveCombinators = false
+            isExplicitObjectSchema = false
+        }
+        val parsed = assertNotNull(OpenAPIV3Parser().readContents(rawSpec, null, options).openAPI)
+        assertNotNull(parsed.components.schemas.getValue("Exercise").oneOf.first().`$ref`)
+        assertNotNull(parsed.paths.getValue("/api/v1/catalog").get.responses.getValue("401")
+            .content.getValue("application/problem+json").schema)
+
+        val request = SimpleRequest.Builder.get("/api/v1/catalog").build()
+        val validBody = """{"type":"about:blank","title":"Unauthorized","status":401,"detail":"No session","instance":"/api/v1/catalog","code":"UNAUTHORIZED"}"""
+        fun report(contentType: String, body: String) = validator.validateResponse(
+            "/api/v1/catalog",
+            request.method,
+            SimpleResponse.Builder(401).withHeader("Content-Type", contentType).withBody(body).build(),
+        )
+        assertFalse(report("application/problem+json", validBody).hasErrors())
+        assertTrue(report("application/problem+json", "{}").hasErrors())
+        assertTrue(report("application/json", validBody).hasErrors())
     }
 
     @Test
@@ -132,6 +168,11 @@ class OpenApiContractTest {
             "module-one-permission" to "module-one-permission-1",
             "module-one-circumstances" to "module-one-circumstances-1",
             "module-one-questions" to "module-one-questions-1",
+            "vocabulary-p1-s1" to "vocabulary-p1-s1-1",
+            "vocabulary-p1-s2" to "vocabulary-p1-s2-1",
+            "vocabulary-p1-s3" to "vocabulary-p1-s3-1",
+            "vocabulary-p1-s4" to "vocabulary-p1-s4-1",
+            "vocabulary-p1-s5" to "vocabulary-p1-s5-1",
         )
         for (focus in supportedPairs.map { it.first }) {
             for (revision in supportedPairs.map { it.second }) {
@@ -216,6 +257,24 @@ class OpenApiContractTest {
             exerciseRequest("E025", "G005", "pilot-14", "generator-14"),
             exerciseRequest("E029", "G016", "pilot-15", "generator-15"),
             exerciseRequest("E030", "G018", "pilot-16", "generator-16"),
+            exerciseRequest("E001", "G004", "pilot-17", "generator-17"),
+            exerciseRequest("E002", "G006", "pilot-17", "generator-17"),
+            exerciseRequest("E003", "G005", "pilot-17", "generator-17"),
+            exerciseRequest("E007", null, "pilot-17", "generator-17"),
+            exerciseRequest("E016", "G003", "pilot-17", "generator-17"),
+            exerciseRequest("E020", "G038", "pilot-17", "generator-17"),
+            exerciseRequest("E026", "G030", "pilot-17", "generator-17"),
+            exerciseRequest("E029", "G016", "pilot-17", "generator-17"),
+            exerciseRequest("E030", "G018", "pilot-17", "generator-17"),
+            exerciseRequest("E031", null, "pilot-17", "generator-17"),
+            exerciseRequest("E032", null, "pilot-17", "generator-17"),
+            exerciseRequest("E033", null, "pilot-17", "generator-17"),
+            exerciseRequest("E034", "G004", "pilot-17", "generator-17"),
+            exerciseRequest("E035", null, "pilot-17", "generator-17"),
+            exerciseRequest("E036", null, "pilot-17", "generator-17"),
+            exerciseRequest("E037", "G005", "pilot-17", "generator-17"),
+            exerciseRequest("E038", "G004", "pilot-17", "generator-17"),
+            exerciseRequest("E039", null, "pilot-17", "generator-17"),
         )
         val rejected = listOf(
             exerciseRequest("E009", null, "pilot-4", "generator-4"),
@@ -266,6 +325,25 @@ class OpenApiContractTest {
             exerciseRequest("E021", null, "pilot-9", "generator-9"),
             exerciseRequest("E020", "G038", "pilot-8", "generator-8"),
             exerciseRequest("E020", "G038", "pilot-9", "generator-8"),
+            exerciseRequest("E031", "G004", "pilot-17", "generator-17"),
+            exerciseRequest("E033", "G005", "pilot-17", "generator-17"),
+            exerciseRequest("E034", null, "pilot-17", "generator-17"),
+            exerciseRequest("E034", "G005", "pilot-17", "generator-17"),
+            exerciseRequest("E037", null, "pilot-17", "generator-17"),
+            exerciseRequest("E037", "G004", "pilot-17", "generator-17"),
+            exerciseRequest("E038", "G005", "pilot-17", "generator-17"),
+            exerciseRequest("E039", "G004", "pilot-17", "generator-17"),
+            exerciseRequest("E031", null, "pilot-17", "generator-17").replace("\"index\":0", "\"index\":1000001"),
+            exerciseRequest("E001", null, "pilot-17", "generator-17"),
+            exerciseRequest("E001", "G005", "pilot-17", "generator-17"),
+            exerciseRequest("E002", "G004", "pilot-17", "generator-17"),
+            exerciseRequest("E003", "G004", "pilot-17", "generator-17"),
+            exerciseRequest("E007", "G004", "pilot-17", "generator-17"),
+            exerciseRequest("E016", "G004", "pilot-17", "generator-17"),
+            exerciseRequest("E020", "G004", "pilot-17", "generator-17"),
+            exerciseRequest("E026", "G004", "pilot-17", "generator-17"),
+            exerciseRequest("E029", "G005", "pilot-17", "generator-17"),
+            exerciseRequest("E030", "G016", "pilot-17", "generator-17"),
         )
 
         accepted.forEach { assertExerciseRequestValidity(it, expected = true) }
@@ -345,6 +423,18 @@ class OpenApiContractTest {
             questionExerciseResponse(questionPrompt("Hun arbejder.", WORK_QUESTION_BLOCKS)),
             questionExerciseResponse(questionPrompt("I bor i Aarhus.", RESIDENCE_QUESTION_BLOCKS)),
             questionExerciseResponse(questionPrompt("De har et brev.", POSSESSION_QUESTION_BLOCKS)),
+            exerciseResponse("E001", "pilot-17", "generator-17", target = "G004"),
+            exerciseResponse("E007", "pilot-17", "generator-17", lexicalFacet = "meaning", lexicalDirection = "da-en"),
+            moduleOneExerciseResponse("E030", "G018", "neutral-positive-yes-no", "pilot-17"),
+            exerciseResponse("E031", "pilot-17", "generator-17", lexicalFacet = "meaning", lexicalDirection = "da-en"),
+            exerciseResponse("E032", "pilot-17", "generator-17", lexicalFacet = "meaning", lexicalDirection = "en-da"),
+            vocabularyMatchingExerciseResponse(),
+            moduleOneExerciseResponse("E034", "G004", "p1-studere-present", "pilot-17"),
+            exerciseResponse("E035", "pilot-17", "generator-17", lexicalFacet = "fixed-chunk", lexicalDirection = "en-da"),
+            exerciseResponse("E036", "pilot-17", "generator-17", lexicalFacet = "mass-headword", lexicalDirection = "en-da"),
+            moduleOneExerciseResponse("E037", "G005", "p1-subject-first-supplied", "pilot-17"),
+            moduleOneExerciseResponse("E038", "G004", "p1-drikke-present", "pilot-17"),
+            exerciseResponse("E039", "pilot-17", "generator-17", readingFacet = "explicit-fact", passage = true),
         )
         val rejected = listOf(
             exerciseResponse("E009", "pilot-4", "generator-4"),
@@ -470,6 +560,22 @@ class OpenApiContractTest {
             questionExerciseResponse(questionPrompt(extra = ",\"gapPrompt\":{\"segments\":[],\"slots\":[]}")),
             questionExerciseResponse(questionPrompt(extra = ",\"tileMode\":\"use-all\"")),
             questionExerciseResponse(questionPrompt(extra = ",\"requiredTileCount\":3")),
+            exerciseResponse("E001", "pilot-17", "generator-17", target = "G005"),
+            exerciseResponse("E007", "pilot-17", "generator-17", target = "G004", lexicalFacet = "meaning", lexicalDirection = "da-en"),
+            moduleOneExerciseResponse("E030", "G016", "neutral-positive-yes-no", "pilot-17"),
+            exerciseResponse("E031", "pilot-17", "generator-17", lexicalFacet = "fixed-chunk", lexicalDirection = "en-da"),
+            exerciseResponse("E031", "pilot-17", "generator-17", lexicalFacet = "meaning", lexicalDirection = "en-da"),
+            exerciseResponse("E032", "pilot-17", "generator-17", lexicalFacet = "meaning", lexicalDirection = "da-en"),
+            vocabularyMatchingExerciseResponse(facet = "fixed-chunk"),
+            vocabularyMatchingExerciseResponse(direction = "da-en"),
+            exerciseResponse("E035", "pilot-17", "generator-17", lexicalFacet = "meaning", lexicalDirection = "en-da"),
+            exerciseResponse("E036", "pilot-17", "generator-17", lexicalFacet = "singular-headword", lexicalDirection = "en-da"),
+            moduleOneExerciseResponse("E034", "G005", "p1-studere-present", "pilot-17"),
+            moduleOneExerciseResponse("E034", "G004", "p1-subject-first-supplied", "pilot-17"),
+            moduleOneExerciseResponse("E037", "G004", "p1-subject-first-supplied", "pilot-17"),
+            moduleOneExerciseResponse("E038", "G004", "p1-studere-present", "pilot-17"),
+            exerciseResponse("E039", "pilot-17", "generator-17", lexicalFacet = "meaning", lexicalDirection = "en-da"),
+            exerciseResponse("E039", "pilot-17", "generator-17", readingFacet = "participant-action-complement", passage = true),
         )
 
         accepted.forEach { assertExerciseResponseValidity(it, expected = true) }
@@ -1254,6 +1360,94 @@ class OpenApiContractTest {
     }
 
     @Test
+    fun `all vocabulary P1 practice journeys complete and conform to the contract`() = testApplication {
+        val inspectorKey = "v".repeat(32)
+        application { astridModule(config(inspectorKey = inspectorKey), InMemoryStores()) }
+        val session = client.post("/api/v1/development-session") {
+            trustedHost()
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+        validate(HttpMethod.Post, "/api/v1/development-session", session)
+        val cookie = session.headers[HttpHeaders.SetCookie]!!.substringAfter("astrid_session=").substringBefore(';')
+        val context = client.get("/api/v1/practice-context") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+        }
+        validate(HttpMethod.Get, "/api/v1/practice-context", context)
+        val owner = context.bodyAsText().asObject().getValue("ownerSessionId").jsonPrimitive.content
+
+        (1..5).forEach { sessionIndex ->
+            val practiceId = UUID.randomUUID()
+            val focusId = "vocabulary-p1-s$sessionIndex"
+            val created = client.post("/api/v1/practice-sessions") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                header("X-Astrid-Practice-Owner", owner)
+                contentType(ContentType.Application.Json)
+                setBody(
+                    """{"practiceSessionId":"$practiceId","focusId":"$focusId","planRevision":"$focusId-1","seed":11}""",
+                )
+            }
+            validate(HttpMethod.Post, "/api/v1/practice-sessions", created)
+            val support = client.post("/api/v1/practice-sessions/$practiceId/support") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                header("X-Astrid-Practice-Owner", owner)
+                contentType(ContentType.Application.Json)
+                setBody("""{"kind":"introduction"}""")
+            }
+            validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/support", support)
+            var state = support.bodyAsText().asObject()
+
+            repeat(state.getValue("itemCount").jsonPrimitive.content.toInt()) { position ->
+                val exercise = state.getValue("currentExercise").jsonObject
+                val exerciseId = exercise.getValue("id").jsonPrimitive.content
+                val inspectorPath = "/api/v1/dev/exercises/$exerciseId"
+                val inspected = client.get(inspectorPath) {
+                    trustedHost()
+                    cookie("astrid_session", cookie)
+                    header("X-Astrid-Inspector-Key", inspectorKey)
+                }
+                validate(HttpMethod.Get, inspectorPath, inspected)
+                val source = inspected.bodyAsText().asObject().getValue("vocabularySource").jsonObject
+                val answer = when (exercise.getValue("formatId").jsonPrimitive.content) {
+                    "E033" -> AttemptAnswerDto.Matching(source.getValue("matchingPairs").jsonArray.map { value ->
+                        value.jsonObject.let {
+                            app.astrid.server.exercises.MatchingPairDto(
+                                it.getValue("leftId").jsonPrimitive.content,
+                                it.getValue("rightId").jsonPrimitive.content,
+                            )
+                        }
+                    })
+                    "E037", "E038" -> AttemptAnswerDto.Order(
+                        source.getValue("acceptedOrders").jsonArray.first().jsonArray.map { it.jsonPrimitive.content },
+                    )
+                    "E039" -> {
+                        val targetFactId = source.getValue("targetSupportFactId").jsonPrimitive.content
+                        val targetFact = source.getValue("supportFacts").jsonArray
+                            .map { it.jsonObject }
+                            .single { it.getValue("factId").jsonPrimitive.content == targetFactId }
+                        AttemptAnswerDto.Text(targetFact.getValue("valueText").jsonPrimitive.content)
+                    }
+                    else -> AttemptAnswerDto.Text(source.getValue("expectedAnswer").jsonPrimitive.content)
+                }
+                val attempted = submitAttempt(cookie, exerciseId, answer)
+                validate(HttpMethod.Post, "/api/v1/attempts", attempted)
+                assertEquals(200, attempted.status.value, attempted.bodyAsText())
+                val advanced = advanceModuleOne(cookie, owner, practiceId, position)
+                validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/advance", advanced)
+                state = advanced.bodyAsText().asObject()
+            }
+            assertEquals("completed", state.getValue("state").jsonPrimitive.content)
+            assertTrue(state.getValue("summary").jsonObject.getValue("rows").jsonArray.isNotEmpty())
+        }
+    }
+
+    @Test
     fun `security and production mode responses conform to declared api statuses`() = testApplication {
         application { astridModule(config(developmentMode = false), InMemoryStores()) }
         val forbiddenCatalog = client.get("/api/v1/catalog") {
@@ -1380,6 +1574,157 @@ class OpenApiContractTest {
         val owner = context.bodyAsText().asObject().getValue("ownerSessionId").jsonPrimitive.content
         for ((key, lexicalId) in listOf("volition" to "L034", "obligation" to "L035", "permission" to "L036")) {
             completeModalRound(cookie, owner, inspectorKey, key, lexicalId)
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod") // The conformance matrix intentionally checks all nine closed response shapes.
+    @Test
+    fun `pair seventeen vocabulary exercises expose only their correlated public targets`() = testApplication {
+        val inspectorKey = "k".repeat(32)
+        application { astridModule(config(inspectorKey = inspectorKey), InMemoryStores()) }
+        val session = client.post("/api/v1/development-session") {
+            trustedHost()
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+        val cookie = session.headers[HttpHeaders.SetCookie]!!
+            .substringAfter("astrid_session=").substringBefore(';')
+        val cases = listOf(
+            "E031" to null,
+            "E032" to null,
+            "E033" to null,
+            "E034" to "G004",
+            "E035" to null,
+            "E036" to null,
+            "E037" to "G005",
+            "E038" to "G004",
+            "E039" to null,
+        )
+
+        cases.forEach { (formatId, targetSkillId) ->
+            val target = targetSkillId?.let { ",\"targetSkillId\":\"$it\"" }.orEmpty()
+            val response = client.post("/api/v1/exercises") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                contentType(ContentType.Application.Json)
+                setBody(
+                    """{"formatId":"$formatId"$target,"seed":11,"index":0,"contentRevision":"pilot-17","generatorRevision":"generator-17"}""",
+                )
+            }
+            assertEquals(201, response.status.value, response.bodyAsText())
+            validate(HttpMethod.Post, "/api/v1/exercises", response)
+            val exercise = wireJson.parseToJsonElement(response.bodyAsText()).jsonObject
+            assertFalse("vocabularySource" in exercise)
+            assertFalse("expectedAnswer" in exercise)
+            when (formatId) {
+                "E031", "E032", "E035", "E036" -> {
+                    assertTrue("lexicalTarget" in exercise)
+                    val lexicalTarget = exercise.getValue("lexicalTarget").jsonObject
+                    val expectedFacet = when (formatId) {
+                        "E031", "E032" -> "meaning"
+                        "E035" -> "fixed-chunk"
+                        else -> "mass-headword"
+                    }
+                    assertEquals(expectedFacet, lexicalTarget.getValue("facet").jsonPrimitive.content)
+                    assertEquals(
+                        if (formatId == "E031") "da-en" else "en-da",
+                        lexicalTarget.getValue("direction").jsonPrimitive.content,
+                    )
+                    assertFalse("lexicalTargets" in exercise)
+                    assertFalse("readingTarget" in exercise)
+                    assertFalse("targetSkillId" in exercise)
+                }
+                "E033" -> {
+                    assertTrue("lexicalTargets" in exercise)
+                    assertTrue(exercise.getValue("lexicalTargets").jsonArray.all {
+                        val target = it.jsonObject
+                        target.getValue("facet").jsonPrimitive.content == "meaning" &&
+                            target.getValue("direction").jsonPrimitive.content == "en-da"
+                    })
+                    val columns = exercise.getValue("prompt").jsonObject.getValue("matchingColumns").jsonObject
+                    assertTrue(columns.getValue("left").jsonArray.all {
+                        it.jsonObject.getValue("id").jsonPrimitive.content.matches(Regex("m-[0-9a-z]+"))
+                    })
+                    assertTrue(columns.getValue("right").jsonArray.all {
+                        it.jsonObject.getValue("id").jsonPrimitive.content.matches(Regex("n-[0-9a-z]+"))
+                    })
+                    assertFalse("lexicalTarget" in exercise)
+                    assertFalse("readingTarget" in exercise)
+                }
+                "E034" -> {
+                    assertEquals("G004", exercise.getValue("targetSkillId").jsonPrimitive.content)
+                    assertTrue(
+                        exercise.getValue("targetScopeId").jsonPrimitive.content in
+                            setOf("p1-studere-present", "p1-drikke-present"),
+                    )
+                    assertFalse("lexicalTarget" in exercise)
+                    assertFalse("readingTarget" in exercise)
+                }
+                "E037" -> {
+                    assertEquals("G005", exercise.getValue("targetSkillId").jsonPrimitive.content)
+                    assertEquals("p1-subject-first-supplied", exercise.getValue("targetScopeId").jsonPrimitive.content)
+                    assertFalse("lexicalTarget" in exercise)
+                    assertFalse("readingTarget" in exercise)
+                }
+                "E038" -> {
+                    assertEquals("G004", exercise.getValue("targetSkillId").jsonPrimitive.content)
+                    assertEquals("p1-drikke-present", exercise.getValue("targetScopeId").jsonPrimitive.content)
+                    assertFalse("lexicalTarget" in exercise)
+                    assertFalse("readingTarget" in exercise)
+                }
+                "E039" -> {
+                    assertEquals("explicit-fact", exercise.getValue("readingTarget").jsonObject
+                        .getValue("facet").jsonPrimitive.content)
+                    assertFalse("lexicalTarget" in exercise)
+                    assertFalse("lexicalTargets" in exercise)
+                    assertFalse("targetSkillId" in exercise)
+                }
+            }
+            val inspectorPath = "/api/v1/dev/exercises/${exercise.getValue("id").jsonPrimitive.content}"
+            val inspector = client.get(inspectorPath) {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Inspector-Key", inspectorKey)
+            }
+            validate(HttpMethod.Get, inspectorPath, inspector)
+            val inspectorBody = wireJson.parseToJsonElement(inspector.bodyAsText()).jsonObject
+            assertTrue("vocabularySource" in inspectorBody)
+            if (formatId == "E033") {
+                val pairs = inspectorBody.getValue("vocabularySource").jsonObject
+                    .getValue("matchingPairs").jsonArray.map { pair ->
+                        pair.jsonObject.let {
+                            app.astrid.server.exercises.MatchingPairDto(
+                                it.getValue("leftId").jsonPrimitive.content,
+                                it.getValue("rightId").jsonPrimitive.content,
+                            )
+                        }
+                    }
+                val attempt = submitAttempt(
+                    cookie,
+                    exercise.getValue("id").jsonPrimitive.content,
+                    AttemptAnswerDto.Matching(pairs),
+                )
+                assertEquals(200, attempt.status.value, attempt.bodyAsText())
+                validate(HttpMethod.Post, "/api/v1/attempts", attempt)
+            }
+        }
+
+        listOf(
+            """{"formatId":"E034","seed":11,"index":0,"contentRevision":"pilot-17","generatorRevision":"generator-17"}""",
+            """{"formatId":"E037","targetSkillId":"G004","seed":11,"index":0,"contentRevision":"pilot-17","generatorRevision":"generator-17"}""",
+            """{"formatId":"E039","targetSkillId":"G004","seed":11,"index":0,"contentRevision":"pilot-17","generatorRevision":"generator-17"}""",
+        ).forEach { body ->
+            val response = client.post("/api/v1/exercises") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                contentType(ContentType.Application.Json)
+                setBody(body)
+            }
+            assertEquals(400, response.status.value, response.bodyAsText())
+            validate(HttpMethod.Post, "/api/v1/exercises", response)
         }
     }
 
@@ -2246,6 +2591,18 @@ class OpenApiContractTest {
             else -> "generator-6"
         }
         return """{"id":"00000000-0000-0000-0000-000000000001","formatId":"E014",$targets"supportSkillIds":[],"contentRevision":"$content","generatorRevision":"$generator","instruction":"Instruction","context":"Context","prompt":$prompt,"introduction":[],"hint":"Hint"}"""
+    }
+
+    private fun vocabularyMatchingExerciseResponse(
+        facet: String = "meaning",
+        direction: String = "en-da",
+    ): String {
+        val targets = (0..2).joinToString(",") { index ->
+            """{"entryId":"L0$index","senseId":"L0$index-S01","facet":"$facet","direction":"$direction"}"""
+        }
+        val left = (0..2).joinToString(",") { index -> """{"id":"m-a$index","text":"English $index"}""" }
+        val right = (0..2).joinToString(",") { index -> """{"id":"n-b$index","text":"Dansk $index"}""" }
+        return """{"id":"00000000-0000-0000-0000-000000000001","formatId":"E033","lexicalTargets":[$targets],"supportSkillIds":[],"contentRevision":"pilot-17","generatorRevision":"generator-17","instruction":"Instruction","context":"Context","prompt":{"before":"","after":"","choices":[],"blocks":[],"punctuation":"","cueLanguage":"en","answerLanguage":"da","matchingColumns":{"left":[$left],"right":[$right]}},"introduction":[],"hint":"Hint"}"""
     }
 
     private fun gapExerciseResponse(

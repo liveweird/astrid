@@ -5,7 +5,6 @@ import app.astrid.engine.LinguisticStatus
 import app.astrid.engine.PilotEngine
 import app.astrid.engine.PracticeAttemptContext
 import app.astrid.engine.PracticeAssessment
-import app.astrid.engine.PracticeCompletionAttemptObservation
 import app.astrid.engine.PracticeCompletionPolicy
 import app.astrid.engine.PracticeExposureSource
 import app.astrid.engine.PracticeFollowUpPlanner
@@ -19,7 +18,6 @@ import app.astrid.engine.ResponseConstraintStatus
 import app.astrid.engine.TargetStatus
 import app.astrid.server.authz.Conflict
 import app.astrid.server.authz.NotFound
-import app.astrid.server.exercises.AttemptResponse
 import app.astrid.server.exercises.IntroductionDto
 import app.astrid.server.exercises.LexicalTargetDto
 import app.astrid.server.exercises.PracticeAttemptContextDto
@@ -71,6 +69,16 @@ internal const val MODULE_ONE_CIRCUMSTANCES_FOCUS = "module-one-circumstances"
 internal const val MODULE_ONE_CIRCUMSTANCES_REVISION = "module-one-circumstances-1"
 internal const val MODULE_ONE_QUESTIONS_FOCUS = "module-one-questions"
 internal const val MODULE_ONE_QUESTIONS_REVISION = "module-one-questions-1"
+internal const val VOCABULARY_P1_S1_FOCUS = "vocabulary-p1-s1"
+internal const val VOCABULARY_P1_S1_REVISION = "vocabulary-p1-s1-1"
+internal const val VOCABULARY_P1_S2_FOCUS = "vocabulary-p1-s2"
+internal const val VOCABULARY_P1_S2_REVISION = "vocabulary-p1-s2-1"
+internal const val VOCABULARY_P1_S3_FOCUS = "vocabulary-p1-s3"
+internal const val VOCABULARY_P1_S3_REVISION = "vocabulary-p1-s3-1"
+internal const val VOCABULARY_P1_S4_FOCUS = "vocabulary-p1-s4"
+internal const val VOCABULARY_P1_S4_REVISION = "vocabulary-p1-s4-1"
+internal const val VOCABULARY_P1_S5_FOCUS = "vocabulary-p1-s5"
+internal const val VOCABULARY_P1_S5_REVISION = "vocabulary-p1-s5-1"
 private const val TARGETED_REVIEW_FOCUS = "targeted-review"
 private const val INTRODUCTION_POSITION = -1
 
@@ -95,6 +103,8 @@ internal fun app.astrid.engine.PracticePlan.toNewPracticeSession(ownerId: UUID) 
             item.targetDescriptor.assessmentMode,
             item.assessments.map { it.toPayload() },
             item.targetDescriptor.targetScopeId,
+            item.targetDescriptor.readingRole,
+            item.targetDescriptor.matchingTarget?.let { app.astrid.server.exercises.LexicalTaskDto(it.facet, it.direction) },
         )
     },
     introductionExposureKeys = introductionExposureKeys,
@@ -120,6 +130,9 @@ internal fun StoredPracticeSession.toFollowUp(
                 },
                 item.assessmentMode,
                 item.targetScopeId,
+                item.exercise.presentation.readingTarget?.let { app.astrid.engine.ReadingTask(it.facet) },
+                item.readingRole,
+                item.matchingTarget?.let { app.astrid.engine.LexicalTask(it.facet, it.direction) },
             ),
             item.assessments.map { it.toEngineAssessment() },
         )
@@ -164,6 +177,10 @@ internal fun StoredPracticeSession.toFollowUp(
                 item.targetDescriptor.assessmentMode,
                 item.assessments.map { it.toPayload() },
                 item.targetDescriptor.targetScopeId,
+                item.targetDescriptor.readingRole,
+                item.targetDescriptor.matchingTarget?.let {
+                    app.astrid.server.exercises.LexicalTaskDto(it.facet, it.direction)
+                },
             )
         },
         PracticeFollowUpLineage(sourceId, request.targetKeys),
@@ -234,6 +251,9 @@ internal fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
                     },
                     stored.assessmentMode,
                     stored.targetScopeId,
+                    stored.exercise.presentation.readingTarget?.let { app.astrid.engine.ReadingTask(it.facet) },
+                    stored.readingRole,
+                    stored.matchingTarget?.let { app.astrid.engine.LexicalTask(it.facet, it.direction) },
                 ),
                 advanced = stored.position < cursor,
                 lessonOpened = stored.lessonOpened,
@@ -246,6 +266,8 @@ internal fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
                         attempt.context.toEngine(),
                         attempt.response.hintUsed,
                         attempt.response.gapResults.orEmpty().map { it.toEngine() },
+                        attempt.response.meaningSatisfaction?.let { enumByWire<app.astrid.engine.MeaningSatisfaction>(it) },
+                        attempt.response.matchingResults.orEmpty().map { it.toEngine() },
                     )
                 },
                 assessments = stored.assessments.map { it.toEngineAssessment() },
@@ -258,7 +280,10 @@ internal fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
         if (cursor == items.size) "completed" else "active", cursor, items.size,
         prerequisiteSkillIds, introduction, introductionOpened,
         items.map { item -> itemToDto(item) }, items.singleOrNull { it.position == cursor }?.exercise?.presentation,
-        summary.toDto(includeRows = cursor == items.size),
+        summary.toDto(
+            includeRows = cursor == items.size,
+            includeVocabularyFields = focusId.startsWith("vocabulary-p1-"),
+        ),
         followUp?.let { PracticeFollowUpDto(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },
         followUpPlanRevision(),
         introductionRequired,
@@ -294,24 +319,33 @@ private fun StoredPracticeSession.itemToDto(item: StoredPracticeItem): PracticeI
     item.attempts.lastOrNull()?.context,
     item.assessmentMode,
     item.assessments.map {
-        PracticeAssessmentDto(it.slotId, it.label, it.targetSkillId, it.assessmentMode, it.assessmentRole, it.targetScopeId)
+        PracticeAssessmentDto(
+            slotId = it.slotId,
+            label = it.label,
+            targetSkillId = it.targetSkillId,
+            assessmentMode = it.assessmentMode,
+            assessmentRole = it.assessmentRole,
+            targetScopeId = it.targetScopeId,
+            lexicalTarget = it.lexicalTarget,
+            readingTarget = it.readingTarget,
+            readingRole = it.readingRole,
+            matchingTarget = it.matchingTarget,
+        )
     },
     item.targetScopeId,
+    item.matchingTarget,
     completionRuleId?.let { rule ->
         if (item.position == cursor) {
-            PracticeCompletionPolicy.canAdvance(rule, item.attempts.lastOrNull()?.response?.completionObservation())
+            PracticeCompletionPolicy.canAdvance(
+                rule,
+                item.attempts.lastOrNull()?.response?.toCompletionObservation(introductionOpened),
+            )
         } else {
             null
         }
     },
 )
 
-private fun AttemptResponse.completionObservation() = PracticeCompletionAttemptObservation(
-    enumByWire(targetSatisfaction),
-    enumByWire(linguisticStatus),
-    responseConstraintStatus?.let { enumByWire(it) },
-    issues.map { it.code },
-)
 private fun PracticeAttemptContextDto.toEngine() = PracticeAttemptContext(
     introductionOpened,
     lessonOpened,
@@ -374,7 +408,10 @@ private fun StoredPracticeSession.sourceExposureSnapshot(): List<PracticeCrossRu
     }
 }
 
-private fun app.astrid.engine.PracticeSummary.toDto(includeRows: Boolean) = PracticeSummaryDto(
+private fun app.astrid.engine.PracticeSummary.toDto(
+    includeRows: Boolean,
+    includeVocabularyFields: Boolean,
+) = PracticeSummaryDto(
     plannedItems, attemptedItems, completedItems, attemptCount, retryCount, introductionOpened,
     rows.takeIf { includeRows }.orEmpty().map { row ->
         PracticeSummaryRowDto(
@@ -386,8 +423,8 @@ private fun app.astrid.engine.PracticeSummary.toDto(includeRows: Boolean) = Prac
             row.advancedItems,
             row.attemptCount,
             row.retryCount,
-            row.first.toDto(),
-            row.latest.toDto(),
+            row.first.toDto(includeVocabularyFields),
+            row.latest.toDto(includeVocabularyFields),
             row.firstWithSupport,
             row.firstWithPriorExposure,
             row.lessonOpenedItems,
@@ -395,12 +432,20 @@ private fun app.astrid.engine.PracticeSummary.toDto(includeRows: Boolean) = Prac
             row.assessmentMode,
             row.assessmentRole,
             row.targetScopeId,
+            row.readingTarget?.takeIf { includeVocabularyFields }
+                ?.let { app.astrid.server.exercises.ReadingTaskDto(it.facet) },
+            row.readingRole.takeIf { includeVocabularyFields },
+            row.matchingTarget?.takeIf { includeVocabularyFields }
+                ?.let { app.astrid.server.exercises.LexicalTaskDto(it.facet, it.direction) },
         )
     },
 )
 
-private fun app.astrid.engine.PracticeOutcomeCounts.toDto() = PracticeOutcomeCountsDto(
+private fun app.astrid.engine.PracticeOutcomeCounts.toDto(includeVocabularyFields: Boolean) = PracticeOutcomeCountsDto(
     fullyMet, targetMet, targetNotMet, unevaluable, languageUnknown, languageKnownIssue, responseConstraintNotMet,
+    meaningMet.takeIf { includeVocabularyFields },
+    meaningNotMet.takeIf { includeVocabularyFields },
+    meaningUnknown.takeIf { includeVocabularyFields },
 )
 
 private inline fun <reified T : Enum<T>> enumByWire(value: String): T = enumValues<T>().single { entry ->
@@ -408,18 +453,27 @@ private inline fun <reified T : Enum<T>> enumByWire(value: String): T = enumValu
         is TargetStatus -> entry.wireValue
         is LinguisticStatus -> entry.wireValue
         is ResponseConstraintStatus -> entry.wireValue
+        is app.astrid.engine.MeaningSatisfaction -> entry.wireValue
         else -> error("Unsupported wire enum")
     } == value
 }
 
 private fun PracticeAssessment.toPayload() = PracticeAssessmentPayload(
-    slotId,
-    targetDescriptor.label,
-    requireNotNull(targetDescriptor.targetSkillId),
-    requireNotNull(targetDescriptor.assessmentMode),
-    assessmentRole,
-    answerExposureKeys,
-    targetDescriptor.targetScopeId,
+    slotId = slotId,
+    label = targetDescriptor.label,
+    targetSkillId = targetDescriptor.targetSkillId,
+    assessmentMode = targetDescriptor.assessmentMode,
+    assessmentRole = assessmentRole,
+    answerExposureKeys = answerExposureKeys,
+    targetScopeId = targetDescriptor.targetScopeId,
+    lexicalTarget = targetDescriptor.lexicalTarget?.let {
+        LexicalTargetDto(it.entryId, it.senseId, it.facet, it.direction)
+    },
+    readingTarget = targetDescriptor.readingTarget?.let { app.astrid.server.exercises.ReadingTaskDto(it.facet) },
+    readingRole = targetDescriptor.readingRole,
+    matchingTarget = targetDescriptor.matchingTarget?.let {
+        app.astrid.server.exercises.LexicalTaskDto(it.facet, it.direction)
+    },
 )
 
 private fun app.astrid.server.exercises.GapResultDto.toEngine() = app.astrid.engine.GapResult(
@@ -428,6 +482,17 @@ private fun app.astrid.server.exercises.GapResultDto.toEngine() = app.astrid.eng
     targetSkillId,
     app.astrid.engine.GapAssessmentRole.entries.single { it.wireValue == assessmentRole },
     enumByWire(targetSatisfaction),
+    enumByWire(responseConstraintStatus),
+    enumByWire(linguisticStatus),
+    feedback,
+)
+
+private fun app.astrid.server.exercises.MatchingPairResultDto.toEngine() = app.astrid.engine.MatchingPairResult(
+    leftId,
+    rightId,
+    lexicalTarget.let { app.astrid.engine.LexicalTarget(it.entryId, it.senseId, it.facet, it.direction) },
+    enumByWire(targetSatisfaction),
+    enumByWire(meaningSatisfaction),
     enumByWire(responseConstraintStatus),
     enumByWire(linguisticStatus),
     feedback,

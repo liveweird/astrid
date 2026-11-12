@@ -1,10 +1,6 @@
 package app.astrid.server.practice
 
-import app.astrid.engine.LinguisticStatus
-import app.astrid.engine.PracticeCompletionAttemptObservation
 import app.astrid.engine.PracticeCompletionPolicy
-import app.astrid.engine.ResponseConstraintStatus
-import app.astrid.engine.TargetStatus
 import app.astrid.server.authz.SessionPrincipal
 import app.astrid.server.exercises.AttemptRequest
 import app.astrid.server.exercises.Attempts
@@ -187,14 +183,8 @@ class PostgresPracticeStore(
             position > cursor -> PracticeMutationResult.Conflict
             else -> {
                 val current = loadPracticeSession(ownerSessionId, practiceSessionId).items.single { it.position == position }
-                val latest = current.attempts.lastOrNull()?.response?.let { response ->
-                    PracticeCompletionAttemptObservation(
-                        enumByWire(response.targetSatisfaction),
-                        enumByWire(response.linguisticStatus),
-                        response.responseConstraintStatus?.let { enumByWire(it) },
-                        response.issues.map { it.code },
-                    )
-                }
+                val latest = current.attempts.lastOrNull()?.response
+                    ?.toCompletionObservation(practice[PracticeSessions.introductionOpened])
                 if (!PracticeCompletionPolicy.canAdvance(payload.completionRuleId, latest)) {
                     return@suspendTransaction PracticeMutationResult.Conflict
                 }
@@ -261,6 +251,8 @@ class PostgresPracticeStore(
                 itemPayload.assessmentMode,
                 itemPayload.assessments,
                 itemPayload.targetScopeId,
+                itemPayload.readingRole,
+                itemPayload.matchingTarget,
             )
         }
         return StoredPracticeSession(
@@ -331,13 +323,4 @@ class PostgresPracticeStore(
         const val MAX_PRACTICE_ITEMS = 8
         const val TARGETED_REVIEW_FOCUS = "targeted-review"
     }
-}
-
-private inline fun <reified T : Enum<T>> enumByWire(value: String): T = enumValues<T>().single { entry ->
-    when (entry) {
-        is TargetStatus -> entry.wireValue
-        is LinguisticStatus -> entry.wireValue
-        is ResponseConstraintStatus -> entry.wireValue
-        else -> error("Unsupported wire enum")
-    } == value
 }

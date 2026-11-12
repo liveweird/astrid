@@ -9,6 +9,8 @@ function lexicalTargetLabel(format: Catalog["formats"][number] | undefined) {
   if (task.facet === "singular-headword" && task.direction === "en-da") {
     return "Singular headword · English → Danish";
   }
+  if (task.facet === "fixed-chunk") return "Expression recall · English → Danish";
+  if (task.facet === "mass-headword") return "Mass-word recall · English → Danish";
   return "Vocabulary target";
 }
 
@@ -16,6 +18,7 @@ function readingTargetLabel(format: Catalog["formats"][number] | undefined) {
   if (format?.readingTask?.facet === "participant-action-complement") {
     return "Reading · participant, action and object";
   }
+  if (format?.readingTask?.facet === "explicit-fact") return "Reading · explicitly stated facts";
   return null;
 }
 
@@ -27,7 +30,8 @@ export default function ExerciseIdentity({ catalog, exercise, format }: {
   const skill = catalog?.skills.find((candidate) => candidate.id === format?.targetSkillId);
   const lexicalLabel = lexicalTargetLabel(format);
   const readingLabel = readingTargetLabel(format);
-  const lexicalTargetCount = exercise?.formatId === "E014" ? exercise.lexicalTargets.length : 0;
+  const lexicalTargetCount = exercise && "lexicalTargets" in exercise ? exercise.lexicalTargets?.length ?? 0 : 0;
+  const countLabel = lexicalTargetCount === 4 ? "Four" : lexicalTargetCount === 3 ? "Three" : String(lexicalTargetCount);
   return (
     <Group justify="space-between" align="start">
       <Box>
@@ -37,7 +41,7 @@ export default function ExerciseIdentity({ catalog, exercise, format }: {
         {readingLabel && <Text size="sm" c="dimmed">Task: {readingLabel}</Text>}
       </Box>
       {lexicalTargetCount > 1
-        ? <Badge color="astrid" variant="light">Four lexical meanings</Badge>
+        ? <Badge color="astrid" variant="light">{countLabel} lexical meanings</Badge>
         : exercise?.targetSkillId && <Badge color="astrid" variant="light">{exercise.targetSkillId}</Badge>}
     </Group>
   );

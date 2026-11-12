@@ -30,7 +30,8 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-13` / `generator-13` | `evaluation-13` | + E026/E027 bare infinitive after supplied ability modal | published and frozen; S10 pins this pair |
 | `pilot-14` / `generator-14` | `evaluation-14` | + E028 contextual modal meaning and E025 modal construction | published and frozen; S11 pins this pair |
 | `pilot-15` / `generator-15` | `evaluation-15` | + E029 supplied core with final time/place constituent | published and frozen; S12 pins this pair |
-| `pilot-16` / `generator-16` | `evaluation-16` | + E030 supplied neutral positive yes/no question | CURRENT; S13 pins this pair |
+| `pilot-16` / `generator-16` | `evaluation-16` | + E030 supplied neutral positive yes/no question | published and frozen; S13 pins this pair |
+| `pilot-17` / `generator-17` | `evaluation-17` | + E031–E039 scoped work/study vocabulary operations | CURRENT; five independent P1 plans pin this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
@@ -54,6 +55,10 @@ The four-item `module-one-circumstances-1` plan pins pair fifteen and retains th
 order outcome and exposure policies.
 The four-item `module-one-questions-1` plan pins pair sixteen and retains those same
 order policies; ja/nej remain introduced support rather than assessed vocabulary.
+The five `vocabulary-p1-s1-1` … `vocabulary-p1-s5-1` plans pin pair seventeen literally.
+They add `vocabulary-p1-outcome-1` / `vocabulary-p1-exposure-1` policies and no existing
+follow-up planner entry. P1 source metadata, typed known alternatives, matching correspondences,
+structured facts, occurrence orders and teaching/exposure inputs are private frozen evidence.
 Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 
 ## What is stored, and what that implies
@@ -171,15 +176,15 @@ Pair sixteen and S13 were frozen from the unchanged released 0.18.0 source
 archives contain 7,744 rows and pin all thirty format pools, actual private neutral-question
 keys, review SHA-256 `aca468c27942fc9cfe583ebb772b8cafe580cc18c4a5db0650c9f92f5be6be20`,
 the four-item plan's teaching/support/outcome/exposure/eligibility projection, and exact
-public/private/saved-payload/replay wire. A later pair-seventeen change must switch the
-test-source moving adapters to literal `pilotSixteenSnapshot` and
-`renderPilotSixteenMarkdown()` without changing any captured byte.
+public/private/saved-payload/replay wire. The P1 pair-seventeen change switches the test-source moving adapters to literal
+`pilotSixteenSnapshot` and `renderPilotSixteenMarkdown()` without changing any captured byte.
 
 ## Export tasks
 
 | Task | Output |
 | --- | --- |
-| `:engine:exportPilotReview` | `engine/build/review/pilot-16.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotReview` | `engine/build/review/pilot-17.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotSixteenReview` | `engine/build/review/pilot-16-retained.md` |
 | `:engine:exportPilotFifteenReview` | `engine/build/review/pilot-15-retained.md` |
 | `:engine:exportPilotFourteenReview` | `engine/build/review/pilot-14-retained.md` |
 | `:engine:exportPilotThirteenReview` | `engine/build/review/pilot-13-retained.md` |

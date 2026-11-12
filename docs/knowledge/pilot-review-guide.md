@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This walkthrough helps evaluate the private preview before broader content or media work. Open `http://localhost:8088` for Lessons: fifteen Module 1 sessions with grammar, vocabulary or combined labels, plus three existing practice sets under Review. Browsing is passive; an explicit start opens the saved runner, and Resume saved practice returns to the same run. The thirty standalone exercise entries are under Developer tools at `http://localhost:8088/playground`. Danish remains a draft awaiting teaching review; this is not a complete beginner course.
+This walkthrough helps evaluate the private preview before broader content or media work. Open `http://localhost:8088` for Lessons: fifteen Module 1 sessions with grammar, vocabulary or combined labels, five work/study vocabulary sessions, plus three existing practice sets under Review. Browsing is passive; an explicit start opens the saved runner, and Resume saved practice returns to the same run. The thirty-nine standalone exercise entries are under Developer tools at `http://localhost:8088/playground`. Danish remains a draft awaiting teaching review; this is not a complete beginner course.
 
 ## Try the first twenty-one standalone entries
 
@@ -105,7 +105,7 @@ The [first-step inventory](practice-variation-audit.md#first-step-finite-invento
 separately records the bounded one-person, group and `er` sequences. A new seed does not guarantee
 new content; the required teaching and answer banks make later recall potentially supported.
 
-For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-16.md`. Use `:engine:exportPilotTenReview` for `pilot-10-retained.md` and `:engine:exportPilotNineReview` for `pilot-9-retained.md`. Retained revision eight is available with `:engine:exportPilotEightReview` at
+For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-17.md`. Use `:engine:exportPilotTenReview` for `pilot-10-retained.md` and `:engine:exportPilotNineReview` for `pilot-9-retained.md`. Retained revision eight is available with `:engine:exportPilotEightReview` at
 `engine/build/review/pilot-8-retained.md`; revision seven is available with `:engine:exportPilotSevenReview` at `engine/build/review/pilot-7.md`; revision six is available with `:engine:exportPilotSixReview` at `engine/build/review/pilot-6.md`; revision five with `:engine:exportPilotFiveReview` at `engine/build/review/pilot-5.md`; revision four with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
 
 ## Record feedback

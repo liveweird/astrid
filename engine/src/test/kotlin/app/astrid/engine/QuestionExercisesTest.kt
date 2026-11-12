@@ -11,7 +11,7 @@ class QuestionExercisesTest {
     @Test
     fun `pair sixteen adds only the question skill format and support words to pair fifteen`() {
         val retained = PilotContent.pilotFifteenSnapshot
-        val current = PilotContent.currentSnapshot
+        val current = PilotContent.pilotSixteenSnapshot
 
         assertEquals(109, retained.sentences.size)
         assertEquals(retained.sentences, current.sentences)
@@ -24,9 +24,9 @@ class QuestionExercisesTest {
         )
 
         val engine = PilotEngine()
-        assertEquals("pilot-16", engine.catalog().contentRevision)
-        assertEquals("generator-16", engine.catalog().generatorRevision)
-        assertEquals(30, engine.catalog().formats.size)
+        assertEquals("pilot-17", engine.catalog().contentRevision)
+        assertEquals("generator-17", engine.catalog().generatorRevision)
+        assertEquals(39, engine.catalog().formats.size)
         assertEquals("evaluation-15", engine.evaluationRevision("pilot-15", "generator-15"))
         assertEquals("evaluation-16", engine.evaluationRevision("pilot-16", "generator-16"))
         val retainedLocation = retained.lexicalReview.single { it.id == "L032" }.constraints

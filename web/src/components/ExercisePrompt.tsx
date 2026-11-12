@@ -15,6 +15,7 @@ type Props = {
   onOrder: (value: string[]) => void;
   matchingPairs?: MatchingPair[];
   matchingFocusRef?: Ref<HTMLDivElement>;
+  matchingInteractionId?: string;
   onMatchingPairs?: (value: MatchingPair[]) => void;
   gapSelections?: GapSelection[];
   gapFocusRef?: Ref<HTMLDivElement>;
@@ -31,6 +32,14 @@ function hasReadingTarget(exercise: Exercise) {
 
 function hasLexicalTarget(exercise: Exercise) {
   return "lexicalTarget" in exercise && Boolean(exercise.lexicalTarget);
+}
+
+function matchingColumnsFor(exercise: Exercise) {
+  return "matchingColumns" in exercise.prompt ? exercise.prompt.matchingColumns : undefined;
+}
+
+function gapPromptFor(exercise: Exercise) {
+  return "gapPrompt" in exercise.prompt ? exercise.prompt.gapPrompt : undefined;
 }
 
 function choiceGroupLabel(formatId: Exercise["formatId"]) {
@@ -161,14 +170,15 @@ function DanishSentenceInput({ text, disabled, onText, label }: {
 
 export default function ExercisePrompt({
   exercise, text, order, disabled, onText, onOrder,
-  matchingPairs = [], matchingFocusRef, onMatchingPairs = () => undefined,
+  matchingPairs = [], matchingFocusRef, matchingInteractionId, onMatchingPairs = () => undefined,
   gapSelections = [], gapFocusRef, onGapSelections = () => undefined,
 }: Props) {
-  if (exercise.formatId === "E014") {
+  const matchingColumns = matchingColumnsFor(exercise);
+  if (matchingColumns) {
     return (
       <MatchingPrompt
-        key={exercise.id}
-        columns={exercise.prompt.matchingColumns}
+        key={`${exercise.id}:${matchingInteractionId ?? "draft"}`}
+        columns={matchingColumns}
         pairs={matchingPairs}
         disabled={disabled}
         focusRef={matchingFocusRef}
@@ -176,11 +186,12 @@ export default function ExercisePrompt({
       />
     );
   }
-  if (exercise.formatId === "E015") {
+  const gapPrompt = gapPromptFor(exercise);
+  if (gapPrompt) {
     return (
       <GapPrompt
         key={exercise.id}
-        prompt={exercise.prompt.gapPrompt}
+        prompt={gapPrompt}
         selections={gapSelections}
         disabled={disabled}
         focusRef={gapFocusRef}
@@ -189,6 +200,7 @@ export default function ExercisePrompt({
     );
   }
   const { prompt, formatId } = exercise;
+  const cue = "cue" in prompt ? prompt.cue : undefined;
   const inputLabel = "inputLabel" in prompt ? prompt.inputLabel : undefined;
   const replacementWord = "replacementWord" in prompt ? prompt.replacementWord : undefined;
   const passage = "passage" in prompt ? prompt.passage : undefined;
@@ -199,7 +211,7 @@ export default function ExercisePrompt({
         <Stack gap="xs" role="group" aria-label="Reading passage" lang="da">
           {passage?.map((sentence, index) => <Text key={`${index}-${sentence}`}>{sentence}</Text>)}
         </Stack>
-        {prompt.cue && <Text lang="en" size="lg" fw={650}>{prompt.cue}</Text>}
+        {cue && <Text lang="en" size="lg" fw={650}>{cue}</Text>}
         <Group gap="xs" role="group" aria-label="Answer choices">
           {prompt.choices.map((choice) => (
             <Button
@@ -220,7 +232,7 @@ export default function ExercisePrompt({
   if (formatId === "E009") {
     return (
       <Stack gap="md">
-        {prompt.cue && <Text lang="en" size="xl" fw={650}>{prompt.cue}</Text>}
+        {cue && <Text lang="en" size="xl" fw={650}>{cue}</Text>}
         <DanishSentenceInput
           label={inputLabel ?? "Danish sentence"}
           text={text}
@@ -234,7 +246,7 @@ export default function ExercisePrompt({
   if (hasLexicalTarget(exercise)) {
     return (
       <Stack gap="sm">
-        {prompt.cue && <Text lang={prompt.cueLanguage ?? undefined} size="xl" fw={650}>{prompt.cue}</Text>}
+        {cue && <Text lang={prompt.cueLanguage ?? undefined} size="xl" fw={650}>{cue}</Text>}
         {prompt.choices.length > 0 ? (
           <Group gap="xs" role="group" aria-label="Answer choices">
             {prompt.choices.map((choice) => (
@@ -270,7 +282,7 @@ export default function ExercisePrompt({
   if (prompt.choices.length > 0) {
     return (
       <Stack gap="sm">
-        {prompt.cue && <Text lang={prompt.cueLanguage ?? "en"} size="lg" fw={650}>{prompt.cue}</Text>}
+        {cue && <Text lang={prompt.cueLanguage ?? "en"} size="lg" fw={650}>{cue}</Text>}
         <Group
           gap="sm"
           role="group"
@@ -313,7 +325,7 @@ export default function ExercisePrompt({
 
   return (
     <Stack gap="sm">
-      {prompt.cue && <Text lang={prompt.cueLanguage ?? "en"} size="lg" fw={650}>{prompt.cue}</Text>}
+      {cue && <Text lang={prompt.cueLanguage ?? "en"} size="lg" fw={650}>{cue}</Text>}
       <Group
         gap="xs"
         align="end"

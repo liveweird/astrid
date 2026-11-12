@@ -7,8 +7,8 @@ export type Exercise = components["schemas"]["Exercise"];
 
 // The server's Kotlin discriminator uses these wire values. Keeping the union explicit also
 // avoids generators substituting component names for discriminator values.
-export type MatchingPair = components["schemas"]["MatchingPair"];
-export type MatchingColumns = components["schemas"]["MatchingColumns"];
+export type MatchingPair = components["schemas"]["MatchingPair"] | components["schemas"]["VocabularyMatchingPair"];
+export type MatchingColumns = components["schemas"]["MatchingColumns"] | components["schemas"]["VocabularyMatchingColumns"];
 export type MatchingPairResult = components["schemas"]["MatchingPairResult"];
 export type GapPromptData = components["schemas"]["GapPrompt"];
 export type GapSelection = components["schemas"]["GapSelection"];

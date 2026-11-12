@@ -17,6 +17,23 @@ function Harness({ disabled = false }: { disabled?: boolean }) {
 }
 
 describe("MatchingPrompt", () => {
+  it("does not reuse a half-selected left item after authoritative pairs have claimed it", async () => {
+    const onPairs = vi.fn();
+    const { rerender } = render(<MantineProvider env="test">
+      <MatchingPrompt columns={columns} pairs={[]} disabled={false} onPairs={onPairs} />
+    </MantineProvider>);
+    await userEvent.click(screen.getByRole("button", { name: "book" }));
+
+    rerender(<MantineProvider env="test">
+      <MatchingPrompt columns={columns} pairs={[{ leftId: "l0", rightId: "r1" }]} disabled={false} onPairs={onPairs} />
+    </MantineProvider>);
+
+    expect(screen.getByRole("button", { name: "book" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "en avis" })).toBeDisabled();
+    await userEvent.click(screen.getByRole("button", { name: "en avis" }));
+    expect(onPairs).not.toHaveBeenCalled();
+  });
+
   it("forms and removes pairs with native keyboard buttons while preserving language metadata", async () => {
     render(<MantineProvider env="test"><Harness /></MantineProvider>);
 

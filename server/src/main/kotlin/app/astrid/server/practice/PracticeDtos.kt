@@ -7,7 +7,9 @@ import app.astrid.server.exercises.AttemptResponse
 import app.astrid.server.exercises.ExerciseResponse
 import app.astrid.server.exercises.IntroductionDto
 import app.astrid.server.exercises.LexicalTargetDto
+import app.astrid.server.exercises.LexicalTaskDto
 import app.astrid.server.exercises.PracticeAttemptContextDto
+import app.astrid.server.exercises.ReadingTaskDto
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.Serializable
 
@@ -90,6 +92,8 @@ data class PracticeItemDto(
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val targetScopeId: String? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val matchingTarget: LexicalTaskDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
     val canAdvance: Boolean? = null,
 )
 
@@ -98,11 +102,21 @@ data class PracticeAssessmentDto(
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val slotId: String? = null,
     val label: String,
-    val targetSkillId: String,
-    val assessmentMode: String,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val targetSkillId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val assessmentMode: String? = null,
     val assessmentRole: String,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val targetScopeId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val lexicalTarget: LexicalTargetDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val readingTarget: ReadingTaskDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val readingRole: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val matchingTarget: LexicalTaskDto? = null,
 )
 
 @Serializable
@@ -114,6 +128,12 @@ data class PracticeOutcomeCountsDto(
     val languageUnknown: Int,
     val languageKnownIssue: Int,
     val responseConstraintNotMet: Int,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val meaningMet: Int? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val meaningNotMet: Int? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val meaningUnknown: Int? = null,
 )
 
 @Serializable
@@ -138,6 +158,12 @@ data class PracticeSummaryRowDto(
     val assessmentRole: String? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val targetScopeId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val readingTarget: ReadingTaskDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val readingRole: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val matchingTarget: LexicalTaskDto? = null,
 )
 
 @Serializable

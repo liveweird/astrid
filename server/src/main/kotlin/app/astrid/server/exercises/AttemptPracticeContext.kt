@@ -5,6 +5,8 @@ package app.astrid.server.exercises
 import app.astrid.engine.GapAssessmentRole
 import app.astrid.engine.GapResult
 import app.astrid.engine.LinguisticStatus
+import app.astrid.engine.MeaningSatisfaction
+import app.astrid.engine.MatchingPairResult
 import app.astrid.engine.PracticeAssessment
 import app.astrid.engine.PracticeAttemptContextCalculator
 import app.astrid.engine.PracticeCrossRunExposure
@@ -61,6 +63,8 @@ internal fun frozenFeedbackExposureKeys(
             enumByWire(response.linguisticStatus),
             response.responseConstraintStatus?.let { enumByWire(it) },
             response.issues.map { it.code },
+            response.meaningSatisfaction?.let { enumByWire(it) },
+            response.matchingResults.orEmpty().map { it.toEngine() },
         )
     },
     exposurePolicyId,
@@ -77,11 +81,23 @@ private fun GapResultDto.toEngine() = GapResult(
     feedback,
 )
 
+private fun MatchingPairResultDto.toEngine() = MatchingPairResult(
+    leftId,
+    rightId,
+    lexicalTarget.let { app.astrid.engine.LexicalTarget(it.entryId, it.senseId, it.facet, it.direction) },
+    enumByWire(targetSatisfaction),
+    enumByWire(meaningSatisfaction),
+    enumByWire(responseConstraintStatus),
+    enumByWire(linguisticStatus),
+    feedback,
+)
+
 private inline fun <reified T : Enum<T>> enumByWire(value: String): T = enumValues<T>().single { entry ->
     when (entry) {
         is TargetStatus -> entry.wireValue
         is LinguisticStatus -> entry.wireValue
         is ResponseConstraintStatus -> entry.wireValue
+        is MeaningSatisfaction -> entry.wireValue
         else -> error("Unsupported wire enum")
     } == value
 }

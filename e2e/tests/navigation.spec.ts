@@ -68,10 +68,19 @@ test("home and review navigation stay passive and expose the bounded learning ca
   });
 
   await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Learn Danish", exact: true, level: 1 })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
-  const lessons = page.getByRole("region", { name: "Lessons", exact: true });
+  const lessons = page.getByRole("region", { name: "Module 1: First steps", exact: true });
+  const vocabulary = page.getByRole("region", { name: "A day of work and study", exact: true });
   const review = page.getByRole("region", { name: "Review", exact: true });
+  await expect(page.getByRole("heading", { name: "A day of work and study", exact: true })).toBeVisible();
   await expect(lessons.getByRole("button", { name: /^Start / })).toHaveCount(15);
+  await expect(vocabulary.getByRole("button", { name: /^Start / })).toHaveCount(5);
+  for (const title of [
+    "Work, reading and today", "Reading and writing", "Study, courses and Danish", "Coffee and water", "Where and when",
+  ]) {
+    await expect(vocabulary.getByRole("button", { name: `Start ${title}`, exact: true })).toBeVisible();
+  }
   await expect(review.getByRole("button", { name: /^Start / })).toHaveCount(3);
   await expect(review).toContainText("familiar words, sentence order, verb forms and articles");
 
@@ -182,6 +191,7 @@ test("an unknown route is safe and returns to Lessons without starting learning"
   await expect(page.getByRole("navigation").getByRole("link", { name: "Engine playground", exact: true })).toBeVisible();
   await page.getByRole("link", { name: "Go to Lessons", exact: true }).click();
   await expect(page).toHaveURL("/");
+  await expect(page.getByRole("heading", { name: "Learn Danish", exact: true, level: 1 })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
   expect(apiRequests).toEqual([]);
 });

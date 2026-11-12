@@ -8,6 +8,34 @@ import type { PracticeRunRecovery } from "./practiceRecovery";
 
 let profileBootstrap: Promise<PracticeProfiles> | null = null;
 
+export const VOCABULARY_P1_PROFILES = [
+  {
+    focusId: "vocabulary-p1-s1", planRevision: "vocabulary-p1-s1-1", title: "Work, reading and today",
+    description: "Recognise actions, a book and today, then read a short routine.",
+    itemCount: 4, prerequisiteSkillIds: ["G001", "G002"],
+  },
+  {
+    focusId: "vocabulary-p1-s2", planRevision: "vocabulary-p1-s2-1", title: "Reading and writing",
+    description: "Match words for reading, writing and a computer, then find stated facts.",
+    itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  },
+  {
+    focusId: "vocabulary-p1-s3", planRevision: "vocabulary-p1-s3-1", title: "Study, courses and Danish",
+    description: "Match new meanings, build a reading statement and recall introduced forms.",
+    itemCount: 5, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  },
+  {
+    focusId: "vocabulary-p1-s4", planRevision: "vocabulary-p1-s4-1", title: "Coffee and water",
+    description: "Read who drinks what, choose a present form and recall a beverage word.",
+    itemCount: 5, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  },
+  {
+    focusId: "vocabulary-p1-s5", planRevision: "vocabulary-p1-s5-1", title: "Where and when",
+    description: "Understand places and the morning, then build two supplied work statements.",
+    itemCount: 5, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+  },
+] satisfies PracticeProfile[];
+
 const PRESENTATION_PROFILES = [
   {
     focusId: "module-one-singular", planRevision: "module-one-singular-1", title: "Talking about one person",
@@ -99,6 +127,7 @@ const PRESENTATION_PROFILES = [
     description: "Practise a present verb and an indefinite article in the same sentence.",
     itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G005"],
   },
+  ...VOCABULARY_P1_PROFILES,
 ] satisfies PracticeProfile[];
 
 export const MODULE_ONE_PROFILES = [
@@ -138,6 +167,7 @@ export function validateProfiles(catalog: PracticeProfiles) {
     if (!known || profile.title !== known.title || profile.itemCount !== known.itemCount) {
       throw new PracticeCatalogError("The practice catalog contains an unsupported profile.");
     }
+    expected.delete(profileKey(profile));
   }
   return catalog;
 }
@@ -214,6 +244,16 @@ function creationRequestFor(
       return { practiceSessionId, focusId: "module-one-circumstances", planRevision: "module-one-circumstances-1", seed };
     case "module-one-questions/module-one-questions-1":
       return { practiceSessionId, focusId: "module-one-questions", planRevision: "module-one-questions-1", seed };
+    case "vocabulary-p1-s1/vocabulary-p1-s1-1":
+      return { practiceSessionId, focusId: "vocabulary-p1-s1", planRevision: "vocabulary-p1-s1-1", seed };
+    case "vocabulary-p1-s2/vocabulary-p1-s2-1":
+      return { practiceSessionId, focusId: "vocabulary-p1-s2", planRevision: "vocabulary-p1-s2-1", seed };
+    case "vocabulary-p1-s3/vocabulary-p1-s3-1":
+      return { practiceSessionId, focusId: "vocabulary-p1-s3", planRevision: "vocabulary-p1-s3-1", seed };
+    case "vocabulary-p1-s4/vocabulary-p1-s4-1":
+      return { practiceSessionId, focusId: "vocabulary-p1-s4", planRevision: "vocabulary-p1-s4-1", seed };
+    case "vocabulary-p1-s5/vocabulary-p1-s5-1":
+      return { practiceSessionId, focusId: "vocabulary-p1-s5", planRevision: "vocabulary-p1-s5-1", seed };
     default:
       throw new PracticeCatalogError("The selected practice profile has an unsupported revision.");
   }
@@ -230,16 +270,18 @@ export async function preparePracticeCreation(chosenKey: string) {
   return { recovery, creation };
 }
 
-export function moduleOneProfileKey(session: Pick<PracticeSession, "focusId" | "planRevision">) {
-  const profile = MODULE_ONE_PROFILES.find((candidate) =>
+export function taughtProfileKey(session: Pick<PracticeSession, "focusId" | "planRevision">) {
+  const profile = [...MODULE_ONE_PROFILES, ...VOCABULARY_P1_PROFILES].find((candidate) =>
     candidate.focusId === session.focusId && candidate.planRevision === session.planRevision);
   return profile ? profileKey(profile) : null;
 }
 
-export function nextModuleOneProfile(session: Pick<PracticeSession, "focusId" | "planRevision">) {
-  const currentKey = moduleOneProfileKey(session);
-  const index = MODULE_ONE_PROFILES.findIndex((profile) => profileKey(profile) === currentKey);
-  return index >= 0 ? MODULE_ONE_PROFILES[index + 1] ?? null : null;
+export function nextTaughtProfile(session: Pick<PracticeSession, "focusId" | "planRevision">) {
+  const currentKey = taughtProfileKey(session);
+  const sequence = VOCABULARY_P1_PROFILES.some((profile) => profileKey(profile) === currentKey)
+    ? VOCABULARY_P1_PROFILES : MODULE_ONE_PROFILES;
+  const index = sequence.findIndex((profile) => profileKey(profile) === currentKey);
+  return index >= 0 ? sequence[index + 1] ?? null : null;
 }
 
 export function followUpRevisionFor(session: PracticeSession) {

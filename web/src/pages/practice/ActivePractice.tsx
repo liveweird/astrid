@@ -1,10 +1,11 @@
 import { Badge, Box, Button, Divider, Group, Paper, Stack, Text, Title } from "@mantine/core";
-import type { Attempt, GapSelection, PracticeSession } from "../../api/models";
+import type { Attempt, GapSelection, MatchingPair, PracticeSession } from "../../api/models";
 import ExercisePrompt from "../../components/ExercisePrompt";
 import FeedbackPanel from "../../components/FeedbackPanel";
 import classes from "../../theme.module.css";
 import { AttemptContextNote, PracticeHint } from "./PracticeMessages";
 import SupportSections, { type PracticeSupportKind } from "./SupportSections";
+import { practiceAnswerKind } from "./practiceOperations";
 
 function itemSupportDescription(attempt: Attempt) {
   return attempt.hintUsed ? "Item lesson or hint opened" : "No item lesson or hint opened";
@@ -26,9 +27,14 @@ const TARGET_SCOPE_LABELS: Record<string, string> = {
   "supplied-modal-order": "Supplied-modal statement order",
   "one-final-circumstance": "Time or place at the end",
   "neutral-positive-yes-no": "Neutral yes/no question order",
+  "p1-studere-present": "Present form of studere",
+  "p1-drikke-present": "Present form of drikke",
+  "p1-subject-first-supplied": "Subject-first statement order",
 };
 
 function targetBadge(exercise: NonNullable<PracticeSession["currentExercise"]>) {
+  if ("readingTarget" in exercise && exercise.readingTarget) return "Reading comprehension";
+  if ("matchingColumns" in exercise.prompt && exercise.prompt.matchingColumns) return "Meaning matching";
   const scope = "targetScopeId" in exercise ? exercise.targetScopeId : undefined;
   return (scope ? TARGET_SCOPE_LABELS[scope] : undefined) ?? exercise.targetSkillId ?? "Vocabulary";
 }
@@ -40,9 +46,12 @@ type ActivePracticeProps = {
   text: string;
   order: string[];
   gapSelections: GapSelection[];
+  matchingPairs: MatchingPair[];
+  matchingInteractionId?: string;
   attempt: Attempt | null;
   feedbackRef: React.RefObject<HTMLDivElement | null>;
   gapFocusRef: React.RefObject<HTMLDivElement | null>;
+  matchingFocusRef: React.RefObject<HTMLDivElement | null>;
   hintRef: React.RefObject<HTMLDivElement | null>;
   introductionRef: React.RefObject<HTMLParagraphElement | null>;
   introductionControlRef: React.RefObject<HTMLButtonElement | null>;
@@ -51,20 +60,32 @@ type ActivePracticeProps = {
   onText: (value: string) => void;
   onOrder: (value: string[]) => void;
   onGapSelections: (value: GapSelection[]) => void;
+  onMatchingPairs: (value: MatchingPair[]) => void;
   onSupport: (kind: PracticeSupportKind, position?: number) => void;
   onSubmit: () => void;
   onAdvance: () => void;
   onRetry: () => void;
 };
 
-export default function ActivePractice({ session, blocked, busy, text, order, gapSelections, attempt, feedbackRef, gapFocusRef, hintRef, introductionRef, introductionControlRef, itemRef, lessonRef, onText, onOrder, onGapSelections, onSupport, onSubmit, onAdvance, onRetry }: ActivePracticeProps) {
+function isAnswerReady(
+  exercise: NonNullable<PracticeSession["currentExercise"]>, text: string, order: string[],
+  gapSelections: GapSelection[], matchingPairs: MatchingPair[],
+) {
+  const kind = practiceAnswerKind(exercise);
+  if (kind === "matching") return matchingPairs.length > 0;
+  if (kind === "gaps") return gapSelections.length > 0;
+  if (kind !== "order") return text.trim().length > 0;
+  const tileMode = "tileMode" in exercise.prompt ? exercise.prompt.tileMode : undefined;
+  return exercise.formatId === "E025" || tileMode === "with-spares"
+    ? order.length > 0 : order.length === exercise.prompt.blocks.length;
+}
+
+export default function ActivePractice({ session, blocked, busy, text, order, gapSelections, matchingPairs, matchingInteractionId, attempt, feedbackRef, gapFocusRef, matchingFocusRef, hintRef, introductionRef, introductionControlRef, itemRef, lessonRef, onText, onOrder, onGapSelections, onMatchingPairs, onSupport, onSubmit, onAdvance, onRetry }: ActivePracticeProps) {
   const exercise = session.currentExercise;
   const item = session.items.find((candidate) => candidate.position === session.cursor);
   if (!exercise || !item) return null;
-  const answerReady = ["E003", "E024", "E029", "E030"].includes(exercise.formatId)
-    ? order.length === exercise.prompt.blocks.length
-    : exercise.formatId === "E025" ? order.length > 0
-    : exercise.formatId === "E015" ? gapSelections.length > 0 : text.trim().length > 0;
+  const kind = practiceAnswerKind(exercise);
+  const answerReady = isAnswerReady(exercise, text, order, gapSelections, matchingPairs);
   const introductionRequired = session.introductionRequired && !session.introductionOpened;
   if (introductionRequired) {
     return <SupportSections
@@ -91,10 +112,14 @@ export default function ActivePractice({ session, blocked, busy, text, order, ga
             order={order}
             gapSelections={gapSelections}
             gapFocusRef={gapFocusRef}
+            matchingPairs={matchingPairs}
+            matchingFocusRef={matchingFocusRef}
+            matchingInteractionId={matchingInteractionId}
             disabled={blocked || Boolean(attempt)}
             onText={onText}
             onOrder={onOrder}
             onGapSelections={onGapSelections}
+            onMatchingPairs={onMatchingPairs}
           />
           {item.hintOpened && <PracticeHint focusRef={hintRef} hint={exercise.hint} />}
           {attempt && <FeedbackPanel
@@ -102,7 +127,7 @@ export default function ActivePractice({ session, blocked, busy, text, order, ga
             exercise={exercise}
             focusRef={feedbackRef}
             supportDescription={itemSupportDescription(attempt)}
-            tileResponse={["E024", "E025", "E029", "E030"].includes(exercise.formatId)}
+            tileResponse={kind === "order"}
           />}
           <AttemptContextNote item={item} />
           <Group justify="space-between" className={classes.exerciseActions}>
@@ -117,7 +142,7 @@ export default function ActivePractice({ session, blocked, busy, text, order, ga
               {attempt
                 ? <Button loading={busy} disabled={blocked || item.canAdvance === false} onClick={onAdvance}>Continue</Button>
                 : <Button loading={busy} disabled={!answerReady || blocked} onClick={onSubmit}>
-                    {exercise.formatId === "E015" ? "Check gaps" : "Check answer"}
+                    {kind === "matching" ? "Check matches" : kind === "gaps" ? "Check gaps" : "Check answer"}
                   </Button>}
             </Group>
           </Group>

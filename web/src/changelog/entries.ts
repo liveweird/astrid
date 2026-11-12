@@ -10,6 +10,18 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.20.0",
+    date: "2026-11-12",
+    body: `**Learn vocabulary through a day of work and study.**
+
+- Five short vocabulary sessions introduce eighteen selected words and expressions, including nine new entries for writing, studying, computers, courses, drinks, home and the morning.
+- Practise meanings through choices, bilingual matching, short readings, word tiles and introduced-word recall. Count nouns are taught with their articles; coffee and water use their selected bare forms.
+- Every session begins with its own teaching and prerequisite review, including when entered directly from Lessons.
+- Matching supports three or four pairs in guided practice, with editable retries, per-pair feedback and recovery of the exact saved attempt.
+- Summaries keep meaning, verb-form, order and reading outcomes separate. Repeat a session or choose the next one; completion records practice after teaching, rather than mastery.
+- Earlier lessons, saved answers and noun-only recall keep their original behavior. The new Danish material remains a draft awaiting teaching review.`,
+  },
+  {
     version: "0.19.0",
     date: "2026-11-11",
     body: `**Find a lesson and return to saved practice.**

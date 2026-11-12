@@ -76,6 +76,7 @@ class GeneratedExercise internal constructor(
         is ModalInterpretationExerciseSource -> exerciseSource.task.targetScopeId
         is CircumstanceExerciseSource -> exerciseSource.task.targetScopeId
         is QuestionExerciseSource -> exerciseSource.task.targetScopeId
+        is VocabularyP1ExerciseSource -> exerciseSource.task.targetScopeId
         else -> null
     }
     val instruction: String get() = presentation.instruction
@@ -169,6 +170,90 @@ data class ExerciseInspector(
     val moduleOneSource: ModuleOneSourceDetails? = null,
     val inanimateReferenceSource: InanimateReferenceSourceDetails? = null,
     val modalSource: ModalSourceDetails? = null,
+    val vocabularySource: VocabularyExerciseSourceDetails? = null,
+)
+
+enum class VocabularyLexicalKind(val wireValue: String) {
+    COUNT_BUNDLE("count-bundle"),
+    VERB_FORM("verb-form"),
+    MASS_WORD("mass-word"),
+    BARE_LANGUAGE("bare-language"),
+    ADVERB("adverb"),
+    FIXED_CHUNK("fixed-chunk"),
+}
+
+data class VocabularyLexicalForms(
+    val infinitive: String? = null,
+    val present: String? = null,
+    val bundle: String? = null,
+    val form: String? = null,
+)
+
+data class VocabularyLexicalSourceDetails(
+    val entryId: String,
+    val senseId: String,
+    val kind: VocabularyLexicalKind,
+    val forms: VocabularyLexicalForms,
+    val gloss: String,
+    val selectedUse: String,
+)
+
+data class VocabularyExerciseSourceDetails(
+    val taskId: String,
+    val operation: String,
+    val lexicalSources: List<VocabularyLexicalSourceDetails>,
+    val expectedAnswer: String? = null,
+    val suppliedChoices: List<String> = emptyList(),
+    val supportFacts: List<VocabularySupportFactDetails> = emptyList(),
+    val matchingPairs: List<VocabularyMatchingPairSourceDetails> = emptyList(),
+    val tileOccurrences: List<VocabularyTileOccurrenceDetails> = emptyList(),
+    val acceptedOrders: List<List<String>> = emptyList(),
+    val targetSupportFactId: String? = null,
+    val questionRole: String? = null,
+    val normalizationPolicy: String? = null,
+    val knownAlternatives: List<VocabularyKnownAlternativeDetails> = emptyList(),
+    val reviewedOrders: List<VocabularyReviewedOrderDetails> = emptyList(),
+)
+
+data class VocabularySupportFactDetails(
+    val factId: String,
+    val referentId: String,
+    val predicateId: String,
+    val valueId: String,
+    val valueText: String,
+    val valueRole: String,
+    val sentence: String,
+    val exposureKeys: List<String>,
+)
+
+data class VocabularyKnownAlternativeDetails(
+    val text: String,
+    val targetStatus: TargetStatus,
+    val linguisticStatus: LinguisticStatus,
+    val meaningSatisfaction: MeaningSatisfaction,
+    val responseConstraintStatus: ResponseConstraintStatus,
+    val issueCode: String?,
+)
+
+data class VocabularyReviewedOrderDetails(
+    val words: List<String>,
+    val targetStatus: TargetStatus,
+    val linguisticStatus: LinguisticStatus,
+    val meaningSatisfaction: MeaningSatisfaction,
+    val responseConstraintStatus: ResponseConstraintStatus,
+    val issueCode: String?,
+)
+
+data class VocabularyMatchingPairSourceDetails(
+    val leftId: String,
+    val rightId: String,
+    val lexicalSource: VocabularyLexicalSourceDetails,
+)
+
+data class VocabularyTileOccurrenceDetails(
+    val blockId: String,
+    val lexicalId: String,
+    val form: String,
 )
 
 data class InanimateReferenceSourceDetails(
@@ -366,6 +451,12 @@ internal sealed interface ExerciseSource {
     val answerKey: AnswerKey
     val blockRoles: Map<String, String>
 }
+
+internal data class VocabularyP1ExerciseSource(
+    val task: VocabularyP1Task,
+    override val answerKey: AnswerKey,
+    override val blockRoles: Map<String, String> = emptyMap(),
+) : ExerciseSource
 
 internal data class SentenceSource(
     val sentence: Sentence,

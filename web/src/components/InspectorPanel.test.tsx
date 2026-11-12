@@ -6,6 +6,49 @@ import InspectorPanel from "./InspectorPanel";
 describe("InspectorPanel", () => {
   afterEach(() => vi.unstubAllGlobals());
 
+  it.each(["reading", "matching", "tiles", "recall"])("keeps typed packet %s evidence private until inspection", async (kind) => {
+    const lexical = {
+      entryId: "L047", senseId: "L047-S01", kind: "mass-word", forms: { form: "vand" },
+      gloss: "water", selectedUse: "Liquid mass use; no synthetic article.",
+    };
+    const source = {
+      taskId: "p1-4.2", operation: kind, lexicalSources: [lexical], suppliedChoices: [],
+      ...(kind === "reading" ? { expectedAnswer: "water" } : {}),
+      ...(kind === "recall" ? { expectedAnswer: "vand" } : {}),
+      supportFacts: kind === "reading" ? [{
+        factId: "p1-s4-f2", referentId: "p1:Nora", predicateId: "L045", valueId: "L047",
+        valueText: "water", valueRole: "object", sentence: "Nora drikker vand.", exposureKeys: [],
+      }] : [],
+      matchingPairs: kind === "matching" ? [{ leftId: "l0", rightId: "r2", lexicalSource: lexical }] : [],
+      tileOccurrences: kind === "tiles" ? [{ blockId: "b2", lexicalId: "L047", form: "vand" }] : [],
+      acceptedOrders: kind === "tiles" ? [["b0", "b1", "b2"]] : [],
+    };
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({
+      exercise: { formatId: kind === "reading" ? "E039" : kind === "recall" ? "E036" : "E033" },
+      seed: 7, index: 2, vocabularySource: source,
+    })));
+    render(<MantineProvider env="test"><InspectorPanel exerciseId="packet-exercise" /></MantineProvider>);
+
+    expect(screen.queryByText("Vocabulary packet task")).not.toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText("Inspector key"), "a-secure-inspector-key-with-32-chars");
+    await userEvent.click(screen.getByRole("button", { name: "Inspect this exercise" }));
+
+    expect(await screen.findByText("Vocabulary packet task")).toBeVisible();
+    expect(screen.getByText("L047 · L047-S01 · mass-word")).toBeVisible();
+    expect(screen.getAllByText("vand").every((node) => node.getAttribute("lang") === "da")).toBe(true);
+    expect(screen.getAllByText("water").every((node) => node.getAttribute("lang") === "en")).toBe(true);
+    expect(screen.queryByText("Article")).not.toBeInTheDocument();
+    if (kind === "reading") {
+      expect(screen.getByText("Nora drikker vand.")).toHaveAttribute("lang", "da");
+      expect(screen.getByText("p1-s4-f2: p1:Nora · L045 · object · L047")).toBeVisible();
+    }
+    if (kind === "matching") expect(screen.getByText("l0 → r2: L047 · L047-S01")).toBeVisible();
+    if (kind === "tiles") {
+      expect(screen.getByText("b2: L047 ·", { exact: false })).toBeVisible();
+      expect(screen.getByText("b0 → b1 → b2")).toBeVisible();
+    }
+  });
+
   it("hides diagnostics from the previous exercise while retaining the in-memory key", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => Response.json({
       exercise: {}, seed: 7, index: 2, canonicalSentenceId: "C001:L001:L013",

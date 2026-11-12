@@ -20,6 +20,7 @@ class PilotEngine {
     fun generate(request: GenerationRequest): GeneratedExercise {
         validate(request)
         return when (request.formatId) {
+            in VOCABULARY_P1_FORMAT_IDS -> VocabularyP1ExerciseGenerator.generate(request)
             NEUTRAL_QUESTION_FORMAT_ID -> NeutralQuestionExerciseGenerator.generate(request)
             FINAL_CIRCUMSTANCE_FORMAT_ID -> FinalCircumstanceExerciseGenerator.generate(request)
             else -> generateRetained(request)
@@ -67,6 +68,8 @@ class PilotEngine {
             is AnswerKey.ModuleOneForm if exercise.source is PresentOrderExerciseSource ->
                 key.selection && normalized in exercise.prompt.choices.map(::normalizeText)
             is AnswerKey.ModuleOneForm -> key.selection && normalized in (key.knownAlternatives + key.expected)
+            is AnswerKey.MeaningChoice if exercise.source is VocabularyP1ExerciseSource ->
+                normalized in (exercise.source as VocabularyP1ExerciseSource).task.choices.map(::normalizeText)
             else -> false
         }
     }
@@ -105,15 +108,20 @@ class PilotEngine {
                 MODAL_INTERPRETATION_FORMAT_ID to "G030",
                 FINAL_CIRCUMSTANCE_FORMAT_ID to "G016",
                 NEUTRAL_QUESTION_FORMAT_ID to "G018",
+                "E034" to "G004",
+                "E037" to "G005",
+                "E038" to "G004",
             )[request.formatId]
-        require(expectedTarget != null || request.formatId in LEXICAL_FORMAT_IDS || request.formatId == READING_FORMAT_ID) {
+        require(expectedTarget != null || request.formatId in LEXICAL_FORMAT_IDS ||
+            request.formatId in VOCABULARY_P1_LEXICAL_FORMAT_IDS || request.formatId in setOf(READING_FORMAT_ID, "E039")) {
             "Unsupported format: ${request.formatId}"
         }
         val supportedFormats = supportedFormats(pair)
         require(request.formatId in supportedFormats) {
             "Format ${request.formatId} is unsupported by ${request.contentRevision}/${request.generatorRevision}"
         }
-        if (request.formatId in LEXICAL_FORMAT_IDS || request.formatId == READING_FORMAT_ID) {
+        if (request.formatId in LEXICAL_FORMAT_IDS || request.formatId in VOCABULARY_P1_LEXICAL_FORMAT_IDS ||
+            request.formatId in setOf(READING_FORMAT_ID, "E039")) {
             require(request.targetSkillId == null) { "Format ${request.formatId} does not accept a grammar target" }
         } else {
             require(request.targetSkillId == expectedTarget) {
@@ -604,6 +612,10 @@ class PilotEngine {
             RevisionPair(PilotContent.RETAINED_EIGHT_CONTENT_REVISION, PilotContent.RETAINED_EIGHT_GENERATOR_REVISION)
         val PILOT_NINE_REVISION_PAIR =
             RevisionPair(PilotContent.RETAINED_NINE_CONTENT_REVISION, PilotContent.RETAINED_NINE_GENERATOR_REVISION)
+        val PILOT_SIXTEEN_REVISION_PAIR = RevisionPair(
+            PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
+            PilotContent.RETAINED_SIXTEEN_GENERATOR_REVISION,
+        )
         val CURRENT_REVISION_PAIR =
             RevisionPair(PilotContent.CURRENT_CONTENT_REVISION, PilotContent.CURRENT_GENERATOR_REVISION)
         val PILOT_TEN_REVISION_PAIR =
@@ -644,6 +656,7 @@ class PilotEngine {
                 PILOT_THIRTEEN_REVISION_PAIR,
                 PILOT_FOURTEEN_REVISION_PAIR,
                 PILOT_FIFTEEN_REVISION_PAIR,
+                PILOT_SIXTEEN_REVISION_PAIR,
                 CURRENT_REVISION_PAIR,
             )
         val LEGACY_FORMAT_IDS = setOf("E001", "E002", "E003")
@@ -665,7 +678,10 @@ class PilotEngine {
         val PILOT_THIRTEEN_FORMAT_IDS = PILOT_TWELVE_FORMAT_IDS + ABILITY_FORMAT_IDS
         val PILOT_FOURTEEN_FORMAT_IDS = PILOT_THIRTEEN_FORMAT_IDS + MODAL_INTERPRETATION_FORMAT_ID
         val PILOT_FIFTEEN_FORMAT_IDS = PILOT_FOURTEEN_FORMAT_IDS + FINAL_CIRCUMSTANCE_FORMAT_ID
-        val CURRENT_FORMAT_IDS = PILOT_FIFTEEN_FORMAT_IDS + NEUTRAL_QUESTION_FORMAT_ID
+        val PILOT_SIXTEEN_FORMAT_IDS = PILOT_FIFTEEN_FORMAT_IDS + NEUTRAL_QUESTION_FORMAT_ID
+        val VOCABULARY_P1_FORMAT_IDS = (31..39).map { "E${it.toString().padStart(3, '0')}" }.toSet()
+        val VOCABULARY_P1_LEXICAL_FORMAT_IDS = setOf("E031", "E032", "E033", "E035", "E036")
+        val CURRENT_FORMAT_IDS = PILOT_SIXTEEN_FORMAT_IDS + VOCABULARY_P1_FORMAT_IDS
         val EVALUATION_REVISION_BY_PAIR = mapOf(
             LEGACY_REVISION_PAIR to PilotContent.LEGACY_EVALUATION_REVISION,
             PILOT_TWO_REVISION_PAIR to PilotContent.RETAINED_EVALUATION_REVISION,
@@ -682,6 +698,7 @@ class PilotEngine {
             PILOT_THIRTEEN_REVISION_PAIR to PilotContent.RETAINED_THIRTEEN_EVALUATION_REVISION,
             PILOT_FOURTEEN_REVISION_PAIR to PilotContent.RETAINED_FOURTEEN_EVALUATION_REVISION,
             PILOT_FIFTEEN_REVISION_PAIR to PilotContent.RETAINED_FIFTEEN_EVALUATION_REVISION,
+            PILOT_SIXTEEN_REVISION_PAIR to PilotContent.RETAINED_SIXTEEN_EVALUATION_REVISION,
             CURRENT_REVISION_PAIR to PilotContent.CURRENT_EVALUATION_REVISION,
         )
         val FORMAT_IDS_BY_REVISION_PAIR = mapOf(
@@ -700,6 +717,7 @@ class PilotEngine {
             PILOT_THIRTEEN_REVISION_PAIR to PILOT_THIRTEEN_FORMAT_IDS,
             PILOT_FOURTEEN_REVISION_PAIR to PILOT_FOURTEEN_FORMAT_IDS,
             PILOT_FIFTEEN_REVISION_PAIR to PILOT_FIFTEEN_FORMAT_IDS,
+            PILOT_SIXTEEN_REVISION_PAIR to PILOT_SIXTEEN_FORMAT_IDS,
             CURRENT_REVISION_PAIR to CURRENT_FORMAT_IDS,
         )
         val TILE_FORMAT_IDS = setOf("E012", "E013")

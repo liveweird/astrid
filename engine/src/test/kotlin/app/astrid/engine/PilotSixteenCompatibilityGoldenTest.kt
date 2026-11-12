@@ -100,14 +100,14 @@ class PilotSixteenCompatibilityGoldenTest {
         assertTrue(tasks.all { it.feedbackExposureKeys.last() == "module-one:pattern:neutral-positive-yes-no" })
         assertEquals(
             PAIR_SIXTEEN_IDS,
-            PilotContent.currentSnapshot.lexicalReview.map { it.id }.filter { it in PAIR_SIXTEEN_IDS }.toSet(),
+            PilotContent.pilotSixteenSnapshot.lexicalReview.map { it.id }.filter { it in PAIR_SIXTEEN_IDS }.toSet(),
         )
         assertEquals("C010", NeutralQuestionContent.CONSTRUCTION_ID)
-        assertTrue(PilotContent.currentSnapshot.lexicalReview.single { it.id == "L032" }.constraints.contains("C010"))
+        assertTrue(PilotContent.pilotSixteenSnapshot.lexicalReview.single { it.id == "L032" }.constraints.contains("C010"))
         assertTrue(!PilotContent.pilotFifteenSnapshot.lexicalReview.single { it.id == "L032" }.constraints.contains("C010"))
         assertEquals(
             (1..30).map { "E${it.toString().padStart(3, '0')}" }.toSet(),
-            PilotContent.currentSnapshot.formats.map { it.id }.toSet(),
+            PilotContent.pilotSixteenSnapshot.formats.map { it.id }.toSet(),
         )
         assertEquals(
             (1..29).map { "E${it.toString().padStart(3, '0')}" }.toSet(),

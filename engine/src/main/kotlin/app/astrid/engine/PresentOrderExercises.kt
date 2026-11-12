@@ -280,6 +280,7 @@ internal object PresentOrderExerciseGenerator {
             PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
             PilotContent.CURRENT_CONTENT_REVISION,
+            PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
             -> Triple(true, true, true)
             else -> Triple(false, false, false)
         }
@@ -306,6 +307,7 @@ internal object PresentOrderExerciseGenerator {
                     PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
                     PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
+                    PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                 ),
             )
         } else {

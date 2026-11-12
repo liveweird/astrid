@@ -20,16 +20,17 @@ export default function MatchingPrompt({ columns, pairs, disabled, focusRef, onP
   const [selectedLeftId, setSelectedLeftId] = useState<LeftId | null>(null);
   const pairedLeftIds = useMemo(() => new Set(pairs.map((pair) => pair.leftId)), [pairs]);
   const pairedRightIds = useMemo(() => new Set(pairs.map((pair) => pair.rightId)), [pairs]);
+  const activeLeftId = selectedLeftId && !pairedLeftIds.has(selectedLeftId) ? selectedLeftId : null;
 
   const pairWith = (rightId: RightId) => {
-    if (!selectedLeftId || pairedRightIds.has(rightId)) return;
-    onPairs([...pairs, { leftId: selectedLeftId, rightId }]);
+    if (!activeLeftId || pairedRightIds.has(rightId)) return;
+    onPairs([...pairs, { leftId: activeLeftId, rightId }]);
     setSelectedLeftId(null);
   };
 
   return (
     <Stack gap="md" ref={focusRef} tabIndex={-1} role="group" aria-label="Match English and Danish words">
-      <Text size="sm" c="dimmed">Choose an English word, then choose its Danish match.</Text>
+      <Text size="sm" c="dimmed">Choose an English meaning, then choose its Danish match.</Text>
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
         <Stack gap="xs" role="group" aria-label="English words">
           <Text fw={650}>English</Text>
@@ -37,9 +38,9 @@ export default function MatchingPrompt({ columns, pairs, disabled, focusRef, onP
             <Button
               key={item.id}
               type="button"
-              variant={selectedLeftId === item.id ? "filled" : "default"}
+              variant={activeLeftId === item.id ? "filled" : "default"}
               disabled={disabled || pairedLeftIds.has(item.id)}
-              aria-pressed={selectedLeftId === item.id}
+              aria-pressed={activeLeftId === item.id}
               onClick={() => setSelectedLeftId(item.id)}
             >
               <span lang="en">{item.text}</span>
@@ -53,7 +54,7 @@ export default function MatchingPrompt({ columns, pairs, disabled, focusRef, onP
               key={item.id}
               type="button"
               variant="default"
-              disabled={disabled || !selectedLeftId || pairedRightIds.has(item.id)}
+              disabled={disabled || !activeLeftId || pairedRightIds.has(item.id)}
               onClick={() => pairWith(item.id)}
             >
               <span lang="da">{item.text}</span>

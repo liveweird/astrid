@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { PracticeSession } from "../../api/models";
 import type { PracticeOutboxEntry } from "./practiceRecovery";
 
-export type PracticeFocusTarget = "item" | "feedback" | "summary" | "error" | "introductionControl" | "introduction" | "lesson" | "hint" | "gaps";
+export type PracticeFocusTarget = "item" | "feedback" | "summary" | "error" | "introductionControl" | "introduction" | "lesson" | "hint" | "gaps" | "matching";
 
 export function pendingFocus(entry: PracticeOutboxEntry, session: PracticeSession): PracticeFocusTarget {
   if (entry.kind === "attempt") return "feedback";
@@ -41,6 +41,7 @@ export function usePracticeFocusQueue(error: string) {
   const lessonContentRef = useRef<HTMLParagraphElement>(null);
   const hintRef = useRef<HTMLDivElement>(null);
   const gapFocusRef = useRef<HTMLDivElement>(null);
+  const matchingFocusRef = useRef<HTMLDivElement>(null);
   const [request, setRequest] = useState<{ target: PracticeFocusTarget; sequence: number }>({
     target: "item", sequence: 0,
   });
@@ -52,14 +53,14 @@ export function usePracticeFocusQueue(error: string) {
     const refs = {
       item: itemHeadingRef, feedback: feedbackRef, summary: summaryHeadingRef, error: errorRef,
       introductionControl: introductionControlRef, introduction: introductionContentRef,
-      lesson: lessonContentRef, hint: hintRef, gaps: gapFocusRef,
+      lesson: lessonContentRef, hint: hintRef, gaps: gapFocusRef, matching: matchingFocusRef,
     };
     const target = refs[error ? "error" : request.target].current;
     target?.focus({ preventScroll: true });
     target?.scrollIntoView({ block: "start", inline: "nearest" });
   }, [error, request]);
   return {
-    errorRef, feedbackRef, gapFocusRef, hintRef, introductionContentRef, introductionControlRef, itemHeadingRef,
+    errorRef, feedbackRef, gapFocusRef, matchingFocusRef, hintRef, introductionContentRef, introductionControlRef, itemHeadingRef,
     lessonContentRef, requestFocus, summaryHeadingRef,
   };
 }

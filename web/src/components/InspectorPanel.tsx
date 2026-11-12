@@ -1,9 +1,48 @@
-import { Alert, Button, Code, PasswordInput, SimpleGrid, Stack, Text } from "@mantine/core";
+import { Alert, Box, Button, Code, PasswordInput, SimpleGrid, Stack, Text } from "@mantine/core";
 import { useRef, useState } from "react";
 import { inspectExercise } from "../api/client";
 import type { InspectorDetails } from "../api/models";
 
+function VocabularyEvidence({ details }: { details: InspectorDetails }) {
+  const source = details.vocabularySource;
+  if (!source) return null;
+  const answerLanguage = ["E031", "E039"].includes(details.exercise.formatId) ? "en" : "da";
+  return (
+    <Stack gap="sm" style={{ gridColumn: "1 / -1" }}>
+      <Text size="sm">Vocabulary packet task<br /><Code>{source.taskId} · {source.operation}</Code></Text>
+      {source.lexicalSources.map((lexical) => (
+        <Box key={`${lexical.entryId}:${lexical.senseId}`}>
+          <Text size="sm"><Code>{lexical.entryId} · {lexical.senseId} · {lexical.kind}</Code></Text>
+          <Text size="sm" lang="da">
+            {[lexical.forms.infinitive, lexical.forms.present, lexical.forms.bundle, lexical.forms.form].filter(Boolean).join(" → ")}
+          </Text>
+          <Text size="sm" lang="en">{lexical.gloss}</Text>
+          <Text size="sm">{lexical.selectedUse}</Text>
+        </Box>
+      ))}
+      {source.expectedAnswer && <Text size="sm">Expected answer<br /><Code lang={answerLanguage}>{source.expectedAnswer}</Code></Text>}
+      {source.supportFacts.map((fact) => (
+        <Box key={fact.factId}>
+          <Text size="sm">Supporting fact<br /><Code>{fact.factId}: {fact.referentId} · {fact.predicateId} · {fact.valueRole} · {fact.valueId}</Code></Text>
+          <Text size="sm" lang="da">{fact.sentence}</Text>
+          <Text size="sm" lang="en">{fact.valueText}</Text>
+        </Box>
+      ))}
+      {source.matchingPairs.map((pair) => <Text size="sm" key={pair.leftId}>
+        <Code>{pair.leftId} → {pair.rightId}: {pair.lexicalSource.entryId} · {pair.lexicalSource.senseId}</Code>
+      </Text>)}
+      {source.tileOccurrences.map((tile) => <Text size="sm" key={tile.blockId}>
+        <Code>{tile.blockId}: {tile.lexicalId} · <span lang="da">{tile.form}</span></Code>
+      </Text>)}
+      {source.acceptedOrders.map((order) => <Text size="sm" key={order.join(":")}>
+        Accepted occurrence order<br /><Code>{order.join(" → ")}</Code>
+      </Text>)}
+    </Stack>
+  );
+}
+
 function InspectorEvidence({ details }: { details: InspectorDetails }) {
+  if (details.vocabularySource) return <VocabularyEvidence details={details} />;
   if (details.gapSource) {
     return <Text size="sm" style={{ gridColumn: "1 / -1" }}>Correct gap evidence<br />
       {details.gapSource.slots.map((slot) => <Code key={slot.slotId} display="block">

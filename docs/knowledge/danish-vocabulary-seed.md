@@ -223,3 +223,30 @@ and their separate worked examples. Existing noun/verb bundles and prior generat
 pools retain their published behavior. Negative questions, `jo`, echo questions and
 `mon` remain outside the [S13 activation](module-one-course-slice.md#s13-activation--11-november-2026).
 Teaching review remains open.
+
+## Pair-seventeen work/study additions
+
+P1 adds nine records, bringing the current inventory to **49** while retaining the same
+**109 catalogue clauses**. Its separate scoped facts and task frames do not expand old pools.
+The [packet](vocabulary-work-study-packet.md) owns exact sentences, senses and exercise slots;
+the [activation contract](vocabulary-expansion-activation.md) owns grading and exposure rules.
+
+| ID | Selected meaning | Teaching surface | Official morphology record |
+| --- | --- | --- | --- |
+| L041 | write a short text | at skrive → skriver | [COR.30533](https://ordregister.dk/id/COR.30533.json) |
+| L042 | computer device | en computer | [COR.63924](https://ordregister.dk/id/COR.63924.json) |
+| L043 | study as a learner | at studere → studerer | [COR.32395](https://ordregister.dk/id/COR.32395.json) |
+| L044 | course/class programme | et kursus | [COR.41200](https://ordregister.dk/id/COR.41200.json) |
+| L045 | drink a beverage | at drikke → drikker | [COR.30480](https://ordregister.dk/id/COR.30480.json) |
+| L046 | coffee as beverage/substance | kaffe | [COR.43580](https://ordregister.dk/id/COR.43580.json) |
+| L047 | water as liquid | vand | [COR.41032](https://ordregister.dk/id/COR.41032.json) |
+| L048 | at home, static location | hjemme | [COR.10260](https://ordregister.dk/id/COR.10260.json) |
+| L049 | in the morning, fixed expression | om morgenen | [COR.43995](https://ordregister.dk/id/COR.43995.json), component morgen/morgenen |
+
+These morphology lookups were checked against COR₁ 1.5.1.0 on 11 November 2026; they do not
+certify English meanings, valency or authored sentences. Count nouns retain their articles;
+coffee/water use only the selected bare mass meanings, and the morning expression remains
+one supplied chunk. `skrive` permits the authored letter object, `studere` is intransitive,
+and `drikke` permits the two selected beverages. No unrestricted combination, plural/definite
+paradigm, noun-only parser, or productive chunk substitution follows. Source/content review
+and pending Danish specialist review remain distinct.

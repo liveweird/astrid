@@ -12,10 +12,16 @@ const OUTCOME_LABELS = [
   ["responseConstraintNotMet", "response constraint not met"],
 ] as const;
 
+const MEANING_LABELS = [
+  ["meaningMet", "meaning met"],
+  ["meaningNotMet", "different meaning"],
+  ["meaningUnknown", "meaning unknown"],
+] as const;
+
 function OutcomeSummary({ row, kind }: { row: PracticeSummaryRow; kind: "firstOutcomes" | "latestOutcomes" }) {
   const values = row[kind];
-  const details = OUTCOME_LABELS
-    .filter(([key]) => values[key] > 0)
+  const details = [...OUTCOME_LABELS, ...MEANING_LABELS]
+    .filter(([key]) => (values[key] ?? 0) > 0)
     .map(([key, label]) => `${values[key]} ${label}`);
   return (
     <Box>
@@ -27,6 +33,7 @@ function OutcomeSummary({ row, kind }: { row: PracticeSummaryRow; kind: "firstOu
 }
 
 function practiceTargetKey(row: PracticeSummaryRow) {
+  if (row.readingTarget) return `reading:${row.readingTarget.facet}:${row.readingRole ?? ""}`;
   if (row.targetSkillId) {
     const scope = row.targetScopeId ? `${row.targetScopeId}:` : "";
     return row.assessmentMode
@@ -35,7 +42,8 @@ function practiceTargetKey(row: PracticeSummaryRow) {
   }
   const target = row.lexicalTarget;
   if (!target) throw new Error("Practice summary target is missing");
-  return `lexical:${target.entryId}:${target.senseId}:${target.facet}:${target.direction}`;
+  const mode = row.assessmentMode ? `:${row.assessmentMode}` : "";
+  return `lexical:${target.entryId}:${target.senseId}:${target.facet}:${target.direction}${mode}`;
 }
 
 const SCOPED_TARGET_KINDS: Record<string, string> = {
@@ -53,20 +61,28 @@ const SCOPED_TARGET_KINDS: Record<string, string> = {
   "supplied-modal-order:word-order": "Word order",
   "one-final-circumstance:constituent-order": "Constituent order",
   "neutral-positive-yes-no:constituent-order": "Question order",
+  "p1-subject-first-supplied:word-order": "Word order",
+};
+
+const GRAMMAR_TARGET_KINDS: Record<string, string> = {
+  "G004:selection": "Form selection",
+  "G004:recall": "Written form recall",
+  "G004:repair": "Form repair",
+  "G006:selection": "Article selection",
+  "G006:recall": "Written article recall",
 };
 
 function targetKind(row: PracticeSummaryRow) {
+  if (row.readingTarget) return `Explicit ${row.readingRole ?? "reading"} facts`;
+  if (row.assessmentMode === "matching") return "Bilingual matching";
   const scoped = SCOPED_TARGET_KINDS[`${row.targetScopeId ?? ""}:${row.assessmentMode ?? ""}`];
   if (scoped) return scoped;
-  if (row.targetSkillId === "G004" && row.assessmentMode === "selection") return "Form selection";
-  if (row.targetSkillId === "G004" && row.assessmentMode === "recall") return "Written form recall";
-  if (row.targetSkillId === "G004" && row.assessmentMode === "repair") return "Form repair";
-  if (row.targetSkillId === "G006" && row.assessmentMode === "selection") return "Article selection";
-  if (row.targetSkillId === "G006" && row.assessmentMode === "recall") return "Written article recall";
-  if (row.targetSkillId) return "Grammar";
+  if (row.targetSkillId) return GRAMMAR_TARGET_KINDS[`${row.targetSkillId}:${row.assessmentMode ?? ""}`] ?? "Grammar";
   if (row.lexicalTarget?.facet === "meaning") {
     return row.lexicalTarget.direction === "da-en" ? "Meaning recognition" : "Meaning selection";
   }
+  if (row.lexicalTarget?.facet === "fixed-chunk") return "Written expression recall";
+  if (row.lexicalTarget?.facet === "mass-headword") return "Written mass-word recall";
   return "Written headword recall";
 }
 
@@ -103,7 +119,7 @@ export default function PracticeSummary({
             component="article"
             aria-label={row.label}
             className={classes.summaryCard}
-            key={`${row.targetSkillId ?? "lexical"}-${row.targetScopeId ?? ""}-${row.assessmentMode ?? ""}-${row.assessmentRole ?? ""}-${row.lexicalTarget?.entryId ?? ""}-${row.lexicalTarget?.senseId ?? ""}-${row.lexicalTarget?.facet ?? ""}-${row.lexicalTarget?.direction ?? ""}`}
+            key={`${practiceTargetKey(row)}-${row.assessmentRole ?? ""}`}
             withBorder
             p="lg"
           >

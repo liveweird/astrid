@@ -99,6 +99,9 @@ object PracticeSummaryCalculator {
             assessmentMode = representative.targetDescriptor.assessmentMode,
             assessmentRole = representative.assessmentRole,
             targetScopeId = representative.targetDescriptor.targetScopeId,
+            readingTarget = representative.targetDescriptor.readingTarget,
+            readingRole = representative.targetDescriptor.readingRole,
+            matchingTarget = representative.targetDescriptor.matchingTarget,
         )
     }
 
@@ -122,7 +125,7 @@ object PracticeSummaryCalculator {
         require(item.assessments.map { it.slotId }.distinct().size == item.assessments.size) {
             "Practice assessment slots must be unique"
         }
-        item.attempts.forEach { attempt -> requireValidResults(item.assessments, attempt.gapResults) }
+        item.attempts.forEach { attempt -> requireValidResults(item.assessments, attempt) }
         return item.assessments.map { assessment ->
             SummaryUnitObservation(
                 assessment.targetDescriptor,
@@ -136,32 +139,63 @@ object PracticeSummaryCalculator {
         }
     }
 
-    private fun requireValidResults(assessments: List<PracticeAssessment>, results: List<GapResult>) {
+    private fun requireValidResults(assessments: List<PracticeAssessment>, attempt: PracticeSummaryAttemptObservation) {
         val slotAssessments = assessments.filter { it.slotId != null }
+        if (assessments.all(::isLexicalMatchingAssessment)) {
+            require(slotAssessments.size == assessments.size && attempt.matchingResults.size == assessments.size) {
+                "Saved matching results must cover every frozen lexical assessment"
+            }
+            assessments.forEach { assessment -> matchingResult(attempt.matchingResults, assessment) }
+            return
+        }
         if (slotAssessments.isEmpty()) {
-            require(assessments.size == 1 && results.isEmpty()) {
+            require(assessments.size == 1 && attempt.gapResults.isEmpty()) {
                 "Single-target assessments use whole-attempt outcomes"
             }
             return
         }
-        require(slotAssessments.size == assessments.size && results.size == assessments.size) {
+        require(slotAssessments.size == assessments.size && attempt.gapResults.size == assessments.size) {
             "Saved gap results must cover every frozen assessment"
         }
-        assessments.forEach { assessment -> matchingResult(results, assessment) }
+        assessments.forEach { assessment -> matchingResult(attempt.gapResults, assessment) }
     }
+
+    private fun isLexicalMatchingAssessment(assessment: PracticeAssessment): Boolean =
+        assessment.slotId != null && assessment.targetDescriptor.lexicalTarget != null &&
+            assessment.targetDescriptor.assessmentMode == "matching"
 
     private fun projectAttempt(
         attempt: PracticeSummaryAttemptObservation,
         assessment: PracticeAssessment,
     ): PracticeSummaryAttemptObservation = assessment.slotId?.let {
+        if (isLexicalMatchingAssessment(assessment)) {
+            val result = matchingResult(attempt.matchingResults, assessment)
+            return attempt.copy(
+                targetStatus = result.targetStatus,
+                linguisticStatus = result.linguisticStatus,
+                responseConstraintStatus = result.responseConstraintStatus,
+                meaningSatisfaction = result.meaningSatisfaction,
+                gapResults = emptyList(),
+                matchingResults = emptyList(),
+            )
+        }
         val result = matchingResult(attempt.gapResults, assessment)
         attempt.copy(
             targetStatus = result.targetStatus,
             linguisticStatus = result.linguisticStatus,
             responseConstraintStatus = result.responseConstraintStatus,
             gapResults = emptyList(),
+            matchingResults = emptyList(),
         )
-    } ?: attempt.copy(gapResults = emptyList())
+    } ?: attempt.copy(gapResults = emptyList(), matchingResults = emptyList())
+
+    private fun matchingResult(results: List<MatchingPairResult>, assessment: PracticeAssessment): MatchingPairResult {
+        val matching = results.filter { result ->
+            result.leftId == assessment.slotId && result.lexicalTarget == assessment.targetDescriptor.lexicalTarget
+        }
+        require(matching.size == 1) { "Saved matching results must match each frozen lexical assessment exactly once" }
+        return matching.single()
+    }
 
     private fun matchingResult(results: List<GapResult>, assessment: PracticeAssessment): GapResult {
         val matching = results.filter { result ->
@@ -183,12 +217,19 @@ object PracticeSummaryCalculator {
             languageKnownIssue = attempts.count { it.linguisticStatus == LinguisticStatus.KNOWN_ISSUE },
             responseConstraintNotMet =
                 attempts.count { it.responseConstraintStatus == ResponseConstraintStatus.NOT_MET },
+            meaningMet = attempts.meaningCount(MeaningSatisfaction.MET),
+            meaningNotMet = attempts.meaningCount(MeaningSatisfaction.NOT_MET),
+            meaningUnknown = attempts.meaningCount(MeaningSatisfaction.UNKNOWN),
         )
+
+    private fun List<PracticeSummaryAttemptObservation>.meaningCount(value: MeaningSatisfaction): Int? =
+        if (none { it.meaningSatisfaction != null }) null else count { it.meaningSatisfaction == value }
 
     private fun PracticeSummaryAttemptObservation.isFullyMet(): Boolean =
         targetStatus == TargetStatus.MET &&
             linguisticStatus == LinguisticStatus.ACCEPTABLE &&
             responseConstraintStatus != ResponseConstraintStatus.NOT_MET
+            && meaningSatisfaction !in setOf(MeaningSatisfaction.NOT_MET, MeaningSatisfaction.UNKNOWN)
 
     private fun PracticeAttemptContext.hasSupport(): Boolean = introductionOpened || lessonOpened || hintOpened
 

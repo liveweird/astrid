@@ -366,6 +366,8 @@ data class ExerciseInspectorDto(
     val inanimateReferenceSource: InanimateReferenceSourceDetailsDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val modalSource: ModalSourceDetailsDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val vocabularySource: VocabularyExerciseSourceDto? = null,
 )
 
 @Serializable
@@ -376,4 +378,96 @@ data class ModalSourceDetailsDto(
     val expectedInterpretation: String,
     val frameVariantId: String,
     val contextVariantId: String,
+)
+
+@Serializable
+data class VocabularyLexicalFormsDto(
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val infinitive: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val present: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val bundle: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val form: String? = null,
+)
+
+@Serializable
+data class VocabularyLexicalSourceDto(
+    val entryId: String,
+    val senseId: String,
+    val kind: String,
+    val forms: VocabularyLexicalFormsDto,
+    val gloss: String,
+    val selectedUse: String,
+)
+
+@Serializable
+data class VocabularySupportFactDto(
+    val factId: String,
+    val referentId: String,
+    val predicateId: String,
+    val valueId: String,
+    val valueText: String,
+    val valueRole: String,
+    val sentence: String,
+    val exposureKeys: List<String>,
+)
+
+@Serializable
+data class VocabularyKnownAlternativeDto(
+    val text: String,
+    val targetSatisfaction: String,
+    val linguisticStatus: String,
+    val meaningSatisfaction: String,
+    val responseConstraintStatus: String,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val issueCode: String? = null,
+)
+
+@Serializable
+data class VocabularyReviewedOrderDto(
+    val words: List<String>,
+    val targetSatisfaction: String,
+    val linguisticStatus: String,
+    val meaningSatisfaction: String,
+    val responseConstraintStatus: String,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val issueCode: String? = null,
+)
+
+@Serializable
+data class VocabularyMatchingPairSourceDto(
+    val leftId: String,
+    val rightId: String,
+    val lexicalSource: VocabularyLexicalSourceDto,
+)
+
+@Serializable
+data class VocabularyTileOccurrenceDto(
+    val blockId: String,
+    val lexicalId: String,
+    val form: String,
+)
+
+@Serializable
+data class VocabularyExerciseSourceDto(
+    val taskId: String,
+    val operation: String,
+    val lexicalSources: List<VocabularyLexicalSourceDto>,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val expectedAnswer: String? = null,
+    val suppliedChoices: List<String>,
+    val supportFacts: List<VocabularySupportFactDto>,
+    val matchingPairs: List<VocabularyMatchingPairSourceDto>,
+    val tileOccurrences: List<VocabularyTileOccurrenceDto>,
+    val acceptedOrders: List<List<String>>,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val targetSupportFactId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val questionRole: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val normalizationPolicy: String? = null,
+    val knownAlternatives: List<VocabularyKnownAlternativeDto>,
+    val reviewedOrders: List<VocabularyReviewedOrderDto>,
 )

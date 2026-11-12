@@ -55,8 +55,10 @@ internal object PilotContent {
     const val RETAINED_FOURTEEN_GENERATOR_REVISION = "generator-14"
     const val RETAINED_FIFTEEN_CONTENT_REVISION = "pilot-15"
     const val RETAINED_FIFTEEN_GENERATOR_REVISION = "generator-15"
-    const val CURRENT_CONTENT_REVISION = "pilot-16"
-    const val CURRENT_GENERATOR_REVISION = "generator-16"
+    const val RETAINED_SIXTEEN_CONTENT_REVISION = "pilot-16"
+    const val RETAINED_SIXTEEN_GENERATOR_REVISION = "generator-16"
+    const val CURRENT_CONTENT_REVISION = "pilot-17"
+    const val CURRENT_GENERATOR_REVISION = "generator-17"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
     const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
@@ -72,7 +74,8 @@ internal object PilotContent {
     const val RETAINED_THIRTEEN_EVALUATION_REVISION = "evaluation-13"
     const val RETAINED_FOURTEEN_EVALUATION_REVISION = "evaluation-14"
     const val RETAINED_FIFTEEN_EVALUATION_REVISION = "evaluation-15"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-16"
+    const val RETAINED_SIXTEEN_EVALUATION_REVISION = "evaluation-16"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-17"
 
     val humanPronouns =
         listOf(
@@ -533,10 +536,10 @@ internal object PilotContent {
             ),
         )
 
-    val currentSnapshot =
+    val pilotSixteenSnapshot =
         pilotFifteenSnapshot.copy(
-            contentRevision = CURRENT_CONTENT_REVISION,
-            generatorRevision = CURRENT_GENERATOR_REVISION,
+            contentRevision = RETAINED_SIXTEEN_CONTENT_REVISION,
+            generatorRevision = RETAINED_SIXTEEN_GENERATOR_REVISION,
             skills = pilotFifteenSnapshot.skills + Skill(
                 "G018",
                 "Neutral yes or no questions",
@@ -557,6 +560,8 @@ internal object PilotContent {
             ),
         )
 
+    val currentSnapshot = VocabularyP1Snapshot.extend(pilotSixteenSnapshot)
+
     init {
         PilotContentValidator.requireValid(snapshot)
         PilotContentValidator.requireValid(pilotTwoSnapshot)
@@ -573,6 +578,7 @@ internal object PilotContent {
         PilotContentValidator.requireValid(pilotThirteenSnapshot)
         PilotContentValidator.requireValid(pilotFourteenSnapshot)
         PilotContentValidator.requireValid(pilotFifteenSnapshot)
+        PilotContentValidator.requireValid(pilotSixteenSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

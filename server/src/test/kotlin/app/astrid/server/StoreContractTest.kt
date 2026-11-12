@@ -26,6 +26,7 @@ import app.astrid.server.practice.PracticeMutationResult
 import app.astrid.server.practice.PracticeSessionRequest
 import app.astrid.server.practice.PracticeSupportRequest
 import app.astrid.server.practice.StoredPracticeSession
+import app.astrid.server.practice.toNewPracticeSession
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
@@ -151,6 +152,30 @@ abstract class StoreContractTest {
         assertEquals(created, stores.practice.findPracticeSession(owner.id, created.id))
         val outsider = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
         assertNull(stores.practice.findPracticeSession(outsider.id, created.id))
+    }
+
+    @Test
+    fun `practice creation persists matching board identity and answer-free pair assessments`() = withStores { stores ->
+        val owner = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
+        val request = PracticeSessionRequest(
+            UUID.randomUUID().toString(),
+            "vocabulary-p1-s4",
+            "vocabulary-p1-s4-1",
+            11,
+        )
+        val created = assertIs<PracticeCreateResult.Created>(
+            stores.practice.createPracticeSession(owner, request, wireJson.encodeToString(request)) {
+                PracticePlanner().plan(request.focusId, request.planRevision, request.seed).toNewPracticeSession(owner.id)
+            },
+        ).session
+        val matching = created.items.first()
+
+        assertEquals("meaning", assertNotNull(matching.matchingTarget).facet)
+        assertEquals("en-da", assertNotNull(matching.matchingTarget).direction)
+        assertEquals(3, matching.assessments.size)
+        assertTrue(matching.assessments.all { it.assessmentMode == "matching" && it.lexicalTarget != null })
+        assertTrue(matching.assessments.all { it.readingTarget == null && it.targetSkillId == null })
+        assertEquals(created, stores.practice.findPracticeSession(owner.id, created.id))
     }
 
     @Test

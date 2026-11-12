@@ -6,7 +6,9 @@ internal object PilotEvaluator {
     fun evaluate(
         exercise: GeneratedExercise,
         answer: Answer,
-    ): Evaluation = if (exercise.formatId == "E030") {
+    ): Evaluation = if (exercise.formatId in VocabularyP1Content.formatIds) {
+        VocabularyP1ExerciseEvaluator.evaluate(exercise, answer)
+    } else if (exercise.formatId == "E030") {
         NeutralQuestionExerciseEvaluator.evaluate(exercise, answer)
     } else {
         evaluateRetainedFormats(exercise, answer)

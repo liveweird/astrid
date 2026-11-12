@@ -145,6 +145,13 @@ unintroduced synonyms/forms remain unknown. `en vand`/`et vand` fail the selecte
 shape and do not establish the selected mass meaning. Do not claim all article-bearing
 Danish uses are wrong. A correct headword embedded in arbitrary prose earns no prefix success.
 
+**Implementation clarification, 12 November:** “introduced” means visibly taught or reviewed
+within this independently enterable session before the slot, not merely present elsewhere
+in P1's inventory. Freeze each typed task's known alternatives from that bounded material.
+A displayed count-noun bundle can be recognized as known but fail the one-word shape;
+do not derive an unsupported bare noun by removing its article. This preserves honest
+unknown outcomes without assuming a learner completed another profile.
+
 Use new literal completion policy `vocabulary-p1-outcome-1`. Require saved teaching and
 evaluate the latest saved attempt under the existing owner lock. Known correct or known wrong
 shape-valid outcomes may continue; unknown or partial results may not. A matching board must
@@ -169,6 +176,13 @@ complete facts. English-only distractors do not expose later Danish counterparts
 prompt exposure records displayed forms; feedback records only mappings actually confirmed
 for correct pairs, not every expected mapping after a wrong/partial board. Record answer
 reveal/retry as possible exposure, never as proof of learning or independent recall.
+
+Exposure keys describe exact visible surfaces: a finite reading verb does not expose its
+infinitive, and an English cue does not reveal its Danish answer. Include every displayed
+Danish choice and supplied support form. Wrong feedback releases no unseen expected answer;
+only confirmed correct mappings/forms/orders or an actually rendered solution may release
+those keys. Keep public matching and tile IDs independent of answer correspondence/order:
+assign them after shuffling, then derive the private answer table by occurrence identity.
 
 Extend guided descriptors/observations additively for reading and matching, preserving all
 legacy target keys and omitted-default serialization. Matching summary projects by exact
@@ -247,8 +261,16 @@ review; an indefinite-form code does not require an indefinite article in every 
 ## Observed delivery
 
 The initial execution plan and first source audit passed the complete local gate and were
-committed/pushed as `40e1011`. Five P1 scripts (23 activities) and the P2/P3 authoring packets
-are drafted. Independent P1 review found ambiguous study/read context, two answer-category
+committed/pushed as `40e1011`; the selected P1 scripts/activation contract followed in
+`4ee9c02`. Independent content review resolved ambiguous study/read context, answer-category
 leaks, matching-target ambiguity, a pronoun link, an invented specialist gate and freeze
-provenance wording; the coordinator is reconciling those findings in the canonical contract
-and packet. No runtime P1 activation or specialist approval is yet claimed.
+provenance wording. Reviewed P2/P3 ledgers and six-session outlines were separately gated
+and pushed in `10a1eeb`; they remain authoring drafts without runtime activation.
+
+P1 implementation has passed the complete Docker-backed repository gate. Independent
+engine/API review led to opaque public IDs, exact visible exposure, session-local typed
+alternatives, complete direct-entry support, atomic taught-mapping evidence and legacy
+summary-field gating. The saved pre-upgrade S12/S13 sessions and eleven attempts replay
+byte for byte on the draft QA image. Final clean-source browser, CI, release and promotion
+acceptance remains pending; this checkpoint claims neither a runtime release nor Danish
+specialist approval.

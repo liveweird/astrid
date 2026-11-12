@@ -44,7 +44,10 @@ Guard tests that must stay green and are never loosened to fit a change:
   revision pair). A new operation lands with its statuses exercised here.
   Its test-only compiled-schema cache is bounded at two entries using Flow's pattern.
   Response and strict request validators are constructed on first use through the same builder.
-  Each entry copies the expanded schema definitions. The [measurement record](../../docs/knowledge/flow-reuse-manifest.md#test-only-api-schema-cache--11-november-2026)
+  Each entry copies component definitions. P1 retains schema references with explicit parser options:
+  resolve operation references, responses and request bodies, but do not fully dereference schemas or
+  resolve combinators. This keeps closed target correlations and referenced Problem validation at the
+  unchanged 512 MiB test heap. The [measurement record](../../docs/knowledge/flow-reuse-manifest.md#test-only-api-schema-cache--11-november-2026)
   explains the bound at the existing test heap.
 - `MigrationChecksumTest` — Flyway CRC32 of every `V*.sql`; the file set must equal the pinned map (`persistence.md`).
 - `PackageBoundaryTest` — layering (`conventions.md`); includes self-tests of its own regex scan.
@@ -101,11 +104,11 @@ a template, never a variable. There is no coverage map: the scenario files are t
 A floor is the **integer below the measured value**, written with a dated comment, raised whenever coverage improves and **never lowered**
 (not for new code either; add tests). A tight-loop Kover disable is never committed.
 
-| Gate | Where | Floor (2026-11-11) |
+| Gate | Where | Floor (2026-11-12) |
 | --- | --- | --- |
 | engine Kover | `engine/build.gradle.kts` | line 98, branch 86 |
 | server Kover (`@Serializable` classes excluded) | `server/build.gradle.kts` | line 98, branch 81 |
-| web vitest v8 | `web/vite.config.ts` `test.coverage.thresholds` | statements 95, branches 89, functions 97, lines 97 |
+| web vitest v8 | `web/vite.config.ts` `test.coverage.thresholds` | statements 95, branches 89, functions 98, lines 98 |
 
 Re-measure: `./gradlew :engine:koverXmlReport :server:koverXmlReport` (`check` only runs `koverVerify`, which reports pass/fail, not the
 actual) and read the `npm run test:coverage` table. Then edit the floor and its comment in the same commit.

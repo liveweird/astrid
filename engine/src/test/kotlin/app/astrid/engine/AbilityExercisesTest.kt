@@ -12,8 +12,8 @@ class AbilityExercisesTest {
     @Test
     fun `pair thirteen publishes ability skill formats while pair twelve remains literal`() {
         val catalog = engine.catalog()
-        assertEquals("pilot-16", catalog.contentRevision)
-        assertEquals("generator-16", catalog.generatorRevision)
+        assertEquals("pilot-17", catalog.contentRevision)
+        assertEquals("generator-17", catalog.generatorRevision)
         assertTrue(catalog.skills.any { it.id == "G030" })
         assertEquals(setOf("E026", "E027"), catalog.formats.map { it.id }.filter { it in setOf("E026", "E027") }.toSet())
         assertEquals(RevisionPair("pilot-12", "generator-12"), engine.supportedRevisionPairs()[11])

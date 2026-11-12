@@ -321,3 +321,30 @@ retries. Its ordinary default repositories produced both APT packages at `2.8.4u
 Verified isolated backup restoration preceded app-only promotion; all 136 live-preview checks
 and owned QA cleanup passed. The [S13 delivery record](module-one-course-slice.md#observed-s13-delivery)
 records the source/image, immutable-history and database-process safeguards.
+
+### Retained schema references for P1 — 12 November 2026
+
+The unpublished P1 response contract exhausted the same 512 MiB test heap even with a
+compact seven-branch `oneOf`. Failure occurred in schema transformation before body
+validation (`RequiredFieldTransformer` / `readAndTransformSchemaObject`), so dropping
+format/target correlations would hide the contract rather than resolve the cause.
+Independent inspection of pinned validator 3.0.0 confirmed support for component references
+and component-definition injection. Flow's cache pattern remains the donor; the parser
+configuration below is Astrid's bounded adaptation, not a claimed existing Flow solution.
+
+The shared lazy builder now sets `resolve=true`, `resolveFully=false`,
+`resolveResponses=true`, `resolveRequestBody=true`, `resolveCombinators=false` and
+`explicitObjectSchema=false`. Resolving the shared response/request-body references is
+necessary to preserve referenced Problem and strict request validation when full schema
+dereferencing is disabled. Keep the two-entry compiled cache, all resolver levels,
+positive/negative matrices, timeouts, 512 MiB heap and coverage floors. Complete closed
+P1 response leaves retain exact format/facet/direction/scope and revision correlations;
+old payloads and production JVM settings are unaffected.
+
+The original focused request/runtime/Problem checks passed in about three seconds. An
+initial OpenAPI run completed without OOM but exposed separate contract/lifecycle defects;
+that run is not a clean acceptance claim. After correction, the current full class's JUnit
+report contains **24 tests, zero failures/errors/skips, 7.905 seconds** at the unchanged heap.
+The full server check and complete Docker-backed repository gate also passed. Exact-source
+Linux CI remains required before release. No peak-memory or production-performance measurement
+is claimed.

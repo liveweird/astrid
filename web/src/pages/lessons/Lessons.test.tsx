@@ -21,10 +21,11 @@ it("renders all lesson and bounded review choices without network or storage mut
 
   renderWithProviders(<Lessons />);
 
-  expect(screen.getByRole("heading", { level: 1, name: "Module 1: First steps" })).toBeVisible();
-  expect(screen.getAllByRole("button", { name: /^Start / })).toHaveLength(18);
+  expect(screen.getByRole("heading", { level: 1, name: "Learn Danish" })).toBeVisible();
+  expect(screen.getByRole("heading", { level: 2, name: "A day of work and study" })).toBeVisible();
+  expect(screen.getAllByRole("button", { name: /^Start / })).toHaveLength(23);
   expect(screen.getByRole("button", { name: "Start Words for things you read" })).toBeVisible();
-  expect(screen.getByText("Vocabulary")).toBeVisible();
+  expect(screen.getAllByText("Vocabulary")).toHaveLength(6);
   expect(screen.getByRole("heading", { level: 2, name: "Review" })).toHaveAttribute("tabindex", "-1");
   expect(screen.getByText(/familiar words, sentence order, verb forms and articles/)).toBeVisible();
   expect(fetch).not.toHaveBeenCalled();
@@ -59,6 +60,46 @@ it("persists the exact selected creation before handing it to the practice route
     seed: 123,
   }));
   expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it.each([
+  ["Work, reading and today", "vocabulary-p1-s1", "vocabulary-p1-s1-1"],
+  ["Reading and writing", "vocabulary-p1-s2", "vocabulary-p1-s2-1"],
+  ["Study, courses and Danish", "vocabulary-p1-s3", "vocabulary-p1-s3-1"],
+  ["Coffee and water", "vocabulary-p1-s4", "vocabulary-p1-s4-1"],
+  ["Where and when", "vocabulary-p1-s5", "vocabulary-p1-s5-1"],
+])("saves the independently selected vocabulary lesson %s before navigation", async (title, focusId, planRevision) => {
+  const createdId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+  vi.spyOn(crypto, "randomUUID").mockReturnValue(createdId);
+  vi.spyOn(crypto, "getRandomValues").mockImplementation((array) => {
+    (array as Uint32Array)[0] = 123;
+    return array;
+  });
+  const fetch = vi.fn(async (_path: string) => json(profiles()));
+  vi.stubGlobal("fetch", fetch);
+  renderWithProviders(<Lessons />);
+
+  await userEvent.click(screen.getByRole("button", { name: `Start ${title}` }));
+
+  await waitFor(() => expect(window.location.search).toBe(`?session=${createdId}`));
+  expect(listOutbox(createdId)[0]?.body).toBe(JSON.stringify({
+    practiceSessionId: createdId, focusId, planRevision, seed: 123,
+  }));
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetch.mock.calls[0]?.[0]).toBe("/api/v1/practice-profiles");
+});
+
+it("rejects a duplicate catalog entry instead of treating a missing vocabulary session as available", async () => {
+  const catalog = profiles();
+  catalog.profiles[catalog.profiles.length - 1] = catalog.profiles[0]!;
+  vi.stubGlobal("fetch", vi.fn(async () => json(catalog)));
+  renderWithProviders(<Lessons />);
+
+  await userEvent.click(screen.getByRole("button", { name: "Start Where and when" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("unsupported profile");
+  expect(window.location.pathname).toBe("/");
+  expect(localStorage.getItem("astrid.practice.v1.latest")).toBeNull();
 });
 
 it("offers an explicit resume or new-run choice and keeps the saved run on cancel", async () => {

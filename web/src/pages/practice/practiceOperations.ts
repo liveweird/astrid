@@ -2,7 +2,7 @@ import {
   advancePracticeSession, ApiError, createPracticeFollowUp, createPracticeSession, loadPracticeContext,
   loadPracticeSession, submitSerializedAttempt, updatePracticeSupport,
 } from "../../api/client";
-import type { AttemptAnswer, AttemptRequest, GapSelection, PracticeSession } from "../../api/models";
+import type { AttemptAnswer, AttemptRequest, GapSelection, MatchingPair, PracticeSession } from "../../api/models";
 import {
   listOutbox, PracticeOutboxConflictError, PracticePersistenceError,
   type PracticeOutboxEntry, type PracticeRunRecovery, removeOutboxEntry,
@@ -10,22 +10,33 @@ import {
 
 export class PracticeCatalogError extends Error {}
 
+export function practiceAnswerKind(exercise: NonNullable<PracticeSession["currentExercise"]>) {
+  if ("matchingColumns" in exercise.prompt && exercise.prompt.matchingColumns) return "matching";
+  if ("gapPrompt" in exercise.prompt && exercise.prompt.gapPrompt) return "gaps";
+  return exercise.prompt.blocks.length > 0 ? "order" : "text";
+}
+
 export function answerFor(
   exercise: NonNullable<PracticeSession["currentExercise"]>,
   text: string,
   order: string[],
   gapSelections: GapSelection[],
+  matchingPairs: MatchingPair[],
 ): AttemptAnswer {
-  if (["E003", "E024", "E025", "E029", "E030"].includes(exercise.formatId)) return { kind: "order", blockIds: order };
-  if (exercise.formatId === "E015") return { kind: "gaps", selections: gapSelections };
+  const kind = practiceAnswerKind(exercise);
+  if (kind === "matching") return { kind, pairs: matchingPairs };
+  if (kind === "order") return { kind, blockIds: order };
+  if (kind === "gaps") return { kind, selections: gapSelections };
   return { kind: "text", text };
 }
 
 export function answerValues(answer?: AttemptAnswer) {
-  if (answer?.kind === "text") return { text: answer.text, order: [] as string[], gapSelections: [] as GapSelection[] };
-  if (answer?.kind === "order") return { text: "", order: answer.blockIds, gapSelections: [] as GapSelection[] };
-  if (answer?.kind === "gaps") return { text: "", order: [] as string[], gapSelections: answer.selections };
-  return { text: "", order: [] as string[], gapSelections: [] as GapSelection[] };
+  return {
+    text: answer?.kind === "text" ? answer.text : "",
+    order: answer?.kind === "order" ? answer.blockIds : [],
+    gapSelections: answer?.kind === "gaps" ? answer.selections : [],
+    matchingPairs: answer?.kind === "matching" ? answer.pairs : [],
+  };
 }
 
 export function outboxEntry(run: PracticeRunRecovery, kind: PracticeOutboxEntry["kind"], identity: string, body: unknown) {
@@ -169,6 +180,7 @@ export type OperationHandlers = {
   applyState: (session: PracticeSession) => void;
   setError: (message: string) => void;
   setGapSelections: (selections: GapSelection[]) => void;
+  setMatchingPairs: (pairs: MatchingPair[]) => void;
   setOrder: (order: string[]) => void;
   setPending: (entry: PracticeOutboxEntry | null) => void;
   setRecoveryUnavailable: (value: boolean) => void;
@@ -180,6 +192,7 @@ function restoreUncertain(request: AttemptRequest | null, handlers: OperationHan
   handlers.setUncertain(request);
   const restored = answerValues(request?.answer);
   handlers.setGapSelections(restored.gapSelections);
+  handlers.setMatchingPairs(restored.matchingPairs);
   handlers.setText(restored.text);
   handlers.setOrder(restored.order);
 }

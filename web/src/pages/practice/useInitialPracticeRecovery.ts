@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, loadPracticeContext } from "../../api/client";
-import type { AttemptRequest, GapSelection, PracticeProfiles, PracticeSession } from "../../api/models";
+import type { AttemptRequest, GapSelection, MatchingPair, PracticeProfiles, PracticeSession } from "../../api/models";
 import { answerValues, attemptFromEntry, practiceError, reconcileOutbox } from "./practiceOperations";
 import { practiceProfilesQuery } from "./practiceProfiles";
 import { recoveredFocus, type PracticeFocusTarget } from "./usePracticeFocusQueue";
@@ -15,6 +15,7 @@ export type InitialRecoveryHandlers = {
   setBusy: (value: boolean) => void;
   setError: (value: string) => void;
   setGapSelections: (value: GapSelection[]) => void;
+  setMatchingPairs: (value: MatchingPair[]) => void;
   setOrder: (value: string[]) => void;
   setPendingEntry: (value: PracticeOutboxEntry | null) => void;
   setRecoveryUnavailable: (value: boolean) => void;
@@ -32,6 +33,7 @@ function restorePendingAttempt(entry: PracticeOutboxEntry | undefined, handlers:
   if (!request) return;
   const restored = answerValues(request.answer);
   handlers.setGapSelections(restored.gapSelections);
+  handlers.setMatchingPairs(restored.matchingPairs);
   handlers.setText(restored.text);
   handlers.setOrder(restored.order);
 }
@@ -87,6 +89,7 @@ export function useInitialPracticeRecovery(boundId: string | null, handlers: Ini
             handlers.setUncertain(request);
             const restored = answerValues(request?.answer);
             handlers.setGapSelections(restored.gapSelections);
+            handlers.setMatchingPairs(restored.matchingPairs);
             handlers.setText(restored.text);
             handlers.setOrder(restored.order);
           },

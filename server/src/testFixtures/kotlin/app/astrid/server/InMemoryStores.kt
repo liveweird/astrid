@@ -1,7 +1,6 @@
 package app.astrid.server
 
 import app.astrid.engine.LinguisticStatus
-import app.astrid.engine.PracticeCompletionAttemptObservation
 import app.astrid.engine.PracticeCompletionPolicy
 import app.astrid.engine.ResponseConstraintStatus
 import app.astrid.engine.TargetStatus
@@ -30,6 +29,7 @@ import app.astrid.server.practice.PracticeSupportRequest
 import app.astrid.server.practice.StoredPracticeAttempt
 import app.astrid.server.practice.StoredPracticeItem
 import app.astrid.server.practice.StoredPracticeSession
+import app.astrid.server.practice.toCompletionObservation
 import app.astrid.server.practice.toEngineAssessment
 import app.astrid.server.session.SessionStore
 import java.util.UUID
@@ -276,14 +276,8 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                 position > stored.cursor -> PracticeMutationResult.Conflict
                 !PracticeCompletionPolicy.canAdvance(
                     stored.completionRuleId,
-                    stored.items.single { it.position == position }.attempts.lastOrNull()?.response?.let { response ->
-                        PracticeCompletionAttemptObservation(
-                            enumByWire(response.targetSatisfaction),
-                            enumByWire(response.linguisticStatus),
-                            response.responseConstraintStatus?.let { enumByWire(it) },
-                            response.issues.map { it.code },
-                        )
-                    },
+                    stored.items.single { it.position == position }.attempts.lastOrNull()?.response
+                        ?.toCompletionObservation(stored.introductionOpened),
                 ) -> PracticeMutationResult.Conflict
                 else -> {
                     stored.cursor += 1
@@ -353,6 +347,8 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
         val assessmentMode = item.assessmentMode
         val assessments = item.assessments.toList()
         val targetScopeId = item.targetScopeId
+        val readingRole = item.readingRole
+        val matchingTarget = item.matchingTarget
         var lessonOpened = false
         var hintOpened = false
         var attempts = mutableListOf<StoredPracticeAttempt>()
@@ -363,6 +359,8 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
             assessmentMode,
             assessments,
             targetScopeId,
+            readingRole,
+            matchingTarget,
         )
     }
 }

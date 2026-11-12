@@ -3,12 +3,17 @@
 package app.astrid.server.practice
 
 import app.astrid.engine.PracticeAssessment
+import app.astrid.engine.PracticeCompletionAttemptObservation
 import app.astrid.engine.PracticeTargetDescriptor
 import app.astrid.server.exercises.AttemptAnswerDto
 import app.astrid.server.exercises.AttemptResponse
 import app.astrid.server.exercises.IntroductionDto
 import app.astrid.server.exercises.PracticeAttemptContextDto
 import app.astrid.server.exercises.PracticeCrossRunExposureDto
+import app.astrid.server.exercises.LexicalTargetDto
+import app.astrid.server.exercises.LexicalTaskDto
+import app.astrid.server.exercises.ReadingTaskDto
+import app.astrid.server.exercises.MatchingPairResultDto
 import app.astrid.server.exercises.StoredExercise
 import java.util.UUID
 import kotlinx.serialization.EncodeDefault
@@ -47,6 +52,8 @@ data class NewPracticeItem(
     val assessmentMode: String? = null,
     val assessments: List<PracticeAssessmentPayload> = emptyList(),
     val targetScopeId: String? = null,
+    val readingRole: String? = null,
+    val matchingTarget: LexicalTaskDto? = null,
 )
 
 data class StoredPracticeSession(
@@ -88,6 +95,8 @@ data class StoredPracticeItem(
     val assessmentMode: String? = null,
     val assessments: List<PracticeAssessmentPayload> = emptyList(),
     val targetScopeId: String? = null,
+    val readingRole: String? = null,
+    val matchingTarget: LexicalTaskDto? = null,
 )
 
 data class StoredPracticeAttempt(
@@ -140,6 +149,10 @@ data class PracticeItemPayload(
     val assessments: List<PracticeAssessmentPayload> = emptyList(),
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val targetScopeId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val readingRole: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val matchingTarget: LexicalTaskDto? = null,
 )
 
 @Serializable
@@ -147,12 +160,22 @@ data class PracticeAssessmentPayload(
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val slotId: String? = null,
     val label: String,
-    val targetSkillId: String,
-    val assessmentMode: String,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val targetSkillId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val assessmentMode: String? = null,
     val assessmentRole: String,
     val answerExposureKeys: List<String>,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val targetScopeId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val lexicalTarget: LexicalTargetDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val readingTarget: ReadingTaskDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val readingRole: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val matchingTarget: LexicalTaskDto? = null,
 )
 
 fun NewPracticeSession.toPayload() = PracticePlanPayload(
@@ -174,6 +197,8 @@ fun NewPracticeSession.toPayload() = PracticePlanPayload(
             it.assessmentMode,
             it.assessments,
             it.targetScopeId,
+            it.readingRole,
+            it.matchingTarget,
         )
     },
     followUp?.let { PracticeFollowUpPayload(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },
@@ -186,7 +211,47 @@ fun NewPracticeSession.toPayload() = PracticePlanPayload(
 
 internal fun PracticeAssessmentPayload.toEngineAssessment() = PracticeAssessment(
     slotId,
-    PracticeTargetDescriptor(label, targetSkillId, null, assessmentMode, targetScopeId),
+    PracticeTargetDescriptor(
+        label,
+        targetSkillId,
+        lexicalTarget?.let { app.astrid.engine.LexicalTarget(it.entryId, it.senseId, it.facet, it.direction) },
+        assessmentMode,
+        targetScopeId,
+        readingTarget?.let { app.astrid.engine.ReadingTask(it.facet) },
+        readingRole,
+        matchingTarget?.let { app.astrid.engine.LexicalTask(it.facet, it.direction) },
+    ),
     assessmentRole,
     answerExposureKeys,
 )
+
+internal fun AttemptResponse.toCompletionObservation(teachingSaved: Boolean) = PracticeCompletionAttemptObservation(
+    targetStatus = enumByWire(targetSatisfaction),
+    linguisticStatus = enumByWire(linguisticStatus),
+    responseConstraintStatus = responseConstraintStatus?.let { enumByWire(it) },
+    issueCodes = issues.map { it.code },
+    teachingSaved = teachingSaved,
+    meaningSatisfaction = meaningSatisfaction?.let { enumByWire(it) },
+    matchingResults = matchingResults.orEmpty().map { it.toEngine() },
+)
+
+private fun MatchingPairResultDto.toEngine() = app.astrid.engine.MatchingPairResult(
+    leftId,
+    rightId,
+    lexicalTarget.let { app.astrid.engine.LexicalTarget(it.entryId, it.senseId, it.facet, it.direction) },
+    enumByWire(targetSatisfaction),
+    enumByWire(meaningSatisfaction),
+    enumByWire(responseConstraintStatus),
+    enumByWire(linguisticStatus),
+    feedback,
+)
+
+private inline fun <reified T : Enum<T>> enumByWire(value: String): T = enumValues<T>().single { entry ->
+    when (entry) {
+        is app.astrid.engine.TargetStatus -> entry.wireValue
+        is app.astrid.engine.LinguisticStatus -> entry.wireValue
+        is app.astrid.engine.ResponseConstraintStatus -> entry.wireValue
+        is app.astrid.engine.MeaningSatisfaction -> entry.wireValue
+        else -> error("Unsupported wire enum")
+    } == value
+}

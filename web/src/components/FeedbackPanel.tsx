@@ -24,7 +24,7 @@ function meaningLabel(value: string) {
   return "Meaning not evaluated";
 }
 
-function lexicalLanguageLabel(attempt: Attempt) {
+function lexicalLanguageLabel(attempt: Attempt, packetMatching: boolean) {
   const scope = attempt.linguisticScope;
   if (scope === "english-choice") {
     return attempt.linguisticStatus === "acceptable"
@@ -39,7 +39,7 @@ function lexicalLanguageLabel(attempt: Attempt) {
       ? "Recognized Danish choice"
       : "Unrecognized Danish choice";
   }
-  if (scope === "danish-matching") return "Supplied Danish noun phrases";
+  if (scope === "danish-matching") return packetMatching ? "Supplied Danish words and expressions" : "Supplied Danish noun phrases";
   if (scope === "danish-gaps") return "Danish gap selections";
   if (scope === "danish-word-form") {
     return attempt.linguisticStatus === "acceptable" ? "Recognized Danish word form" : languageLabel(attempt.linguisticStatus);
@@ -62,8 +62,8 @@ function feedbackTitle(
   return "Look at the target once more";
 }
 
-function failedConstraintLabel(scope: string | null | undefined, tileResponse: boolean) {
-  if (scope === "danish-matching") return "Complete four matches";
+function failedConstraintLabel(scope: string | null | undefined, tileResponse: boolean, matchingCount: number) {
+  if (scope === "danish-matching") return `Complete ${matchingCount === 3 ? "three" : "four"} matches`;
   if (scope === "danish-gaps") return "Complete both gaps";
   if (tileResponse) return "Response constraint to revisit";
   if (scope === "danish-headword") return "One-word response required";
@@ -72,8 +72,8 @@ function failedConstraintLabel(scope: string | null | undefined, tileResponse: b
   return "Supplied choice required";
 }
 
-function metConstraintLabel(scope: string | null | undefined, tileResponse: boolean) {
-  if (scope === "danish-matching") return "Four matches supplied";
+function metConstraintLabel(scope: string | null | undefined, tileResponse: boolean, matchingCount: number) {
+  if (scope === "danish-matching") return `${matchingCount === 3 ? "Three" : "Four"} matches supplied`;
   if (scope === "danish-gaps") return "Both gaps supplied";
   if (tileResponse) return "Response constraint met";
   if (scope === "danish-sentence") return "One statement supplied";
@@ -82,7 +82,8 @@ function metConstraintLabel(scope: string | null | undefined, tileResponse: bool
 }
 
 function matchingEvidence(attempt: Attempt, exercise: Exercise | undefined) {
-  if (attempt.linguisticScope !== "danish-matching" || exercise?.formatId !== "E014") return null;
+  if (attempt.linguisticScope !== "danish-matching" || !exercise ||
+      !("matchingColumns" in exercise.prompt) || !exercise.prompt.matchingColumns || !attempt.matchingResults) return null;
   return { results: attempt.matchingResults, columns: exercise.prompt.matchingColumns };
 }
 
@@ -112,7 +113,8 @@ function MatchingFeedback({ results, columns }: { results: MatchingPairResult[];
 }
 
 function gapEvidence(attempt: Attempt, exercise: Exercise | undefined) {
-  if (attempt.linguisticScope !== "danish-gaps" || exercise?.formatId !== "E015") return null;
+  if (attempt.linguisticScope !== "danish-gaps" || !exercise ||
+      !("gapPrompt" in exercise.prompt) || !exercise.prompt.gapPrompt) return null;
   return { results: attempt.gapResults, prompt: exercise.prompt.gapPrompt };
 }
 
@@ -160,6 +162,44 @@ function wordFormFeedbackTitle(attempt: Attempt, targetMet: boolean, goodWork: b
   return null;
 }
 
+function FeedbackBadges({ attempt, tileResponse, matchingCount, packetMatching }: {
+  attempt: Attempt;
+  tileResponse: boolean;
+  matchingCount: number;
+  packetMatching: boolean;
+}) {
+  const scope = attempt.linguisticScope;
+  const matching = scope === "danish-matching";
+  const gaps = scope === "danish-gaps";
+  const meaningSatisfaction = "meaningSatisfaction" in attempt ? attempt.meaningSatisfaction : undefined;
+  return (
+    <Group className={classes.feedbackBadges} gap="xs">
+      <Badge className={classes.feedbackBadge} variant="default">
+        {matching ? `${matchingCount === 3 ? "Three" : "Four"} lexical meanings` : targetLabel(attempt.targetSatisfaction)}
+      </Badge>
+      {meaningSatisfaction && (
+        <Badge className={classes.feedbackBadge} variant="default">
+          {meaningLabel(meaningSatisfaction)}
+        </Badge>
+      )}
+      <Badge className={classes.feedbackBadge} variant="default">
+        {attempt.linguisticScope ? lexicalLanguageLabel(attempt, packetMatching) : languageLabel(attempt.linguisticStatus)}
+      </Badge>
+      {(["danish-sentence", "danish-choice", "danish-word-form"].includes(scope ?? "") || matching || gaps)
+        && attempt.responseConstraintStatus === "met" && (
+        <Badge className={classes.feedbackBadge} variant="default">
+          {metConstraintLabel(scope, tileResponse, matchingCount)}
+        </Badge>
+      )}
+      {attempt.responseConstraintStatus === "not-met" && (
+        <Badge className={classes.feedbackBadge} color="orange" variant="light">
+          {failedConstraintLabel(scope, tileResponse, matchingCount)}
+        </Badge>
+      )}
+    </Group>
+  );
+}
+
 export default function FeedbackPanel({ attempt, exercise, focusRef, supportDescription, tileResponse = false }: {
   attempt: Attempt;
   exercise?: Exercise;
@@ -188,6 +228,8 @@ export default function FeedbackPanel({ attempt, exercise, focusRef, supportDesc
   const gapSupportNeedsReview = gaps && met && !goodWork;
   const wordFormTitle = wordFormFeedbackTitle(attempt, met, goodWork);
   const matchingDetails = matchingEvidence(attempt, exercise);
+  const matchingCount = matchingDetails?.columns.left.length ?? 4;
+  const packetMatching = matching && ["E033"].includes(exercise?.formatId ?? "");
   const gapDetails = gapEvidence(attempt, exercise);
   return (
     <Alert
@@ -206,30 +248,8 @@ export default function FeedbackPanel({ attempt, exercise, focusRef, supportDesc
       role="status"
     >
       <Stack gap="xs">
-        <Group className={classes.feedbackBadges} gap="xs">
-          <Badge className={classes.feedbackBadge} variant="default">
-            {matching ? "Four lexical meanings" : targetLabel(attempt.targetSatisfaction)}
-          </Badge>
-          {meaningSatisfaction && (
-            <Badge className={classes.feedbackBadge} variant="default">
-              {meaningLabel(meaningSatisfaction)}
-            </Badge>
-          )}
-          <Badge className={classes.feedbackBadge} variant="default">
-            {attempt.linguisticScope ? lexicalLanguageLabel(attempt) : languageLabel(attempt.linguisticStatus)}
-          </Badge>
-          {(["danish-sentence", "danish-choice", "danish-word-form"].includes(scope ?? "") || matching || gaps)
-            && attempt.responseConstraintStatus === "met" && (
-            <Badge className={classes.feedbackBadge} variant="default">
-              {metConstraintLabel(scope, tileResponse)}
-            </Badge>
-          )}
-          {attempt.responseConstraintStatus === "not-met" && (
-            <Badge className={classes.feedbackBadge} color="orange" variant="light">
-              {failedConstraintLabel(scope, tileResponse)}
-            </Badge>
-          )}
-        </Group>
+        <FeedbackBadges attempt={attempt} tileResponse={tileResponse}
+          matchingCount={matchingCount} packetMatching={packetMatching} />
         <Text>{attempt.feedback}</Text>
         {matchingDetails && <MatchingFeedback {...matchingDetails} />}
         {gapDetails && <GapFeedback {...gapDetails} />}

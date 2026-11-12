@@ -51,7 +51,7 @@ function isOrder(exercise: Exercise) {
 }
 
 function isMatching(exercise: Exercise) {
-  return exercise.formatId === "E014";
+  return "matchingColumns" in exercise.prompt && Boolean(exercise.prompt.matchingColumns);
 }
 
 function isGaps(exercise: Exercise) {
@@ -289,6 +289,7 @@ export default function Playground() {
                 onOrder={setOrder}
                 matchingPairs={matchingPairs}
                 matchingFocusRef={matchingRef}
+                matchingInteractionId={pending ? "pending" : attempt?.attemptId}
                 onMatchingPairs={setMatchingPairs}
                 gapSelections={gapSelections}
                 gapFocusRef={gapRef}
