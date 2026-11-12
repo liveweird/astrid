@@ -508,6 +508,37 @@ tasks.register<JavaExec>("exportQuestionPracticeWireCompatibility") {
     outputs.files(questionPracticeWireFixture, questionPracticeWireProvenance)
 }
 
+// Published v0.20.1 compatibility exporters captured from 9eefcfed708670ce45dbdd9b11adc41f9fe17d25.
+// Outputs remain CREATE_NEW and are pinned only after two fresh-JVM captures match byte-for-byte.
+
+tasks.register<JavaExec>("exportPilotEighteenWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-18 public and inspector wire compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.PilotEighteenWireCompatibilityExportMain")
+    val fixture = layout.projectDirectory.file("src/test/resources/golden/pilot-18-generator-18-wire.tsv")
+    val provenance = layout.projectDirectory.file("src/test/resources/golden/pilot-18-generator-18-wire.provenance")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(fixture.asFile.absolutePath, provenance.asFile.absolutePath)
+    })
+    outputs.files(fixture, provenance)
+}
+
+tasks.register<JavaExec>("exportVocabularyP1RevisionTwoPracticeWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.20.1 P1 revision-two practice wire fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.VocabularyP1RevisionTwoPracticeWireCompatibilityExportMain")
+    val fixture = layout.projectDirectory.file("src/test/resources/golden/vocabulary-p1-practice-0.20.1-wire.tsv")
+    val provenance = layout.projectDirectory.file("src/test/resources/golden/vocabulary-p1-practice-0.20.1-wire.provenance")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(fixture.asFile.absolutePath, provenance.asFile.absolutePath)
+    })
+    outputs.files(fixture, provenance)
+}
+
 tasks.test {
     useJUnit()
 }

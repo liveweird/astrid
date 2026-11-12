@@ -563,6 +563,43 @@ tasks.register<JavaExec>("exportQuestionPracticeCompatibility") {
     outputs.files(questionPracticeCompatibilityFixture, questionPracticeCompatibilityProvenance)
 }
 
+val pilotEighteenCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-18-generator-18-evaluation-18.tsv")
+val pilotEighteenCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/pilot-18-generator-18-evaluation-18.provenance")
+
+tasks.register<JavaExec>("exportPilotEighteenCompatibility") {
+    group = "verification"
+    description = "Writes the immutable pilot-18 engine generation and evaluation compatibility fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.PilotEighteenCompatibilityGoldenExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(pilotEighteenCompatibilityFixture.asFile.absolutePath, pilotEighteenCompatibilityProvenance.asFile.absolutePath)
+    })
+    outputs.files(pilotEighteenCompatibilityFixture, pilotEighteenCompatibilityProvenance)
+}
+
+val vocabularyP1RevisionTwoPracticeCompatibilityFixture =
+    layout.projectDirectory.file("src/test/resources/golden/vocabulary-p1-practice-0.20.1.tsv")
+val vocabularyP1RevisionTwoPracticeCompatibilityProvenance =
+    layout.projectDirectory.file("src/test/resources/golden/vocabulary-p1-practice-0.20.1.provenance")
+
+tasks.register<JavaExec>("exportVocabularyP1RevisionTwoPracticeCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.20.1 P1 vocabulary practice fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.VocabularyP1RevisionTwoPracticeCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(
+            vocabularyP1RevisionTwoPracticeCompatibilityFixture.asFile.absolutePath,
+            vocabularyP1RevisionTwoPracticeCompatibilityProvenance.asFile.absolutePath,
+        )
+    })
+    outputs.files(vocabularyP1RevisionTwoPracticeCompatibilityFixture, vocabularyP1RevisionTwoPracticeCompatibilityProvenance)
+}
+
 tasks.test {
     useJUnit()
 }

@@ -1,0 +1,9 @@
+releaseSourceCommit=9eefcfed708670ce45dbdd9b11adc41f9fe17d25
+releaseVersion=0.20.1
+captureDate=2026-11-12
+projectionSchema=p1-revision-two-server-wire-v1
+planPairs=vocabulary-p1-s1-2:pilot-18/generator-18/evaluation-18,vocabulary-p1-s2-2:pilot-18/generator-18/evaluation-18,vocabulary-p1-s3-2:pilot-18/generator-18/evaluation-18,vocabulary-p1-s4-2:pilot-18/generator-18/evaluation-18,vocabulary-p1-s5-2:pilot-18/generator-18/evaluation-18
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=221
+fixtureSha256=288a676d09607fa21c2758a138aa392e8c2b5ee19a4e8315ff7a34ac68d20ac6
+description=Five literal P1 profiles with 4/4/5/5/5 items at four boundary seeds; selected profiles, requests, private plans, payload round-trips, saved contexts, required teaching, support, actual confirmed-only feedback exposure, first/latest outcomes, meaning counts, reading roles, matching targets/results and eligibility.

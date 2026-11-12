@@ -1,0 +1,12 @@
+releaseSourceCommit=9eefcfed708670ce45dbdd9b11adc41f9fe17d25
+releaseVersion=0.20.1
+captureDate=2026-11-12
+projectionSchema=pair18-engine-v1
+contentRevision=pilot-18
+generatorRevision=generator-18
+evaluationRevision=evaluation-18
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=3591
+fixtureSha256=c6a353ecc205ddbc8d4dee5e93d78cf2b7c3d507e9a7bf6b2b585401dbf36af8
+reviewSha256=ef964f9d049d62dcfb24fb7c071a8b05b3a12f34bb39abcd73d042d7b0cd8f6a
+description=All thirty-nine pair-eighteen format cycles and seed/index boundaries; all 23 literal P1 tasks and complete public, inspector, private source and answer-key projections; every choice, typed normalization boundary, tile order and malformed shape, and all 34/209 partial matching bijections.

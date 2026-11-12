@@ -130,3 +130,25 @@ database, volume and network.
 This patch release adds no curriculum: current P1 revision-two plans use pair eighteen and
 retained revision-one plans remain on pair seventeen. P2/P3 remain unactivated authoring
 drafts, S14 remains paused, and Danish teaching review remains pending under BL-022.
+
+## Compatibility archive follow-up
+
+The test-only preservation pass captures published 0.20.1 source `9eefcfe` without changing
+its production code or the running preview. Four new immutable archives contain 3,591 engine,
+261 revision-two plan, 5,862 server-wire and 221 practice-wire rows. Fresh default-locale and
+Arabic-locale exporter JVMs produced byte-identical fixtures and provenances before promotion.
+The guards pin the actual source/date/schema, row counts, SHA-256 values and engine review
+bytes, with literal coverage of all 39 formats, 23 P1 tasks and five revision-two plans.
+
+Independent review checked the private-source projection, complete three/four-pair matching
+cases, actual accepted/reviewed tile orders, sequential retry-feedback contexts and public
+non-leakage boundaries. All 105 pre-existing golden/provenance and applied-migration files
+kept their hashes. The [compatibility conventions](../../.claude/docs/compatibility.md)
+record the archive inventory and stable-ordering rule. This is compatibility evidence only;
+linguistic approval, P2/P3 activation and S14 resumption remain separate.
+
+Post-capture `./scripts/check.sh` passed all 420 engine tests, the same 420 locale tests,
+282 server tests and 285 web tests, with no skipped JVM tests. Kover measured engine
+line/branch coverage at 98.33%/86.04% and server at 98.36%/82.37%; the existing integer
+floors remain 98/86 and 98/82. The added exporter/helper refactors passed independent review
+without changing any captured bytes or assertion coverage.

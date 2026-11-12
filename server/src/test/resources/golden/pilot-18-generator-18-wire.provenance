@@ -1,0 +1,11 @@
+releaseSourceCommit=9eefcfed708670ce45dbdd9b11adc41f9fe17d25
+releaseVersion=0.20.1
+captureDate=2026-11-12
+projectionSchema=pair18-server-wire-v1
+contentRevision=pilot-18
+generatorRevision=generator-18
+evaluationRevision=evaluation-18
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=5862
+fixtureSha256=9085319dd579f3872d1709ded0e7b0a1302bac4cc0178e793d1d5b9bb73bda17
+description=All thirty-nine pair-eighteen formats at literal cycles and boundary seeds; all 23 P1 tasks, public and inspector JSON, mapped private inspector metadata, requests, complete responses including per-pair matching results, exhaustive partial matching bijections, tile alternatives and reproduction fingerprints.

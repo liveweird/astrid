@@ -1,0 +1,261 @@
+CATALOG	03c3be9852a1128dc5d66c76ce6c38166f25334733049664bc8b6f59ffdbc636
+PLAN	vocabulary-p1-s1	0	947b4907a3c7f4ae176e668f89de1b97905456a9aa5610cdab236fdf7fc0bd99
+PLAN	vocabulary-p1-s2	0	bb3743ff36201cc0048fd0c665f5c446f472cb6ea96252816882896954ffadc3
+PLAN	vocabulary-p1-s3	0	4d792e67deac5addcfbbc7355d77539d8ecf3fd8695f0b6e7167cb14ae5101ac
+PLAN	vocabulary-p1-s4	0	dced0b350be9b44de76cbdbef44b039ac024b5363abf3a37af5ed603fe5bb5b6
+PLAN	vocabulary-p1-s5	0	99b81781da229426e1cd8a444b1f84c7d53275cf17bb086d2b7b87fd31b6d916
+PLAN	vocabulary-p1-s1	1	f8f9bb0063cc53e42016fccc9683c2953043437e231af1ecce1bf1b548572e15
+PLAN	vocabulary-p1-s2	1	6a0ea1382d22363645359de3106f0e48a74cc7456323d6cc0d809b8b3b383481
+PLAN	vocabulary-p1-s3	1	b5da5766d44849b77bb2ed18e9415e5e8043489e3cc9e7983343815a8ca8d695
+PLAN	vocabulary-p1-s4	1	65493d0327b9580b0455ccd364dd44f28c19d73e345e6ade8df2ce5159efcb04
+PLAN	vocabulary-p1-s5	1	3a1b0394c34a757476c401a66c82d852c5dc83417d32dc0c08ea990194406e0a
+PLAN	vocabulary-p1-s1	47	75ba5caf826a51102ff9b546970cffdf0f5e6dc7f65f2632d26532113cf43ead
+PLAN	vocabulary-p1-s2	47	ad0a8b77ec2600b032b941655426f3251c3b8e299c2dc4c954a53a465d52fe09
+PLAN	vocabulary-p1-s3	47	fd8c5a1ee1226e679084e10238cae60e2c25cc8726bf29d46e76cb940519e77f
+PLAN	vocabulary-p1-s4	47	66ed4b3186fc7a86c1cc7a1e2638688aedc55b8c355c5f732b4ca818ba9d286b
+PLAN	vocabulary-p1-s5	47	c7f0420cd47db4adb0fe165155f95585c73ed7832ab3ce144f282a0e949e73fc
+PLAN	vocabulary-p1-s1	2147483647	0a831013db46171306b5eed8d5ee575e381b50562ce3f5bc61f33ef259c89f34
+PLAN	vocabulary-p1-s2	2147483647	5e9ccd740c4bba821ede96e216f3f891f6ea796463de45835d7494a6b03c9230
+PLAN	vocabulary-p1-s3	2147483647	10e59ca801399294f0d9bd6511d76b9cdeb62cb8e1f2c57b7637d75c21e4b3f5
+PLAN	vocabulary-p1-s4	2147483647	fccc205388b213fac850e9e62b81b4ac7aa6e8417d442ac1cf650557a00b9509
+PLAN	vocabulary-p1-s5	2147483647	4a0cd4bee01ef0497e94421ce9df126057c617f78d4520b0cb82a4eeef4d2cb7
+SUMMARY	vocabulary-p1-s1	all-correct	a3de44ebb9224f86d0bf6e8075ab1086f835e0bcd38b8f25ebc5ef25f3656232
+SUMMARY	vocabulary-p1-s1	non-success	be6deb78de9059653dd7e75321b0169600582c35ca35d136c44594f103d5d14f
+SUMMARY	vocabulary-p1-s1	retry-correct	be753dafe42572b1a06fa61e29f3d32a3eba7f2546367d02c719505372cf10b0
+SUMMARY	vocabulary-p1-s1	eligible-then-valid-nonsuccess	8005e1763f50c26fa1750827faa83803bac0802ece347ef07c5ba5ddd3fcbe6c
+SUMMARY	vocabulary-p1-s1	partial-or-valid-nonsuccess	be6deb78de9059653dd7e75321b0169600582c35ca35d136c44594f103d5d14f
+EXPOSURE	vocabulary-p1-s1	0	correct	vocabulary-p1:meaning:L027:L027-S01
+EXPOSURE	vocabulary-p1-s1	0	known-wrong	-
+EXPOSURE	vocabulary-p1-s1	0	partial	-
+EXPOSURE	vocabulary-p1-s1	0	known-wrong-then-correct	vocabulary-p1:meaning:L027:L027-S01
+EXPOSURE	vocabulary-p1-s1	1	correct	vocabulary-p1:meaning:L014:L014-S01
+EXPOSURE	vocabulary-p1-s1	1	known-wrong	-
+EXPOSURE	vocabulary-p1-s1	1	partial	-
+EXPOSURE	vocabulary-p1-s1	1	known-wrong-then-correct	vocabulary-p1:meaning:L014:L014-S01
+EXPOSURE	vocabulary-p1-s1	2	correct	vocabulary-p1:meaning:L037:L037-S01
+EXPOSURE	vocabulary-p1-s1	2	known-wrong	-
+EXPOSURE	vocabulary-p1-s1	2	partial	-
+EXPOSURE	vocabulary-p1-s1	2	known-wrong-then-correct	vocabulary-p1:meaning:L037:L037-S01
+EXPOSURE	vocabulary-p1-s1	3	correct	vocabulary-p1:proposition:p1-s1-f2
+EXPOSURE	vocabulary-p1-s1	3	known-wrong	-
+EXPOSURE	vocabulary-p1-s1	3	partial	-
+EXPOSURE	vocabulary-p1-s1	3	known-wrong-then-correct	vocabulary-p1:proposition:p1-s1-f2
+EVALUATION	vocabulary-p1-s1	0	p1-1.1	correct	bbec2885936345435d2269d5298952f02ee95354d86abb3bc370d7885d67c44a	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s1	0	p1-1.1	known-wrong	9ef3e512b25f361559b4f11d0cb7c664ac1dd6e4203d899dac125b4c64d99168	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s1	0	p1-1.1	partial	8fabf314daa5d9bb4935f47d0275afe47334d695aaff7f150a33b56c183ac00f	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s1	0	p1-1.1	unknown	916ecbe7da3b85e0e39b4a6227b045c1d54b0178ac7b7d1d6bd81836aadc6eeb	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s1	0	p1-1.1	wrong-kind	f264d7eb9a80411727a6411c1a946f6be33337f097d911b24219e7736834bd63	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s1	1	p1-1.2	correct	5a67cd86e7007a780eeae590313a84c5863edb3697daa402b57c5d9d54935628	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s1	1	p1-1.2	known-wrong	0ff11a82c79e2b9c38dc30f896399e0344b928ec157be8f051f7cfd248b51b9b	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s1	1	p1-1.2	partial	8fabf314daa5d9bb4935f47d0275afe47334d695aaff7f150a33b56c183ac00f	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s1	1	p1-1.2	unknown	916ecbe7da3b85e0e39b4a6227b045c1d54b0178ac7b7d1d6bd81836aadc6eeb	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s1	1	p1-1.2	wrong-kind	f264d7eb9a80411727a6411c1a946f6be33337f097d911b24219e7736834bd63	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s1	2	p1-1.3	correct	567128e476841d9c21fef310fdffd8658d2e96e0f16e7a42009364409ffa8415	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s1	2	p1-1.3	known-wrong	a4da6be9a9cb15e0659a333db5cc122c34bd3b7d6b59a6d10560fe75335a8ed1	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s1	2	p1-1.3	partial	8fabf314daa5d9bb4935f47d0275afe47334d695aaff7f150a33b56c183ac00f	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s1	2	p1-1.3	unknown	916ecbe7da3b85e0e39b4a6227b045c1d54b0178ac7b7d1d6bd81836aadc6eeb	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s1	2	p1-1.3	wrong-kind	f264d7eb9a80411727a6411c1a946f6be33337f097d911b24219e7736834bd63	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s1	3	p1-1.4	correct	5a67cd86e7007a780eeae590313a84c5863edb3697daa402b57c5d9d54935628	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s1	3	p1-1.4	known-wrong	0ff11a82c79e2b9c38dc30f896399e0344b928ec157be8f051f7cfd248b51b9b	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s1	3	p1-1.4	partial	8fabf314daa5d9bb4935f47d0275afe47334d695aaff7f150a33b56c183ac00f	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s1	3	p1-1.4	unknown	916ecbe7da3b85e0e39b4a6227b045c1d54b0178ac7b7d1d6bd81836aadc6eeb	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s1	3	p1-1.4	wrong-kind	f264d7eb9a80411727a6411c1a946f6be33337f097d911b24219e7736834bd63	false	unevaluable	unknown	not-met	unknown
+SUMMARY	vocabulary-p1-s2	all-correct	0e1acb35324d4ade34aa083c8bc4e8feed60581539b1ed69aa7f64af2d3d5471
+SUMMARY	vocabulary-p1-s2	non-success	687080da01d361baa50a5ccf39dc2f91a57eccfc2cb3f85b1552642eb7cfcdff
+SUMMARY	vocabulary-p1-s2	retry-correct	d29b6158add8b4a79c495b23e66b9a7978429a86fbe2e844613a442987daf599
+SUMMARY	vocabulary-p1-s2	eligible-then-valid-nonsuccess	3ca265a45036214fe350f599fc2cf41c50e7a6232c42fe1d59bc0d45c2640812
+SUMMARY	vocabulary-p1-s2	partial-or-valid-nonsuccess	8ff8602e7a3accc2e030c2cac12f0c10793eb88a72621ea29670085e8c65285f
+EXPOSURE	vocabulary-p1-s2	0	correct	vocabulary-p1:mapping:L015:L015-S01vocabulary-p1:mapping:L018:L018-S01vocabulary-p1:mapping:L041:L041-S01vocabulary-p1:mapping:L042:L042-S01
+EXPOSURE	vocabulary-p1-s2	0	known-wrong	vocabulary-p1:mapping:L015:L015-S01vocabulary-p1:mapping:L018:L018-S01
+EXPOSURE	vocabulary-p1-s2	0	partial	vocabulary-p1:mapping:L018:L018-S01vocabulary-p1:mapping:L041:L041-S01vocabulary-p1:mapping:L042:L042-S01
+EXPOSURE	vocabulary-p1-s2	0	known-wrong-then-correct	vocabulary-p1:mapping:L015:L015-S01vocabulary-p1:mapping:L018:L018-S01vocabulary-p1:mapping:L041:L041-S01vocabulary-p1:mapping:L042:L042-S01
+EXPOSURE	vocabulary-p1-s2	1	correct	vocabulary-p1:meaning:L015:L015-S01
+EXPOSURE	vocabulary-p1-s2	1	known-wrong	-
+EXPOSURE	vocabulary-p1-s2	1	partial	-
+EXPOSURE	vocabulary-p1-s2	1	known-wrong-then-correct	vocabulary-p1:meaning:L015:L015-S01
+EXPOSURE	vocabulary-p1-s2	2	correct	vocabulary-p1:proposition:p1-s2-f1
+EXPOSURE	vocabulary-p1-s2	2	known-wrong	-
+EXPOSURE	vocabulary-p1-s2	2	partial	-
+EXPOSURE	vocabulary-p1-s2	2	known-wrong-then-correct	vocabulary-p1:proposition:p1-s2-f1
+EXPOSURE	vocabulary-p1-s2	3	correct	vocabulary-p1:proposition:p1-s2-f2
+EXPOSURE	vocabulary-p1-s2	3	known-wrong	-
+EXPOSURE	vocabulary-p1-s2	3	partial	-
+EXPOSURE	vocabulary-p1-s2	3	known-wrong-then-correct	vocabulary-p1:proposition:p1-s2-f2
+EVALUATION	vocabulary-p1-s2	0	p1-2.1	correct	c4cfc9760e5bb753c9d9025b32dac7e2b2bf85aa7f86ae3a046d065b71ea421b	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s2	0	p1-2.1	known-wrong	209987842d34cfdfff36b029dcdb704a0f840c4afcc46119718779be6ded4341	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s2	0	p1-2.1	partial	db59576d2ff180093a1f6632003471b384fe3018c83d6f1d1d4f4937d5ada4b6	false	unevaluable	acceptable	not-met	unknown
+EVALUATION	vocabulary-p1-s2	0	p1-2.1	unknown	041497880781708249a6abd2042edf5d0cb3c7376e46be126d0f1ba1083d174c	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s2	0	p1-2.1	wrong-kind	63c179a81c648341c1a5ad9e4feb0df35ef7f1ee8694d4e0e739a26e4d8891ff	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s2	1	p1-2.2	correct	5a562267ea024ee36c6697600139bee893cf1e81d6bf397d8a421f94d8c7dac8	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s2	1	p1-2.2	known-wrong	1cb5e68c3260eec788920ce70e1d719cebe3f2585fd10ab6d4d58dc45fa29400	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s2	1	p1-2.2	partial	90395833c43e13c1821147ee37306345cdee883dd217cc51e332f95b59d8c39a	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s2	1	p1-2.2	unknown	cc69aef1495b0d735cc1617fac690a613672223b79b87f15c2978a564ad3b8d8	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s2	1	p1-2.2	wrong-kind	2b1e52f75d3885017db6912e430d38ca7a1a55a48f105aa3cee5ab90372316e0	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s2	2	p1-2.3	correct	4116424d5b978075240e749e5ee14cf249a4969577025e93710e5fffb79a3a70	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s2	2	p1-2.3	known-wrong	0ff11a82c79e2b9c38dc30f896399e0344b928ec157be8f051f7cfd248b51b9b	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s2	2	p1-2.3	partial	8fabf314daa5d9bb4935f47d0275afe47334d695aaff7f150a33b56c183ac00f	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s2	2	p1-2.3	unknown	916ecbe7da3b85e0e39b4a6227b045c1d54b0178ac7b7d1d6bd81836aadc6eeb	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s2	2	p1-2.3	wrong-kind	f264d7eb9a80411727a6411c1a946f6be33337f097d911b24219e7736834bd63	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s2	3	p1-2.4	correct	95636f687f8ea9b7632d8a2e9739225f3c0c18d941c260d4d78ff72abf7ae23c	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s2	3	p1-2.4	known-wrong	0ff11a82c79e2b9c38dc30f896399e0344b928ec157be8f051f7cfd248b51b9b	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s2	3	p1-2.4	partial	8fabf314daa5d9bb4935f47d0275afe47334d695aaff7f150a33b56c183ac00f	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s2	3	p1-2.4	unknown	916ecbe7da3b85e0e39b4a6227b045c1d54b0178ac7b7d1d6bd81836aadc6eeb	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s2	3	p1-2.4	wrong-kind	f264d7eb9a80411727a6411c1a946f6be33337f097d911b24219e7736834bd63	false	unevaluable	unknown	not-met	unknown
+SUMMARY	vocabulary-p1-s3	all-correct	b87fc1030d2b6c8c73e382d75cd8a7ea8a136417f906b43220ee5ff85e4c7cf8
+SUMMARY	vocabulary-p1-s3	non-success	a43f455364a13289cdb6fe9937a132411da932518826484231e23069172b010b
+SUMMARY	vocabulary-p1-s3	retry-correct	5910b9b5c74b07ab21b7900a39ef91ab82a7f2f9593fe83015f364a148f53e8e
+SUMMARY	vocabulary-p1-s3	eligible-then-valid-nonsuccess	f15f6eff7acfc6324f521076d63f79b4aaaf36fe37d77e52f440ef2cd5ee3cc5
+SUMMARY	vocabulary-p1-s3	partial-or-valid-nonsuccess	f87cc84956eb93254d1ef7782cd94ef888431f75ecc7ecc9ebaa2f6d8b4aba21
+EXPOSURE	vocabulary-p1-s3	0	correct	vocabulary-p1:mapping:L043:L043-S01vocabulary-p1:mapping:L044:L044-S01vocabulary-p1:mapping:L031:L031-S01vocabulary-p1:mapping:L038:L038-S01
+EXPOSURE	vocabulary-p1-s3	0	known-wrong	vocabulary-p1:mapping:L043:L043-S01vocabulary-p1:mapping:L044:L044-S01
+EXPOSURE	vocabulary-p1-s3	0	partial	vocabulary-p1:mapping:L044:L044-S01vocabulary-p1:mapping:L031:L031-S01vocabulary-p1:mapping:L038:L038-S01
+EXPOSURE	vocabulary-p1-s3	0	known-wrong-then-correct	vocabulary-p1:mapping:L043:L043-S01vocabulary-p1:mapping:L044:L044-S01vocabulary-p1:mapping:L031:L031-S01vocabulary-p1:mapping:L038:L038-S01
+EXPOSURE	vocabulary-p1-s3	1	correct	vocabulary-p1:proposition:p1-s3-f2
+EXPOSURE	vocabulary-p1-s3	1	known-wrong	-
+EXPOSURE	vocabulary-p1-s3	1	partial	-
+EXPOSURE	vocabulary-p1-s3	1	known-wrong-then-correct	vocabulary-p1:proposition:p1-s3-f2
+EXPOSURE	vocabulary-p1-s3	2	correct	vocabulary-p1:order:p1-3.3
+EXPOSURE	vocabulary-p1-s3	2	known-wrong	-
+EXPOSURE	vocabulary-p1-s3	2	partial	-
+EXPOSURE	vocabulary-p1-s3	2	known-wrong-then-correct	vocabulary-p1:order:p1-3.3
+EXPOSURE	vocabulary-p1-s3	3	correct	vocabulary-p1:meaning:L043:L043-S01vocabulary-p1:form:L043:studerer
+EXPOSURE	vocabulary-p1-s3	3	known-wrong	-
+EXPOSURE	vocabulary-p1-s3	3	partial	-
+EXPOSURE	vocabulary-p1-s3	3	known-wrong-then-correct	vocabulary-p1:meaning:L043:L043-S01vocabulary-p1:form:L043:studerer
+EXPOSURE	vocabulary-p1-s3	4	correct	vocabulary-p1:meaning:L038:L038-S01vocabulary-p1:form:L038:nu
+EXPOSURE	vocabulary-p1-s3	4	known-wrong	-
+EXPOSURE	vocabulary-p1-s3	4	partial	-
+EXPOSURE	vocabulary-p1-s3	4	known-wrong-then-correct	vocabulary-p1:meaning:L038:L038-S01vocabulary-p1:form:L038:nu
+EVALUATION	vocabulary-p1-s3	0	p1-3.1	correct	2a8e2ee2482110c1dc6efeedcf0418650baa3337666f471d86672c668948f268	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s3	0	p1-3.1	known-wrong	e25b09368fb282b414e5e367579b8cdfcebd9dff2ad179555ceabfbef3e64f8f	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s3	0	p1-3.1	partial	4b6f5d472468b9da89572e7a6fe30ef6f9beafd7f689023f5d1191108c9592c2	false	unevaluable	acceptable	not-met	unknown
+EVALUATION	vocabulary-p1-s3	0	p1-3.1	unknown	041497880781708249a6abd2042edf5d0cb3c7376e46be126d0f1ba1083d174c	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s3	0	p1-3.1	wrong-kind	5601d143aa2a9656b9023b5ae70d8e186b6a78068768e4021054283b1f0c7faa	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s3	1	p1-3.2	correct	5a67cd86e7007a780eeae590313a84c5863edb3697daa402b57c5d9d54935628	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s3	1	p1-3.2	known-wrong	0ff11a82c79e2b9c38dc30f896399e0344b928ec157be8f051f7cfd248b51b9b	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s3	1	p1-3.2	partial	8fabf314daa5d9bb4935f47d0275afe47334d695aaff7f150a33b56c183ac00f	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s3	1	p1-3.2	unknown	916ecbe7da3b85e0e39b4a6227b045c1d54b0178ac7b7d1d6bd81836aadc6eeb	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s3	1	p1-3.2	wrong-kind	f264d7eb9a80411727a6411c1a946f6be33337f097d911b24219e7736834bd63	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s3	2	p1-3.3	correct	60f040dc4540fcb6f75b89f9c995083e9195e3a61f87d256929f7f14e6b3de93	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s3	2	p1-3.3	known-wrong	30d02fa0ca168bfad095f6d6bf9a2570654f90f6485763e63720ac5eb9517e4d	true	not-met	acceptable	not-met	met
+EVALUATION	vocabulary-p1-s3	2	p1-3.3	partial	8914e05c1b2792ca6fe71adad37a7af133437f63cc2f3b4ada6c97987394b60a	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s3	2	p1-3.3	unknown	73f513b688fdb70719a8c81d185ca14e1d14ad184ac3e6f85230b7235211f50a	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s3	2	p1-3.3	wrong-kind	9cdc927b35568c806a5ad7cfb17f4f134a25bcf086d1e756fe901005d1166292	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s3	3	p1-3.4	correct	bb758dbb254b826f7334219008b68b2f4cde9060a013754dbedc36fbd1b59559	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s3	3	p1-3.4	known-wrong	a2844db0dc6719ba1a0fb2d572a6b7f4473075e7dcc5e81711c47ad15e8d8002	true	not-met	acceptable	met	met
+EVALUATION	vocabulary-p1-s3	3	p1-3.4	partial	1f2230a372bb8e1cd528a1ba1bd36319d3a56cc589fceb642c555a30af0fa09d	false	not-met	unknown	met	unknown
+EVALUATION	vocabulary-p1-s3	3	p1-3.4	unknown	725581d7acb680db05b6fa90e62c8c5de9ca0dcfb5fc49e354a5087886e9edb0	false	not-met	unknown	met	unknown
+EVALUATION	vocabulary-p1-s3	3	p1-3.4	wrong-kind	786a366fd06448bf060d84dcd821f382ed9a4b29f7e843d6461bbe5a13d3d434	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s3	4	p1-3.5	correct	ddab09ca79fc6ffe7205d31cbc975f657b21e20b136b3549b2cc4be373c45197	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s3	4	p1-3.5	known-wrong	f687701cbff9150425fcd1a063111a9c48a25790a8152a8ceba511a2fcce7c43	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s3	4	p1-3.5	partial	1f2230a372bb8e1cd528a1ba1bd36319d3a56cc589fceb642c555a30af0fa09d	false	not-met	unknown	met	unknown
+EVALUATION	vocabulary-p1-s3	4	p1-3.5	unknown	725581d7acb680db05b6fa90e62c8c5de9ca0dcfb5fc49e354a5087886e9edb0	false	not-met	unknown	met	unknown
+EVALUATION	vocabulary-p1-s3	4	p1-3.5	wrong-kind	786a366fd06448bf060d84dcd821f382ed9a4b29f7e843d6461bbe5a13d3d434	false	unevaluable	unknown	not-met	unknown
+SUMMARY	vocabulary-p1-s4	all-correct	b7a19fca637b900c606fc288952b4456216e93b9b22681cb0eb75322b836eaa9
+SUMMARY	vocabulary-p1-s4	non-success	27c44eae668db3134e87a379203fe716cb1b78af9fe6723624e45652529b4ed3
+SUMMARY	vocabulary-p1-s4	retry-correct	e7d47683ade487efc5fa4b9d6d29d8e0b626a23b907e49063a19627f06f1c301
+SUMMARY	vocabulary-p1-s4	eligible-then-valid-nonsuccess	1f678e922c66b06374b123f31f0d328e18488e1babe763e67e86b8fa93b4c185
+SUMMARY	vocabulary-p1-s4	partial-or-valid-nonsuccess	dbab12900e2437f52e1c9141f7b55b92047663ad67638bd4e7532028eea033d0
+EXPOSURE	vocabulary-p1-s4	0	correct	vocabulary-p1:mapping:L045:L045-S01vocabulary-p1:mapping:L046:L046-S01vocabulary-p1:mapping:L047:L047-S01
+EXPOSURE	vocabulary-p1-s4	0	known-wrong	vocabulary-p1:mapping:L046:L046-S01
+EXPOSURE	vocabulary-p1-s4	0	partial	vocabulary-p1:mapping:L045:L045-S01vocabulary-p1:mapping:L047:L047-S01
+EXPOSURE	vocabulary-p1-s4	0	known-wrong-then-correct	vocabulary-p1:mapping:L045:L045-S01vocabulary-p1:mapping:L046:L046-S01vocabulary-p1:mapping:L047:L047-S01
+EXPOSURE	vocabulary-p1-s4	1	correct	vocabulary-p1:proposition:p1-s4-f2
+EXPOSURE	vocabulary-p1-s4	1	known-wrong	-
+EXPOSURE	vocabulary-p1-s4	1	partial	-
+EXPOSURE	vocabulary-p1-s4	1	known-wrong-then-correct	vocabulary-p1:proposition:p1-s4-f2
+EXPOSURE	vocabulary-p1-s4	2	correct	vocabulary-p1:order:p1-4.3
+EXPOSURE	vocabulary-p1-s4	2	known-wrong	-
+EXPOSURE	vocabulary-p1-s4	2	partial	-
+EXPOSURE	vocabulary-p1-s4	2	known-wrong-then-correct	vocabulary-p1:order:p1-4.3
+EXPOSURE	vocabulary-p1-s4	3	correct	vocabulary-p1:meaning:L045:L045-S01vocabulary-p1:form:L045:drikker
+EXPOSURE	vocabulary-p1-s4	3	known-wrong	-
+EXPOSURE	vocabulary-p1-s4	3	partial	-
+EXPOSURE	vocabulary-p1-s4	3	known-wrong-then-correct	vocabulary-p1:meaning:L045:L045-S01vocabulary-p1:form:L045:drikker
+EXPOSURE	vocabulary-p1-s4	4	correct	vocabulary-p1:meaning:L047:L047-S01vocabulary-p1:form:L047:vand
+EXPOSURE	vocabulary-p1-s4	4	known-wrong	-
+EXPOSURE	vocabulary-p1-s4	4	partial	-
+EXPOSURE	vocabulary-p1-s4	4	known-wrong-then-correct	vocabulary-p1:meaning:L047:L047-S01vocabulary-p1:form:L047:vand
+EVALUATION	vocabulary-p1-s4	0	p1-4.1	correct	f1b0d0118fd502cfab695373cf374d9c796602374c67effa4259e8a8576752e9	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s4	0	p1-4.1	known-wrong	f1165094636d19da9e9c72edb2f3fa6fa09eb3a6b851be1614649290fc42259e	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s4	0	p1-4.1	partial	457b0dd8884b6f0335939c489516da33c4f98eb2d84648408e668a52bd4a09bd	false	unevaluable	acceptable	not-met	unknown
+EVALUATION	vocabulary-p1-s4	0	p1-4.1	unknown	041497880781708249a6abd2042edf5d0cb3c7376e46be126d0f1ba1083d174c	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s4	0	p1-4.1	wrong-kind	764b6f95459ac7faeeda6c6e76bcb6285ea03c202dd164e3d11e74772edaa1ef	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s4	1	p1-4.2	correct	67f80df033f56d5e1790df866fe439a2f0f736f696b5141663699d92e4159069	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s4	1	p1-4.2	known-wrong	1d67bebb04a82a13e59fed8e6e827ff7fca025ba0ab77d500f9f51eb2b70c592	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s4	1	p1-4.2	partial	8fabf314daa5d9bb4935f47d0275afe47334d695aaff7f150a33b56c183ac00f	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s4	1	p1-4.2	unknown	916ecbe7da3b85e0e39b4a6227b045c1d54b0178ac7b7d1d6bd81836aadc6eeb	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s4	1	p1-4.2	wrong-kind	f264d7eb9a80411727a6411c1a946f6be33337f097d911b24219e7736834bd63	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s4	2	p1-4.3	correct	99a4dd517b3e8e2fbb25c8ba0afa872ce459003459470d33dbd9cd0e25f567f2	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s4	2	p1-4.3	known-wrong	832dad1b79cbc09d8010423cc90635b24690fca9fa401ac7e623125791860f65	true	not-met	known-issue	met	met
+EVALUATION	vocabulary-p1-s4	2	p1-4.3	partial	19d5631f6fe6279ef69502ad189756d094fc239eb5c862ea2b69f35df60fb2eb	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s4	2	p1-4.3	unknown	73f513b688fdb70719a8c81d185ca14e1d14ad184ac3e6f85230b7235211f50a	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s4	2	p1-4.3	wrong-kind	9cdc927b35568c806a5ad7cfb17f4f134a25bcf086d1e756fe901005d1166292	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s4	3	p1-4.4	correct	cea9386026e74a78ba74e6df167a0a396fcb732205623958f14c1cabee952180	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s4	3	p1-4.4	known-wrong	a0776f0b09a14aa5b767a2e03fee688d12e2d94947c9d5530f381bbcb9c78198	true	not-met	acceptable	met	met
+EVALUATION	vocabulary-p1-s4	3	p1-4.4	partial	1f2230a372bb8e1cd528a1ba1bd36319d3a56cc589fceb642c555a30af0fa09d	false	not-met	unknown	met	unknown
+EVALUATION	vocabulary-p1-s4	3	p1-4.4	unknown	725581d7acb680db05b6fa90e62c8c5de9ca0dcfb5fc49e354a5087886e9edb0	false	not-met	unknown	met	unknown
+EVALUATION	vocabulary-p1-s4	3	p1-4.4	wrong-kind	786a366fd06448bf060d84dcd821f382ed9a4b29f7e843d6461bbe5a13d3d434	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s4	4	p1-4.5	correct	46224b23413df2bb64404e48b51e36a736f77b94018d9dccd73f55bfbde62ed5	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s4	4	p1-4.5	known-wrong	6b844e485be9c0fbb5b25e4aadbf7bb683745e6e8245cbb678b3c3a329893233	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s4	4	p1-4.5	partial	1f2230a372bb8e1cd528a1ba1bd36319d3a56cc589fceb642c555a30af0fa09d	false	not-met	unknown	met	unknown
+EVALUATION	vocabulary-p1-s4	4	p1-4.5	unknown	725581d7acb680db05b6fa90e62c8c5de9ca0dcfb5fc49e354a5087886e9edb0	false	not-met	unknown	met	unknown
+EVALUATION	vocabulary-p1-s4	4	p1-4.5	wrong-kind	786a366fd06448bf060d84dcd821f382ed9a4b29f7e843d6461bbe5a13d3d434	false	unevaluable	unknown	not-met	unknown
+SUMMARY	vocabulary-p1-s5	all-correct	f7992ad9737408ba9a0652efdd25aaa0ea2d84d0d7081a4f4844aa49c75be18c
+SUMMARY	vocabulary-p1-s5	non-success	496bb097fa378198907a78cc4672739ecc55ce95efa404b97cc819ac90204d2a
+SUMMARY	vocabulary-p1-s5	retry-correct	daf637940f102a89fc5347b54d2c9110b07193d6428ada6259db5a7b61f51f03
+SUMMARY	vocabulary-p1-s5	eligible-then-valid-nonsuccess	4e51342ed049c0002890cfee24d4b87b67be46d33b23293aa1d25fa882b534e1
+SUMMARY	vocabulary-p1-s5	partial-or-valid-nonsuccess	2ac9f0d04ac960af9aede13cabf8c063079c6bf6619f63378bc0460132bf0de1
+EXPOSURE	vocabulary-p1-s5	0	correct	vocabulary-p1:mapping:L032:L032-S01vocabulary-p1:mapping:L048:L048-S01vocabulary-p1:mapping:L049:L049-S01
+EXPOSURE	vocabulary-p1-s5	0	known-wrong	vocabulary-p1:mapping:L032:L032-S01
+EXPOSURE	vocabulary-p1-s5	0	partial	vocabulary-p1:mapping:L048:L048-S01vocabulary-p1:mapping:L049:L049-S01
+EXPOSURE	vocabulary-p1-s5	0	known-wrong-then-correct	vocabulary-p1:mapping:L032:L032-S01vocabulary-p1:mapping:L048:L048-S01vocabulary-p1:mapping:L049:L049-S01
+EXPOSURE	vocabulary-p1-s5	1	correct	vocabulary-p1:proposition:p1-s5-f2
+EXPOSURE	vocabulary-p1-s5	1	known-wrong	-
+EXPOSURE	vocabulary-p1-s5	1	partial	-
+EXPOSURE	vocabulary-p1-s5	1	known-wrong-then-correct	vocabulary-p1:proposition:p1-s5-f2
+EXPOSURE	vocabulary-p1-s5	2	correct	vocabulary-p1:proposition:p1-s5-f3
+EXPOSURE	vocabulary-p1-s5	2	known-wrong	-
+EXPOSURE	vocabulary-p1-s5	2	partial	-
+EXPOSURE	vocabulary-p1-s5	2	known-wrong-then-correct	vocabulary-p1:proposition:p1-s5-f3
+EXPOSURE	vocabulary-p1-s5	3	correct	vocabulary-p1:order:p1-5.4
+EXPOSURE	vocabulary-p1-s5	3	unsupported-order-unknown	-
+EXPOSURE	vocabulary-p1-s5	3	partial	-
+EXPOSURE	vocabulary-p1-s5	3	unsupported-order-unknown-then-correct	vocabulary-p1:order:p1-5.4
+EXPOSURE	vocabulary-p1-s5	4	correct	vocabulary-p1:order:p1-5.5
+EXPOSURE	vocabulary-p1-s5	4	known-wrong	-
+EXPOSURE	vocabulary-p1-s5	4	partial	-
+EXPOSURE	vocabulary-p1-s5	4	known-wrong-then-correct	vocabulary-p1:order:p1-5.5
+EVALUATION	vocabulary-p1-s5	0	p1-5.1	correct	de3b7e7875c420293732dc6f0255e1f5161204b48b9ff191c6c65836f30ff81a	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s5	0	p1-5.1	known-wrong	642986071933b89e3a13557ff1e29a38f9b7030a6ac5ee9a3e4e3323903df3dd	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s5	0	p1-5.1	partial	40131c84fbffd89096e15a35341a71fd88999dc004f8e559226d3ac6c64287a4	false	unevaluable	acceptable	not-met	unknown
+EVALUATION	vocabulary-p1-s5	0	p1-5.1	unknown	041497880781708249a6abd2042edf5d0cb3c7376e46be126d0f1ba1083d174c	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	0	p1-5.1	wrong-kind	f952f059b7f34eca6b1546148483b2a025f0654c3b3edefd59bde383acadd624	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	1	p1-5.2	correct	434f0fd364aa3ac5bbcd319ecb7ad592cc16265bad0076d55c4ed48c879241d3	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s5	1	p1-5.2	known-wrong	099f5bcb1a05e0f4604d3fb3ac053e9b7eae54d66a01fcaf607d3b2910b6d723	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s5	1	p1-5.2	partial	8fabf314daa5d9bb4935f47d0275afe47334d695aaff7f150a33b56c183ac00f	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	1	p1-5.2	unknown	916ecbe7da3b85e0e39b4a6227b045c1d54b0178ac7b7d1d6bd81836aadc6eeb	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	1	p1-5.2	wrong-kind	f264d7eb9a80411727a6411c1a946f6be33337f097d911b24219e7736834bd63	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	2	p1-5.3	correct	5ca6d91340cf11721694b8591d74ae4dcb916c559aeaccca47bd0799b05b7c63	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s5	2	p1-5.3	known-wrong	22196813f142ec7641af0abe49d22e0458d32f20e427b9291a87c710728667db	true	not-met	acceptable	met	not-met
+EVALUATION	vocabulary-p1-s5	2	p1-5.3	partial	8fabf314daa5d9bb4935f47d0275afe47334d695aaff7f150a33b56c183ac00f	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	2	p1-5.3	unknown	916ecbe7da3b85e0e39b4a6227b045c1d54b0178ac7b7d1d6bd81836aadc6eeb	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	2	p1-5.3	wrong-kind	f264d7eb9a80411727a6411c1a946f6be33337f097d911b24219e7736834bd63	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	3	p1-5.4	correct	7a98c5e5ebc33466a91a57ed60dd214e7a8ddbf910ff8d20cc39f4555273a6ed	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s5	3	p1-5.4	unsupported-order-unknown	a0982e1bb833e1ea746b623a1907f3ed945c1704857fc90247bcf0f395af95f6	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	3	p1-5.4	partial	0f466a1b5caf97d608e28a0624acdd9fe7320781dd70b2f4280fa28f21a33d10	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	3	p1-5.4	unknown	73f513b688fdb70719a8c81d185ca14e1d14ad184ac3e6f85230b7235211f50a	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	3	p1-5.4	wrong-kind	9cdc927b35568c806a5ad7cfb17f4f134a25bcf086d1e756fe901005d1166292	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	4	p1-5.5	correct	209d3f7f247af73f802f48219c56f5126d3f0d35a431c4f3d575785faa5453bf	true	met	acceptable	met	met
+EVALUATION	vocabulary-p1-s5	4	p1-5.5	known-wrong	cf7989d0f5b3baae06494ba8752ce7ec9454c0b7cd3493d6935ede756a43f1e8	true	not-met	acceptable	not-met	met
+EVALUATION	vocabulary-p1-s5	4	p1-5.5	partial	fee73bb46cb68a05eb3e7206a492e560ea95af2608b0d53107bffb36e66da92d	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	4	p1-5.5	unknown	73f513b688fdb70719a8c81d185ca14e1d14ad184ac3e6f85230b7235211f50a	false	unevaluable	unknown	not-met	unknown
+EVALUATION	vocabulary-p1-s5	4	p1-5.5	wrong-kind	9cdc927b35568c806a5ad7cfb17f4f134a25bcf086d1e756fe901005d1166292	false	unevaluable	unknown	not-met	unknown
+COMPLETION	missing	false
+COMPLETION	correct-three-pair	true
+COMPLETION	correct-four-pair	true
+COMPLETION	complete-known-wrong-four-pair	true
+COMPLETION	partial-matching	false
+COMPLETION	teaching-not-saved	false
+COMPLETION	unknown-latest	false
+COMPLETION	known-fronted-order	true

@@ -32,7 +32,7 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-15` / `generator-15` | `evaluation-15` | + E029 supplied core with final time/place constituent | published and frozen; S12 pins this pair |
 | `pilot-16` / `generator-16` | `evaluation-16` | + E030 supplied neutral positive yes/no question | published and frozen; S13 pins this pair |
 | `pilot-17` / `generator-17` | `evaluation-17` | + E031–E039 scoped work/study vocabulary operations | published; revision-one P1 plans retained; matching-layout exception below |
-| `pilot-18` / `generator-18` | `evaluation-18` | same formats; stable matching shuffle | CURRENT; five revision-two P1 plans pin this pair |
+| `pilot-18` / `generator-18` | `evaluation-18` | same formats; stable matching shuffle | CURRENT, published and frozen; five revision-two P1 plans pin this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
@@ -127,6 +127,10 @@ exception and pending-first-grade/restart acceptance. Existing one–sixteen gol
 | `server/.../pilot-16-generator-16-wire.tsv` (4,193) | `PilotSixteenWireCompatibilityTest` (SHA-256 pinned) | pair-sixteen public/private wire, inspector, fingerprints, malformed-attempt persistence boundary, grades and exact replay |
 | `engine/.../question-practice-0.18.0.tsv` (55) | `QuestionPracticeCompatibilityTest` (SHA-256 pinned) | S13 four-item plan teaching/support, policies, scoped outcomes, ordered exposure, eligibility and replayable evaluations |
 | `server/.../question-practice-0.18.0-wire.tsv` (37) | `QuestionPracticeWireCompatibilityTest` (SHA-256 pinned) | S13 selected profile, saved request/private plan/context, public lifecycle, support, eligibility and exact replay wire |
+| `engine/.../pilot-18-generator-18-evaluation-18.tsv` (3,591) | `PilotEighteenCompatibilityGoldenTest` (SHA-256 pinned) | all 39 format cycles/boundaries, all 23 P1 tasks, real private source/keys, accepted/reviewed tiles, matching partial bijections, grading and byte-exact review |
+| `server/.../pilot-18-generator-18-wire.tsv` (5,862) | `PilotEighteenWireCompatibilityTest` (SHA-256 pinned) | pair-eighteen public/inspector wire, fingerprints, grading, replay and private-metadata mutations |
+| `engine/.../vocabulary-p1-practice-0.20.1.tsv` (261) | `VocabularyP1RevisionTwoPracticeCompatibilityTest` (SHA-256 pinned) | five literal revision-two plans, teaching, outcomes, ordered exposure, real sequential retry contexts and completion policies |
+| `server/.../vocabulary-p1-practice-0.20.1-wire.tsv` (221) | `VocabularyP1RevisionTwoPracticeWireCompatibilityTest` (SHA-256 pinned) | revision-two requests/private plans, public lifecycle, support, matching outcomes, exposure, eligibility and exact replay |
 | `server/.../published-fingerprints.tsv` (978) | `PublishedFingerprintCompatibilityTest` (SHA-256 pinned) | original reproduction fingerprints of pilot-1/2 |
 
 Plus `PracticeWireCompatibilityTest` (legacy plan payload and practice item/response stay byte-stable when new optional fields are absent).
@@ -240,3 +244,22 @@ public/private/saved-payload/replay wire. The P1 pair-seventeen change switches 
 | `:engine:exportQuestionPracticeCompatibility` / `:server:exportQuestionPracticeWireCompatibility` | add published S13 evidence and provenance only (refuse overwrite) |
 
 Review exports are deterministic evidence for teaching review; they are not approval. The production engine does no file I/O.
+
+## Pair-eighteen archive — 12 November 2026
+
+Pair eighteen and the five P1 revision-two plans were captured from unchanged published
+0.20.1 source `9eefcfed708670ce45dbdd9b11adc41f9fe17d25`. Two fresh exporter JVM sets,
+one under the default locale and one under Arabic (Egypt), produced byte-identical fixture
+and provenance files. Four new archives contain 3,591 / 261 / 5,862 / 221 rows; their source,
+projection schemas, counts, fixture SHA-256 values and engine review hash are pinned by
+the guarding tests. Resources were promoted with collision refusal. All 105 pre-existing
+golden/provenance and applied-migration files retained their original hashes.
+
+Deterministic ordering must hash stable scalar identities, such as lexical entry/sense IDs.
+Do not use object/enum identity, or a data-class hash containing it, as a reproducible
+ordering key. The identity-hash branch is a literal pair-seventeen compatibility exception;
+a later pair inheriting P1 matching must not fall through to that legacy behavior. Exercise
+new pairs in separate JVMs with different initialization histories before claiming seed
+reproducibility. Pair seventeen's real released-board recovery evidence stays separate;
+no purported deterministic raw seventeen archive was added. This freeze changes tests and
+export tooling only; it neither changes the app version nor activates content.
