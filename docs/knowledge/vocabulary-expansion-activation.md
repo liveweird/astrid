@@ -324,3 +324,14 @@ runtime service; no global Git or proxy setting was changed.
 All Danish remains a linguistic draft awaiting teaching review under BL-022. P2 and P3
 remain reviewed authoring drafts without runtime activation, and S14 remains paused. P1
 does not establish specialist approval, broader course activation or learner efficacy.
+
+### P2 complete-script authoring — 12 November 2026
+
+The [food/shopping scripts](vocabulary-food-shopping-scripts.md) now propose six complete
+sessions with 21 activities over the existing 21-placement ledger (6 reused, 15 new).
+They supply exact teaching, translations, direct-entry review, choice/matching/tile banks,
+answer cases and exposure boundaries. The two-pair quantity board and scheduling the taught
+bottle request as activity 6.4 remain explicit authoring proposals. This deepens the
+selected overnight authoring work; it does not activate P2, allocate runtime identities,
+resume S14, resolve Q27/Q28 or establish Danish specialist approval. P1 remains the delivered
+work/study unit on the separately verified 0.20.1 baseline.

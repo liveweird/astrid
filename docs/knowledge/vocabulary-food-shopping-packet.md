@@ -22,6 +22,12 @@ remain their owners. The fifteen candidates include a new request sense/frame fo
 lemma; it must not reuse possession sense `L009-S01`. This mix was chosen for a small real situation,
 not as a food taxonomy or frequency list.
 
+The [complete session-script draft](vocabulary-food-shopping-scripts.md) expands these
+outlines into six sessions and 21 activities (`3/4/4/3/3/4`), with visible direct-entry
+review, exact banks and scoped grading cases. Scheduling the taught bottle request as
+activity 6.4 remains an authoring proposal. The placement/source ledger below remains
+authoritative; no runtime contract or activation is selected.
+
 ## Placement ledger
 
 “Bundle” is what teaching presents. A count noun includes its article in that bundle; a mass use is
@@ -307,5 +313,7 @@ hidden predicate coordination and incomplete direct-entry review. The coordinato
 rewrote the first/third outlines, used functional alternatives for gratitude, and made each
 session's review ownership explicit. The packet remains 21 placements (6 reuse, 15 new),
 introduced 4/4/4/3/3/3. A second independent recheck reconciled all 21 rows, source references, mixes, support and
-activity outlines without another actionable P2 finding. These are reviewed outlines, not
-complete final activation scripts. No runtime identity or activation is assigned here.
+activity outlines without another actionable P2 finding. These remain reviewed outlines;
+the separate [complete scripts](vocabulary-food-shopping-scripts.md) propose an exact
+21-activity realization, including the taught bottle request. They confer no runtime
+identity, activation or Danish specialist approval.
