@@ -11,6 +11,19 @@ commit/merge/push and complete-check workflow. The user subsequently answered
 standing versioned release/private-preview workflow. P2/P3 stay authoring drafts. S14 remains paused,
 existing noun-only recall stays unchanged, and Danish teaching approval is separate.
 
+## Cumulative mixed review selection
+
+**12 November 2026 — Cumulative mixed review selected:** the user's “OK, sounds like a
+plan - go for it” selects BL-066 as the next implementation milestone: review introduced
+material across lessons, rotate existing operations and licensed examples, retain one
+explicit primary target per exercise and report scoped operation-specific results.
+Define eligibility, development-session ownership and exact saved-plan recovery before
+implementation. Preserve existing lessons, fixed mixed practice, source-linked reviews,
+published generators/graders and learner history. Standing independent review, full checks,
+focused commits/merge/push and versioned release/private-preview delivery apply. Food/shopping
+activation, the Vocabulary library and resuming S14 remain later milestones; this selection
+does not introduce accounts, cross-device history, scheduling or mastery thresholds.
+
 ## Confirmed documentation rule
 
 From 6 November 2026 onward, continuously document project assumptions, requirements, constraints, open points, questions, decisions, rules, conventions, principles, and tenets. Maintain a separate work backlog with `[next]`, `[todo]`, `[new]`, `[parked]`, and `[blocked]` statuses. This is a standing user instruction, not an occasional documentation task.

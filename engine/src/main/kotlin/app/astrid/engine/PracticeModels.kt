@@ -180,7 +180,14 @@ data class PracticePlanItem(
     override val hintExposureKeys: List<String>,
     override val feedbackExposureKeys: List<String>,
     val assessments: List<PracticeAssessment> = emptyList(),
+    val policy: PracticeItemPolicy? = null,
 ) : PracticeExposureMetadata
+
+/** A frozen item-level override used when one practice run mixes items from plans with different policies. */
+data class PracticeItemPolicy(
+    val completionRuleId: String?,
+    val exposurePolicyId: String?,
+)
 
 enum class PracticeExposureSource(val wireValue: String) {
     INTRODUCTION("introduction"),
