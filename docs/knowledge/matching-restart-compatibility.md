@@ -74,6 +74,15 @@ rejection, actual captured plan/exercise payload rehydration in PostgreSQL, and 
 stored bytes. Forked-JVM probes must demonstrate different enum identity hashes while
 producing identical pair-eighteen matching outputs.
 
+Candidate browser acceptance also exposed an incomplete API revision allowlist: the catalog
+advertised five revision-two P1 profiles, while practice creation accepted only revision one.
+The resulting 409 was followed by a misleading recovery GET 404. Preserve all five retained
+pairs and add all five current pairs explicitly. An HTTP regression must create every
+advertised P1 profile and every retained profile, assert their literal 18/17 revisions and
+required teaching, then recover the exact created response. Planner-only coverage cannot
+prove the route accepts the advertised contract. This was caught before the 0.20.1 tag or
+preview promotion; repeat release gates against the corrected source.
+
 Live acceptance must grade an originally unanswered old board after upgrade, preserve its
 slot associations and retry number 1, replay the exact response, restart again, and save a
 new retry as number 2. Complete normal repository/browser/CI/scan gates, verified backup

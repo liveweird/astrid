@@ -315,6 +315,45 @@ class PracticeApplicationTest {
     }
 
     @Test
+    fun `every advertised and retained P1 plan creates with required teaching and rereads`() = testApplication {
+        application { astridModule(config(), InMemoryStores()) }
+        val auth = authenticate()
+        val profiles = client.get("/api/v1/practice-profiles") {
+            trustedHost()
+            cookie("astrid_session", auth.cookie)
+        }.bodyAsText().let { wireJson.parseToJsonElement(it).jsonObject.getValue("profiles").jsonArray }
+            .map { it.jsonObject }
+            .filter { it.getValue("focusId").jsonPrimitive.content.startsWith("vocabulary-p1-") }
+        assertEquals(5, profiles.size)
+
+        val pairs = profiles.map { profile ->
+            profile.getValue("focusId").jsonPrimitive.content to
+                profile.getValue("planRevision").jsonPrimitive.content
+        } + (1..5).map { number -> "vocabulary-p1-s$number" to "vocabulary-p1-s$number-1" }
+        pairs.forEachIndexed { index, (focus, revision) ->
+            val id = UUID.randomUUID().toString()
+            val created = create(
+                auth.cookie,
+                auth.ownerId,
+                """{"practiceSessionId":"$id","focusId":"$focus","planRevision":"$revision","seed":${47 + index}}""",
+            )
+            assertEquals(HttpStatusCode.Created, created.status, "$focus/$revision: ${created.bodyAsText()}")
+            val createdState = wireJson.parseToJsonElement(created.bodyAsText()).jsonObject
+            assertEquals(revision, createdState.getValue("planRevision").jsonPrimitive.content)
+            val pair = if (revision.endsWith("-2")) "18" else "17"
+            assertEquals("pilot-$pair", createdState.getValue("contentRevision").jsonPrimitive.content)
+            assertEquals("generator-$pair", createdState.getValue("generatorRevision").jsonPrimitive.content)
+            assertEquals("evaluation-$pair", createdState.getValue("evaluationRevision").jsonPrimitive.content)
+            assertTrue(createdState.getValue("introductionRequired").jsonPrimitive.content.toBoolean())
+            assertFalse(createdState.getValue("introductionOpened").jsonPrimitive.content.toBoolean())
+
+            val restored = getPractice(auth.cookie, id)
+            assertEquals(HttpStatusCode.OK, restored.status, "$focus/$revision: ${restored.bodyAsText()}")
+            assertEquals(created.bodyAsText(), restored.bodyAsText())
+        }
+    }
+
+    @Test
     fun `module one requires its introduction and exposes the server completion decision`() = testApplication {
         val inspectorKey = "m".repeat(32)
         application { astridModule(config(inspectorKey), InMemoryStores()) }
