@@ -286,7 +286,7 @@ at that checkpoint; it claimed neither a runtime release nor Danish specialist a
 ### Observed runtime delivery — 12 November 2026
 
 Released app [0.20.0](https://github.com/liveweird/astrid/releases/tag/v0.20.0) at annotated tag `v0.20.0`, exact source
-`3c22cb645c2bea45c7969e93f7f3088734f67ce0`, and verified `arm64` image `sha256:469111118540d81a292fabb19f809d4985cabfd993e5a8aba7be8a74b515f9e4`. The private preview now runs
+`3c22cb645c2bea45c7969e93f7f3088734f67ce0`, and verified `arm64` image `sha256:469111118540d81a292fabb19f809d4985cabfd993e5a8aba7be8a74b515f9e4`. At that checkpoint, the private preview ran
 learning pair seventeen with five independently enterable **A day of work and study**
 sessions and all 23 authored activity slots. The catalogue contains 49 lexical records,
 including the nine new P1 records, across 39 standalone format entries, 20 lessons and

@@ -312,3 +312,11 @@ Under the standing P1 correctness and verified-release authorization, repair thi
 and retain old plan/outbox identities. The [repair contract](matching-restart-compatibility.md)
 and BL-069 own the work. The failed rehearsal remains evidence; do not repin a purported
 globally deterministic pair-seventeen golden around the defect. No new curriculum is selected.
+
+**12 November 2026 — Matching restart repair delivered:** App
+[0.20.1](https://github.com/liveweird/astrid/releases/tag/v0.20.1), exact source `9eefcfe`, passed the complete gate, all five
+[exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/43148241073), 482 native and 482 packaged-Linux journeys, bound
+pending-first-grade/restart/retry evidence, isolated backup restore, app-only promotion,
+186 main-preview checks and owned cleanup. The [repair evidence](matching-restart-compatibility.md#observed-delivery)
+closes BL-069. Current P1 revision-two plans pin pair eighteen; retained revision-one
+plans stay on seventeen and other profiles keep their published pins. P2/P3 remain unactivated, S14 remains paused and BL-022 remains open.

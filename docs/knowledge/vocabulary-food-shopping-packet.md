@@ -9,9 +9,9 @@ batches of **`4 + 4 + 4 + 3 + 3 + 3`**. The intended transfer outcome is to read
 exchange, distinguish products and supplied quantities, and assemble one constrained request.
 
 This packet remains authoring material, not runtime activation. The running private preview is app
-0.20.0 on learning pair seventeen with 49 lexical records after the separate P1 release; P2 itself
-remains unactivated. No stable lexical or sense IDs are allocated here, no current generator or grader
-is broadened, and no Danish specialist approval is claimed. Existing E007/E008 recall is fixed to its
+0.20.1 on current learning pair eighteen with 49 lexical records; retained P1 revision-one plans remain
+on pair seventeen, and P2 itself remains unactivated. No stable lexical or sense IDs are allocated here,
+no current generator or grader is broadened, and no Danish specialist approval is claimed. Existing E007/E008 recall is fixed to its
 noun-only contract. Guided matching is not currently wired for this packet; matching, dialogue
 selection and quantity/request tiles below are planned authoring formats, not claims about present
 capabilities. Q27 and article-bundle assessment remain open and are not decided here.

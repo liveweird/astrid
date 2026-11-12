@@ -133,3 +133,11 @@ jobs, 430 Linux and 430 native browser journeys passed
 without retries/flakies. Verified backup restoration preceded app-only promotion;
 all 136 live-preview checks and owned QA cleanup passed.
 [Delivery record](module-one-course-slice.md#observed-s13-delivery) · [GitHub release](https://github.com/liveweird/astrid/releases/tag/v0.18.0)
+
+**Subsequent repair release — 12 November 2026:** App [0.20.1](https://github.com/liveweird/astrid/releases/tag/v0.20.1), source
+`9eefcfe`, repairs matching regeneration across JVM restarts without adding content.
+All five [exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/43148241073), 482 native and 482 packaged-Linux journeys,
+verified legacy/current restart replay, isolated backup restore, app-only promotion, 186
+main-preview checks and owned cleanup passed. The [repair record](matching-restart-compatibility.md#observed-delivery)
+supersedes the 0.20.0 running-version statement while preserving its historical evidence,
+published notes and pair-seventeen plans.

@@ -132,7 +132,7 @@ The following are assistant proposals to reconcile the inventory with the user's
 
 Extend the existing sense-based content design with many-to-many theme/unit membership, introduction/review status, functional role, morphology bundles, multiword slots, licensed constructions and grammar prerequisites. Retain provenance, review state and content revisions. A theme tag must not replace lexical sense identity, semantic compatibility or per-sense valency.
 
-The current seed has 23 entries and three directly assessed noun senses. Its article-bearing teaching material and E008 noun-only assessment have different purposes; Q27 records whether future recall should require the full bundle. Any changed assessment behavior needs a new revision while published generators/graders and stored answers remain executable. This planning document changes no runtime content, dataset adoption or existing contract.
+The original seed has 23 entries and three directly assessed noun senses. Its article-bearing teaching material and E008 noun-only assessment scope have different purposes; Q27 records whether future recall should require the full bundle. Any changed assessment behavior needs a new revision while published generators/graders and stored answers remain executable. This planning document changes no runtime content, dataset adoption or existing contract.
 
 BL-046 records authoring/reconciliation; BL-004 retains vocabulary selection and BL-025 source/licensing decisions. The examples above are not a complete reviewed vocabulary database, corpus ranking or agreed per-unit word list. Q27 and Q28 record remaining lesson/assessment details; outcome/CEFR validation remains Q02.
 
@@ -142,19 +142,19 @@ BL-046 records authoring/reconciliation; BL-004 retains vocabulary selection and
 
 ### Status, boundary and source policy
 
-**Released P1 baseline; P2/P3 remain authoring drafts.** App 0.20.0 now runs pair seventeen
-(`pilot-17/generator-17/evaluation-17`) with 49 lexical records (`L001`–`L049`) and all
-published compatibility snapshots. This activates only the selected P1 packet; it does not activate P2,
-P3 or S14. The initial budget remains **60 selected-meaning or chunk placements across three thematic
-packets**. It is an authoring budget, not 60 unique lemmas, a complete unit inventory, a frequency-ranked
-list or a B2 claim. Repeated use of one reviewed sense in another packet counts as another placement; a
-multiword chunk counts once even when it needs several component records at implementation time.
+**Released P1 baseline; P2/P3 remain authoring drafts.** App 0.20.1 now runs current pair
+eighteen (`pilot-18/generator-18/evaluation-18`) with 49 lexical records (`L001`–`L049`), while
+retained P1 revision-one plans remain literally pinned to pair seventeen. This activates only the
+selected P1 packet; it does not activate P2, P3 or S14. The initial budget remains **60 selected-meaning
+or chunk placements across three thematic packets**. It is an authoring budget, not 60 unique lemmas,
+a complete unit inventory, a frequency-ranked list or a B2 claim. Repeated use of one reviewed sense in
+another packet counts as another placement; a multiword chunk counts once even when it needs several
+component records at implementation time.
 
 The P2/P3 material in this section remains a **linguistic draft awaiting Danish teaching review**. It
-assigns no further `L…` or sense IDs, activates no pool, changes no generator/grader and bulk-adopts no
-external data. Before either later activation, audit the then-current pair-seventeen catalogue, allocate
-new IDs, write a versioned lexical/frame manifest and preserve every older snapshot and saved evaluator
-literally.
+reserves no new `L…` or sense IDs, activates no pool, changes no generator/grader and bulk-adopts no
+external data. Before either later activation, audit the then-current catalogue, allocate new IDs,
+write a versioned lexical/frame manifest and preserve every older snapshot and saved evaluator literally.
 
 Use the following bounded source ladder:
 

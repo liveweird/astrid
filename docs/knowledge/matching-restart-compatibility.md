@@ -95,5 +95,38 @@ or use a compatible repair image. Danish teaching review remains separately pend
 
 ## Observed delivery
 
-Implementation and repair acceptance are in progress. The private preview still runs the
-published 0.20.0 image until the repair's verified promotion is recorded here.
+**12 November 2026 — Repair delivered.** App [0.20.1](https://github.com/liveweird/astrid/releases/tag/v0.20.1) was released
+from annotated tag `v0.20.1`, exact source `9eefcfed708670ce45dbdd9b11adc41f9fe17d25` and verified image `sha256:2a2af0ef46719c8ffd4ae486c01550ad5dcfbe867966cb575dcaf7c2ad65389f`.
+The complete Docker-backed gate passed 403 engine tests, the same 403 tests under the
+locale-compatibility run, 267 server tests and 285 web tests. All 482 native and 482
+packaged-Linux Chromium/WebKit journeys passed without retries or flakies; all five
+[exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/43148241073) passed with 482 authenticated-log Linux journeys and no
+retries or flakies.
+
+Live recovery graded twelve released standalone and four released guided pair-seventeen
+boards at retry 1, replayed their exact responses after an actual candidate restart, and
+graded the same original IDs at retry 2. All twelve ordinary pair-seventeen probes produced
+actual fingerprint mismatches and therefore exercised the narrow stored-board restoration.
+Four fresh pair-eighteen boards remained pending across restart, then regenerated normally,
+graded at retry 1 and replayed exactly. Original public presentations, fingerprints,
+inspector correspondences, private plans, requests and IDs remained unchanged.
+
+Separately, after actual main-preview promotion, all twelve originally pending captured
+main pair-seventeen boards received their first grades at retry 1 under evaluation seventeen;
+each planned POST and GET replay returned the exact stored response. That bounded check added
+only its twelve predeclared attempts: every prior attempt row and all five other history tables,
+exercise IDs, stored presentations and fingerprints remained unchanged. It makes no claim that
+the main boards required fingerprint fallback; the twelve observed mismatch/fallback probes
+above are the separate owned-QA evidence.
+
+The image passed the HIGH/CRITICAL vulnerability policy and network-disabled runtime package
+floors. Before app-only promotion, the actual 6,076,472-byte mode-0600 backup was
+restored into an isolated scratch database with all six history tables (attempts 14,033, development sessions 4,884, exercises 25,191, practice attempt context 10,912, practice items 18,870, practice sessions 3,058); the
+scratch database was removed. Promotion preserved those rows, Flyway versions 1–3 and the
+main PostgreSQL process and mounts. All 186 main-preview browser checks passed without
+retries or flakies, and ownership-checked cleanup removed only the matching-repair QA app,
+database, volume and network.
+
+This patch release adds no curriculum: current P1 revision-two plans use pair eighteen and
+retained revision-one plans remain on pair seventeen. P2/P3 remain unactivated authoring
+drafts, S14 remains paused, and Danish teaching review remains pending under BL-022.

@@ -10,9 +10,9 @@ location/journey message, distinguish a destination from a static location, and 
 constrained present-tense journey statement.
 
 This packet remains authoring material, not runtime activation. The running private preview is app
-0.20.0 on learning pair seventeen with 49 lexical records after the separate P1 release; P3 itself
-remains unactivated. S14 remains paused. No stable lexical or sense IDs are allocated here, no current
-generator or grader is broadened, and no Danish specialist approval is claimed. Existing E007/E008
+0.20.1 on current learning pair eighteen with 49 lexical records; retained P1 revision-one plans remain
+on pair seventeen, and P3 itself remains unactivated. S14 remains paused. No stable lexical or sense IDs
+are allocated here, no current generator or grader is broadened, and no Danish specialist approval is claimed. Existing E007/E008
 recall remains noun-only; count nouns are taught as article+noun bundles, but Q27 and any
 article-bundle assessment operation remain open.
 
