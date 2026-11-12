@@ -9,13 +9,13 @@ the **9 current / 9 new-candidate** split and the fixed introduction batches
 `4 + 4 + 4 + 3 + 3`. Local references `P1-01`–`P1-18` are authoring references, not new
 lexical or sense IDs.
 
-This file records authored content rather than observed runtime activation. The private runtime
-remains app 0.19.0 on `pilot-16/generator-16/evaluation-16` until verified promotion. The user
-has selected P1 implementation in pair seventeen; the [canonical activation contract](vocabulary-expansion-activation.md)
-owns its identifiers and API/grading policies. S14 remains paused. All Danish remains a linguistic draft awaiting
-Danish teaching review. Independent source/content review is required before activation;
-agent review and passing software checks are not specialist approval or evidence of learning
-efficacy.
+This file owns authored content; the [canonical activation contract](vocabulary-expansion-activation.md)
+owns its identifiers, API/grading policies and observed runtime evidence. Its
+[verified 0.20.0 delivery](vocabulary-expansion-activation.md#observed-runtime-delivery--12-november-2026)
+activates these five sessions on `pilot-17/generator-17/evaluation-17`, superseding the
+pre-activation 0.19.0 baseline. S14 remains paused. Independent source/content and software
+review passed, while all Danish remains a linguistic draft awaiting Danish teaching review.
+Agent review and passing checks are not specialist approval or evidence of learning efficacy.
 
 The English glosses, readings, prompts and feedback below are Astrid-authored. The packet
 copies no dictionary definition or example. It relies on the row-level COR locators and
@@ -310,7 +310,7 @@ The user subsequently selected implementation and release of the first unit. The
 [canonical activation contract](vocabulary-expansion-activation.md#selected-p1-implementation-contract)
 owns app/pair/format/lexical allocations, target projections, grading and completion defaults,
 exposure, persistence, compatibility and release acceptance. This packet owns the scripts.
-No runtime delivery is claimed until its observed evidence is recorded there.
+The verified runtime delivery is recorded there; this file remains the content authority.
 
 The complete scope is five independently enterable profiles and 23 activities across nine
 semantic operations/five UI families. Matching boards contain atomic per-pair targets;
@@ -330,7 +330,7 @@ source/content review and software checks do not confer specialist approval.
   `om morgenen` is a fixed supplied chunk, not evidence that its internal definite form was
   taught.
 - The packet uses recognition, matching, reading, tiles and typed form recall as its selected
-  implementation sequence. Mixed target types and guided matching are required additions,
-  not claims about the currently deployed runtime.
-- Runtime implementation is selected in the canonical contract; this authoring file alone
-  claims no deployed activation. S14 remains paused and specialist approval remains pending.
+  implementation sequence. Mixed target types and guided matching were required additions
+  and are included in the observed 0.20.0 delivery.
+- Runtime delivery evidence belongs to the canonical contract. S14 remains paused and
+  specialist approval remains pending.

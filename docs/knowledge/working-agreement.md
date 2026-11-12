@@ -292,3 +292,14 @@ The standing independent review, full Docker-backed gates, focused commit/merge/
 versioned release and backed-up app-only private-preview workflow apply. App 0.17.0 and
 pair fifteen are the prepared implementation assignments. S13–S15 remain separate future
 packages; Danish teaching review remains open.
+
+**12 November 2026 — P1 vocabulary runtime delivered:** App
+[0.20.0](https://github.com/liveweird/astrid/releases/tag/v0.20.0) at exact source `3c22cb6` passed the complete gate,
+all five exact-source CI jobs, 482 native and 482 packaged-Linux
+journeys, restart/replay, isolated backup restore, app-only promotion, 186
+live-preview checks and owned-QA cleanup. The [observed delivery evidence](vocabulary-expansion-activation.md#observed-runtime-delivery--12-november-2026) closes
+BL-068. P2/P3 remain unactivated drafts, S14 remains paused, and Danish teaching review
+remains BL-022. This follow-up records delivery and raises only the CI/nightly outer budget
+from 40 to 50 minutes after the successful image job left 72 seconds of headroom. Tests,
+per-test timeouts, retries, scans and coverage floors stay unchanged; the running image
+retains the tagged source. No global Git or proxy setting was changed.

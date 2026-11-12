@@ -9,8 +9,9 @@ study**, the user said “Go for it” and requested enough useful work for the 
 work window; earlier overnight windows are historical. Do not alter power management.
 
 The [selected vocabulary blueprint](vocabulary-course-blueprint.md#selected-expansion-authoring-plan--11-november-2026)
-owns the eighteen P1 placements and the sixty-placement three-packet budget. Runtime app
-0.19.0 remains at pair sixteen. S14 stays paused. This authoring milestone allocates no
+owns the eighteen P1 placements and the sixty-placement three-packet budget. At selection,
+runtime app 0.19.0 remained at pair sixteen; the observed delivery below supersedes that
+baseline. S14 stays paused. The initial authoring milestone allocated no
 stable lexical IDs, changes no published generator or grader, and supplies no Danish
 specialist approval.
 
@@ -44,7 +45,7 @@ unbounded implementation or deployment near the cutoff. By **07:30**, leave the 
 at a safe stopping point with completed and unfinished work recorded. If runtime delivery
 is selected, reserve time for exact-source CI/browser checks, a real backup restore,
 app-only promotion and ownership-scoped QA cleanup; a partially verified build is not a
-release. Documentation-only deliveries keep app 0.19.0 and do not redeploy the preview.
+release. Documentation-only deliveries do not bump the app version or redeploy the preview.
 
 ## Selected P1 implementation contract
 
@@ -267,10 +268,52 @@ leaks, matching-target ambiguity, a pronoun link, an invented specialist gate an
 provenance wording. Reviewed P2/P3 ledgers and six-session outlines were separately gated
 and pushed in `10a1eeb`; they remain authoring drafts without runtime activation.
 
-P1 implementation has passed the complete Docker-backed repository gate. Independent
-engine/API review led to opaque public IDs, exact visible exposure, session-local typed
-alternatives, complete direct-entry support, atomic taught-mapping evidence and legacy
-summary-field gating. The saved pre-upgrade S12/S13 sessions and eleven attempts replay
-byte for byte on the draft QA image. Final clean-source browser, CI, release and promotion
-acceptance remains pending; this checkpoint claims neither a runtime release nor Danish
-specialist approval.
+**Superseded by the observed runtime delivery below.** P1 implementation had passed
+the complete Docker-backed repository gate. Independent engine/API review led to opaque
+public IDs, exact visible exposure, session-local typed alternatives, complete direct-entry
+support, atomic taught-mapping evidence and legacy summary-field gating. The saved
+pre-upgrade S12/S13 sessions and eleven attempts replayed byte for byte on the draft QA
+image. Final clean-source browser, CI, release and promotion acceptance was still pending
+at that checkpoint; it claimed neither a runtime release nor Danish specialist approval.
+
+### Observed runtime delivery — 12 November 2026
+
+Released app [0.20.0](https://github.com/liveweird/astrid/releases/tag/v0.20.0) at annotated tag `v0.20.0`, exact source
+`3c22cb645c2bea45c7969e93f7f3088734f67ce0`, and verified `arm64` image `sha256:469111118540d81a292fabb19f809d4985cabfd993e5a8aba7be8a74b515f9e4`. The private preview now runs
+learning pair seventeen with five independently enterable **A day of work and study**
+sessions and all 23 authored activity slots. The catalogue contains 49 lexical records,
+including the nine new P1 records, across 39 standalone format entries, 20 lessons and
+23 practice profiles.
+
+The complete Docker-backed local gate passed: 399 engine tests, the same 399 tests under
+the locale-compatibility run, 260 server tests and 279 web tests. Web coverage was
+statements 95.31% (1586/1664), branches 89.83% (1344/1496), functions 98.02% (397/405), lines 98% (1325/1352); Kover recorded engine line 9162/9311 and branch
+2870/3332, and server line 2183/2220 and branch
+757/922. All **482 native** and **482
+packaged-Linux** Chromium/WebKit journeys passed against the exact image without retries
+or flakies. All five [exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/43129404302) passed, including
+**482 CI Linux journeys** with authenticated log verification and no retries
+or flakies. The exact image passed the HIGH/CRITICAL vulnerability policy and the
+network-disabled runtime package-floor check. Twelve source/image/hash-bound directory,
+teaching and matching captures were inspected by the coordinator across both themes, desktop,
+and 320px/200% text.
+
+One saved S12/pair-fifteen session and one saved S13/pair-sixteen session, with eleven
+attempts between them, replayed byte for byte after the actual candidate restart. All five
+new P1 sessions and 23 attempts also replayed exactly after that
+restart; raw uppercase and outer-whitespace typed values remained preserved in PostgreSQL
+while the selected `Locale.ROOT` case-folded grading accepted them. Before app-only
+promotion, a **5,792,929-byte** backup with mode `0600` was restored into an
+isolated scratch database, reproducing all six history tables; the scratch database was
+then removed. Promotion preserved those rows, Flyway versions 1–3 and the main PostgreSQL
+process and mounts. All **186 live-preview browser checks** passed without
+retries or flakies.
+
+Cleanup removed only the owned QA app and database containers, volume and network; the
+main preview processes and mounts remained unchanged. The temporary loopback GitHub
+transport may remain only for the final scoped documentation push and is not part of the
+runtime service; no global Git or proxy setting was changed.
+
+All Danish remains a linguistic draft awaiting teaching review under BL-022. P2 and P3
+remain reviewed authoring drafts without runtime activation, and S14 remains paused. P1
+does not establish specialist approval, broader course activation or learner efficacy.

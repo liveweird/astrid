@@ -16,8 +16,8 @@ permissions:
 jobs:
   e2e:
     runs-on: ubuntu-24.04
-    # A cold run (deps, browsers, uncached image build, ~12 min suite, Trivy DB pull) takes roughly 20-24 minutes.
-    timeout-minutes: 40
+    # The matching CI image job used 38m48s for 482 journeys and scanning on run 43129404302.
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

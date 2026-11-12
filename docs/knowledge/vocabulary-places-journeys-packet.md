@@ -9,11 +9,12 @@ batches of **`4 + 4 + 4 + 3 + 3 + 3`**. The intended transfer outcome is to read
 location/journey message, distinguish a destination from a static location, and assemble one
 constrained present-tense journey statement.
 
-This packet is authoring material, not runtime activation. The running private preview remains app
-0.19.0 on learning pair sixteen with 40 lexical records. S14 remains paused. No stable lexical or
-sense IDs are allocated here, no current generator or grader is broadened, and no Danish specialist
-approval is claimed. Existing E007/E008 recall remains noun-only; count nouns are taught as
-article+noun bundles, but Q27 and any article-bundle assessment operation remain open.
+This packet remains authoring material, not runtime activation. The running private preview is app
+0.20.0 on learning pair seventeen with 49 lexical records after the separate P1 release; P3 itself
+remains unactivated. S14 remains paused. No stable lexical or sense IDs are allocated here, no current
+generator or grader is broadened, and no Danish specialist approval is claimed. Existing E007/E008
+recall remains noun-only; count nouns are taught as article+noun bundles, but Q27 and any
+article-bundle assessment operation remain open.
 
 The blueprint's **5 reuse + 16 new** split is retained exactly. Reuse means the same selected sense,
 not merely the same spelling and not a new construction permission: current `L016-S01`, `L029-S01`,

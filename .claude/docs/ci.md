@@ -39,16 +39,24 @@ Triggers: push to `master`, pull requests, manual dispatch; `permissions: conten
 | `kubernetes` | kubeconform (checksum-verified binary, k8s 1.33.0 schemas pinned by commit) over the manifests and over `kubectl kustomize k8s`. |
 | `image` | `docker compose config`; `docker build` with the closed Ubuntu mirror build argument below; e2e `npm ci && lint && knip && typecheck && check:scenarios && test:scripts && audit`; `docker compose --env-file .env.example up -d --wait` then `./scripts/run-browser-tests.sh` in the digest-pinned Playwright container with mounted setup-node executable; logs on failure; uploads `browser-reports`; Trivy scan of the packaged image (HIGH/CRITICAL, `--ignore-unfixed`); `compose down` (never `-v`). |
 
-The image job has a **40-minute** outer budget. Its unchanged 0.8.0 baseline on run
+The image job and nightly have a **50-minute** outer budget. P1 release source `3c22cb6`
+passed all five [CI jobs](https://github.com/liveweird/astrid/actions/runs/43129404302),
+including 482 Linux journeys without retries/flakies. Its image job used **2,328 seconds**
+(38m48s), including **2,077 seconds** in packaged browser execution (34m37s), leaving
+only **72 seconds** under the former 40-minute ceiling. The larger outer envelope restores
+headroom for observed runner variation; both projects, one worker, per-test timeouts,
+retry policy, the complete suite, scans and all quality floors remain unchanged.
+
+Earlier budget increases are historical evidence. The unchanged 0.8.0 baseline on run
 `42709008358` took 1,476 seconds, including 1,205 seconds in the browser/startup step
 (312 journeys, no retries/flakies), leaving only 24 seconds under the former 25-minute budget.
 The selected first-step sessions add browser cases. The larger outer budget accommodates that
 work; browser timeouts, workers, retry settings, complete suite, scans and all quality floors
-are unchanged. The nightly already has a separate 40-minute budget.
+were unchanged. The nightly then had a separate 40-minute budget.
 Post-release run `42737593818` passed all 372 Linux journeys without retries; its image job
 used **2,004 seconds**, leaving **96 seconds** under the former 35-minute ceiling. The selected S04 session adds both-browser teaching,
-reference grading, recovery and reflow cases; its 40-minute outer budget matches the nightly
-and preserves the full suite, scans, per-test timeouts, workers and retry policy. The later
+reference grading, recovery and reflow cases; its then-40-minute outer budget matched the nightly
+and preserved the full suite, scans, per-test timeouts, workers and retry policy. The later
 unchanged-baseline run `42773472174` used 1,726 seconds; this variation does not provide a
 reliable 96-second margin for an expanded batch. Recheck
 outer-budget headroom before adding another browser batch; retain the full suite and existing

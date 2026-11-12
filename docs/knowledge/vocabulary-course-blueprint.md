@@ -142,18 +142,19 @@ BL-046 records authoring/reconciliation; BL-004 retains vocabulary selection and
 
 ### Status, boundary and source policy
 
-**User-accepted next content phase.** After the 0.19.0 navigation release, whose runtime scope does not
-include pair seventeen or S14, author the next vocabulary material before selecting another activation.
-The initial budget is **60 selected-meaning or chunk placements across three thematic packets**. It is an
-authoring budget, not 60 unique lemmas, a complete unit inventory, a frequency-ranked list or a B2 claim.
-Repeated use of one reviewed sense in another packet counts as another placement; a multiword chunk counts
-once even when it needs several component records at implementation time.
+**Released P1 baseline; P2/P3 remain authoring drafts.** App 0.20.0 now runs pair seventeen
+(`pilot-17/generator-17/evaluation-17`) with 49 lexical records (`L001`–`L049`) and all
+published compatibility snapshots. This activates only the selected P1 packet; it does not activate P2,
+P3 or S14. The initial budget remains **60 selected-meaning or chunk placements across three thematic
+packets**. It is an authoring budget, not 60 unique lemmas, a complete unit inventory, a frequency-ranked
+list or a B2 claim. Repeated use of one reviewed sense in another packet counts as another placement; a
+multiword chunk counts once even when it needs several component records at implementation time.
 
-All material in this section is a **linguistic draft awaiting Danish teaching review**. It assigns no new
-`L…` or sense IDs, activates no pool, changes no generator/grader and bulk-adopts no external data. The
-runtime source of truth remains `pilot-16`, with 40 lexical records (`L001`–`L040`) and the published
-compatibility snapshots. Before any later activation, audit the then-current catalogue, allocate new IDs,
-write a versioned lexical/frame manifest and preserve every older snapshot and saved evaluator literally.
+The P2/P3 material in this section remains a **linguistic draft awaiting Danish teaching review**. It
+assigns no further `L…` or sense IDs, activates no pool, changes no generator/grader and bulk-adopts no
+external data. Before either later activation, audit the then-current pair-seventeen catalogue, allocate
+new IDs, write a versioned lexical/frame manifest and preserve every older snapshot and saved evaluator
+literally.
 
 Use the following bounded source ladder:
 
