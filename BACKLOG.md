@@ -23,6 +23,7 @@ assistant's design proposals.
 
 ## Exercises and engine
 
+- [next] **BL-070 — Activate food, cafés and shopping vocabulary.** User-selected implementation follows the [P2 activation contract](docs/knowledge/vocabulary-food-shopping-activation.md): six independent sessions and 21 activities, direct-entry teaching, distinct request/possession senses, two-pair quantity matching, subject/chronology reading and fixed request punctuation. Admit introduced P2 material through cumulative-review-2 while preserving cumulative-1 and older lessons/graders. Complete with independent review, full compatibility/recovery/browser checks, focused commits, app 0.22.0 release and backed-up app-only preview delivery. P3, Vocabulary library and S14 remain separate.
 
 
 - [new] **BL-067 — Add a learner vocabulary library using shared content identities.** The [accepted navigation direction](docs/knowledge/learning-engine.md#selected-navigation-implementation-and-content-authoring) includes Vocabulary after the first Lessons/Review release. Expose introduced article/form bundles, selected meanings, examples and recognition/recall practice by situation; reuse the same versioned lexical records as lessons. Define introduction/history ownership and populated per-operation pools before adding the destination. Coordinate BL-004/BL-046 and preserve Q27's existing assessment boundary; complete with a useful reviewed library and verified learner flows, without inventing mastery or a second content database.

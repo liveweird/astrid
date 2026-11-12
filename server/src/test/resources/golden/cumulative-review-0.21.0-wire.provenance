@@ -1,0 +1,10 @@
+releaseSourceCommit=eab86c6ddd44175e2d9b6dde7e2283f30943800e
+releaseVersion=0.21.0
+captureDate=2026-11-12
+projectionSchema=cumulative-review-one-server-wire-v1
+planRevision=cumulative-review-1
+sourceFamilies=20
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=25
+fixtureSha256=35eda669026797ea3379d5b010bace1136c96c9596936089349b47224d3da8fe
+description=Published cumulative-review-1 request and private plan payloads at four boundary seeds, all twenty taught source families, deterministic selection witnesses, exact public initial/taught/attempted wire, per-item revisions, cross-run exposure, saved attempt request/response/context replay and explicit null policy.

@@ -1,5 +1,10 @@
 # P2 Food and Shopping: Complete Script Draft
 
+**Subsequent selection — 12 November 2026:** The user selected all six sessions and 21
+activities. The [activation contract](vocabulary-food-shopping-activation.md) now assigns
+runtime identities and acceptance. Unselected/proposed status below is historical;
+selection does not confer specialist teaching approval.
+
 ## Status, authority and proposed decisions
 
 This is an **authoring draft for independent source/content and Danish-specialist review**. It expands the
@@ -16,11 +21,15 @@ from the existing possession sense of `have`; their future implementation identi
 
 The following are explicit **authoring proposals**, not selected runtime decisions:
 
-1. Keep Session 6's quantity matching as an honest **two-pair** board. Do not add filler or count the two
-   beverage words as new placements. Each pair primarily assesses the allocated P2-20/P2-21
-   cup/bottle quantity-head meaning contextualized inside its exact supplied constituent. The complete
-   constituent and beverage meanings receive separate visible-exposure evidence; they are not an
-   unallocated compound target.
+1. Keep Session 6's honest **two-pair** board, matching `a cup ↔ en kop` and
+   `a bottle ↔ en flaske`. Each pair assesses P2-20/P2-21's head meaning directly.
+   Complete quantities and beverages receive separate visible exposure and remain intact
+   in request tiles, without extra placements or independent beverage-production credit.
+
+   **Superseded after independent review, 12 November 2026:** the original board used
+   `en kop kaffe`/`en flaske vand`. Known beverage cues could solve it without container
+   knowledge. Head-only matching removes that cue without filler.
+
 2. Schedule the bottle request as Session 6 activity 4, after `en flaske vand` and the complete bottle
    request have both been visibly taught. This makes the session contain four activities and the packet
    contain 21 activities (`3 + 4 + 4 + 3 + 3 + 4`). It is a second authored semantic variant, not a
@@ -389,7 +398,7 @@ parallel request notes, identify their requester/object facts, and assemble both
 
 | No. | Activity, exact bank and primary ownership | Exact answer | Reviewed known off-targets and unknowns |
 | --- | --- | --- | --- |
-| 6.1 | **Two-pair** `meaning/en-da` quantity matching. English left: `a cup of coffee`, `a bottle of water`. Danish right: `en kop kaffe`, `en flaske vand`. Atomic primary targets: P2-20 **cup quantity-head** meaning and P2-21 **bottle quantity-head** meaning, each contextualized inside its exact supplied construction. The complete constituent and beverage mappings are exposure evidence, not unallocated compound targets or independent beverage-production targets. | `a cup of coffee ↔ en kop kaffe`; `a bottle of water ↔ en flaske vand`. | Swapping the two is a complete known off-target board with two wrong quantity-head mappings. Partial/duplicate pairing fails bijection shape. Do not add filler or award extra lexical placements. |
+| 6.1 | **Two-pair** `meaning/en-da` head matching. English left: `a cup`, `a bottle`. Danish right: `en kop`, `en flaske`. Atomic primary targets: P2-20 cup meaning and P2-21 bottle meaning. Full quantities and beverage mappings remain separate taught exposure and intact tile constituents. | `a cup ↔ en kop`; `a bottle ↔ en flaske`. | Crossed pairs give two known off-target head mappings. Partial/duplicate use fails bijection shape. No beverage cue, filler, extra placement or beverage-production credit. |
 | 6.2 | Explicit-subject reading. Cue “Who requests water in the two parallel notes?” Choices `the speaker (jeg) / Nora`. Primary target: `fact:water requester|Nora`. | `Nora`. | The speaker is the known requester of coffee in the text and is off-target. The task does not imply the notes address one another. |
 | 6.3 | All-word/block tiles. Cue “Write **I would like a cup of coffee, thank you** in the taught request frame.” Blocks `[Jeg] [vil] [gerne] [have] [en kop kaffe] [tak]`; comma before `tak` and final period are rendered support. Primary target: exact cup-request frame/order. | `Jeg vil gerne have en kop kaffe, tak.` | No different complete known answer is formable from this bank. Any other complete order is language-unknown/off-target; incomplete/duplicate use fails shape. `har` is not in the bank and substitution would miss the bare-infinitive request frame; do not generalize beyond that reviewed contrast. |
 | 6.4 | **Proposed scheduled semantic variant**, only after teaching step 7. Cue “Write **I would like a bottle of water, thank you** in the taught request frame.” Blocks `[Jeg] [vil] [gerne] [have] [en flaske vand] [tak]`; comma and period rendered. Primary target: exact bottle-request frame/order. | `Jeg vil gerne have en flaske vand, tak.` | No different complete known answer is formable from this bank. Other complete orders remain language-unknown/off-target; incomplete/duplicate use fails shape. This success does not license arbitrary unseen container/beverage recombinations. |
@@ -408,7 +417,7 @@ only and creates no possession target or active form. The comma is fixed present
 | 3 | P2-09–P2-12 | None | Four scene/lexical mappings; attention scene; Nora's roll object; handover scene | `Det er`, `spiser`, `brød`, Nora, English stage directions |
 | 4 | P2-13–P2-15 | None | `køber` meaning; explicit last event; exact purchase-clause order | `jeg`, `en bolle`, `spiser`, `drikker`, intact `i en café`, authored chronology |
 | 5 | P2-16, P2-17 | P2-18 | contextual `gerne`; exact wish frame/order; intended-thanking response | `jeg`, `købe`, `en bolle`, reviewed `undskyld/værsgo` scenes, bare-infinitive explanation |
-| 6 | P2-19–P2-21 | None (earlier P2 material is visible review) | two contextualized quantity-head mappings owned by P2-20/P2-21; water-requester subject; exact cup request; exact bottle request | complete-constituent and `kaffe/vand` exposure, `jeg`, Nora, `vil/gerne`, `tak`, possession `har` support only, punctuation |
+| 6 | P2-19–P2-21 | None (earlier P2 material is visible review) | two head-only mappings owned by P2-20/P2-21; water-requester subject; exact cup request; exact bottle request | complete-constituent and `kaffe/vand` exposure, `jeg`, Nora, `vil/gerne`, `tak`, possession `har` support only, punctuation |
 
 The placement audit remains **6 reuse / 15 new / 21 total**. Review rows and composite quantity
 exposures do not change those counts. A matching board is one numbered activity but owns one atomic

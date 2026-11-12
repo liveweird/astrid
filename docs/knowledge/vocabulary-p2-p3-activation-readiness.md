@@ -1,5 +1,9 @@
 # P2/P3 Activation Readiness
 
+**Subsequent selection — 12 November 2026:** P2 is selected under the
+[activation contract](vocabulary-food-shopping-activation.md); P3 stays unselected. The
+assessment below describes pre-selection gaps against its recorded baseline.
+
 ## Status and approach
 
 **Proposed assessment, 12 November 2026.** P2/P3 remain reviewed authoring drafts with
@@ -64,8 +68,9 @@ and OpenAPI minimum. The board widget already iterates supplied rows; no new int
 model is indicated.
 
 **Proposed script choice:** retain two-pair matching; runtime adoption remains open. Add no filler
-to reach three. Ownership is the selected cup/bottle meaning inside its exact
-quantity construction, recording beverage and constituent exposure separately. Do not add
+to reach three. **P2 review correction:** use head-only `a cup ↔ en kop` / `a bottle ↔ en flaske`,
+because the former quantity board could be solved from coffee/water cues. Record beverage
+and complete-constituent teaching exposure separately. Do not add
 two lexical placements or award independent beverage-production success. Specify any
 broader compound-meaning target before implementation.
 

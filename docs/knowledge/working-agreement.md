@@ -26,6 +26,13 @@ does not introduce accounts, cross-device history, scheduling or mastery thresho
 
 ## Confirmed documentation rule
 
+**12 November 2026 — P2 implementation selected:** The user's “OK, go for it, implement”
+selects six food/cafés/shopping sessions and 21 activities, including introduced-material
+eligibility in cumulative review. The [activation contract](vocabulary-food-shopping-activation.md)
+owns BL-070, app 0.22.0/pair nineteen and sense/quantity/reading boundaries. Standing independent
+review, full checks, focused commits/merge/push, release and backed-up app-only preview
+delivery apply. P3, Vocabulary library and S14 remain separate; specialist review stays open.
+
 From 6 November 2026 onward, continuously document project assumptions, requirements, constraints, open points, questions, decisions, rules, conventions, principles, and tenets. Maintain a separate work backlog with `[next]`, `[todo]`, `[new]`, `[parked]`, and `[blocked]` statuses. This is a standing user instruction, not an occasional documentation task.
 
 Update the relevant records as discussion or work changes the project. Documentation should reflect the current state before reporting a task complete. Capture substantive information concisely rather than copying the conversation verbatim.

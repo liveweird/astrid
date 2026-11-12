@@ -600,6 +600,24 @@ tasks.register<JavaExec>("exportVocabularyP1RevisionTwoPracticeCompatibility") {
     outputs.files(vocabularyP1RevisionTwoPracticeCompatibilityFixture, vocabularyP1RevisionTwoPracticeCompatibilityProvenance)
 }
 
+val cumulativeReviewOneCompatibilityDirectory = providers.environmentVariable("ASTRID_CUMULATIVE_REVIEW_COMPATIBILITY_DIR")
+    .map { file(it) }
+    .orElse(layout.projectDirectory.dir("src/test/resources/golden").asFile)
+
+tasks.register<JavaExec>("exportCumulativeReviewOneCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.21.0 cumulative-review-1 engine fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.engine.CumulativeReviewOneCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(
+            cumulativeReviewOneCompatibilityDirectory.get().resolve("cumulative-review-0.21.0.tsv").absolutePath,
+            cumulativeReviewOneCompatibilityDirectory.get().resolve("cumulative-review-0.21.0.provenance").absolutePath,
+        )
+    })
+}
+
 tasks.test {
     useJUnit()
 }

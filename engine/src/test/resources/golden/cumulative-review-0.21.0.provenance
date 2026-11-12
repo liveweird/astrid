@@ -1,0 +1,10 @@
+releaseSourceCommit=eab86c6ddd44175e2d9b6dde7e2283f30943800e
+releaseVersion=0.21.0
+captureDate=2026-11-12
+projectionSchema=cumulative-review-one-engine-v1
+planRevision=cumulative-review-1
+sourceFamilies=20
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=27
+fixtureSha256=6d5ed07c07a4a1b2c88b692ff51f53ad27069a848890613cbdd268a60b504ffa
+description=Published cumulative-review-1 planning over all twenty taught lesson families; short/full/empty pools, four boundary seeds, selection witnesses, original per-item revisions, private generation evidence, assessments, exposure and explicit null item policies.

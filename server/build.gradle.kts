@@ -539,6 +539,24 @@ tasks.register<JavaExec>("exportVocabularyP1RevisionTwoPracticeWireCompatibility
     outputs.files(fixture, provenance)
 }
 
+val cumulativeReviewOneWireCompatibilityDirectory = providers.environmentVariable("ASTRID_CUMULATIVE_REVIEW_COMPATIBILITY_DIR")
+    .map { file(it) }
+    .orElse(layout.projectDirectory.dir("src/test/resources/golden").asFile)
+
+tasks.register<JavaExec>("exportCumulativeReviewOneWireCompatibility") {
+    group = "verification"
+    description = "Writes the immutable published 0.21.0 cumulative-review-1 server wire fixture"
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("app.astrid.server.CumulativeReviewOneWireCompatibilityExportMain")
+    argumentProviders.add(org.gradle.process.CommandLineArgumentProvider {
+        listOf(
+            cumulativeReviewOneWireCompatibilityDirectory.get().resolve("cumulative-review-0.21.0-wire.tsv").absolutePath,
+            cumulativeReviewOneWireCompatibilityDirectory.get().resolve("cumulative-review-0.21.0-wire.provenance").absolutePath,
+        )
+    })
+}
+
 tasks.test {
     useJUnit()
 }

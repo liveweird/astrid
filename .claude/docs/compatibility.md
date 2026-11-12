@@ -266,6 +266,16 @@ export tooling only; it neither changes the app version nor activates content.
 
 ## Cumulative plans and per-item revisions
 
+Published `cumulative-review-1` was captured from unchanged app 0.21.0 source
+`eab86c6ddd44175e2d9b6dde7e2283f30943800e` before P2 production changes. The engine
+archive contains 27 rows covering all twenty source families, short/full/empty pools,
+boundary seeds, explicit null policies, selections and private per-item evidence. The
+25-row server archive captures exact request/private payload roundtrips and synthetic
+initial/taught/attempted wire plus saved-attempt context/replay. It is not an assertion
+of real-database grading; actual upgrade/restart acceptance is separate. Two fresh JVM
+captures under default and Arabic locales were byte-identical. Both archives/provenance
+and their SHA guards are immutable; all 115 earlier protected resources stayed unchanged.
+
 `cumulative-review-1` is a composite plan. Its three run-level revision fields are the
 literal marker `per-item`; this is **not an engine revision**. Each cumulative public
 item supplies `revisions` with its actual content/generator/evaluation triple. Grade and

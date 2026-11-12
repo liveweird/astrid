@@ -1,5 +1,9 @@
 # P2 Vocabulary Authoring Packet: Food, Drink and a Small Purchase
 
+**Subsequent selection — 12 November 2026:** P2 implementation is now selected under the
+[activation contract](vocabulary-food-shopping-activation.md). Historical proposals below
+remain the authoring/source record; specialist teaching approval is still outstanding.
+
 ## Status and boundary
 
 This is the bounded P2 continuation of the [selected vocabulary expansion
@@ -270,7 +274,9 @@ Reading:
 
 Planned slots:
 
-1. Quantity matching: `en kop kaffe ↔ a cup of coffee`; `en flaske vand ↔ a bottle of water`.
+1. Head-only matching: `en kop ↔ a cup`; `en flaske ↔ a bottle`.
+   **Review correction, 12 November 2026:** the original full-quantity board could be solved
+   from coffee/water alone. Full quantities remain visibly taught and intact in request tiles;
    English `of` does not create a Danish `af` tile.
 2. Reading choice: “Who requests water?” → **Nora**.
 3. Final constrained transfer tiles: `Jeg / vil / gerne / have / en kop kaffe / tak` →
