@@ -335,3 +335,14 @@ bottle request as activity 6.4 remain explicit authoring proposals. This deepens
 selected overnight authoring work; it does not activate P2, allocate runtime identities,
 resume S14, resolve Q27/Q28 or establish Danish specialist approval. P1 remains the delivered
 work/study unit on the separately verified 0.20.1 baseline.
+
+### P3 scripts and continuation readiness — 12 November 2026
+
+The [places/journeys scripts](vocabulary-places-journeys-scripts.md) now propose six complete
+sessions and 23 activities over 21 placements (5 reused, 16 new). Exact teaching and banks
+preserve static/destination contrasts, car-specific `kører`, rail-context `skifter` and
+session-local prerequisites. The [P2/P3 readiness assessment](vocabulary-p2-p3-activation-readiness.md)
+identifies conditional sense-aware identities, two-pair quantity matching, reading roles,
+punctuation, exposure and policy work using established interactions. It allocates no
+versions, pairs, stable IDs or runtime contract. Both packets remain reviewed authoring
+proposals; P2/P3 activation, S14 resumption and Danish specialist approval remain separate.

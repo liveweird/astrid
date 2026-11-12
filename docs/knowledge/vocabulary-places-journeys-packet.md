@@ -22,6 +22,13 @@ not merely the same spelling and not a new construction permission: current `L01
 through transport, stations and two useful destinations; they are not a transport/place taxonomy,
 frequency list or claim of comprehensive beginner coverage.
 
+The [complete session-script draft](vocabulary-places-journeys-scripts.md) expands these
+outlines into six sessions and 23 activities (`4/4/4/3/4/4`), with exact teaching, banks,
+spatial contrasts and direct-entry review. Paired-mapping choices remain authoring proposals;
+the placement/source ledger below stays authoritative. The separate
+[readiness assessment](vocabulary-p2-p3-activation-readiness.md) records conditional runtime
+gaps without selecting activation or resuming S14.
+
 ## Placement ledger
 
 “Bundle” is the teaching surface. A count noun includes its article in that bundle. Definite
@@ -335,3 +342,8 @@ and 23 planned activity slots remain unchanged. These are reviewed outlines, not
 profiles or complete final activation scripts. A second independent recheck caught a future
 Danish chunk in session 3’s support table; it was removed, keeping that distractor English-only
 and preserving session 5 as the first introduction of `på stationen`.
+
+The [complete script draft](vocabulary-places-journeys-scripts.md) now supplies the proposed
+23-activity realization, including exact banks for both spatial contrasts. It preserves
+that first-introduction boundary and the car/rail context; it remains an authoring draft
+with no allocated runtime identities or Danish specialist approval.
