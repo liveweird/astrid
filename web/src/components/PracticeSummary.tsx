@@ -99,6 +99,9 @@ export default function PracticeSummary({
   nextProfile?: { title: string; onChoose: () => void };
 }) {
   const moduleOne = session.introductionRequired === true;
+  const sessionFocusId: string = session.focusId;
+  const sessionPlanRevision: string = session.planRevision;
+  const cumulativeReview = sessionFocusId === "cumulative-review" && sessionPlanRevision === "cumulative-review-1";
   return (
     <Stack gap="lg">
       <Box>
@@ -141,10 +144,12 @@ export default function PracticeSummary({
               </SimpleGrid>
               <Text size="sm" c="dimmed">
                 {row.firstWithSupport} first with support · {row.firstWithPriorExposure} {moduleOne
-                  ? "after teaching or earlier exposure in this run"
+                  ? cumulativeReview
+                    ? "with possible prior exposure in the saved cross-session snapshot"
+                    : "after teaching or earlier exposure in this run"
                   : "with possible earlier exposure"}
               </Text>
-              {!moduleOne && <Checkbox
+              {!moduleOne && !cumulativeReview && <Checkbox
                   label={`Review ${row.label}`}
                   checked={selectedTargets.has(practiceTargetKey(row))}
                   disabled={busy}
@@ -154,7 +159,7 @@ export default function PracticeSummary({
           </Paper>
         ))}
       </SimpleGrid>
-      {moduleOne && (
+      {moduleOne && !cumulativeReview && (
         <Stack gap="xs">
           <Text size="sm" c="dimmed">These activities followed this session’s teaching. Experience from other practice runs is unknown.</Text>
           <Group align="flex-start">
@@ -163,7 +168,13 @@ export default function PracticeSummary({
           </Group>
         </Stack>
       )}
-      {!moduleOne && <Box>
+      {cumulativeReview && (
+        <Stack gap="xs">
+          <Text size="sm" c="dimmed">This run keeps the cross-session exposure snapshot used when it was created. Prepare again to use material currently introduced in this browser session.</Text>
+          <Box><Button variant="default" disabled={busy} onClick={onRepeat}>Prepare another mixed review</Button></Box>
+        </Stack>
+      )}
+      {!moduleOne && !cumulativeReview && <Box>
         <Button disabled={selectedTargets.size === 0 || busy} loading={busy} onClick={onStartReview}>
           Start selected review
         </Button>

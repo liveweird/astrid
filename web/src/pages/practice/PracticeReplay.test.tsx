@@ -10,6 +10,35 @@ import { listOutbox, saveOutboxEntry, saveRunRecovery } from "./practiceRecovery
 
 beforeEach(resetPracticeBrowser);
 
+it("routes a completed cumulative review back to a fresh preparation instead of offering unsupported follow-ups", async () => {
+  const run = {
+    ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "cumulative-review", planRevision: "cumulative-review-1", seed: 47,
+  };
+  saveRunRecovery(run);
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.includes(`/practice-sessions/${practiceId}`)) return json(state({
+      ...completedState(), focusId: "cumulative-review", planRevision: "cumulative-review-1",
+      title: "Mixed review from your lessons", introductionRequired: true,
+    }));
+    throw new Error(`Unexpected ${path}`);
+  }));
+
+  renderWithProviders(<Practice />);
+
+  expect(await screen.findByRole("heading", { name: "Practice complete" })).toBeVisible();
+  expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Start selected review" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Repeat this session" })).not.toBeInTheDocument();
+  expect(screen.getByText(/keeps the cross-session exposure snapshot/)).toBeVisible();
+  expect(screen.getAllByText(/with possible prior exposure in the saved cross-session snapshot/)).not.toHaveLength(0);
+  await userEvent.click(screen.getByRole("button", { name: "Prepare another mixed review" }));
+  expect(window.location.pathname).toBe("/");
+  expect(window.location.hash).toBe("#review");
+});
+
 it("restores an uncertain gap answer in its exact saved order and freezes the board", async () => {
   const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "verb-article-gaps", planRevision: "verb-article-gaps-1", seed: 47 };
   saveRunRecovery(run);

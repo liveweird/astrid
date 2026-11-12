@@ -47,6 +47,10 @@ function selectedTargetSet(current: Set<string>, targetKey: string, selected: bo
   return next;
 }
 
+function isCumulativeReview(session: Pick<PracticeSession, "focusId" | "planRevision">) {
+  return String(session.focusId) === "cumulative-review" && String(session.planRevision) === "cumulative-review-1";
+}
+
 function PracticeProgress({ session }: { session: PracticeSession }) {
   const progress = session.itemCount > 0 ? (session.cursor / session.itemCount) * 100 : 0;
   return <Box>
@@ -300,6 +304,7 @@ export default function Practice() {
         onToggleTarget={(targetKey, selected) => setSelectedTargets((current) => selectedTargetSet(current, targetKey, selected))}
         onStartReview={() => void startFollowUp()}
         onRepeat={() => {
+          if (isCumulativeReview(session)) { navigate("/#review"); return; }
           const key = taughtProfileKey(session);
           if (key) openPracticeChooser(key);
         }}

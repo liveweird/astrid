@@ -78,12 +78,12 @@ export default defineConfig({
         "src/main.tsx",
         "src/vite-env.d.ts",
       ],
-      // Full-source P1 coverage (2026-11-12): statements 95.31, branches 89.83,
-      // functions 98.02, lines 98.00. Floors sit at the
+      // Full-source cumulative review coverage (2026-11-12): statements 95.42, branches 90.00,
+      // functions 98.09, lines 98.10. Floors sit at the
       // integer below each result and must move upward as coverage grows.
       thresholds: {
         statements: 95,
-        branches: 89,
+        branches: 90,
         functions: 98,
         lines: 98,
       },

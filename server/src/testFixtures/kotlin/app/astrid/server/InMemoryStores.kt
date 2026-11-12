@@ -19,6 +19,7 @@ import app.astrid.server.exercises.frozenFeedbackExposureKeys
 import app.astrid.server.plugins.Readiness
 import app.astrid.server.practice.NewPracticeItem
 import app.astrid.server.practice.NewPracticeSession
+import app.astrid.server.practice.CumulativeReviewHistory
 import app.astrid.server.practice.PracticeCreateResult
 import app.astrid.server.practice.PracticeFollowUpLineage
 import app.astrid.server.practice.PracticeFollowUpRequest
@@ -31,6 +32,8 @@ import app.astrid.server.practice.StoredPracticeItem
 import app.astrid.server.practice.StoredPracticeSession
 import app.astrid.server.practice.toCompletionObservation
 import app.astrid.server.practice.toEngineAssessment
+import app.astrid.server.practice.effectiveCompletionRule
+import app.astrid.server.practice.effectiveExposurePolicy
 import app.astrid.server.session.SessionStore
 import java.util.UUID
 import kotlinx.coroutines.sync.Mutex
@@ -112,7 +115,7 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                                 it.feedbackExposureKeys,
                                 it.assessments.map { assessment -> assessment.toEngineAssessment() },
                                 it.attempts.map { attempt -> attempt.response },
-                                current.exposurePolicyId,
+                                it.policy.effectiveExposurePolicy(current.exposurePolicyId),
                             ),
                             it.lessonOpened,
                             it.hintOpened,
@@ -177,6 +180,56 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                 introductionRequired = plan.introductionRequired,
                 completionRuleId = plan.completionRuleId,
                 exposurePolicyId = plan.exposurePolicyId,
+                createdAt = clock(),
+            )
+            plan.items.forEach { exerciseRecords[ownerSession.id to it.exercise.id] = it.exercise }
+            practiceRequests[key] = requestPayload
+            practiceSessions[key] = stored
+            PracticeCreateResult.Created(stored.snapshot())
+        }
+
+        override suspend fun cumulativeReviewHistory(ownerSession: SessionPrincipal): CumulativeReviewHistory = mutex.withLock {
+            if (sessionRecords.values.none { it.id == ownerSession.id } || ownerSession.expiresAt <= clock()) {
+                CumulativeReviewHistory(emptyList(), false)
+            } else {
+                history(ownerSession)
+            }
+        }
+
+        override suspend fun createCumulativeReview(
+            ownerSession: SessionPrincipal,
+            request: PracticeSessionRequest,
+            requestPayload: String,
+            create: suspend (CumulativeReviewHistory) -> NewPracticeSession?,
+        ): PracticeCreateResult = mutex.withLock {
+            if (sessionRecords.values.none { it.id == ownerSession.id }) return@withLock PracticeCreateResult.OwnerExpired
+            val id = UUID.fromString(request.practiceSessionId)
+            val key = ownerSession.id to id
+            practiceSessions[key]?.let {
+                return@withLock if (practiceRequests.getValue(key) == requestPayload) {
+                    PracticeCreateResult.Existing(it.snapshot())
+                } else {
+                    PracticeCreateResult.RequestConflict
+                }
+            }
+            if (ownerSession.expiresAt <= clock()) return@withLock PracticeCreateResult.OwnerExpired
+            val plan = create(history(ownerSession)) ?: return@withLock PracticeCreateResult.NoEligibleItems
+            if (ownerSession.expiresAt <= clock()) return@withLock PracticeCreateResult.OwnerExpired
+            require(plan.items.isNotEmpty() && plan.items.size <= 8)
+            require(plan.items.map { it.position } == plan.items.indices.toList())
+            val stored = MemoryPracticeSession(
+                id, ownerSession.id, ownerSession.expiresAt, request.focusId, plan.title, request.planRevision, request.seed,
+                plan.contentRevision, plan.generatorRevision, plan.evaluationRevision,
+                prerequisiteSkillIds = plan.prerequisiteSkillIds.toList(),
+                introduction = plan.introduction.toList(),
+                items = plan.items.sortedBy { it.position }.map { MemoryPracticeItem(it) }.toMutableList(),
+                sourceExposure = plan.sourceExposure.toList(),
+                introductionExposureKeys = plan.introductionExposureKeys?.toList(),
+                introductionRequired = plan.introductionRequired,
+                completionRuleId = plan.completionRuleId,
+                exposurePolicyId = plan.exposurePolicyId,
+                cumulativeReview = plan.cumulativeReview,
+                createdAt = clock(),
             )
             plan.items.forEach { exerciseRecords[ownerSession.id to it.exercise.id] = it.exercise }
             practiceRequests[key] = requestPayload
@@ -227,6 +280,7 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                 introductionRequired = plan.introductionRequired,
                 completionRuleId = plan.completionRuleId,
                 exposurePolicyId = plan.exposurePolicyId,
+                createdAt = clock(),
             )
             plan.items.forEach { exerciseRecords[ownerSession.id to it.exercise.id] = it.exercise }
             practiceRequests[key] = requestPayload
@@ -275,7 +329,7 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                 position < stored.cursor -> PracticeMutationResult.Success(stored.snapshot())
                 position > stored.cursor -> PracticeMutationResult.Conflict
                 !PracticeCompletionPolicy.canAdvance(
-                    stored.completionRuleId,
+                    stored.items.single { it.position == position }.policy.effectiveCompletionRule(stored.completionRuleId),
                     stored.items.single { it.position == position }.attempts.lastOrNull()?.response
                         ?.toCompletionObservation(stored.introductionOpened),
                 ) -> PracticeMutationResult.Conflict
@@ -289,9 +343,17 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
 
     override val readiness = Readiness { true }
 
+    private fun history(ownerSession: SessionPrincipal) = CumulativeReviewHistory(
+        practiceSessions.values.filter {
+            it.ownerSessionId == ownerSession.id && it.createdAt >= ownerSession.expiresAt - SESSION_TTL_MILLIS
+        }.sortedBy { it.id.toString() }.map(MemoryPracticeSession::snapshot),
+    )
+
     suspend fun tamperFingerprint(exerciseId: UUID) = mutex.withLock {
         val entry = exerciseRecords.entries.single { it.key.second == exerciseId }
-        exerciseRecords[entry.key] = entry.value.copy(reproductionFingerprint = "0".repeat(64))
+        val stored = entry.value.copy(reproductionFingerprint = "0".repeat(64))
+        exerciseRecords[entry.key] = stored
+        practiceSessions.values.flatMap { it.items }.singleOrNull { it.exercise.id == exerciseId }?.exercise = stored
     }
 
     suspend fun tamperRevision(exerciseId: UUID) = mutex.withLock {
@@ -335,6 +397,8 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
         val introductionRequired: Boolean = false,
         val completionRuleId: String? = null,
         val exposurePolicyId: String? = null,
+        val cumulativeReview: app.astrid.server.practice.CumulativeReviewPayload? = null,
+        val createdAt: Long,
     ) {
         fun snapshot() = StoredPracticeSession(
             id, ownerSessionId, sessionExpiresAt, focusId, title, planRevision, seed,
@@ -343,6 +407,8 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
             followUp, sourceExposure.toList(),
             introductionExposureKeys?.toList(),
             introductionRequired, completionRuleId, exposurePolicyId,
+            cumulativeReview,
+            createdAt,
         )
     }
 
@@ -360,6 +426,7 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
         val targetScopeId = item.targetScopeId
         val readingRole = item.readingRole
         val matchingTarget = item.matchingTarget
+        val policy = item.policy
         var lessonOpened = false
         var hintOpened = false
         var attempts = mutableListOf<StoredPracticeAttempt>()
@@ -372,7 +439,12 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
             targetScopeId,
             readingRole,
             matchingTarget,
+            policy,
         )
+    }
+
+    private companion object {
+        const val SESSION_TTL_MILLIS = 24 * 60 * 60 * 1_000L
     }
 }
 

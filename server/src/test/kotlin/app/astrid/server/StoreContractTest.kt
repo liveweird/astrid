@@ -155,6 +155,38 @@ abstract class StoreContractTest {
     }
 
     @Test
+    fun `cumulative creation is atomic empty aware and replay first`() = withStores { stores ->
+        val owner = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
+        val request = PracticeSessionRequest(
+            UUID.randomUUID().toString(),
+            "cumulative-review",
+            "cumulative-review-1",
+            29,
+        )
+        val payload = wireJson.encodeToString(request)
+        assertIs<PracticeCreateResult.NoEligibleItems>(
+            stores.practice.createCumulativeReview(owner, request, payload) { null },
+        )
+        val created = assertIs<PracticeCreateResult.Created>(
+            stores.practice.createCumulativeReview(owner, request, payload) {
+                PracticePlanner().plan("module-one-singular", "module-one-singular-1", request.seed)
+                    .toNewPracticeSession(owner.id)
+            },
+        ).session
+        assertEquals(created, assertIs<PracticeCreateResult.Existing>(
+            stores.practice.createCumulativeReview(owner, request, payload) {
+                error("replay must precede history and planning")
+            },
+        ).session)
+        val changed = request.copy(seed = 30)
+        assertIs<PracticeCreateResult.RequestConflict>(
+            stores.practice.createCumulativeReview(owner, changed, wireJson.encodeToString(changed)) {
+                error("payload conflict must precede planning")
+            },
+        )
+    }
+
+    @Test
     fun `practice creation persists matching board identity and answer-free pair assessments`() = withStores { stores ->
         val owner = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
         val request = PracticeSessionRequest(

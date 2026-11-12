@@ -8,6 +8,7 @@ import app.astrid.server.authz.Authenticator
 import app.astrid.server.authz.BadRequest
 import app.astrid.server.authz.Conflict
 import app.astrid.server.authz.NotFound
+import app.astrid.server.authz.Unauthorized
 import app.astrid.server.authz.caller
 import app.astrid.server.authz.parseStrictUuid
 import app.astrid.server.authz.requireMutationHeaders
@@ -56,6 +57,7 @@ private val SUPPORTED_PRACTICE_PLANS = setOf(
     VOCABULARY_P1_S4_FOCUS to VOCABULARY_P1_S4_CURRENT_REVISION,
     VOCABULARY_P1_S5_FOCUS to VOCABULARY_P1_S5_REVISION,
     VOCABULARY_P1_S5_FOCUS to VOCABULARY_P1_S5_CURRENT_REVISION,
+    CUMULATIVE_REVIEW_FOCUS to CUMULATIVE_REVIEW_REVISION,
 )
 
 internal fun Route.practiceRoutes(
@@ -74,29 +76,8 @@ internal fun Route.practiceRoutes(
             ),
         )
     }
-    post("/practice-sessions") {
-        requireMutationHeaders(call)
-        val owner = call.caller(authenticator)
-        requirePracticeOwner(call, owner.id)
-        val request = call.receive<PracticeSessionRequest>().validated()
-        val result = practice.createPracticeSession(owner, request, wireJson.encodeToString(request)) {
-            val plan = try {
-                planner.plan(request.focusId, request.planRevision, request.seed)
-            } catch (cause: IllegalArgumentException) {
-                throw Conflict(cause.message ?: "Unsupported practice plan").apply { initCause(cause) }
-            }
-            plan.toNewPracticeSession(owner.id)
-        }
-        when (result) {
-            is PracticeCreateResult.Created -> {
-                call.response.headers.append(HttpHeaders.Location, "/api/v1/practice-sessions/${result.session.id}")
-                call.respond(HttpStatusCode.Created, result.session.toResponse())
-            }
-            is PracticeCreateResult.Existing -> call.respond(result.session.toResponse())
-            PracticeCreateResult.RequestConflict -> throw Conflict("Practice session id was already used with a different request")
-            PracticeCreateResult.SourceMissing, PracticeCreateResult.SourceActive -> error("Initial practice has no source")
-        }
-    }
+    cumulativeReviewContextRoute(practice, authenticator, engine)
+    practiceSessionCreationRoute(practice, authenticator, engine, planner)
     followUpRoute(practice, authenticator, engine)
     get("/practice-sessions/{id}") {
         val owner = call.caller(authenticator)
@@ -117,6 +98,71 @@ internal fun Route.practiceRoutes(
         val request = call.receive<PracticeAdvanceRequest>()
         if (request.position !in 0 until PRACTICE_ITEM_COUNT) throw BadRequest("Invalid practice position")
         call.respond(practice.advancePracticeSession(owner.id, call.practiceId(), request.position).response())
+    }
+}
+
+private fun Route.cumulativeReviewContextRoute(
+    practice: PracticeStore,
+    authenticator: Authenticator,
+    engine: PilotEngine,
+) {
+    get("/practice-review-context") {
+        val owner = call.caller(authenticator)
+        val history = practice.cumulativeReviewHistory(owner)
+        if (!history.ownerAvailable) throw Unauthorized()
+        val review = history.toCumulativeReview(
+            PracticeSessionRequest(UUID.randomUUID().toString(), CUMULATIVE_REVIEW_FOCUS, CUMULATIVE_REVIEW_REVISION, 0),
+            owner.id,
+            engine,
+        )
+        call.respond(
+            PracticeReviewContextResponse(
+                owner.id.toString(), owner.expiresAt, CUMULATIVE_REVIEW_FOCUS, CUMULATIVE_REVIEW_REVISION,
+                app.astrid.engine.CumulativeReviewPlanner.TITLE,
+                review?.items?.size ?: 0,
+                review?.cumulativeReview?.sourceLessonCount ?: 0,
+            ),
+        )
+    }
+}
+
+private fun Route.practiceSessionCreationRoute(
+    practice: PracticeStore,
+    authenticator: Authenticator,
+    engine: PilotEngine,
+    planner: PracticePlanner,
+) {
+    post("/practice-sessions") {
+        requireMutationHeaders(call)
+        val owner = call.caller(authenticator)
+        requirePracticeOwner(call, owner.id)
+        val request = call.receive<PracticeSessionRequest>().validated()
+        val requestPayload = wireJson.encodeToString(request)
+        val result = if (request.focusId == CUMULATIVE_REVIEW_FOCUS) {
+            practice.createCumulativeReview(owner, request, requestPayload) { history ->
+                history.toCumulativeReview(request, owner.id, engine)
+            }
+        } else {
+            practice.createPracticeSession(owner, request, requestPayload) {
+                val plan = try {
+                    planner.plan(request.focusId, request.planRevision, request.seed)
+                } catch (cause: IllegalArgumentException) {
+                    throw Conflict(cause.message ?: "Unsupported practice plan").apply { initCause(cause) }
+                }
+                plan.toNewPracticeSession(owner.id)
+            }
+        }
+        when (result) {
+            is PracticeCreateResult.Created -> {
+                call.response.headers.append(HttpHeaders.Location, "/api/v1/practice-sessions/${result.session.id}")
+                call.respond(HttpStatusCode.Created, result.session.toResponse())
+            }
+            is PracticeCreateResult.Existing -> call.respond(result.session.toResponse())
+            PracticeCreateResult.RequestConflict -> throw Conflict("Practice session id was already used with a different request")
+            PracticeCreateResult.SourceMissing, PracticeCreateResult.SourceActive -> error("Initial practice has no source")
+            PracticeCreateResult.NoEligibleItems -> throw Conflict("No introduced lesson activities are available for review")
+            PracticeCreateResult.OwnerExpired -> throw Unauthorized()
+        }
     }
 }
 
@@ -166,6 +212,8 @@ private fun Route.followUpRoute(
             PracticeCreateResult.RequestConflict -> throw Conflict("Practice session id was already used with a different request")
             PracticeCreateResult.SourceMissing -> throw NotFound("Source practice session not found")
             PracticeCreateResult.SourceActive -> throw Conflict("Complete the source practice before starting a review")
+            PracticeCreateResult.NoEligibleItems -> error("Follow-up creation does not use cumulative eligibility")
+            PracticeCreateResult.OwnerExpired -> error("Follow-up creation does not use cumulative owner revalidation")
         }
     }
 }

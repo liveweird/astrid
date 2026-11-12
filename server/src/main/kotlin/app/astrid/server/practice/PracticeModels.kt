@@ -5,6 +5,7 @@ package app.astrid.server.practice
 import app.astrid.engine.PracticeAssessment
 import app.astrid.engine.PracticeCompletionAttemptObservation
 import app.astrid.engine.PracticeTargetDescriptor
+import app.astrid.engine.PracticeItemPolicy
 import app.astrid.server.exercises.AttemptAnswerDto
 import app.astrid.server.exercises.AttemptResponse
 import app.astrid.server.exercises.IntroductionDto
@@ -33,6 +34,7 @@ data class NewPracticeSession(
     val introductionRequired: Boolean = false,
     val completionRuleId: String? = null,
     val exposurePolicyId: String? = null,
+    val cumulativeReview: CumulativeReviewPayload? = null,
 )
 
 data class PracticeFollowUpLineage(
@@ -54,6 +56,7 @@ data class NewPracticeItem(
     val targetScopeId: String? = null,
     val readingRole: String? = null,
     val matchingTarget: LexicalTaskDto? = null,
+    val policy: PracticeItemPolicyPayload? = null,
 )
 
 data class StoredPracticeSession(
@@ -78,6 +81,8 @@ data class StoredPracticeSession(
     val introductionRequired: Boolean = false,
     val completionRuleId: String? = null,
     val exposurePolicyId: String? = null,
+    val cumulativeReview: CumulativeReviewPayload? = null,
+    val createdAt: Long = 0,
 )
 
 data class StoredPracticeItem(
@@ -97,6 +102,7 @@ data class StoredPracticeItem(
     val targetScopeId: String? = null,
     val readingRole: String? = null,
     val matchingTarget: LexicalTaskDto? = null,
+    val policy: PracticeItemPolicyPayload? = null,
 )
 
 data class StoredPracticeAttempt(
@@ -126,6 +132,8 @@ data class PracticePlanPayload(
     val completionRuleId: String? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val exposurePolicyId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val cumulativeReview: CumulativeReviewPayload? = null,
 )
 
 @Serializable
@@ -153,6 +161,30 @@ data class PracticeItemPayload(
     val readingRole: String? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val matchingTarget: LexicalTaskDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val policy: PracticeItemPolicyPayload? = null,
+)
+
+@Serializable
+data class PracticeItemPolicyPayload(
+    val completionRuleId: String? = null,
+    val exposurePolicyId: String? = null,
+)
+
+@Serializable
+data class CumulativeReviewPayload(
+    val selectionPolicyRevision: String,
+    val sourceLessonCount: Int,
+    val selections: List<CumulativeReviewSelectionPayload>,
+)
+
+@Serializable
+data class CumulativeReviewSelectionPayload(
+    val candidateKey: String,
+    val semanticId: String,
+    val sourcePracticeSessionId: String,
+    val sourcePosition: Int,
+    val sourceLessonId: String,
 )
 
 @Serializable
@@ -199,6 +231,7 @@ fun NewPracticeSession.toPayload() = PracticePlanPayload(
             it.targetScopeId,
             it.readingRole,
             it.matchingTarget,
+            it.policy,
         )
     },
     followUp?.let { PracticeFollowUpPayload(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },
@@ -207,7 +240,18 @@ fun NewPracticeSession.toPayload() = PracticePlanPayload(
     introductionRequired,
     completionRuleId,
     exposurePolicyId,
+    cumulativeReview,
 )
+
+internal fun PracticeItemPolicyPayload.toEngine() = PracticeItemPolicy(completionRuleId, exposurePolicyId)
+
+internal fun PracticeItemPolicyPayload?.effectiveCompletionRule(global: String?): String? =
+    if (this != null) completionRuleId else global
+
+internal fun PracticeItemPolicyPayload?.effectiveExposurePolicy(global: String?): String? =
+    if (this != null) exposurePolicyId else global
+
+internal fun PracticeItemPolicy?.toPayload() = this?.let { PracticeItemPolicyPayload(it.completionRuleId, it.exposurePolicyId) }
 
 internal fun PracticeAssessmentPayload.toEngineAssessment() = PracticeAssessment(
     slotId,

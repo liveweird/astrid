@@ -33,6 +33,12 @@ matching, isolated verb/chunk/mass-word recall and explicit object/place/time re
 The learner directory has twenty lessons and three unchanged Review sets. P1 uses separate
 completion/exposure policies; its outcomes do not enter existing follow-up planners.
 The activation contract is `docs/knowledge/vocabulary-expansion-activation.md`.
+**Cumulative mixed review** is a separate prepared run over material from saved teaching
+in the twenty lesson profiles, scoped to the current development-session owner. Empty
+pools create no run; smaller pools produce shorter runs up to eight distinct activities.
+Its composite `cumulative-review-1` plan uses `per-item` summary markers and preserves each
+exercise's original grading pair, with the existing P1 matching repair exception. The
+contract is `docs/knowledge/cumulative-review.md`; old fixed reviews and profiles stay intact.
 The matching restart repair and strict stored-board recovery are specified in
 `docs/knowledge/matching-restart-compatibility.md`; pair seventeen's original enum-hash
 shuffle is not cross-JVM reproducible. Never mint a purported deterministic raw archive around it.

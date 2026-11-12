@@ -38,6 +38,213 @@ import kotlinx.serialization.json.jsonPrimitive
 
 class PracticeApplicationTest {
     @Test
+    fun `cumulative review uses only taught lessons persists mixed revisions and replays exactly`() = testApplication {
+        application { astridModule(config(), InMemoryStores()) }
+        val auth = authenticate()
+        val empty = client.get("/api/v1/practice-review-context") {
+            trustedHost()
+            cookie("astrid_session", auth.cookie)
+        }
+        assertEquals(HttpStatusCode.OK, empty.status)
+        assertEquals(
+            0,
+            wireJson.parseToJsonElement(empty.bodyAsText()).jsonObject.getValue("itemCount").jsonPrimitive.content.toInt(),
+        )
+
+        val sourceId = UUID.randomUUID().toString()
+        assertEquals(
+            HttpStatusCode.Created,
+            create(
+                auth.cookie,
+                auth.ownerId,
+                """{"practiceSessionId":"$sourceId","focusId":"module-one-singular","planRevision":"module-one-singular-1","seed":7}""",
+            ).status,
+        )
+        assertEquals(HttpStatusCode.OK, support(auth, sourceId, """{"kind":"introduction"}""").status)
+        val context = client.get("/api/v1/practice-review-context") {
+            trustedHost()
+            cookie("astrid_session", auth.cookie)
+        }
+        val contextJson = wireJson.parseToJsonElement(context.bodyAsText()).jsonObject
+        assertEquals(6, contextJson.getValue("itemCount").jsonPrimitive.content.toInt())
+        assertEquals(1, contextJson.getValue("sourceLessonCount").jsonPrimitive.content.toInt())
+
+        val reviewId = UUID.randomUUID().toString()
+        val body =
+            """{"practiceSessionId":"$reviewId","focusId":"cumulative-review","planRevision":"cumulative-review-1","seed":17}"""
+        val created = create(auth.cookie, auth.ownerId, body)
+        assertEquals(HttpStatusCode.Created, created.status)
+        val createdText = created.bodyAsText()
+        val review = wireJson.parseToJsonElement(createdText).jsonObject
+        assertEquals("per-item", review.getValue("contentRevision").jsonPrimitive.content)
+        assertTrue(review.getValue("items").jsonArray.all { item ->
+            item.jsonObject.getValue("revisions").jsonObject.getValue("contentRevision").jsonPrimitive.content == "pilot-8"
+        })
+        assertEquals(HttpStatusCode.OK, create(auth.cookie, auth.ownerId, body).status)
+        assertEquals(createdText, create(auth.cookie, auth.ownerId, body).bodyAsText())
+        assertEquals(
+            HttpStatusCode.Conflict,
+            create(auth.cookie, auth.ownerId, body.replace("\"seed\":17", "\"seed\":18")).status,
+        )
+    }
+
+    @Test
+    fun `cumulative eligibility excludes untaught and legacy reviews while replay survives source drift`() = testApplication {
+        val stores = InMemoryStores()
+        application { astridModule(config(), stores) }
+        val auth = authenticate()
+        suspend fun createSource(focus: String, revision: String, seed: Int, introduced: Boolean): Pair<String, String> {
+            val id = UUID.randomUUID().toString()
+            val response = create(
+                auth.cookie,
+                auth.ownerId,
+                """{"practiceSessionId":"$id","focusId":"$focus","planRevision":"$revision","seed":$seed}""",
+            )
+            assertEquals(HttpStatusCode.Created, response.status)
+            if (introduced) assertEquals(HttpStatusCode.OK, support(auth, id, """{"kind":"introduction"}""").status)
+            val exerciseId = wireJson.parseToJsonElement(response.bodyAsText()).jsonObject
+                .getValue("currentExercise").jsonObject.getValue("id").jsonPrimitive.content
+            return id to exerciseId
+        }
+
+        createSource("module-one-groups", "module-one-groups-1", 3, introduced = false)
+        createSource("present-verbs", "present-verbs-1", 5, introduced = true)
+        val (eligibleId, eligibleExerciseId) =
+            createSource("module-one-singular", "module-one-singular-1", 7, introduced = true)
+        val context = client.get("/api/v1/practice-review-context") {
+            trustedHost()
+            cookie("astrid_session", auth.cookie)
+        }
+        val contextBody = wireJson.parseToJsonElement(context.bodyAsText()).jsonObject
+        assertEquals(1, contextBody.getValue("sourceLessonCount").jsonPrimitive.content.toInt())
+        assertEquals(6, contextBody.getValue("itemCount").jsonPrimitive.content.toInt())
+
+        val reviewId = UUID.randomUUID().toString()
+        val body =
+            """{"practiceSessionId":"$reviewId","focusId":"cumulative-review","planRevision":"cumulative-review-1","seed":13}"""
+        val created = create(auth.cookie, auth.ownerId, body)
+        assertEquals(HttpStatusCode.Created, created.status)
+        val replay = create(auth.cookie, auth.ownerId, body)
+        assertEquals(HttpStatusCode.OK, replay.status)
+        assertEquals(created.bodyAsText(), replay.bodyAsText())
+
+        assertEquals(HttpStatusCode.OK, support(auth, reviewId, """{"kind":"introduction"}""").status)
+        stores.tamperFingerprint(UUID.fromString(eligibleExerciseId))
+        assertEquals(
+            HttpStatusCode.Conflict,
+            client.get("/api/v1/practice-review-context") {
+                trustedHost()
+                cookie("astrid_session", auth.cookie)
+            }.status,
+        )
+        assertEquals(
+            HttpStatusCode.Conflict,
+            create(
+                auth.cookie,
+                auth.ownerId,
+                body.replace(reviewId, UUID.randomUUID().toString()),
+            ).status,
+        )
+        assertNotNull(stores.practice.findPracticeSession(UUID.fromString(auth.ownerId), UUID.fromString(eligibleId)))
+    }
+
+    @Test
+    fun `cumulative source exposure freezes released support and mixed P1 formats only`() = testApplication {
+        val stores = InMemoryStores()
+        application { astridModule(config(), stores) }
+        val auth = authenticate()
+        suspend fun introduced(focus: String, revision: String, seed: Int): Pair<String, kotlinx.serialization.json.JsonObject> {
+            val id = UUID.randomUUID().toString()
+            val created = create(
+                auth.cookie,
+                auth.ownerId,
+                """{"practiceSessionId":"$id","focusId":"$focus","planRevision":"$revision","seed":$seed}""",
+            )
+            assertEquals(HttpStatusCode.Created, created.status)
+            assertEquals(HttpStatusCode.OK, support(auth, id, """{"kind":"introduction"}""").status)
+            return id to wireJson.parseToJsonElement(created.bodyAsText()).jsonObject
+        }
+
+        val (grammarId, grammar) = introduced("module-one-singular", "module-one-singular-1", 7)
+        assertEquals(HttpStatusCode.OK, support(auth, grammarId, """{"kind":"lesson","position":0}""").status)
+        assertEquals(HttpStatusCode.OK, support(auth, grammarId, """{"kind":"hint","position":0}""").status)
+        val grammarExercise = grammar.getValue("currentExercise").jsonObject
+        val suppliedAnswer = grammarExercise.getValue("prompt").jsonObject.getValue("choices").jsonArray.first()
+            .jsonPrimitive.content
+        assertEquals(
+            HttpStatusCode.OK,
+            submit(
+                auth.cookie,
+                wireJson.encodeToString(
+                    AttemptRequest(
+                        UUID.randomUUID().toString(),
+                        grammarExercise.getValue("id").jsonPrimitive.content,
+                        AttemptAnswerDto.Text(suppliedAnswer),
+                        false,
+                    ),
+                ),
+            ).status,
+        )
+        val (matchingId, _) = introduced("vocabulary-p1-s2", "vocabulary-p1-s2-1", 19)
+        val (readingId, _) = introduced("vocabulary-p1-s5", "vocabulary-p1-s5-1", 13)
+
+        val mixed = (0..64).firstNotNullOfOrNull { seed ->
+            val reviewId = UUID.randomUUID().toString()
+            val created = create(
+                auth.cookie,
+                auth.ownerId,
+                """{"practiceSessionId":"$reviewId","focusId":"cumulative-review","planRevision":"cumulative-review-1","seed":$seed}""",
+            )
+            assertEquals(HttpStatusCode.Created, created.status)
+            val state = wireJson.parseToJsonElement(created.bodyAsText()).jsonObject
+            val formats = state.getValue("items").jsonArray
+                .map { it.jsonObject.getValue("formatId").jsonPrimitive.content }.toSet()
+            if ("E033" in formats && "E039" in formats) reviewId to formats else null
+        }
+        val (reviewId, formats) = assertNotNull(mixed)
+        assertTrue("E033" in formats, formats.toString())
+        assertTrue("E039" in formats, formats.toString())
+
+        val stored = assertNotNull(
+            stores.practice.findPracticeSession(UUID.fromString(auth.ownerId), UUID.fromString(reviewId)),
+        )
+        assertTrue(stored.sourceExposure.isNotEmpty())
+        assertTrue(stored.sourceExposure.all { it.practiceSessionId in setOf(grammarId, matchingId, readingId) })
+        assertTrue(stored.sourceExposure.filter { it.source == "prompt" }.all { it.position == 0 })
+        assertTrue(stored.sourceExposure.none { it.position > 0 && it.source == "prompt" })
+        assertEquals(stored.sourceExposure.flatMap { it.keys }.distinct(), stored.sourceExposure.flatMap { it.keys })
+        assertTrue(stored.sourceExposure.any { it.source == "introduction" })
+        assertTrue(stored.sourceExposure.all { it.keys.isNotEmpty() })
+        assertTrue(stored.sourceExposure.all {
+            it.source in setOf("introduction", "prompt", "lesson", "hint", "feedback")
+        })
+    }
+
+    @Test
+    fun `cumulative context and creation reject an owner that expires after authentication`() = testApplication {
+        val stores = InMemoryStores(clock = { Long.MAX_VALUE })
+        application { astridModule(config(), stores, clock = { 0L }) }
+        val auth = authenticate()
+
+        assertEquals(
+            HttpStatusCode.Unauthorized,
+            client.get("/api/v1/practice-review-context") {
+                trustedHost()
+                cookie("astrid_session", auth.cookie)
+            }.status,
+        )
+        assertEquals(
+            HttpStatusCode.Unauthorized,
+            create(
+                auth.cookie,
+                auth.ownerId,
+                """{"practiceSessionId":"${UUID.randomUUID()}","focusId":"cumulative-review",""" +
+                    """"planRevision":"cumulative-review-1","seed":0}""",
+            ).status,
+        )
+    }
+
+    @Test
     fun `vocabulary matching requires saved teaching validates the board and exposes pair outcomes`() = testApplication {
         val inspectorKey = "v".repeat(32)
         val stores = InMemoryStores()

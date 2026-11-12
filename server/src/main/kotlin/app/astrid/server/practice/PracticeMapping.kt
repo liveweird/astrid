@@ -1,6 +1,9 @@
 package app.astrid.server.practice
 
 import app.astrid.engine.GeneratedExercise
+import app.astrid.engine.CumulativeReviewPlanner
+import app.astrid.engine.CumulativeReviewSourceItem
+import app.astrid.engine.IntroductionSection
 import app.astrid.engine.LinguisticStatus
 import app.astrid.engine.PilotEngine
 import app.astrid.engine.PracticeAttemptContext
@@ -14,6 +17,8 @@ import app.astrid.engine.PracticeSummaryAttemptObservation
 import app.astrid.engine.PracticeSummaryCalculator
 import app.astrid.engine.PracticeSummarySnapshotItemObservation
 import app.astrid.engine.PracticeTargetDescriptor
+import app.astrid.engine.PracticeItemPolicy
+import app.astrid.engine.PracticePlanItem
 import app.astrid.engine.ResponseConstraintStatus
 import app.astrid.engine.TargetStatus
 import app.astrid.server.authz.Conflict
@@ -84,8 +89,30 @@ internal const val VOCABULARY_P1_S4_CURRENT_REVISION = "vocabulary-p1-s4-2"
 internal const val VOCABULARY_P1_S5_FOCUS = "vocabulary-p1-s5"
 internal const val VOCABULARY_P1_S5_REVISION = "vocabulary-p1-s5-1"
 internal const val VOCABULARY_P1_S5_CURRENT_REVISION = "vocabulary-p1-s5-2"
+internal const val CUMULATIVE_REVIEW_FOCUS = "cumulative-review"
+internal const val CUMULATIVE_REVIEW_REVISION = "cumulative-review-1"
 private const val TARGETED_REVIEW_FOCUS = "targeted-review"
 private const val INTRODUCTION_POSITION = -1
+private val CUMULATIVE_SOURCE_PLANS = setOf(
+    MODULE_ONE_SINGULAR_FOCUS to MODULE_ONE_SINGULAR_REVISION,
+    MODULE_ONE_GROUPS_FOCUS to MODULE_ONE_GROUPS_REVISION,
+    MODULE_ONE_ER_FOCUS to MODULE_ONE_ER_REVISION,
+    MODULE_ONE_THINGS_FOCUS to MODULE_ONE_THINGS_REVISION,
+    MODULE_ONE_PRESENT_FOCUS to MODULE_ONE_PRESENT_REVISION,
+    MODULE_ONE_ORDER_FOCUS to MODULE_ONE_ORDER_REVISION,
+    MODULE_ONE_POSSESSION_FOCUS to MODULE_ONE_POSSESSION_REVISION,
+    MODULE_ONE_READING_WORDS_FOCUS to MODULE_ONE_READING_WORDS_REVISION,
+    MODULE_ONE_PERSONAL_FOCUS to MODULE_ONE_PERSONAL_REVISION,
+    MODULE_ONE_ABILITY_FOCUS to MODULE_ONE_ABILITY_REVISION,
+    MODULE_ONE_VOLITION_FOCUS to MODULE_ONE_VOLITION_REVISION,
+    MODULE_ONE_OBLIGATION_FOCUS to MODULE_ONE_OBLIGATION_REVISION,
+    MODULE_ONE_PERMISSION_FOCUS to MODULE_ONE_PERMISSION_REVISION,
+    MODULE_ONE_CIRCUMSTANCES_FOCUS to MODULE_ONE_CIRCUMSTANCES_REVISION,
+    MODULE_ONE_QUESTIONS_FOCUS to MODULE_ONE_QUESTIONS_REVISION,
+) + (1..VOCABULARY_LESSON_COUNT).flatMap { lesson ->
+    val focus = "vocabulary-p1-s$lesson"
+    listOf(focus to "$focus-1", focus to "$focus-2")
+}
 
 internal fun app.astrid.engine.PracticePlan.toNewPracticeSession(ownerId: UUID) = NewPracticeSession(
     title,
@@ -110,6 +137,7 @@ internal fun app.astrid.engine.PracticePlan.toNewPracticeSession(ownerId: UUID) 
             item.targetDescriptor.targetScopeId,
             item.targetDescriptor.readingRole,
             item.targetDescriptor.matchingTarget?.let { app.astrid.server.exercises.LexicalTaskDto(it.facet, it.direction) },
+            item.policy.toPayload(),
         )
     },
     introductionExposureKeys = introductionExposureKeys,
@@ -117,6 +145,139 @@ internal fun app.astrid.engine.PracticePlan.toNewPracticeSession(ownerId: UUID) 
     completionRuleId = completionRuleId,
     exposurePolicyId = exposurePolicyId,
 )
+
+internal fun CumulativeReviewHistory.toCumulativeReview(
+    request: PracticeSessionRequest,
+    ownerId: UUID,
+    engine: PilotEngine,
+): NewPracticeSession? {
+    val planner = CumulativeReviewPlanner(engine)
+    val eligible = sessions.filter { it.introductionOpened && it.focusId to it.planRevision in CUMULATIVE_SOURCE_PLANS }
+    val sources = eligible.flatMap { session ->
+        session.items.map { item ->
+            CumulativeReviewSourceItem(
+                session.id.toString(),
+                session.focusId,
+                item.position,
+                session.focusId,
+                session.planRevision,
+                session.introduction.map { IntroductionSection(it.title, it.body, it.bodyLanguage) },
+                session.introductionExposureKeys.orEmpty(),
+                item.toEnginePlanItem(engine),
+                PracticeItemPolicy(
+                    item.policy.effectiveCompletionRule(session.completionRuleId),
+                    item.policy.effectiveExposurePolicy(session.exposurePolicyId),
+                ),
+            )
+        }
+    }
+    val releaseRanks = buildMap {
+        var rank = 0L
+        sessions.sortedWith(compareBy(StoredPracticeSession::createdAt, { it.id.toString() })).forEach { session ->
+            session.items.filter { it.position <= session.cursor }.forEach { item ->
+                val storedSelection = session.cumulativeReview?.selections?.getOrNull(item.position)
+                val semanticId = storedSelection?.semanticId ?: planner.candidateSemanticId(item.toEnginePlanItem(engine))
+                put(semanticId, rank++)
+            }
+        }
+    }
+    val result = planner.plan(request.seed, sources, releaseRanks) ?: return null
+    val selectedAnswerKeys = result.plan.items.flatMapTo(mutableSetOf()) { it.answerExposureKeys }
+    val exposure = sessions.cumulativeExposure(selectedAnswerKeys)
+    return result.plan.toNewPracticeSession(ownerId).copy(
+        sourceExposure = exposure,
+        cumulativeReview = CumulativeReviewPayload(
+            selectionPolicyRevision = CUMULATIVE_REVIEW_REVISION,
+            sourceLessonCount = result.sourceLessonCount,
+            selections = result.selections.map {
+                CumulativeReviewSelectionPayload(
+                    it.candidateKey,
+                    it.semanticId,
+                    it.sourcePracticeSessionId,
+                    it.sourcePosition,
+                    it.sourceLessonId,
+                )
+            },
+        ),
+    )
+}
+
+private fun StoredPracticeItem.toEnginePlanItem(engine: PilotEngine) = PracticePlanItem(
+    position,
+    regenerateVerified(engine, exercise),
+    PracticeTargetDescriptor(
+        targetLabel,
+        exercise.targetSkillId,
+        exercise.presentation.lexicalTarget?.let {
+            app.astrid.engine.LexicalTarget(it.entryId, it.senseId, it.facet, it.direction)
+        },
+        assessmentMode,
+        targetScopeId,
+        exercise.presentation.readingTarget?.let { app.astrid.engine.ReadingTask(it.facet) },
+        readingRole,
+        matchingTarget?.let { app.astrid.engine.LexicalTask(it.facet, it.direction) },
+    ),
+    answerExposureKeys,
+    promptExposureKeys,
+    lessonExposureKeys,
+    hintExposureKeys,
+    feedbackExposureKeys,
+    assessments.map { it.toEngineAssessment() },
+    policy?.toEngine(),
+)
+
+private fun List<StoredPracticeSession>.cumulativeExposure(relevantKeys: Set<String>): List<PracticeCrossRunExposureDto> {
+    val witnessByKey = linkedMapOf<String, PracticeCrossRunExposureDto>()
+    sortedBy { it.id.toString() }.forEach { session ->
+        val events = buildList {
+            addAll(session.sourceExposure)
+            if (session.introductionOpened) {
+                add(
+                    PracticeCrossRunExposureDto(
+                        session.id.toString(),
+                        INTRODUCTION_POSITION,
+                        PracticeExposureSource.INTRODUCTION.wireValue,
+                        session.introductionExposureKeys.orEmpty(),
+                    ),
+                )
+            }
+            session.items.sortedBy { it.position }.forEach { item ->
+                if (item.position <= session.cursor) {
+                    add(PracticeCrossRunExposureDto(session.id.toString(), item.position, "prompt", item.promptExposureKeys))
+                }
+                if (item.lessonOpened) {
+                    add(PracticeCrossRunExposureDto(session.id.toString(), item.position, "lesson", item.lessonExposureKeys))
+                }
+                if (item.hintOpened) add(PracticeCrossRunExposureDto(session.id.toString(), item.position, "hint", item.hintExposureKeys))
+                if (item.attempts.isNotEmpty()) {
+                    add(
+                        PracticeCrossRunExposureDto(
+                            session.id.toString(),
+                            item.position,
+                            "feedback",
+                            frozenFeedbackExposureKeys(
+                                item.feedbackExposureKeys,
+                                item.assessments.map { it.toEngineAssessment() },
+                                item.attempts.map { it.response },
+                                item.policy.effectiveExposurePolicy(session.exposurePolicyId),
+                            ),
+                        ),
+                    )
+                }
+            }
+        }
+        events.forEach { event ->
+            event.keys.distinct().filter { it in relevantKeys }.forEach { key ->
+                witnessByKey.putIfAbsent(key, event.copy(keys = listOf(key)))
+            }
+        }
+    }
+    return witnessByKey.values.groupBy { Triple(it.practiceSessionId, it.position, it.source) }.map { (origin, witnesses) ->
+        PracticeCrossRunExposureDto(origin.first, origin.second, origin.third, witnesses.flatMap { it.keys })
+    }
+}
+
+private const val VOCABULARY_LESSON_COUNT = 5
 
 internal fun StoredPracticeSession.toFollowUp(
     request: PracticeFollowUpRequest,
@@ -186,6 +347,7 @@ internal fun StoredPracticeSession.toFollowUp(
                 item.targetDescriptor.matchingTarget?.let {
                     app.astrid.server.exercises.LexicalTaskDto(it.facet, it.direction)
                 },
+                item.policy.toPayload(),
             )
         },
         PracticeFollowUpLineage(sourceId, request.targetKeys),
@@ -287,7 +449,7 @@ internal fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
         items.map { item -> itemToDto(item) }, items.singleOrNull { it.position == cursor }?.exercise?.presentation,
         summary.toDto(
             includeRows = cursor == items.size,
-            includeVocabularyFields = focusId.startsWith("vocabulary-p1-"),
+            includeVocabularyFields = focusId.startsWith("vocabulary-p1-") || focusId == CUMULATIVE_REVIEW_FOCUS,
         ),
         followUp?.let { PracticeFollowUpDto(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },
         followUpPlanRevision(),
@@ -339,15 +501,24 @@ private fun StoredPracticeSession.itemToDto(item: StoredPracticeItem): PracticeI
     },
     item.targetScopeId,
     item.matchingTarget,
-    completionRuleId?.let { rule ->
+    (item.policy != null || completionRuleId != null).takeIf { it }?.let {
         if (item.position == cursor) {
             PracticeCompletionPolicy.canAdvance(
-                rule,
+                item.policy.effectiveCompletionRule(completionRuleId),
                 item.attempts.lastOrNull()?.response?.toCompletionObservation(introductionOpened),
             )
         } else {
             null
         }
+    },
+    if (focusId == CUMULATIVE_REVIEW_FOCUS) {
+        PracticeItemRevisionsDto(
+            item.exercise.contentRevision,
+            item.exercise.generatorRevision,
+            requireNotNull(PilotEngine().evaluationRevision(item.exercise.contentRevision, item.exercise.generatorRevision)),
+        )
+    } else {
+        null
     },
 )
 
@@ -399,7 +570,7 @@ private fun StoredPracticeSession.sourceExposureSnapshot(): List<PracticeCrossRu
                             item.feedbackExposureKeys,
                             item.assessments.map { it.toEngineAssessment() },
                             item.attempts.map { it.response },
-                            exposurePolicyId,
+                            item.policy.effectiveExposurePolicy(exposurePolicyId),
                         ),
                     ),
                 )

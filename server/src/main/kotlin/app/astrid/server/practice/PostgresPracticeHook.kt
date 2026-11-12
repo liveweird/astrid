@@ -108,7 +108,7 @@ class PostgresPracticeHook(private val json: Json) : AttemptPracticeHook {
                             assessment -> assessment.toEngineAssessment()
                         },
                         attemptsByPosition[it[PracticeItems.position]].orEmpty(),
-                        payload.exposurePolicyId,
+                        metadata.getValue(it[PracticeItems.position]).policy.effectiveExposurePolicy(payload.exposurePolicyId),
                     ),
                     it[PracticeItems.lessonOpened],
                     it[PracticeItems.hintOpened],

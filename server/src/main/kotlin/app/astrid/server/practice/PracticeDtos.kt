@@ -24,6 +24,17 @@ data class PracticeContextResponse(
 )
 
 @Serializable
+data class PracticeReviewContextResponse(
+    val ownerSessionId: String,
+    val sessionExpiresAt: Long,
+    val focusId: String,
+    val planRevision: String,
+    val title: String,
+    val itemCount: Int,
+    val sourceLessonCount: Int,
+)
+
+@Serializable
 data class PracticeProfileDto(
     val focusId: String,
     val planRevision: String,
@@ -95,6 +106,15 @@ data class PracticeItemDto(
     val matchingTarget: LexicalTaskDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val canAdvance: Boolean? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val revisions: PracticeItemRevisionsDto? = null,
+)
+
+@Serializable
+data class PracticeItemRevisionsDto(
+    val contentRevision: String,
+    val generatorRevision: String,
+    val evaluationRevision: String,
 )
 
 @Serializable

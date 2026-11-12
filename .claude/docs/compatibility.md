@@ -263,3 +263,23 @@ new pairs in separate JVMs with different initialization histories before claimi
 reproducibility. Pair seventeen's real released-board recovery evidence stays separate;
 no purported deterministic raw seventeen archive was added. This freeze changes tests and
 export tooling only; it neither changes the app version nor activates content.
+
+## Cumulative plans and per-item revisions
+
+`cumulative-review-1` is a composite plan. Its three run-level revision fields are the
+literal marker `per-item`; this is **not an engine revision**. Each cumulative public
+item supplies `revisions` with its actual content/generator/evaluation triple. Grade and
+fingerprint only the stored exercise's literal pair, never the plan's summary markers.
+Old plans retain their headers and omit the optional item field.
+
+Preserve source task, private known-alternative, support and assessment semantics when
+varying a task. An old index or task ID alone cannot establish cross-pair equivalence.
+Keep original pairs for grammar/lexical source lessons; the established P1 seventeen-to-
+eighteen matching repair is the narrow exception, with rebuilt board associations.
+
+Optional stored item-policy objects distinguish absence (inherit the session policy)
+from a present object whose values are null (use those explicit defaults). Resolve that
+distinction consistently in advance, `canAdvance`, hooks, feedback and exposure. Existing
+payloads omit all cumulative metadata. New stored fields require a compatible reader for
+binary rollback even though no migration or new engine pair is introduced. The selected
+contract is [cumulative review](../../docs/knowledge/cumulative-review.md).

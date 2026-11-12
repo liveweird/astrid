@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.21.0",
+    date: "2026-11-12",
+    body: `**Mix practice from lessons you have introduced.**
+
+- Prepare a cumulative mixed review from the Review section. It draws from lesson teaching saved in your current development session, combining available grammar and vocabulary activities.
+- Practise up to eight distinct activities, with a shorter run when less material is available. Available lessons, targets and exercise operations rotate; familiar fixed examples can recur.
+- Results keep recognition, written recall, grammar, reading and matching outcomes separate, including support and earlier exposure. Opening teaching makes material available for review; it does not mark it mastered.
+- Resume, retry or recover a saved review with its original exercises and requests. Preparing another review reads the current lesson history afresh.
+- Review history belongs to the current browser development session, which expires after 24 hours. Existing lessons, fixed review sets and saved answers keep their original behavior.`,
+  },
+  {
     version: "0.20.1",
     date: "2026-11-12",
     body: `**Keep vocabulary matching stable across server restarts.**

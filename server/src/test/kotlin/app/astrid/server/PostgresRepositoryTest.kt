@@ -29,20 +29,25 @@ import app.astrid.server.infra.db.migrate
 import app.astrid.server.infra.json.wireJson
 import app.astrid.server.practice.NewPracticeItem
 import app.astrid.server.practice.NewPracticeSession
+import app.astrid.server.practice.CumulativeReviewPayload
+import app.astrid.server.practice.CumulativeReviewSelectionPayload
 import app.astrid.server.practice.PracticeCreateResult
 import app.astrid.server.practice.PracticeFollowUpLineage
 import app.astrid.server.practice.PracticeFollowUpRequest
 import app.astrid.server.practice.PracticeMutationResult
+import app.astrid.server.practice.PracticeItemPolicyPayload
 import app.astrid.server.practice.PracticeSessionRequest
 import app.astrid.server.practice.PracticeSupportRequest
 import app.astrid.server.practice.StoredPracticeSession
 import java.sql.DriverManager
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -53,6 +58,8 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -60,6 +67,171 @@ import kotlinx.serialization.encodeToString
 import org.flywaydb.core.Flyway
 
 class PostgresRepositoryTest {
+    @Test
+    fun `cumulative creation serializes across pools and plans only once`() = withRepositories { first, second ->
+        val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        val request = PracticeSessionRequest(
+            UUID.randomUUID().toString(),
+            "cumulative-review",
+            "cumulative-review-1",
+            17,
+        )
+        val payload = wireJson.encodeToString(request)
+        val plannerEntered = CompletableDeferred<Unit>()
+        val releasePlanner = CompletableDeferred<Unit>()
+        val callbacks = AtomicInteger()
+
+        val results = coroutineScope {
+            val firstCreate = async {
+                first.practice.createCumulativeReview(owner, request, payload) {
+                    callbacks.incrementAndGet()
+                    plannerEntered.complete(Unit)
+                    releasePlanner.await()
+                    practiceFixture(owner, request.copy(focusId = "module-one-singular", planRevision = "module-one-singular-1"))
+                }
+            }
+            plannerEntered.await()
+            val replay = async {
+                second.practice.createCumulativeReview(owner, request, payload) {
+                    callbacks.incrementAndGet()
+                    error("the replay must observe the first committed plan")
+                }
+            }
+            awaitBlockedSessionLocks(1)
+            assertFalse(replay.isCompleted)
+            releasePlanner.complete(Unit)
+            listOf(firstCreate.await(), replay.await())
+        }
+
+        assertEquals(1, callbacks.get())
+        assertEquals(1, results.count { it is PracticeCreateResult.Created })
+        assertEquals(1, results.count { it is PracticeCreateResult.Existing })
+    }
+
+    @Test
+    fun `cumulative insertion failure rolls back session and exercises`() = withRepositories { first, second ->
+        val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        val request = PracticeSessionRequest(UUID.randomUUID().toString(), "cumulative-review", "cumulative-review-1", 19)
+        val payload = wireJson.encodeToString(request)
+        val sourceRequest = request.copy(focusId = "module-one-singular", planRevision = "module-one-singular-1")
+        val valid = practiceFixture(owner, sourceRequest)
+        val firstItem = valid.items[0]
+        val duplicateExercise = valid.items[1].copy(exercise = valid.items[1].exercise.copy(id = firstItem.exercise.id))
+        val invalid = valid.copy(items = listOf(firstItem, duplicateExercise))
+
+        assertFails { first.practice.createCumulativeReview(owner, request, payload) { invalid } }
+
+        assertNull(second.practice.findPracticeSession(owner.id, UUID.fromString(request.practiceSessionId)))
+        assertNull(second.exercises.findExercise(owner.id, firstItem.exercise.id))
+        assertIs<PracticeCreateResult.Created>(
+            second.practice.createCumulativeReview(owner, request, payload) { valid },
+        )
+    }
+
+    @Test
+    fun `cumulative planner expiry aborts and missing owners stay unavailable`() = runBlocking {
+        val config = PostgresTestDatabase.config()
+        migrate(config)
+        val now = AtomicLong(100L)
+        val first = PostgresStores(Database.connect(config), wireJson, now::get)
+        val second = PostgresStores(Database.connect(config), wireJson, now::get)
+        try {
+            val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), 200L)
+            val request = PracticeSessionRequest(UUID.randomUUID().toString(), "cumulative-review", "cumulative-review-1", 23)
+            val payload = wireJson.encodeToString(request)
+            val entered = CompletableDeferred<Unit>()
+            val release = CompletableDeferred<Unit>()
+            val result = async {
+                first.practice.createCumulativeReview(owner, request, payload) {
+                    entered.complete(Unit)
+                    release.await()
+                    practiceFixture(owner, request.copy(focusId = "module-one-singular", planRevision = "module-one-singular-1"))
+                }
+            }
+            entered.await()
+            now.set(201L)
+            release.complete(Unit)
+            assertIs<PracticeCreateResult.OwnerExpired>(result.await())
+            assertNull(second.practice.findPracticeSession(owner.id, UUID.fromString(request.practiceSessionId)))
+            assertFalse(second.practice.cumulativeReviewHistory(owner).ownerAvailable)
+
+            val missing = SessionPrincipal(UUID.randomUUID(), Long.MAX_VALUE)
+            assertFalse(second.practice.cumulativeReviewHistory(missing).ownerAvailable)
+            assertIs<PracticeCreateResult.OwnerExpired>(
+                second.practice.createCumulativeReview(missing, request.copy(practiceSessionId = UUID.randomUUID().toString()), payload) {
+                    error("a missing owner cannot plan")
+                },
+            )
+        } finally {
+            first.close()
+            second.close()
+        }
+        Unit
+    }
+
+    @Test
+    fun `cumulative plan reloads and replays after store restart`() = runBlocking {
+        val config = PostgresTestDatabase.config()
+        migrate(config)
+        lateinit var owner: SessionPrincipal
+        lateinit var savedAttempt: AttemptRequest
+        val request = PracticeSessionRequest(UUID.randomUUID().toString(), "cumulative-review", "cumulative-review-1", 29)
+        val payload = wireJson.encodeToString(request)
+        val created = PostgresStores(Database.connect(config), wireJson).let { first ->
+            try {
+                owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+                val initiallyCreated = assertIs<PracticeCreateResult.Created>(
+                    first.practice.createCumulativeReview(owner, request, payload) {
+                        cumulativeFixture(owner, request)
+                    },
+                ).session
+                assertIs<PracticeMutationResult.Success>(
+                    first.practice.openPracticeSupport(
+                        owner.id,
+                        initiallyCreated.id,
+                        PracticeSupportRequest("introduction"),
+                    ),
+                )
+                savedAttempt = practiceAttempt(initiallyCreated.items.first().exercise.id)
+                assertIs<AttemptWriteResult.Created>(
+                    first.exercises.writeAttemptWithPractice(
+                        owner.id,
+                        savedAttempt,
+                        attemptPayload(savedAttempt),
+                    ) { stored, retry, now, _ ->
+                        CreatedAttempt(
+                            attemptResponse(savedAttempt.attemptId, stored, retry, now),
+                            PracticeAttemptContextDto(true, false, false, emptyList()),
+                        )
+                    },
+                )
+                assertNotNull(first.practice.findPracticeSession(owner.id, initiallyCreated.id))
+            } finally {
+                first.close()
+            }
+        }
+        val restarted = PostgresStores(Database.connect(config), wireJson)
+        try {
+            assertEquals(created, restarted.practice.findPracticeSession(owner.id, created.id))
+            assertEquals(1, created.items.first().attempts.size)
+            assertIs<AttemptWriteResult.Existing>(
+                restarted.exercises.writeAttemptWithPractice(owner.id, savedAttempt, attemptPayload(savedAttempt)) { _, _, _, _ ->
+                    error("a saved cumulative attempt must replay after restart")
+                },
+            )
+            assertEquals(
+                created,
+                assertIs<PracticeCreateResult.Existing>(
+                    restarted.practice.createCumulativeReview(owner, request, payload) {
+                        error("restart replay must not regenerate")
+                    },
+                ).session,
+            )
+        } finally {
+            restarted.close()
+        }
+    }
+
     @Test
     fun `required introduction is locked before a new attempt while exact replay remains first`() = withRepositories { first, second ->
         val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
@@ -1033,6 +1205,30 @@ class PostgresRepositoryTest {
         )
     }
 
+    private fun cumulativeFixture(owner: SessionPrincipal, request: PracticeSessionRequest): NewPracticeSession {
+        val sourceRequest = request.copy(focusId = "module-one-present", planRevision = "module-one-present-1")
+        val source = practiceFixture(owner, sourceRequest)
+        return source.copy(
+            contentRevision = "per-item",
+            generatorRevision = "per-item",
+            evaluationRevision = "per-item",
+            items = source.items.map { it.copy(policy = PracticeItemPolicyPayload(null, null)) },
+            cumulativeReview = CumulativeReviewPayload(
+                "cumulative-review-1",
+                1,
+                source.items.map { item ->
+                    CumulativeReviewSelectionPayload(
+                        "candidate-${item.position}",
+                        "semantic-${item.position}",
+                        UUID.randomUUID().toString(),
+                        item.position,
+                        sourceRequest.focusId,
+                    )
+                },
+            ),
+        )
+    }
+
     private fun followUpFixture(
         source: StoredPracticeSession,
         request: PracticeFollowUpRequest,
@@ -1199,6 +1395,30 @@ class PostgresRepositoryTest {
                 second.close()
             }
         }
+
+    private suspend fun awaitBlockedSessionLocks(expected: Int) {
+        repeat(100) {
+            val blocked = PostgresTestDatabase.connect().use { connection ->
+                connection.prepareStatement(
+                    """SELECT COUNT(*)
+                        FROM pg_stat_activity
+                        WHERE datname = current_database()
+                          AND pid <> pg_backend_pid()
+                          AND wait_event_type = 'Lock'
+                          AND query ILIKE '%development_sessions%'
+                    """.trimIndent(),
+                ).use { statement ->
+                    statement.executeQuery().use { rows ->
+                        assertTrue(rows.next())
+                        rows.getInt(1) >= expected
+                    }
+                }
+            }
+            if (blocked) return
+            delay(25)
+        }
+        error("$expected cumulative operations never blocked on the owner-session lock")
+    }
 
     private fun updateExerciseRevision(id: UUID, revision: String) {
         PostgresTestDatabase.connect().use { connection ->

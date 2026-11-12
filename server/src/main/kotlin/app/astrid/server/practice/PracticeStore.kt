@@ -9,7 +9,11 @@ sealed interface PracticeCreateResult {
     data object RequestConflict : PracticeCreateResult
     data object SourceMissing : PracticeCreateResult
     data object SourceActive : PracticeCreateResult
+    data object NoEligibleItems : PracticeCreateResult
+    data object OwnerExpired : PracticeCreateResult
 }
+
+data class CumulativeReviewHistory(val sessions: List<StoredPracticeSession>, val ownerAvailable: Boolean = true)
 
 sealed interface PracticeMutationResult {
     data class Success(val session: StoredPracticeSession) : PracticeMutationResult
@@ -30,6 +34,13 @@ interface PracticeStore {
         request: PracticeFollowUpRequest,
         requestPayload: String,
         create: suspend (StoredPracticeSession) -> NewPracticeSession,
+    ): PracticeCreateResult
+    suspend fun cumulativeReviewHistory(ownerSession: SessionPrincipal): CumulativeReviewHistory
+    suspend fun createCumulativeReview(
+        ownerSession: SessionPrincipal,
+        request: PracticeSessionRequest,
+        requestPayload: String,
+        create: suspend (CumulativeReviewHistory) -> NewPracticeSession?,
     ): PracticeCreateResult
     suspend fun findPracticeSession(ownerSessionId: UUID, practiceSessionId: UUID): StoredPracticeSession?
     suspend fun openPracticeSupport(

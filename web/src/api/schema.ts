@@ -116,6 +116,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/practice-review-context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read current development-session review eligibility without creating a practice run. */
+        get: operations["getPracticeReviewContext"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/practice-profiles": {
         parameters: {
             query?: never;
@@ -9328,6 +9345,19 @@ export interface components {
             /** @enum {integer} */
             itemCount: 8;
         };
+        PracticeReviewContext: {
+            /** Format: uuid */
+            ownerSessionId: string;
+            /** Format: int64 */
+            sessionExpiresAt: number;
+            /** @enum {string} */
+            focusId: "cumulative-review";
+            /** @enum {string} */
+            planRevision: "cumulative-review-1";
+            title: string;
+            itemCount: number;
+            sourceLessonCount: number;
+        };
         PracticeProfiles: {
             /** Format: uuid */
             ownerSessionId: string;
@@ -9600,6 +9630,14 @@ export interface components {
             prerequisiteSkillIds: ("G001" | "G002" | "G003" | "G004" | "G005")[];
         };
         PracticeSessionRequest: {
+            /** Format: uuid */
+            practiceSessionId: string;
+            /** @enum {string} */
+            focusId: "cumulative-review";
+            /** @enum {string} */
+            planRevision: "cumulative-review-1";
+            seed: number;
+        } | {
             /** Format: uuid */
             practiceSessionId: string;
             /** @enum {string} */
@@ -10420,6 +10458,24 @@ export interface components {
             currentExercise?: components["schemas"]["PairEighteenExercise"];
         } & {
             [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            focusId: "cumulative-review";
+            /** @enum {string} */
+            planRevision: "cumulative-review-1";
+            /** @enum {string} */
+            contentRevision: "per-item";
+            /** @enum {string} */
+            generatorRevision: "per-item";
+            /** @enum {string} */
+            evaluationRevision: "per-item";
+            itemCount: number;
+            /** @enum {boolean} */
+            introductionRequired: true;
+            items?: components["schemas"]["CumulativePracticeItem"][];
+            currentExercise?: components["schemas"]["PracticeExercise"];
+        } & {
+            [key: string]: unknown;
         }));
         PracticeFollowUp: {
             /** Format: uuid */
@@ -10442,6 +10498,7 @@ export interface components {
             readingRole?: "object" | "place" | "time";
             matchingTarget?: components["schemas"]["LexicalTask"];
             canAdvance?: boolean;
+            revisions?: components["schemas"]["PracticeItemRevisions"];
             assessments?: components["schemas"]["PracticeAssessment"][];
             lessonOpened: boolean;
             hintOpened: boolean;
@@ -10519,7 +10576,15 @@ export interface components {
         } & {
             [key: string]: unknown;
         }));
-        PracticeExercise: components["schemas"]["GrammarExercise"] | components["schemas"]["LexicalExercise"] | components["schemas"]["WritingExercise"] | components["schemas"]["ReadingExercise"] | components["schemas"]["TileExercise"] | components["schemas"]["GapExercise"] | components["schemas"]["PairEightExercise"] | components["schemas"]["PairNineExercise"] | components["schemas"]["PairTenExercise"] | components["schemas"]["PairElevenExercise"] | components["schemas"]["PairTwelveExercise"] | components["schemas"]["PairThirteenExercise"] | components["schemas"]["PairFourteenExercise"] | components["schemas"]["PairFifteenExercise"] | components["schemas"]["PairSixteenExercise"] | components["schemas"]["PairSeventeenExercise"];
+        PracticeExercise: components["schemas"]["GrammarExercise"] | components["schemas"]["LexicalExercise"] | components["schemas"]["WritingExercise"] | components["schemas"]["ReadingExercise"] | components["schemas"]["TileExercise"] | components["schemas"]["GapExercise"] | components["schemas"]["PairEightExercise"] | components["schemas"]["PairNineExercise"] | components["schemas"]["PairTenExercise"] | components["schemas"]["PairElevenExercise"] | components["schemas"]["PairTwelveExercise"] | components["schemas"]["PairThirteenExercise"] | components["schemas"]["PairFourteenExercise"] | components["schemas"]["PairFifteenExercise"] | components["schemas"]["PairSixteenExercise"] | components["schemas"]["PairSeventeenExercise"] | components["schemas"]["PairEighteenExercise"];
+        PracticeItemRevisions: {
+            contentRevision: string;
+            generatorRevision: string;
+            evaluationRevision: string;
+        };
+        CumulativePracticeItem: components["schemas"]["PracticeItem"] & {
+            [key: string]: unknown;
+        };
         LegacyPracticeItem: components["schemas"]["PracticeItem"] & {
             [key: string]: unknown;
         };
@@ -11686,6 +11751,31 @@ export interface operations {
             401: components["responses"]["Problem"];
             403: components["responses"]["Problem"];
             404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+        };
+    };
+    getPracticeReviewContext: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cumulative review eligibility */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeReviewContext"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
             500: components["responses"]["Problem"];
         };
     };

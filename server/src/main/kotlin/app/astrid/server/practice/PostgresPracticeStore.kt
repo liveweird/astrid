@@ -14,6 +14,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -86,7 +87,7 @@ class PostgresPracticeStore(
         requestPayload: String,
         create: suspend (StoredPracticeSession) -> NewPracticeSession,
     ): PracticeCreateResult = suspendTransaction(database.r2dbc) {
-        lockSession(ownerSession.id)
+        if (!lockSession(ownerSession.id)) return@suspendTransaction PracticeCreateResult.OwnerExpired
         val practiceId = UUID.fromString(request.practiceSessionId)
         val existing = findPracticeRow(ownerSession.id, practiceId)
         if (existing != null) {
@@ -110,6 +111,46 @@ class PostgresPracticeStore(
             practiceId,
             requestPayload,
             TARGETED_REVIEW_FOCUS,
+            request.planRevision,
+            request.seed,
+            plan,
+        )
+        PracticeCreateResult.Created(loadPracticeSession(ownerSession.id, practiceId))
+    }
+
+    override suspend fun cumulativeReviewHistory(ownerSession: SessionPrincipal): CumulativeReviewHistory =
+        suspendTransaction(database.r2dbc) {
+            if (!lockSession(ownerSession.id)) return@suspendTransaction CumulativeReviewHistory(emptyList(), false)
+            if (ownerSession.expiresAt <= clock()) return@suspendTransaction CumulativeReviewHistory(emptyList(), false)
+            cumulativeHistory(ownerSession)
+        }
+
+    override suspend fun createCumulativeReview(
+        ownerSession: SessionPrincipal,
+        request: PracticeSessionRequest,
+        requestPayload: String,
+        create: suspend (CumulativeReviewHistory) -> NewPracticeSession?,
+    ): PracticeCreateResult = suspendTransaction(database.r2dbc) {
+        if (!lockSession(ownerSession.id)) return@suspendTransaction PracticeCreateResult.OwnerExpired
+        val practiceId = UUID.fromString(request.practiceSessionId)
+        val existing = findPracticeRow(ownerSession.id, practiceId)
+        if (existing != null) {
+            return@suspendTransaction if (existing[PracticeSessions.requestPayload] == requestPayload) {
+                PracticeCreateResult.Existing(loadPracticeSession(ownerSession.id, practiceId))
+            } else {
+                PracticeCreateResult.RequestConflict
+            }
+        }
+        if (ownerSession.expiresAt <= clock()) return@suspendTransaction PracticeCreateResult.OwnerExpired
+        val plan = create(cumulativeHistory(ownerSession)) ?: return@suspendTransaction PracticeCreateResult.NoEligibleItems
+        if (ownerSession.expiresAt <= clock()) return@suspendTransaction PracticeCreateResult.OwnerExpired
+        require(plan.items.isNotEmpty() && plan.items.size <= MAX_PRACTICE_ITEMS) { "Invalid cumulative-review item count" }
+        require(plan.items.map { it.position } == plan.items.indices.toList()) { "Practice positions must be contiguous" }
+        insertPracticeSession(
+            ownerSession,
+            practiceId,
+            requestPayload,
+            CUMULATIVE_REVIEW_FOCUS,
             request.planRevision,
             request.seed,
             plan,
@@ -185,7 +226,8 @@ class PostgresPracticeStore(
                 val current = loadPracticeSession(ownerSessionId, practiceSessionId).items.single { it.position == position }
                 val latest = current.attempts.lastOrNull()?.response
                     ?.toCompletionObservation(practice[PracticeSessions.introductionOpened])
-                if (!PracticeCompletionPolicy.canAdvance(payload.completionRuleId, latest)) {
+                val itemPolicy = payload.items.single { it.position == position }.policy
+                if (!PracticeCompletionPolicy.canAdvance(itemPolicy.effectiveCompletionRule(payload.completionRuleId), latest)) {
                     return@suspendTransaction PracticeMutationResult.Conflict
                 }
                 PracticeSessions.update({
@@ -253,6 +295,7 @@ class PostgresPracticeStore(
                 itemPayload.targetScopeId,
                 itemPayload.readingRole,
                 itemPayload.matchingTarget,
+                itemPayload.policy,
             )
         }
         return StoredPracticeSession(
@@ -279,7 +322,17 @@ class PostgresPracticeStore(
             payload.introductionRequired,
             payload.completionRuleId,
             payload.exposurePolicyId,
+            payload.cumulativeReview,
+            practice[PracticeSessions.createdAt],
         )
+    }
+
+    private suspend fun cumulativeHistory(ownerSession: SessionPrincipal): CumulativeReviewHistory {
+        val ids = PracticeSessions.select(PracticeSessions.practiceSessionId).where {
+            (PracticeSessions.ownerSessionId eq ownerSession.id) and
+                (PracticeSessions.createdAt greaterEq ownerSession.expiresAt - SESSION_TTL_MILLIS)
+        }.toList().map { it[PracticeSessions.practiceSessionId] }
+        return CumulativeReviewHistory(ids.map { loadPracticeSession(ownerSession.id, it) })
     }
 
     private suspend fun insertPracticeSession(
@@ -322,5 +375,7 @@ class PostgresPracticeStore(
     private companion object {
         const val MAX_PRACTICE_ITEMS = 8
         const val TARGETED_REVIEW_FOCUS = "targeted-review"
+        const val CUMULATIVE_REVIEW_FOCUS = "cumulative-review"
+        const val SESSION_TTL_MILLIS = 24 * 60 * 60 * 1_000L
     }
 }

@@ -1,5 +1,5 @@
 openapi: 3.0.3
-info: { title: Astrid pilot API, version: 0.20.1 }
+info: { title: Astrid pilot API, version: 0.21.0 }
 servers: [{ url: 'http://localhost:8088' }]
 # Every operation needs the development session cookie except the three that declare `security: []`.
 security:
@@ -95,6 +95,17 @@ paths:
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
+  /api/v1/practice-review-context:
+    get:
+      operationId: getPracticeReviewContext
+      description: Read current development-session review eligibility without creating a practice run.
+      responses:
+        '200': { description: Cumulative review eligibility, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeReviewContext' } } } }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
         '500': { $ref: '#/components/responses/Problem' }
   /api/v1/practice-profiles:
     get:
@@ -4530,6 +4541,18 @@ components:
         title: { type: string }
         planRevision: { type: string, enum: [practice-1] }
         itemCount: { type: integer, enum: [8] }
+    PracticeReviewContext:
+      type: object
+      additionalProperties: false
+      required: [ownerSessionId, sessionExpiresAt, focusId, planRevision, title, itemCount, sourceLessonCount]
+      properties:
+        ownerSessionId: { type: string, format: uuid }
+        sessionExpiresAt: { type: integer, format: int64 }
+        focusId: { type: string, enum: [cumulative-review] }
+        planRevision: { type: string, enum: [cumulative-review-1] }
+        title: { type: string }
+        itemCount: { type: integer, minimum: 0, maximum: 8 }
+        sourceLessonCount: { type: integer, minimum: 0, maximum: 20 }
     PracticeProfiles:
       type: object
       additionalProperties: false
@@ -4740,6 +4763,14 @@ components:
           items: { type: string, enum: [G001, G002, G003, G004, G005] }
     PracticeSessionRequest:
       oneOf:
+        - type: object
+          additionalProperties: false
+          required: [practiceSessionId, focusId, planRevision, seed]
+          properties:
+            practiceSessionId: { type: string, format: uuid }
+            focusId: { type: string, enum: [cumulative-review] }
+            planRevision: { type: string, enum: [cumulative-review-1] }
+            seed: { type: integer, minimum: 0 }
         - type: object
           additionalProperties: false
           required: [practiceSessionId, focusId, planRevision, seed]
@@ -5234,6 +5265,20 @@ components:
               properties: { <<: *VocabularyP1CurrentSessionProperties, focusId: { type: string, enum: [vocabulary-p1-s4] }, planRevision: { type: string, enum: [vocabulary-p1-s4-2] }, itemCount: { type: integer, enum: [5] }, items: { type: array, minItems: 5, maxItems: 5, items: { $ref: '#/components/schemas/PracticeItem' } } }
             - <<: *VocabularyP1CurrentSession
               properties: { <<: *VocabularyP1CurrentSessionProperties, focusId: { type: string, enum: [vocabulary-p1-s5] }, planRevision: { type: string, enum: [vocabulary-p1-s5-2] }, itemCount: { type: integer, enum: [5] }, items: { type: array, minItems: 5, maxItems: 5, items: { $ref: '#/components/schemas/PracticeItem' } } }
+            - type: object
+              additionalProperties: true
+              required: [focusId, planRevision, contentRevision, generatorRevision, evaluationRevision, itemCount, introductionRequired]
+              not: { anyOf: [{ required: [followUp] }, { required: [followUpPlanRevision] }] }
+              properties:
+                focusId: { type: string, enum: [cumulative-review] }
+                planRevision: { type: string, enum: [cumulative-review-1] }
+                contentRevision: { type: string, enum: [per-item] }
+                generatorRevision: { type: string, enum: [per-item] }
+                evaluationRevision: { type: string, enum: [per-item] }
+                itemCount: { type: integer, minimum: 1, maximum: 8 }
+                introductionRequired: { type: boolean, enum: [true] }
+                items: { type: array, minItems: 1, maxItems: 8, items: { $ref: '#/components/schemas/CumulativePracticeItem' } }
+                currentExercise: { $ref: '#/components/schemas/PracticeExercise' }
     PracticeFollowUp:
       type: object
       additionalProperties: false
@@ -5257,6 +5302,7 @@ components:
         readingRole: { type: string, enum: [object, place, time] }
         matchingTarget: { $ref: '#/components/schemas/LexicalTask' }
         canAdvance: { type: boolean }
+        revisions: { $ref: '#/components/schemas/PracticeItemRevisions' }
         assessments:
           type: array
           minItems: 1
@@ -5379,6 +5425,21 @@ components:
         - { $ref: '#/components/schemas/PairFifteenExercise' }
         - { $ref: '#/components/schemas/PairSixteenExercise' }
         - { $ref: '#/components/schemas/PairSeventeenExercise' }
+        - { $ref: '#/components/schemas/PairEighteenExercise' }
+    PracticeItemRevisions:
+      type: object
+      additionalProperties: false
+      required: [contentRevision, generatorRevision, evaluationRevision]
+      properties:
+        contentRevision: { type: string, pattern: '^pilot-[0-9]+$' }
+        generatorRevision: { type: string, pattern: '^generator-[0-9]+$' }
+        evaluationRevision: { type: string, pattern: '^evaluation-[0-9]+$' }
+    CumulativePracticeItem:
+      allOf:
+        - { $ref: '#/components/schemas/PracticeItem' }
+        - type: object
+          additionalProperties: true
+          required: [revisions]
     LegacyPracticeItem:
       allOf:
         - { $ref: '#/components/schemas/PracticeItem' }

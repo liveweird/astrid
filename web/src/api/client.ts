@@ -1,6 +1,6 @@
 import type {
   Attempt, AttemptRequest, Catalog, DevelopmentSession, Exercise, InspectorDetails,
-  PracticeContext, PracticeProfiles, PracticeSession,
+  PracticeContext, PracticeReviewContext, PracticeProfiles, PracticeSession,
 } from "./models";
 
 const CLIENT_HEADER = { "X-Astrid-Client": "playground" };
@@ -113,6 +113,8 @@ export async function submitSerializedAttempt(serializedBody: string) {
 }
 
 export const loadPracticeContext = () => readJson<PracticeContext>("/api/v1/practice-context");
+
+export const loadPracticeReviewContext = () => readJson<PracticeReviewContext>("/api/v1/practice-review-context");
 
 export const loadPracticeProfiles = () => readJson<PracticeProfiles>("/api/v1/practice-profiles");
 

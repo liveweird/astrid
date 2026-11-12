@@ -1,6 +1,6 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { owner, practiceId, profiles, json } from "../../test/practiceFixtures";
+import { context, owner, practiceId, profiles, json } from "../../test/practiceFixtures";
 import { renderWithProviders } from "../../test/render";
 import { listOutbox, saveRunRecovery } from "../practice/practiceRecovery";
 import Lessons from "./Lessons";
@@ -12,6 +12,13 @@ beforeEach(() => {
 });
 
 afterEach(() => vi.unstubAllGlobals());
+
+function reviewContext(itemCount: number, sourceLessonCount = itemCount ? 3 : 0, ownerSessionId = owner) {
+  return {
+    ownerSessionId, sessionExpiresAt: 9999999999999, focusId: "cumulative-review",
+    planRevision: "cumulative-review-1", title: "Mixed review from your lessons", itemCount, sourceLessonCount,
+  };
+}
 
 it("renders all lesson and bounded review choices without network or storage mutations", () => {
   const fetch = vi.fn();
@@ -31,6 +38,251 @@ it("renders all lesson and bounded review choices without network or storage mut
   expect(fetch).not.toHaveBeenCalled();
   expect(setItem).not.toHaveBeenCalled();
   expect(removeItem).not.toHaveBeenCalled();
+});
+
+it("prepares an empty cumulative review only after the explicit action", async () => {
+  const paths: string[] = [];
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    paths.push(path);
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-review-context")) return json(reviewContext(0));
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Lessons />);
+
+  expect(paths).toEqual([]);
+  await userEvent.click(screen.getByRole("button", { name: "Prepare mixed review" }));
+
+  expect(await screen.findByText("No introduced material yet")).toBeVisible();
+  expect(screen.getByText("No introduced material yet").closest('[role="alert"]')).toHaveFocus();
+  expect(screen.getByText(/Open and save a lesson’s teaching first/)).toBeVisible();
+  expect(screen.queryByRole("button", { name: "Start mixed review" })).not.toBeInTheDocument();
+  expect(paths).toEqual(["/api/v1/development-session", "/api/v1/practice-review-context"]);
+  expect(localStorage.length).toBe(0);
+});
+
+it("refreshes empty and prepared review counts without creating a run", async () => {
+  const contexts = [reviewContext(0), reviewContext(1, 1), reviewContext(8, 4)];
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-review-context")) return json(contexts.shift());
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Lessons />);
+
+  await userEvent.click(screen.getByRole("button", { name: "Prepare mixed review" }));
+  await screen.findByText("No introduced material yet");
+  await userEvent.click(screen.getByRole("button", { name: "Refresh preparation" }));
+  expect(await screen.findByText("1 part from 1 lesson")).toBeVisible();
+  expect(screen.getByRole("status")).toHaveFocus();
+  expect(screen.getByText(/only 1 eligible item is available/)).toBeVisible();
+  await userEvent.click(screen.getByRole("button", { name: "Refresh preparation" }));
+  expect(await screen.findByText("8 parts from 4 lessons")).toBeVisible();
+
+  expect(contexts).toHaveLength(0);
+  expect(localStorage.length).toBe(0);
+});
+
+it("rejects an unsupported review preparation without exposing a start action", async () => {
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-review-context")) return json(reviewContext(9, 4));
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Lessons />);
+
+  await userEvent.click(screen.getByRole("button", { name: "Prepare mixed review" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("unavailable or unsupported");
+  expect(screen.queryByRole("button", { name: "Start mixed review" })).not.toBeInTheDocument();
+  expect(localStorage.length).toBe(0);
+});
+
+it("keeps cumulative preparation retryable when its fresh context read fails", async () => {
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-review-context")) return json({ detail: "Review preparation is temporarily unavailable." }, 503);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Lessons />);
+
+  await userEvent.click(screen.getByRole("button", { name: "Prepare mixed review" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("Review preparation is temporarily unavailable.");
+  expect(screen.getByRole("alert")).toHaveFocus();
+  expect(screen.getByRole("button", { name: "Prepare mixed review" })).toBeEnabled();
+  expect(localStorage.length).toBe(0);
+});
+
+it("shows an honest short preparation and saves its exact cumulative creation before navigation", async () => {
+  const createdId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+  vi.spyOn(crypto, "randomUUID").mockReturnValue(createdId);
+  vi.spyOn(crypto, "getRandomValues").mockImplementation((array) => {
+    (array as Uint32Array)[0] = 456;
+    return array;
+  });
+  let reviewReads = 0;
+  const fetch = vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-review-context")) {
+      reviewReads += 1;
+      return json(reviewContext(3, 2));
+    }
+    if (path.endsWith("practice-context")) return json(context());
+    throw new Error(`Unexpected ${path}`);
+  });
+  vi.stubGlobal("fetch", fetch);
+  renderWithProviders(<Lessons />);
+
+  await userEvent.click(screen.getByRole("button", { name: "Prepare mixed review" }));
+  expect(await screen.findByText("3 parts from 2 lessons")).toBeVisible();
+  expect(screen.getByRole("status")).toHaveFocus();
+  expect(screen.getByText(/shorter because only 3 eligible items are available/)).toBeVisible();
+  expect(screen.getByText(/not a mastery score or cross-device progress/)).toBeVisible();
+  await userEvent.click(screen.getByRole("button", { name: "Start mixed review" }));
+
+  await waitFor(() => expect(window.location.search).toBe(`?session=${createdId}`));
+  expect(reviewReads).toBe(2);
+  expect(listOutbox(createdId)[0]).toMatchObject({
+    ownerSessionId: owner, practiceSessionId: createdId, kind: "creation", identity: createdId,
+    body: JSON.stringify({
+      practiceSessionId: createdId, focusId: "cumulative-review", planRevision: "cumulative-review-1", seed: 456,
+    }),
+  });
+});
+
+it("returns to an empty preparation when eligibility disappears before creation", async () => {
+  let reviewReads = 0;
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-review-context")) {
+      reviewReads += 1;
+      return json(reviewReads === 1 ? reviewContext(3, 2) : reviewContext(0));
+    }
+    if (path.endsWith("practice-context")) return json(context());
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Lessons />);
+
+  await userEvent.click(screen.getByRole("button", { name: "Prepare mixed review" }));
+  await screen.findByText("3 parts from 2 lessons");
+  await userEvent.click(screen.getByRole("button", { name: "Start mixed review" }));
+
+  const unavailable = await screen.findByText("There is no introduced material to review yet. Start a lesson first.");
+  expect(unavailable).toBeVisible();
+  expect(unavailable.closest('[role="alert"]')).toHaveFocus();
+  expect(screen.getByText("No introduced material yet")).toBeVisible();
+  expect(screen.queryByRole("button", { name: "Start mixed review" })).not.toBeInTheDocument();
+  expect(localStorage.length).toBe(0);
+});
+
+it("refuses a stale prepared owner without creating or replacing saved recovery", async () => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "reading-basics", planRevision: "practice-1", seed: 47 });
+  let reviewReads = 0;
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-review-context")) {
+      reviewReads += 1;
+      return json(reviewContext(8, 4, reviewReads === 1 ? owner : "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"));
+    }
+    if (path.endsWith("practice-context")) return json(context());
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Lessons />);
+
+  await userEvent.click(screen.getByRole("button", { name: "Prepare mixed review" }));
+  expect(await screen.findByText("8 parts from 4 lessons")).toBeVisible();
+  await userEvent.click(screen.getByRole("button", { name: "Start mixed review" }));
+  await userEvent.click(screen.getByRole("button", { name: "Start new mixed review" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent(/preparation expired/);
+  expect(window.location.pathname).toBe("/");
+  expect(localStorage.getItem("astrid.practice.v1.latest")).toBe(practiceId);
+  expect(listOutbox(practiceId)).toEqual([]);
+});
+
+it("cancels the cumulative saved-run choice without changing its prepared context", async () => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "reading-basics", planRevision: "practice-1", seed: 47 });
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-review-context")) return json(reviewContext(8, 4));
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Lessons />);
+
+  await userEvent.click(screen.getByRole("button", { name: "Prepare mixed review" }));
+  await screen.findByText("8 parts from 4 lessons");
+  await userEvent.click(screen.getByRole("button", { name: "Start mixed review" }));
+  expect(screen.getByText("Choose what to do with saved practice")).toBeVisible();
+  await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+  expect(screen.queryByText("Choose what to do with saved practice")).not.toBeInTheDocument();
+  expect(screen.getByText("8 parts from 4 lessons")).toBeVisible();
+  expect(localStorage.getItem("astrid.practice.v1.latest")).toBe(practiceId);
+  expect(listOutbox(practiceId)).toEqual([]);
+});
+
+it("does not save a ghost cumulative run when delayed revalidation finishes after unmount", async () => {
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId,
+    focusId: "reading-basics", planRevision: "practice-1", seed: 47 });
+  const before = Array.from({ length: localStorage.length }, (_, index) => {
+    const key = localStorage.key(index)!;
+    return [key, localStorage.getItem(key)] as const;
+  }).sort();
+  let reviewReads = 0;
+  let resolveReview!: (response: Response) => void;
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-review-context")) {
+      reviewReads += 1;
+      if (reviewReads === 1) return json(reviewContext(8, 4));
+      return new Promise<Response>((resolve) => { resolveReview = resolve; });
+    }
+    if (path.endsWith("practice-context")) return json(context());
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const view = renderWithProviders(<Lessons />);
+  await userEvent.click(screen.getByRole("button", { name: "Prepare mixed review" }));
+  await screen.findByText("8 parts from 4 lessons");
+  await userEvent.click(screen.getByRole("button", { name: "Start mixed review" }));
+  await userEvent.click(screen.getByRole("button", { name: "Start new mixed review" }));
+  await waitFor(() => expect(reviewReads).toBe(2));
+
+  view.unmount();
+  resolveReview(json(reviewContext(8, 4)));
+
+  await waitFor(() => expect(localStorage.getItem("astrid.practice.v1.latest")).toBe(practiceId));
+  const after = Array.from({ length: localStorage.length }, (_, index) => {
+    const key = localStorage.key(index)!;
+    return [key, localStorage.getItem(key)] as const;
+  }).sort();
+  expect(after).toEqual(before);
+});
+
+it("keeps the prepared review unsent when creation recovery cannot be saved", async () => {
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-review-context")) return json(reviewContext(8, 4));
+    if (path.endsWith("practice-context")) return json(context());
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Lessons />);
+  await userEvent.click(screen.getByRole("button", { name: "Prepare mixed review" }));
+  await screen.findByText("8 parts from 4 lessons");
+  const originalSetItem = localStorage.setItem.bind(localStorage);
+  const storage = vi.spyOn(localStorage, "setItem").mockImplementation((key, value) => {
+    if (key.includes(".outbox.") && key.includes(".creation.")) throw new DOMException("Full", "QuotaExceededError");
+    originalSetItem(key, value);
+  });
+
+  await userEvent.click(screen.getByRole("button", { name: "Start mixed review" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("The operation was not sent");
+  expect(window.location.pathname).toBe("/");
+  expect(localStorage.getItem("astrid.practice.v1.latest")).toBeNull();
+  storage.mockRestore();
 });
 
 it("persists the exact selected creation before handing it to the practice route", async () => {

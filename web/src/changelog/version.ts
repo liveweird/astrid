@@ -1,3 +1,3 @@
 // Astrid's one user-facing application version. Keep this tiny module separate from
 // entries.ts so the shell can show the version without eagerly loading changelog content.
-export const APP_VERSION = "0.20.1";
+export const APP_VERSION = "0.21.0";

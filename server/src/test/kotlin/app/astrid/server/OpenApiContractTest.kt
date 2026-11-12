@@ -178,6 +178,7 @@ class OpenApiContractTest {
             "vocabulary-p1-s3" to "vocabulary-p1-s3-2",
             "vocabulary-p1-s4" to "vocabulary-p1-s4-2",
             "vocabulary-p1-s5" to "vocabulary-p1-s5-2",
+            "cumulative-review" to "cumulative-review-1",
         )
         for (focus in supportedPairs.map { it.first }) {
             for (revision in supportedPairs.map { it.second }) {
@@ -1401,6 +1402,39 @@ class OpenApiContractTest {
             })
         }
         assertEquals(setOf("E016", "E017", "E018", "E019", "E022", "E023", "E026", "E027"), observedFormats)
+
+        val reviewContext = client.get("/api/v1/practice-review-context") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+        }
+        validate(HttpMethod.Get, "/api/v1/practice-review-context", reviewContext)
+        val reviewContextBody = reviewContext.bodyAsText().asObject()
+        assertEquals(8, reviewContextBody.getValue("itemCount").jsonPrimitive.content.toInt())
+
+        val cumulativeId = UUID.randomUUID()
+        val cumulative = client.post("/api/v1/practice-sessions") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+            header("X-Astrid-Client", "playground")
+            header("X-Astrid-Practice-Owner", owner)
+            contentType(ContentType.Application.Json)
+            setBody(
+                """{"practiceSessionId":"$cumulativeId","focusId":"cumulative-review","planRevision":"cumulative-review-1","seed":31}""",
+            )
+        }
+        validate(HttpMethod.Post, "/api/v1/practice-sessions", cumulative)
+        assertEquals(201, cumulative.status.value, cumulative.bodyAsText())
+        val cumulativeBody = cumulative.bodyAsText().asObject()
+        assertEquals("per-item", cumulativeBody.getValue("contentRevision").jsonPrimitive.content)
+        assertTrue(cumulativeBody.getValue("items").jsonArray.all { "revisions" in it.jsonObject })
+        validate(
+            HttpMethod.Get,
+            "/api/v1/practice-sessions/$cumulativeId",
+            client.get("/api/v1/practice-sessions/$cumulativeId") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+            },
+        )
     }
 
     @Test

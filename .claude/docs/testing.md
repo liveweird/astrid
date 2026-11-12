@@ -108,7 +108,7 @@ A floor is the **integer below the measured value**, written with a dated commen
 | --- | --- | --- |
 | engine Kover | `engine/build.gradle.kts` | line 98, branch 86 |
 | server Kover (`@Serializable` classes excluded) | `server/build.gradle.kts` | line 98, branch 82 |
-| web vitest v8 | `web/vite.config.ts` `test.coverage.thresholds` | statements 95, branches 89, functions 98, lines 98 |
+| web vitest v8 | `web/vite.config.ts` `test.coverage.thresholds` | statements 95, branches 90, functions 98, lines 98 |
 
 Re-measure: `./gradlew :engine:koverXmlReport :server:koverXmlReport` (`check` only runs `koverVerify`, which reports pass/fail, not the
 actual) and read the `npm run test:coverage` table. Then edit the floor and its comment in the same commit.

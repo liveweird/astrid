@@ -1,4 +1,4 @@
-import { ApiError, bootstrapPlayground, submitAttempt, UncertainResultError } from "./client";
+import { ApiError, bootstrapPlayground, loadPracticeReviewContext, submitAttempt, UncertainResultError } from "./client";
 import type { AttemptRequest } from "./models";
 
 const request: AttemptRequest = {
@@ -29,6 +29,32 @@ function responseWithStalledJson(status: number, signal: AbortSignal | null | un
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
+});
+
+describe("cumulative review context transport", () => {
+  it("reads owner eligibility afresh without creating a run", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(Response.json({ itemCount: 0, sourceLessonCount: 0 }))
+      .mockResolvedValueOnce(Response.json({ itemCount: 4, sourceLessonCount: 1 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(loadPracticeReviewContext()).resolves.toMatchObject({ itemCount: 0 });
+    await expect(loadPracticeReviewContext()).resolves.toMatchObject({ itemCount: 4 });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    for (const [path, init] of fetchMock.mock.calls as unknown as [string, RequestInit][]) {
+      expect(path).toBe("/api/v1/practice-review-context");
+      expect(init.credentials).toBe("same-origin");
+      expect(init.body).toBeUndefined();
+    }
+  });
+
+  it("preserves unavailable ownership errors for explicit recovery", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ detail: "Session unavailable" }), {
+      status: 401, headers: { "Content-Type": "application/problem+json" },
+    })));
+    await expect(loadPracticeReviewContext()).rejects.toMatchObject({ status: 401, message: "Session unavailable" });
+  });
 });
 
 describe("attempt transport", () => {
