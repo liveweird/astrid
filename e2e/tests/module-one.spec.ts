@@ -1508,7 +1508,13 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/practice");
       await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
       await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-      await expect(page.getByRole("radio")).toHaveCount(18);
+      const radios = page.getByRole("radio");
+      await expect(radios).toHaveCount(23);
+      for (let index = 0; index < 23; index += 1) {
+        await radios.nth(index).focus();
+        await page.keyboard.press("Space");
+        await expect(radios.nth(index)).toBeChecked();
+      }
       await scan(page);
       const groupSession = page.getByRole("radio", { name: PROFILES[1].title, exact: true });
       await groupSession.focus(); await page.keyboard.press("Space");
