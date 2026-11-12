@@ -142,9 +142,9 @@ async function openProfile(page: Page, profile: typeof PROFILES[number]) {
   const state = await stateFor(page);
   expect(state).toMatchObject({
     focusId: profile.focus,
-    planRevision: `${profile.focus}-1`,
-    contentRevision: "pilot-17",
-    generatorRevision: "generator-17",
+    planRevision: `${profile.focus}-2`,
+    contentRevision: "pilot-18",
+    generatorRevision: "generator-18",
     itemCount: profile.count,
     introductionRequired: true,
     introductionOpened: false,

@@ -10,8 +10,8 @@ class PilotReviewTest {
         val current = PilotReview.renderMarkdown()
         val retained = PilotReview.renderPilotFifteenMarkdown()
 
-        assertTrue("Content revision: `pilot-17`" in current)
-        assertTrue("Generator revision: `generator-17`" in current)
+        assertTrue("Content revision: `pilot-18`" in current)
+        assertTrue("Generator revision: `generator-18`" in current)
         assertTrue("## Neutral yes/no question inventory" in current)
         assertTrue("### Asking yes or no questions" in current)
         assertTrue("Content revision: `pilot-15`" in retained)

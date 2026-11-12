@@ -24,8 +24,8 @@ class QuestionExercisesTest {
         )
 
         val engine = PilotEngine()
-        assertEquals("pilot-17", engine.catalog().contentRevision)
-        assertEquals("generator-17", engine.catalog().generatorRevision)
+        assertEquals("pilot-18", engine.catalog().contentRevision)
+        assertEquals("generator-18", engine.catalog().generatorRevision)
         assertEquals(39, engine.catalog().formats.size)
         assertEquals("evaluation-15", engine.evaluationRevision("pilot-15", "generator-15"))
         assertEquals("evaluation-16", engine.evaluationRevision("pilot-16", "generator-16"))

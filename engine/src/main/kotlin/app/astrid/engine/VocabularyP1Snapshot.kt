@@ -1,9 +1,13 @@
 package app.astrid.engine
 
 internal object VocabularyP1Snapshot {
-    fun extend(retained: PilotContentSnapshot): PilotContentSnapshot = retained.copy(
-        contentRevision = PilotContent.CURRENT_CONTENT_REVISION,
-        generatorRevision = PilotContent.CURRENT_GENERATOR_REVISION,
+    fun extend(
+        retained: PilotContentSnapshot,
+        contentRevision: String,
+        generatorRevision: String,
+    ): PilotContentSnapshot = retained.copy(
+        contentRevision = contentRevision,
+        generatorRevision = generatorRevision,
         formats = retained.formats + VocabularyP1Content.formats,
         verbs = retained.verbs + listOf(
             Verb("L041", "skrive", "skriver", "write a short text"),

@@ -64,6 +64,13 @@ The selected first-unit release is **app 0.20.0**, learning pair
 eighteen, subject to rechecking the actual baseline when resumed. No existing S14 draft is
 merged into P1. Keep all eighteen existing profiles literally pinned.
 
+**Subsequent compatibility repair — 12 November 2026:** the
+[matching restart repair](matching-restart-compatibility.md) reserves app 0.20.1 and pair
+eighteen without new content. It supersedes the tentative S14 pair-eighteen reservation:
+S14 remains paused and tentatively follows at 0.21.0/pair nineteen, subject to another
+baseline audit. Published P1 revision-one plans remain on seventeen; current revision-two
+plans use eighteen.
+
 Audit then allocate `L041` skrive, `L042` computer, `L043` studere, `L044` kursus,
 `L045` drikke, `L046` kaffe, `L047` liquid vand, `L048` static hjemme and `L049`
 fixed `om morgenen`. Reuse the exact current senses for other P1 rows. The morning expression

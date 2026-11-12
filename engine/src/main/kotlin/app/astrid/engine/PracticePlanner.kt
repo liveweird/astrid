@@ -130,7 +130,7 @@ class PracticePlanner(private val engine: PilotEngine = PilotEngine()) {
                 CircumstancePracticePlanner(engine).plan(focusId, seed)
             QuestionPracticePlanner.FOCUS_ID to QuestionPracticePlanner.PLAN_REVISION ->
                 QuestionPracticePlanner(engine).plan(focusId, seed)
-            in VocabularyP1PracticePlanner.SPECIFICATIONS.map { it.focusId to it.planRevision } ->
+            in VocabularyP1PracticePlanner.ALL_SPECIFICATIONS.map { it.focusId to it.planRevision } ->
                 VocabularyP1PracticePlanner(engine).plan(focusId, planRevision, seed)
             else -> null
         }

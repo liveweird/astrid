@@ -57,9 +57,9 @@ class RecallRepairApplicationTest {
         }
         assertEquals(HttpStatusCode.OK, catalogResponse.status)
         val catalog = wireJson.parseToJsonElement(catalogResponse.bodyAsText()).jsonObject
-        assertEquals("pilot-17", catalog.getValue("contentRevision").jsonPrimitive.content)
-        assertEquals("generator-17", catalog.getValue("generatorRevision").jsonPrimitive.content)
-        assertEquals("evaluation-17", catalog.getValue("evaluationRevision").jsonPrimitive.content)
+        assertEquals("pilot-18", catalog.getValue("contentRevision").jsonPrimitive.content)
+        assertEquals("generator-18", catalog.getValue("generatorRevision").jsonPrimitive.content)
+        assertEquals("evaluation-18", catalog.getValue("evaluationRevision").jsonPrimitive.content)
         assertEquals(
             listOf(
                 "E001", "E002", "E003", "E004", "E005", "E006", "E007", "E008", "E009", "E010", "E011", "E012", "E013", "E014", "E015",

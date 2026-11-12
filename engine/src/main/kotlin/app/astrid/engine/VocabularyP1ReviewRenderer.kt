@@ -1,11 +1,12 @@
 package app.astrid.engine
 
 internal object VocabularyP1ReviewRenderer {
-    fun appendTo(output: StringBuilder, seed: Int) {
+    fun appendTo(output: StringBuilder, seed: Int, snapshot: PilotContentSnapshot) {
         val engine = PilotEngine()
         output.appendLine("## P1 vocabulary unit: A day of work and study")
         output.appendLine()
-        output.appendLine("- Pair: `pilot-17` / `generator-17` / `evaluation-17`")
+        val evaluationRevision = PilotEngine().evaluationRevision(snapshot.contentRevision, snapshot.generatorRevision)
+        output.appendLine("- Pair: `${snapshot.contentRevision}` / `${snapshot.generatorRevision}` / `$evaluationRevision`")
         output.appendLine("- Review state: `${PilotReviewMetadata.REVIEW_STATE}`")
         output.appendLine("- Source provenance: `docs/knowledge/vocabulary-course-blueprint.md` and official COR locators")
         output.appendLine("- Inventory: 18 selected placements; 9 new lexical records; 23 literal activities")
@@ -26,7 +27,7 @@ internal object VocabularyP1ReviewRenderer {
             output.appendLine("#### $formatId (${tasks.size} semantic task${if (tasks.size == 1) "" else "s"})")
             output.appendLine()
             tasks.forEach { task ->
-                val exercise = generateTask(engine, task, seed)
+                val exercise = generateTask(engine, task, seed, snapshot)
                 val source = requireNotNull(exercise.inspector.vocabularySource)
                 output.appendLine("- `${task.id}` · cue: ${task.cue}")
                 if (task.passage.isNotEmpty()) output.appendLine("  - Passage: ${task.passage.joinToString(" ")}")
@@ -46,7 +47,12 @@ internal object VocabularyP1ReviewRenderer {
         }
         output.appendLine("### Five required-teaching profiles")
         output.appendLine()
-        VocabularyP1PracticePlanner.SPECIFICATIONS.forEach { specification ->
+        val specifications = if (snapshot.contentRevision == PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION) {
+            VocabularyP1PracticePlanner.RETAINED_SPECIFICATIONS
+        } else {
+            VocabularyP1PracticePlanner.SPECIFICATIONS
+        }
+        specifications.forEach { specification ->
             val plan = PracticePlanner(engine).plan(specification.focusId, specification.planRevision, seed)
             output.appendLine(
                 "- `${plan.focusId}` / `${plan.planRevision}` · ${plan.title} · ${plan.items.size} activities · " +
@@ -94,7 +100,12 @@ internal object VocabularyP1ReviewRenderer {
         }
     }
 
-    private fun generateTask(engine: PilotEngine, task: VocabularyP1Task, seed: Int): GeneratedExercise =
+    private fun generateTask(
+        engine: PilotEngine,
+        task: VocabularyP1Task,
+        seed: Int,
+        snapshot: PilotContentSnapshot,
+    ): GeneratedExercise =
         (0 until VocabularyP1Content.tasks(task.formatId).size).asSequence().map { index ->
             engine.generate(
                 GenerationRequest(
@@ -102,8 +113,8 @@ internal object VocabularyP1ReviewRenderer {
                     task.targetSkillId,
                     seed,
                     index,
-                    VocabularyP1Content.CONTENT_REVISION,
-                    VocabularyP1Content.GENERATOR_REVISION,
+                    snapshot.contentRevision,
+                    snapshot.generatorRevision,
                 ),
             )
         }.first { requireNotNull(it.inspector.vocabularySource).taskId == task.id }

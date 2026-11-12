@@ -107,7 +107,7 @@ A floor is the **integer below the measured value**, written with a dated commen
 | Gate | Where | Floor (2026-11-12) |
 | --- | --- | --- |
 | engine Kover | `engine/build.gradle.kts` | line 98, branch 86 |
-| server Kover (`@Serializable` classes excluded) | `server/build.gradle.kts` | line 98, branch 81 |
+| server Kover (`@Serializable` classes excluded) | `server/build.gradle.kts` | line 98, branch 82 |
 | web vitest v8 | `web/vite.config.ts` `test.coverage.thresholds` | statements 95, branches 89, functions 98, lines 98 |
 
 Re-measure: `./gradlew :engine:koverXmlReport :server:koverXmlReport` (`check` only runs `koverVerify`, which reports pass/fail, not the

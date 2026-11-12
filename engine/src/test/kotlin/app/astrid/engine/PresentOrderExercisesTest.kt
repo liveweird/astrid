@@ -12,8 +12,8 @@ class PresentOrderExercisesTest {
     @Test
     fun `pair ten publishes exact present and order activities while retaining pair nine`() {
         val catalog = engine.catalog()
-        assertEquals("pilot-17", catalog.contentRevision)
-        assertEquals("generator-17", catalog.generatorRevision)
+        assertEquals("pilot-18", catalog.contentRevision)
+        assertEquals("generator-18", catalog.generatorRevision)
         assertEquals(109, catalog.sentenceCount)
         assertEquals((1..39).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
         assertEquals("evaluation-9", engine.evaluationRevision("pilot-9", "generator-9"))

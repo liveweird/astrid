@@ -60,9 +60,12 @@ internal data class VocabularyP1Fact(
 )
 
 internal object VocabularyP1Content {
-    const val CONTENT_REVISION = "pilot-17"
-    const val GENERATOR_REVISION = "generator-17"
-    const val EVALUATION_REVISION = "evaluation-17"
+    const val RETAINED_CONTENT_REVISION = "pilot-17"
+    const val RETAINED_GENERATOR_REVISION = "generator-17"
+    const val RETAINED_EVALUATION_REVISION = "evaluation-17"
+    const val CONTENT_REVISION = "pilot-18"
+    const val GENERATOR_REVISION = "generator-18"
+    const val EVALUATION_REVISION = "evaluation-18"
     private val P1_RECALL_SHAPES = setOf("present-form", "fixed-chunk", "mass-headword")
 
     val work = verb("L027", "L027-S01", "arbejde", "arbejder", "works", "human intransitive work")
@@ -380,10 +383,18 @@ internal object VocabularyP1ExerciseGenerator {
     }
 
     private fun matching(request: GenerationRequest, task: VocabularyP1Task): GeneratedExercise {
-        val left = shuffled(task.matching, request.seed xor MATCHING_LEFT_SALT).mapIndexed { index, row ->
+        val rowHash: (Pair<VocabularyP1Lexeme, Pair<String, String>>) -> Int = if (
+            request.contentRevision == VocabularyP1Content.CONTENT_REVISION &&
+                request.generatorRevision == VocabularyP1Content.GENERATOR_REVISION
+        ) {
+            { row -> "${row.first.entryId}\u001f${row.first.senseId}".hashCode() }
+        } else {
+            { row -> row.hashCode() }
+        }
+        val left = shuffled(task.matching, request.seed xor MATCHING_LEFT_SALT, rowHash).mapIndexed { index, row ->
             row.first to MatchingItem(opaqueItemId("m", request.seed xor MATCHING_LEFT_SALT, index), row.second.first)
         }
-        val right = shuffled(task.matching, request.seed xor MATCHING_RIGHT_SALT).mapIndexed { index, row ->
+        val right = shuffled(task.matching, request.seed xor MATCHING_RIGHT_SALT, rowHash).mapIndexed { index, row ->
             row.first to MatchingItem(opaqueItemId("n", request.seed xor MATCHING_RIGHT_SALT, index), row.second.second)
         }
         val rightBySense = right.associate { it.first.senseId to it.second.id }
@@ -393,6 +404,62 @@ internal object VocabularyP1ExerciseGenerator {
         return exercise(request, task, ExercisePrompt("", "", punctuation = "", cueLanguage = "en", answerLanguage = "da",
             matchingColumns = MatchingColumns(left.map { it.second }, right.map { it.second })),
             lexicalTargets = task.targets.map { it.target() }, matchingPairs = pairs)
+    }
+
+    fun restoreLegacyMatching(request: GenerationRequest, columns: MatchingColumns): GeneratedExercise {
+        require(
+            request.contentRevision == VocabularyP1Content.RETAINED_CONTENT_REVISION &&
+                request.generatorRevision == VocabularyP1Content.RETAINED_GENERATOR_REVISION && request.formatId == "E033",
+        ) { "Legacy vocabulary matching restoration requires pilot-17/generator-17 E033" }
+        val task = VocabularyP1Content.tasks("E033")[
+            Math.floorMod(request.seed.toLong() + request.index, VocabularyP1Content.tasks("E033").size.toLong()).toInt()
+        ]
+        val expectedLeftTexts = task.matching.map { it.second.first }
+        val expectedRightTexts = task.matching.map { it.second.second }
+        require(columns.left.map(MatchingItem::text).counts() == expectedLeftTexts.counts()) {
+            "Saved legacy matching left text multiset does not match the authored task"
+        }
+        require(columns.right.map(MatchingItem::text).counts() == expectedRightTexts.counts()) {
+            "Saved legacy matching right text multiset does not match the authored task"
+        }
+        require(columns.left.size == task.matching.size && columns.right.size == task.matching.size) {
+            "Saved legacy matching columns must retain the authored cardinality"
+        }
+        val allIds = (columns.left + columns.right).map(MatchingItem::id)
+        require(allIds.distinct().size == allIds.size) { "Saved legacy matching item IDs must be unique" }
+        columns.left.forEachIndexed { index, item ->
+            require(item.id == opaqueItemId("m", request.seed xor MATCHING_LEFT_SALT, index)) {
+                "Saved legacy matching left ID is invalid at position $index"
+            }
+        }
+        columns.right.forEachIndexed { index, item ->
+            require(item.id == opaqueItemId("n", request.seed xor MATCHING_RIGHT_SALT, index)) {
+                "Saved legacy matching right ID is invalid at position $index"
+            }
+        }
+        val authoredByEnglish = task.matching.associateBy { it.second.first }
+        val savedRightByDanish = columns.right.associateBy(MatchingItem::text)
+        val rightIdBySense = task.matching.associate { row ->
+            row.first.senseId to savedRightByDanish.getValue(row.second.second).id
+        }
+        val matchingPairs = columns.left.map { item ->
+            val lexeme = authoredByEnglish.getValue(item.text).first
+            VocabularyMatchingPairSourceDetails(item.id, rightIdBySense.getValue(lexeme.senseId), lexeme.details())
+        }
+        return exercise(
+            request,
+            task,
+            ExercisePrompt(
+                "",
+                "",
+                punctuation = "",
+                cueLanguage = "en",
+                answerLanguage = "da",
+                matchingColumns = columns,
+            ),
+            lexicalTargets = task.targets.map { it.target() },
+            matchingPairs = matchingPairs,
+        )
     }
 
     private fun tiles(request: GenerationRequest, task: VocabularyP1Task): GeneratedExercise {
@@ -573,11 +640,13 @@ internal object VocabularyP1ExerciseGenerator {
             )
         }
     }.filter { it.words.isNotEmpty() }
-    private fun <T> shuffled(input: List<T>, salt: Int): List<T> = input.sortedBy { row ->
-        var value = salt.toLong() xor row.hashCode().toLong() * SHUFFLE_MULTIPLIER
+    private fun <T> shuffled(input: List<T>, salt: Int, hash: (T) -> Int = { it.hashCode() }): List<T> = input.sortedBy { row ->
+        var value = salt.toLong() xor hash(row).toLong() * SHUFFLE_MULTIPLIER
         value = (value xor (value ushr SHUFFLE_FIRST_SHIFT)) * SHUFFLE_MIXER
         value xor (value ushr SHUFFLE_SECOND_SHIFT)
     }
+
+    private fun List<String>.counts(): Map<String, Int> = groupingBy { it }.eachCount()
 
     private fun opaqueItemId(prefix: String, salt: Int, displayIndex: Int): String {
         var value = salt.toLong() xor displayIndex.toLong() * SHUFFLE_MULTIPLIER

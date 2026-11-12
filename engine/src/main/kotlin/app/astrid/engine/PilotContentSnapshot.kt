@@ -76,6 +76,7 @@ internal object PilotContentValidator {
             EXPECTED_PILOT_FIFTEEN_SKILL_IDS
         } else if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -104,6 +105,7 @@ internal object PilotContentValidator {
                     PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
                     PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
                     PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
+                    PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) CURRENT_SENTENCE_COUNT else RETAINED_SENTENCE_COUNT
@@ -131,7 +133,10 @@ internal object PilotContentValidator {
             contentRevision == PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION -> EXPECTED_PILOT_FOURTEEN_LEXICAL_IDS
             contentRevision == PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION -> EXPECTED_PILOT_FIFTEEN_LEXICAL_IDS
             contentRevision == PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION -> EXPECTED_PILOT_SIXTEEN_LEXICAL_IDS
-            contentRevision == PilotContent.CURRENT_CONTENT_REVISION -> EXPECTED_PILOT_SEVENTEEN_LEXICAL_IDS
+            contentRevision in setOf(
+                PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
+                PilotContent.CURRENT_CONTENT_REVISION,
+            ) -> EXPECTED_PILOT_SEVENTEEN_LEXICAL_IDS
             else -> EXPECTED_RETAINED_LEXICAL_IDS
         }
 
@@ -342,6 +347,7 @@ internal object PilotContentValidator {
                 PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
                 ->
                     setOf("L014-S01", "L015-S01", "L018-S01", "L024-S01")
@@ -623,6 +629,7 @@ internal object PilotContentValidator {
         PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION to EXPECTED_PILOT_FOURTEEN_FORMAT_IDS,
         PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION to EXPECTED_PILOT_FIFTEEN_FORMAT_IDS,
         PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION to EXPECTED_PILOT_SIXTEEN_FORMAT_IDS,
+        PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION to EXPECTED_PILOT_SEVENTEEN_FORMAT_IDS,
         PilotContent.CURRENT_CONTENT_REVISION to EXPECTED_PILOT_SEVENTEEN_FORMAT_IDS,
     )
     private const val LAST_PILOT_EIGHT_FORMAT_NUMBER = 19

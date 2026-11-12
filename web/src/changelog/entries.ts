@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.20.1",
+    date: "2026-11-12",
+    body: `**Keep vocabulary matching stable across server restarts.**
+
+- New work/study sessions use matching boards that reproduce consistently across fresh server processes.
+- Earlier saved boards retain their displayed words and matching identities when you submit a new answer after restart. Confirmed answers still replay their original saved results.
+- Repeat or continue an earlier vocabulary session to choose the current practice revision. Existing saved runs and pending submissions keep their original request bodies.`,
+  },
+  {
     version: "0.20.0",
     date: "2026-11-12",
     body: `**Learn vocabulary through a day of work and study.**

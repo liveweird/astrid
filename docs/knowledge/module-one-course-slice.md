@@ -1184,3 +1184,10 @@ These are coordination reservations, not delivered content. Rebase the saved S14
 the actual then-current source, audit all identifiers and freeze that released boundary
 before resuming; never overlay its old shared files onto P1. The historical contracts above
 remain intact as records of their original assignments.
+
+**Superseded pair reservation by the matching repair — 12 November 2026.** The
+[0.20.1 compatibility repair](matching-restart-compatibility.md) consumes pair eighteen
+for stable P1 matching and preserves the published seventeen plans. S14 remains paused;
+its tentative assignment is now **0.21.0 / pair nineteen, E040**. Unselected S15 would
+follow at **0.22.0 / pair twenty, E041–E042**. No lexical or format IDs are consumed by
+the repair. Re-audit the actual released baseline before either later activation.

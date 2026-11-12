@@ -2,11 +2,15 @@ package app.astrid.engine
 
 internal class VocabularyP1PracticePlanner(private val engine: PilotEngine) {
     fun plan(focusId: String, planRevision: String, seed: Int): PracticePlan {
-        val specification = SPECIFICATIONS.singleOrNull { it.focusId == focusId && it.planRevision == planRevision }
+        val specification = ALL_SPECIFICATIONS.singleOrNull { it.focusId == focusId && it.planRevision == planRevision }
             ?: throw IllegalArgumentException("Unsupported vocabulary P1 profile: $focusId/$planRevision")
+        val retained = specification in RETAINED_SPECIFICATIONS
+        val contentRevision = if (retained) VocabularyP1Content.RETAINED_CONTENT_REVISION else VocabularyP1Content.CONTENT_REVISION
+        val generatorRevision = if (retained) VocabularyP1Content.RETAINED_GENERATOR_REVISION else VocabularyP1Content.GENERATOR_REVISION
+        val evaluationRevision = if (retained) VocabularyP1Content.RETAINED_EVALUATION_REVISION else VocabularyP1Content.EVALUATION_REVISION
         val items = specification.taskIds.mapIndexed { position, taskId ->
             val task = VocabularyP1Content.tasks.single { it.id == taskId }
-            val exercise = generateTask(task, seed)
+            val exercise = generateTask(task, seed, contentRevision, generatorRevision)
             practiceItem(position, task, exercise)
         }
         val introduction = specification.introduction + specification.review
@@ -18,9 +22,9 @@ internal class VocabularyP1PracticePlanner(private val engine: PilotEngine) {
             prerequisiteSkillIds = PREREQUISITES,
             introduction = introduction,
             items = items,
-            contentRevision = VocabularyP1Content.CONTENT_REVISION,
-            generatorRevision = VocabularyP1Content.GENERATOR_REVISION,
-            evaluationRevision = VocabularyP1Content.EVALUATION_REVISION,
+            contentRevision = contentRevision,
+            generatorRevision = generatorRevision,
+            evaluationRevision = evaluationRevision,
             introductionExposureKeys = specification.introductionKeys,
             introductionRequired = true,
             completionRuleId = PracticeCompletionPolicy.VOCABULARY_P1_RULE,
@@ -28,7 +32,12 @@ internal class VocabularyP1PracticePlanner(private val engine: PilotEngine) {
         )
     }
 
-    private fun generateTask(task: VocabularyP1Task, seed: Int): GeneratedExercise =
+    private fun generateTask(
+        task: VocabularyP1Task,
+        seed: Int,
+        contentRevision: String,
+        generatorRevision: String,
+    ): GeneratedExercise =
         (0 until VocabularyP1Content.tasks(task.formatId).size).asSequence().map { index ->
             engine.generate(
                 GenerationRequest(
@@ -36,8 +45,8 @@ internal class VocabularyP1PracticePlanner(private val engine: PilotEngine) {
                     task.targetSkillId,
                     seed,
                     index,
-                    VocabularyP1Content.CONTENT_REVISION,
-                    VocabularyP1Content.GENERATOR_REVISION,
+                    contentRevision,
+                    generatorRevision,
                 ),
             )
         }.first { requireNotNull(it.inspector.vocabularySource).taskId == task.id }
@@ -203,7 +212,7 @@ internal class VocabularyP1PracticePlanner(private val engine: PilotEngine) {
         val PREREQUISITES = listOf("G001", "G002", "G003", "G004", "G005")
         const val P1_ORDER_SUPPORT_KEY = "vocabulary-p1:support:subject-first-order"
 
-        val SPECIFICATIONS = listOf(
+        private val BASE_SPECIFICATIONS = listOf(
             specification(1, "Work, reading and today", listOf("p1-1.1", "p1-1.2", "p1-1.3", "p1-1.4"),
                 listOf(VocabularyP1Content.work, VocabularyP1Content.read, VocabularyP1Content.book, VocabularyP1Content.today),
                 listOf("Anna arbejder i dag." to "Anna works today.", "Hun læser en bog." to "She reads a book.")),
@@ -229,6 +238,9 @@ internal class VocabularyP1PracticePlanner(private val engine: PilotEngine) {
                     "Nora arbejder om morgenen." to "Nora works in the morning.",
                 )),
         )
+        val RETAINED_SPECIFICATIONS = BASE_SPECIFICATIONS
+        val SPECIFICATIONS = BASE_SPECIFICATIONS.map { it.copy(planRevision = "${it.focusId}-2") }
+        val ALL_SPECIFICATIONS = RETAINED_SPECIFICATIONS + SPECIFICATIONS
 
         private fun specification(number: Int, title: String, taskIds: List<String>, lexemes: List<VocabularyP1Lexeme>,
             examples: List<Pair<String, String>>): Specification {

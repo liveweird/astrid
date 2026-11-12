@@ -1,5 +1,5 @@
 openapi: 3.0.3
-info: { title: Astrid pilot API, version: 0.20.0 }
+info: { title: Astrid pilot API, version: 0.20.1 }
 servers: [{ url: 'http://localhost:8088' }]
 # Every operation needs the development session cookie except the three that declare `security: []`.
 security:
@@ -239,9 +239,9 @@ components:
       properties:
         mode: { type: string, enum: [development] }
         inspectorEnabled: { type: boolean }
-        contentRevision: { type: string, enum: [pilot-1, pilot-2, pilot-3, pilot-4, pilot-5, pilot-6, pilot-7, pilot-8, pilot-9, pilot-10, pilot-11, pilot-12, pilot-13, pilot-14, pilot-15, pilot-16, pilot-17] }
-        generatorRevision: { type: string, enum: [generator-1, generator-2, generator-3, generator-4, generator-5, generator-6, generator-7, generator-8, generator-9, generator-10, generator-11, generator-12, generator-13, generator-14, generator-15, generator-16, generator-17] }
-        evaluationRevision: { type: string, enum: [evaluation-1, evaluation-2, evaluation-3, evaluation-4, evaluation-5, evaluation-6, evaluation-7, evaluation-8, evaluation-9, evaluation-10, evaluation-11, evaluation-12, evaluation-13, evaluation-14, evaluation-15, evaluation-16, evaluation-17] }
+        contentRevision: { type: string, enum: [pilot-1, pilot-2, pilot-3, pilot-4, pilot-5, pilot-6, pilot-7, pilot-8, pilot-9, pilot-10, pilot-11, pilot-12, pilot-13, pilot-14, pilot-15, pilot-16, pilot-17, pilot-18] }
+        generatorRevision: { type: string, enum: [generator-1, generator-2, generator-3, generator-4, generator-5, generator-6, generator-7, generator-8, generator-9, generator-10, generator-11, generator-12, generator-13, generator-14, generator-15, generator-16, generator-17, generator-18] }
+        evaluationRevision: { type: string, enum: [evaluation-1, evaluation-2, evaluation-3, evaluation-4, evaluation-5, evaluation-6, evaluation-7, evaluation-8, evaluation-9, evaluation-10, evaluation-11, evaluation-12, evaluation-13, evaluation-14, evaluation-15, evaluation-16, evaluation-17, evaluation-18] }
     Catalog:
       type: object
       additionalProperties: false
@@ -510,6 +510,7 @@ components:
         - { $ref: '#/components/schemas/PairSixteenCircumstanceRequest' }
         - { $ref: '#/components/schemas/PairSixteenQuestionRequest' }
         - { $ref: '#/components/schemas/PairSeventeenRequest' }
+        - { $ref: '#/components/schemas/PairEighteenRequest' }
     PairOnePresentRequest:
       type: object
       additionalProperties: false
@@ -1588,6 +1589,100 @@ components:
         index: { type: integer, minimum: 0, maximum: 1000000 }
         contentRevision: { type: string, enum: [pilot-17] }
         generatorRevision: { type: string, enum: [generator-17] }
+    PairEighteenRequest:
+      oneOf:
+        - { $ref: '#/components/schemas/PairEighteenLegacyRequest' }
+        - { $ref: '#/components/schemas/PairEighteenUntargetedVocabularyRequest' }
+        - { $ref: '#/components/schemas/PairEighteenPresentVocabularyRequest' }
+        - { $ref: '#/components/schemas/PairEighteenOrderVocabularyRequest' }
+    PairEighteenLegacyRequest:
+      oneOf:
+        - { $ref: '#/components/schemas/PairEighteenLegacyG004Request' }
+        - { $ref: '#/components/schemas/PairEighteenLegacyG006Request' }
+        - { $ref: '#/components/schemas/PairEighteenLegacyG005Request' }
+        - { $ref: '#/components/schemas/PairEighteenLegacyG003Request' }
+        - { $ref: '#/components/schemas/PairEighteenLegacyG038Request' }
+        - { $ref: '#/components/schemas/PairEighteenLegacyG030Request' }
+        - { $ref: '#/components/schemas/PairEighteenLegacyG016Request' }
+        - { $ref: '#/components/schemas/PairEighteenLegacyG018Request' }
+        - { $ref: '#/components/schemas/PairEighteenLegacyUntargetedRequest' }
+    PairEighteenLegacyTargetedRequest: &PairEighteenLegacyTargetedRequest
+      type: object
+      additionalProperties: false
+      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      properties: &PairEighteenLegacyTargetedRequestProperties
+        formatId: { type: string }
+        targetSkillId: { type: string }
+        seed: { type: integer, minimum: 0, maximum: 2147483647 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-18] }
+        generatorRevision: { type: string, enum: [generator-18] }
+    PairEighteenLegacyG004Request:
+      <<: *PairEighteenLegacyTargetedRequest
+      properties: { <<: *PairEighteenLegacyTargetedRequestProperties, formatId: { type: string, enum: [E001, E004, E005, E013, E015, E018, E019, E022, E023] }, targetSkillId: { type: string, enum: [G004] } }
+    PairEighteenLegacyG006Request:
+      <<: *PairEighteenLegacyTargetedRequest
+      properties: { <<: *PairEighteenLegacyTargetedRequestProperties, formatId: { type: string, enum: [E002, E006] }, targetSkillId: { type: string, enum: [G006] } }
+    PairEighteenLegacyG005Request:
+      <<: *PairEighteenLegacyTargetedRequest
+      properties: { <<: *PairEighteenLegacyTargetedRequestProperties, formatId: { type: string, enum: [E003, E009, E012, E024, E025] }, targetSkillId: { type: string, enum: [G005] } }
+    PairEighteenLegacyG003Request:
+      <<: *PairEighteenLegacyTargetedRequest
+      properties: { <<: *PairEighteenLegacyTargetedRequestProperties, formatId: { type: string, enum: [E016, E017] }, targetSkillId: { type: string, enum: [G003] } }
+    PairEighteenLegacyG038Request:
+      <<: *PairEighteenLegacyTargetedRequest
+      properties: { <<: *PairEighteenLegacyTargetedRequestProperties, formatId: { type: string, enum: [E020, E021] }, targetSkillId: { type: string, enum: [G038] } }
+    PairEighteenLegacyG030Request:
+      <<: *PairEighteenLegacyTargetedRequest
+      properties: { <<: *PairEighteenLegacyTargetedRequestProperties, formatId: { type: string, enum: [E026, E027, E028] }, targetSkillId: { type: string, enum: [G030] } }
+    PairEighteenLegacyG016Request:
+      <<: *PairEighteenLegacyTargetedRequest
+      properties: { <<: *PairEighteenLegacyTargetedRequestProperties, formatId: { type: string, enum: [E029] }, targetSkillId: { type: string, enum: [G016] } }
+    PairEighteenLegacyG018Request:
+      <<: *PairEighteenLegacyTargetedRequest
+      properties: { <<: *PairEighteenLegacyTargetedRequestProperties, formatId: { type: string, enum: [E030] }, targetSkillId: { type: string, enum: [G018] } }
+    PairEighteenLegacyUntargetedRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, seed, index, contentRevision, generatorRevision]
+      properties:
+        formatId: { type: string, enum: [E007, E008, E010, E011, E014] }
+        seed: { type: integer, minimum: 0, maximum: 2147483647 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-18] }
+        generatorRevision: { type: string, enum: [generator-18] }
+    PairEighteenUntargetedVocabularyRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, seed, index, contentRevision, generatorRevision]
+      properties:
+        formatId: { type: string, enum: [E031, E032, E033, E035, E036, E039] }
+        seed: { type: integer, minimum: 0, maximum: 2147483647 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-18] }
+        generatorRevision: { type: string, enum: [generator-18] }
+    PairEighteenPresentVocabularyRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      properties:
+        formatId: { type: string, enum: [E034, E038] }
+        targetSkillId: { type: string, enum: [G004] }
+        seed: { type: integer, minimum: 0, maximum: 2147483647 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-18] }
+        generatorRevision: { type: string, enum: [generator-18] }
+    PairEighteenOrderVocabularyRequest:
+      type: object
+      additionalProperties: false
+      required: [formatId, targetSkillId, seed, index, contentRevision, generatorRevision]
+      properties:
+        formatId: { type: string, enum: [E037] }
+        targetSkillId: { type: string, enum: [G005] }
+        seed: { type: integer, minimum: 0, maximum: 2147483647 }
+        index: { type: integer, minimum: 0, maximum: 1000000 }
+        contentRevision: { type: string, enum: [pilot-18] }
+        generatorRevision: { type: string, enum: [generator-18] }
     Exercise:
       oneOf:
         - { $ref: '#/components/schemas/GrammarExercise' }
@@ -1607,6 +1702,7 @@ components:
         - { $ref: '#/components/schemas/PairFifteenExercise' }
         - { $ref: '#/components/schemas/PairSixteenExercise' }
         - { $ref: '#/components/schemas/PairSeventeenExercise' }
+        - { $ref: '#/components/schemas/PairEighteenExercise' }
     GrammarExercise:
       oneOf:
         - { $ref: '#/components/schemas/PairOnePresentExerciseObject' }
@@ -3342,6 +3438,165 @@ components:
         <<: *PairSeventeenTargetedExerciseProperties
         formatId: { type: string, enum: [E039] }
         readingTarget: { type: object, additionalProperties: false, required: [facet], properties: { facet: { type: string, enum: [explicit-fact] } } }
+    PairEighteenExercise:
+      oneOf:
+        - { $ref: '#/components/schemas/PairEighteenGrammarExercise' }
+        - { $ref: '#/components/schemas/PairEighteenArticleExercise' }
+        - { $ref: '#/components/schemas/PairEighteenOrderExercise' }
+        - { $ref: '#/components/schemas/PairEighteenLegacyLexicalExercise' }
+        - { $ref: '#/components/schemas/PairEighteenLegacyReadingExercise' }
+        - { $ref: '#/components/schemas/PairEighteenLegacyMatchingExercise' }
+        - { $ref: '#/components/schemas/PairEighteenGapExercise' }
+        - { $ref: '#/components/schemas/PairEighteenSubjectExercise' }
+        - { $ref: '#/components/schemas/PairEighteenErExercise' }
+        - { $ref: '#/components/schemas/PairEighteenReferenceExercise' }
+        - { $ref: '#/components/schemas/PairEighteenNamedPresentExercise' }
+        - { $ref: '#/components/schemas/PairEighteenSubjectFirstExercise' }
+        - { $ref: '#/components/schemas/PairEighteenAbilityExercise' }
+        - { $ref: '#/components/schemas/PairEighteenModalMeaningExercise' }
+        - { $ref: '#/components/schemas/PairEighteenModalOrderExercise' }
+        - { $ref: '#/components/schemas/PairEighteenCircumstanceExercise' }
+        - { $ref: '#/components/schemas/PairEighteenQuestionExercise' }
+        - { $ref: '#/components/schemas/PairEighteenMeaningDaEnExercise' }
+        - { $ref: '#/components/schemas/PairEighteenMeaningEnDaExercise' }
+        - { $ref: '#/components/schemas/PairEighteenVocabularyMatchingExercise' }
+        - { $ref: '#/components/schemas/PairEighteenVocabularyRecallExercise' }
+        - { $ref: '#/components/schemas/PairEighteenFixedChunkExercise' }
+        - { $ref: '#/components/schemas/PairEighteenMassHeadwordExercise' }
+        - { $ref: '#/components/schemas/PairEighteenVocabularyOrderExercise' }
+        - { $ref: '#/components/schemas/PairEighteenVocabularySpareOrderExercise' }
+        - { $ref: '#/components/schemas/PairEighteenVocabularyReadingExercise' }
+    PairEighteenGrammarExercise: &PairEighteenTargetedExercise
+      type: object
+      additionalProperties: false
+      required: [id, formatId, targetSkillId, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [targetScopeId] }, { required: [lexicalTarget] }, { required: [lexicalTargets] }, { required: [readingTarget] }] }
+      properties: &PairEighteenTargetedExerciseProperties
+        id: { type: string, format: uuid }
+        formatId: { type: string, enum: [E001, E004, E005, E013] }
+        targetSkillId: { type: string, enum: [G004] }
+        targetScopeId: { type: string }
+        lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' }
+        lexicalTargets: { type: array, items: { $ref: '#/components/schemas/LexicalTarget' } }
+        readingTarget: { $ref: '#/components/schemas/ReadingTask' }
+        supportSkillIds: { type: array, items: { type: string } }
+        contentRevision: { type: string, enum: [pilot-18] }
+        generatorRevision: { type: string, enum: [generator-18] }
+        instruction: { type: string }
+        context: { type: string }
+        prompt: { $ref: '#/components/schemas/PairEighteenPrompt' }
+        introduction: { type: array, items: { $ref: '#/components/schemas/Introduction' } }
+        hint: { type: string }
+    PairEighteenArticleExercise:
+      <<: *PairEighteenTargetedExercise
+      properties: { <<: *PairEighteenTargetedExerciseProperties, formatId: { type: string, enum: [E002, E006] }, targetSkillId: { type: string, enum: [G006] } }
+    PairEighteenOrderExercise:
+      <<: *PairEighteenTargetedExercise
+      properties: { <<: *PairEighteenTargetedExerciseProperties, formatId: { type: string, enum: [E003, E009, E012] }, targetSkillId: { type: string, enum: [G005] } }
+    PairEighteenLegacyLexicalExercise:
+      type: object
+      additionalProperties: false
+      required: [id, formatId, lexicalTarget, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [targetSkillId] }, { required: [targetScopeId] }, { required: [lexicalTargets] }, { required: [readingTarget] }] }
+      properties: { <<: *PairEighteenTargetedExerciseProperties, formatId: { type: string, enum: [E007, E008, E011] }, lexicalTarget: { $ref: '#/components/schemas/LexicalTarget' } }
+    PairEighteenLegacyReadingExercise:
+      type: object
+      additionalProperties: false
+      required: [id, formatId, readingTarget, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [targetSkillId] }, { required: [targetScopeId] }, { required: [lexicalTarget] }, { required: [lexicalTargets] }] }
+      properties: { <<: *PairEighteenTargetedExerciseProperties, formatId: { type: string, enum: [E010] }, readingTarget: { $ref: '#/components/schemas/ReadingTask' } }
+    PairEighteenLegacyMatchingExercise:
+      type: object
+      additionalProperties: false
+      required: [id, formatId, lexicalTargets, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [targetSkillId] }, { required: [targetScopeId] }, { required: [lexicalTarget] }, { required: [readingTarget] }] }
+      properties: { <<: *PairEighteenTargetedExerciseProperties, formatId: { type: string, enum: [E014] }, lexicalTargets: { type: array, minItems: 4, maxItems: 4, uniqueItems: true, items: { $ref: '#/components/schemas/MatchingLexicalTarget' } }, prompt: { $ref: '#/components/schemas/MatchingPrompt' } }
+    PairEighteenGapExercise:
+      <<: *PairEighteenTargetedExercise
+      properties: { <<: *PairEighteenTargetedExerciseProperties, formatId: { type: string, enum: [E015] }, targetSkillId: { type: string, enum: [G004] }, prompt: { $ref: '#/components/schemas/GapExercisePrompt' } }
+    PairEighteenSubjectExercise: &PairEighteenScopedExercise
+      type: object
+      additionalProperties: false
+      required: [id, formatId, targetSkillId, targetScopeId, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [lexicalTarget] }, { required: [lexicalTargets] }, { required: [readingTarget] }] }
+      properties: &PairEighteenScopedExerciseProperties
+        <<: *PairEighteenTargetedExerciseProperties
+        formatId: { type: string, enum: [E016, E017] }
+        targetSkillId: { type: string, enum: [G003] }
+        targetScopeId: { type: string, enum: [human-singular, human-group] }
+    PairEighteenErExercise:
+      <<: *PairEighteenScopedExercise
+      properties: { <<: *PairEighteenScopedExerciseProperties, formatId: { type: string, enum: [E018, E019] }, targetSkillId: { type: string, enum: [G004] }, targetScopeId: { type: string, enum: [vaere-present] } }
+    PairEighteenReferenceExercise:
+      <<: *PairEighteenScopedExercise
+      properties: { <<: *PairEighteenScopedExerciseProperties, formatId: { type: string, enum: [E020, E021] }, targetSkillId: { type: string, enum: [G038] }, targetScopeId: { type: string, enum: [inanimate-singular-subject] } }
+    PairEighteenNamedPresentExercise:
+      <<: *PairEighteenScopedExercise
+      properties: { <<: *PairEighteenScopedExerciseProperties, formatId: { type: string, enum: [E022, E023] }, targetSkillId: { type: string, enum: [G004] }, targetScopeId: { type: string, enum: [named-three-verbs-present, have-possession-present, personal-introduction-present] } }
+    PairEighteenSubjectFirstExercise:
+      <<: *PairEighteenScopedExercise
+      properties: { <<: *PairEighteenScopedExerciseProperties, formatId: { type: string, enum: [E024, E025] }, targetSkillId: { type: string, enum: [G005] }, targetScopeId: { type: string, enum: [subject-first-supplied] } }
+    PairEighteenAbilityExercise:
+      <<: *PairEighteenScopedExercise
+      properties: { <<: *PairEighteenScopedExerciseProperties, formatId: { type: string, enum: [E026, E027] }, targetSkillId: { type: string, enum: [G030] }, targetScopeId: { type: string, enum: [kan-bare-infinitive] } }
+    PairEighteenModalMeaningExercise:
+      <<: *PairEighteenScopedExercise
+      properties: { <<: *PairEighteenScopedExerciseProperties, formatId: { type: string, enum: [E028] }, targetSkillId: { type: string, enum: [G030] }, targetScopeId: { type: string, enum: [modal-volition-meaning, modal-obligation-meaning, modal-permission-meaning] } }
+    PairEighteenModalOrderExercise:
+      <<: *PairEighteenScopedExercise
+      properties: { <<: *PairEighteenScopedExerciseProperties, formatId: { type: string, enum: [E025] }, targetSkillId: { type: string, enum: [G005] }, targetScopeId: { type: string, enum: [supplied-modal-order] } }
+    PairEighteenCircumstanceExercise:
+      <<: *PairEighteenScopedExercise
+      properties: { <<: *PairEighteenScopedExerciseProperties, formatId: { type: string, enum: [E029] }, targetSkillId: { type: string, enum: [G016] }, targetScopeId: { type: string, enum: [one-final-circumstance] }, prompt: { $ref: '#/components/schemas/CircumstancePrompt' } }
+    PairEighteenQuestionExercise:
+      <<: *PairEighteenScopedExercise
+      properties: { <<: *PairEighteenScopedExerciseProperties, formatId: { type: string, enum: [E030] }, targetSkillId: { type: string, enum: [G018] }, targetScopeId: { type: string, enum: [neutral-positive-yes-no] }, prompt: { $ref: '#/components/schemas/QuestionPrompt' } }
+    PairEighteenMeaningDaEnExercise: &PairEighteenVocabularyLexicalExercise
+      type: object
+      additionalProperties: false
+      required: [id, formatId, lexicalTarget, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [targetSkillId] }, { required: [targetScopeId] }, { required: [lexicalTargets] }, { required: [readingTarget] }] }
+      properties: &PairEighteenVocabularyLexicalExerciseProperties
+        <<: *PairEighteenTargetedExerciseProperties
+        formatId: { type: string, enum: [E031] }
+        lexicalTarget: { type: object, additionalProperties: false, required: [entryId, senseId, facet, direction], properties: { entryId: { type: string }, senseId: { type: string }, facet: { type: string, enum: [meaning] }, direction: { type: string, enum: [da-en] } } }
+    PairEighteenMeaningEnDaExercise:
+      <<: *PairEighteenVocabularyLexicalExercise
+      properties: { <<: *PairEighteenVocabularyLexicalExerciseProperties, formatId: { type: string, enum: [E032] }, lexicalTarget: { type: object, additionalProperties: false, required: [entryId, senseId, facet, direction], properties: { entryId: { type: string }, senseId: { type: string }, facet: { type: string, enum: [meaning] }, direction: { type: string, enum: [en-da] } } } }
+    PairEighteenVocabularyMatchingExercise:
+      type: object
+      additionalProperties: false
+      required: [id, formatId, lexicalTargets, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [targetSkillId] }, { required: [targetScopeId] }, { required: [lexicalTarget] }, { required: [readingTarget] }] }
+      properties:
+        <<: *PairEighteenTargetedExerciseProperties
+        formatId: { type: string, enum: [E033] }
+        lexicalTargets: { type: array, minItems: 3, maxItems: 4, uniqueItems: true, items: { type: object, additionalProperties: false, required: [entryId, senseId, facet, direction], properties: { entryId: { type: string }, senseId: { type: string }, facet: { type: string, enum: [meaning] }, direction: { type: string, enum: [en-da] } } } }
+        prompt: { $ref: '#/components/schemas/VocabularyMatchingPrompt' }
+    PairEighteenVocabularyRecallExercise:
+      <<: *PairEighteenScopedExercise
+      properties: { <<: *PairEighteenScopedExerciseProperties, formatId: { type: string, enum: [E034] }, targetSkillId: { type: string, enum: [G004] }, targetScopeId: { type: string, enum: [p1-studere-present, p1-drikke-present] } }
+    PairEighteenFixedChunkExercise:
+      <<: *PairEighteenVocabularyLexicalExercise
+      properties: { <<: *PairEighteenVocabularyLexicalExerciseProperties, formatId: { type: string, enum: [E035] }, lexicalTarget: { type: object, additionalProperties: false, required: [entryId, senseId, facet, direction], properties: { entryId: { type: string }, senseId: { type: string }, facet: { type: string, enum: [fixed-chunk] }, direction: { type: string, enum: [en-da] } } } }
+    PairEighteenMassHeadwordExercise:
+      <<: *PairEighteenVocabularyLexicalExercise
+      properties: { <<: *PairEighteenVocabularyLexicalExerciseProperties, formatId: { type: string, enum: [E036] }, lexicalTarget: { type: object, additionalProperties: false, required: [entryId, senseId, facet, direction], properties: { entryId: { type: string }, senseId: { type: string }, facet: { type: string, enum: [mass-headword] }, direction: { type: string, enum: [en-da] } } } }
+    PairEighteenVocabularyOrderExercise:
+      <<: *PairEighteenScopedExercise
+      properties: { <<: *PairEighteenScopedExerciseProperties, formatId: { type: string, enum: [E037] }, targetSkillId: { type: string, enum: [G005] }, targetScopeId: { type: string, enum: [p1-subject-first-supplied] } }
+    PairEighteenVocabularySpareOrderExercise:
+      <<: *PairEighteenScopedExercise
+      properties: { <<: *PairEighteenScopedExerciseProperties, formatId: { type: string, enum: [E038] }, targetSkillId: { type: string, enum: [G004] }, targetScopeId: { type: string, enum: [p1-drikke-present] } }
+    PairEighteenVocabularyReadingExercise:
+      type: object
+      additionalProperties: false
+      required: [id, formatId, readingTarget, supportSkillIds, contentRevision, generatorRevision, instruction, context, prompt, introduction, hint]
+      not: { anyOf: [{ required: [targetSkillId] }, { required: [targetScopeId] }, { required: [lexicalTarget] }, { required: [lexicalTargets] }] }
+      properties:
+        <<: *PairEighteenTargetedExerciseProperties
+        formatId: { type: string, enum: [E039] }
+        readingTarget: { type: object, additionalProperties: false, required: [facet], properties: { facet: { type: string, enum: [explicit-fact] } } }
     QuestionPrompt:
       oneOf:
         - { $ref: '#/components/schemas/ReadNewspaperQuestionPrompt' }
@@ -3434,6 +3689,26 @@ components:
         matchingColumns: { $ref: '#/components/schemas/MatchingColumns' }
         gapPrompt: { $ref: '#/components/schemas/GapPrompt' }
     PairSeventeenPrompt:
+      type: object
+      additionalProperties: false
+      required: [before, after, choices, blocks, punctuation]
+      properties:
+        before: { type: string }
+        after: { type: string }
+        choices: { type: array, items: { type: string } }
+        blocks: { type: array, items: { $ref: '#/components/schemas/Block' } }
+        punctuation: { type: string }
+        inputLabel: { type: string, nullable: true }
+        replacementWord: { type: string, nullable: true }
+        cue: { type: string, nullable: true }
+        cueLanguage: { type: string, nullable: true, enum: [da, en] }
+        answerLanguage: { type: string, nullable: true, enum: [da, en] }
+        passage: { type: array, items: { type: string } }
+        tileMode: { type: string, enum: [use-all, with-spares] }
+        requiredTileCount: { type: integer }
+        matchingColumns: { $ref: '#/components/schemas/VocabularyMatchingColumns' }
+        gapPrompt: { $ref: '#/components/schemas/GapPrompt' }
+    PairEighteenPrompt:
       type: object
       additionalProperties: false
       required: [before, after, choices, blocks, punctuation]
@@ -4030,7 +4305,7 @@ components:
         issues: { type: array, items: { $ref: '#/components/schemas/Issue' } }
         feedback: { type: string }
         completedSentence: { type: string, maxLength: 0 }
-        evaluationRevision: { type: string, enum: [evaluation-6, evaluation-7, evaluation-8, evaluation-9, evaluation-10, evaluation-11, evaluation-12, evaluation-13, evaluation-14, evaluation-15, evaluation-16, evaluation-17] }
+        evaluationRevision: { type: string, enum: [evaluation-6, evaluation-7, evaluation-8, evaluation-9, evaluation-10, evaluation-11, evaluation-12, evaluation-13, evaluation-14, evaluation-15, evaluation-16, evaluation-17, evaluation-18] }
         hintUsed: { type: boolean }
         retryNumber: { type: integer, minimum: 1 }
         createdAt: { type: integer, format: int64 }
@@ -4138,7 +4413,7 @@ components:
         issues: { type: array, items: { $ref: '#/components/schemas/Issue' } }
         feedback: { type: string }
         completedSentence: { type: string }
-        evaluationRevision: { type: string, enum: [evaluation-7, evaluation-8, evaluation-9, evaluation-10, evaluation-11, evaluation-12, evaluation-13, evaluation-14, evaluation-15, evaluation-16, evaluation-17] }
+        evaluationRevision: { type: string, enum: [evaluation-7, evaluation-8, evaluation-9, evaluation-10, evaluation-11, evaluation-12, evaluation-13, evaluation-14, evaluation-15, evaluation-16, evaluation-17, evaluation-18] }
         hintUsed: { type: boolean }
         retryNumber: { type: integer, minimum: 1 }
         createdAt: { type: integer, format: int64 }
@@ -4319,19 +4594,19 @@ components:
           required: [focusId, planRevision, title, description, itemCount, prerequisiteSkillIds]
           properties: &VocabularyP1ProfileProperties
             focusId: { type: string, enum: [vocabulary-p1-s1] }
-            planRevision: { type: string, enum: [vocabulary-p1-s1-1] }
+            planRevision: { type: string, enum: [vocabulary-p1-s1-2] }
             title: { type: string }
             description: { type: string }
             itemCount: { type: integer, enum: [4] }
             prerequisiteSkillIds: { type: array, items: { type: string } }
         - <<: *VocabularyP1ProfileObject
-          properties: { <<: *VocabularyP1ProfileProperties, focusId: { type: string, enum: [vocabulary-p1-s2] }, planRevision: { type: string, enum: [vocabulary-p1-s2-1] } }
+          properties: { <<: *VocabularyP1ProfileProperties, focusId: { type: string, enum: [vocabulary-p1-s2] }, planRevision: { type: string, enum: [vocabulary-p1-s2-2] } }
         - <<: *VocabularyP1ProfileObject
-          properties: { <<: *VocabularyP1ProfileProperties, focusId: { type: string, enum: [vocabulary-p1-s3] }, planRevision: { type: string, enum: [vocabulary-p1-s3-1] }, itemCount: { type: integer, enum: [5] } }
+          properties: { <<: *VocabularyP1ProfileProperties, focusId: { type: string, enum: [vocabulary-p1-s3] }, planRevision: { type: string, enum: [vocabulary-p1-s3-2] }, itemCount: { type: integer, enum: [5] } }
         - <<: *VocabularyP1ProfileObject
-          properties: { <<: *VocabularyP1ProfileProperties, focusId: { type: string, enum: [vocabulary-p1-s4] }, planRevision: { type: string, enum: [vocabulary-p1-s4-1] }, itemCount: { type: integer, enum: [5] } }
+          properties: { <<: *VocabularyP1ProfileProperties, focusId: { type: string, enum: [vocabulary-p1-s4] }, planRevision: { type: string, enum: [vocabulary-p1-s4-2] }, itemCount: { type: integer, enum: [5] } }
         - <<: *VocabularyP1ProfileObject
-          properties: { <<: *VocabularyP1ProfileProperties, focusId: { type: string, enum: [vocabulary-p1-s5] }, planRevision: { type: string, enum: [vocabulary-p1-s5-1] }, itemCount: { type: integer, enum: [5] } }
+          properties: { <<: *VocabularyP1ProfileProperties, focusId: { type: string, enum: [vocabulary-p1-s5] }, planRevision: { type: string, enum: [vocabulary-p1-s5-2] }, itemCount: { type: integer, enum: [5] } }
     ModuleOneSingularProfile: &ModuleOneProfile
       type: object
       additionalProperties: false
@@ -4565,16 +4840,16 @@ components:
           properties: &VocabularyP1SessionRequestProperties
             practiceSessionId: { type: string, format: uuid }
             focusId: { type: string, enum: [vocabulary-p1-s1] }
-            planRevision: { type: string, enum: [vocabulary-p1-s1-1] }
+            planRevision: { type: string, enum: [vocabulary-p1-s1-1, vocabulary-p1-s1-2] }
             seed: { type: integer, minimum: 0 }
         - <<: *VocabularyP1SessionRequestObject
-          properties: { <<: *VocabularyP1SessionRequestProperties, focusId: { type: string, enum: [vocabulary-p1-s2] }, planRevision: { type: string, enum: [vocabulary-p1-s2-1] } }
+          properties: { <<: *VocabularyP1SessionRequestProperties, focusId: { type: string, enum: [vocabulary-p1-s2] }, planRevision: { type: string, enum: [vocabulary-p1-s2-1, vocabulary-p1-s2-2] } }
         - <<: *VocabularyP1SessionRequestObject
-          properties: { <<: *VocabularyP1SessionRequestProperties, focusId: { type: string, enum: [vocabulary-p1-s3] }, planRevision: { type: string, enum: [vocabulary-p1-s3-1] } }
+          properties: { <<: *VocabularyP1SessionRequestProperties, focusId: { type: string, enum: [vocabulary-p1-s3] }, planRevision: { type: string, enum: [vocabulary-p1-s3-1, vocabulary-p1-s3-2] } }
         - <<: *VocabularyP1SessionRequestObject
-          properties: { <<: *VocabularyP1SessionRequestProperties, focusId: { type: string, enum: [vocabulary-p1-s4] }, planRevision: { type: string, enum: [vocabulary-p1-s4-1] } }
+          properties: { <<: *VocabularyP1SessionRequestProperties, focusId: { type: string, enum: [vocabulary-p1-s4] }, planRevision: { type: string, enum: [vocabulary-p1-s4-1, vocabulary-p1-s4-2] } }
         - <<: *VocabularyP1SessionRequestObject
-          properties: { <<: *VocabularyP1SessionRequestProperties, focusId: { type: string, enum: [vocabulary-p1-s5] }, planRevision: { type: string, enum: [vocabulary-p1-s5-1] } }
+          properties: { <<: *VocabularyP1SessionRequestProperties, focusId: { type: string, enum: [vocabulary-p1-s5] }, planRevision: { type: string, enum: [vocabulary-p1-s5-1, vocabulary-p1-s5-2] } }
     PracticeSupportRequest:
       type: object
       additionalProperties: false
@@ -4936,6 +5211,29 @@ components:
               properties: { <<: *VocabularyP1SessionProperties, focusId: { type: string, enum: [vocabulary-p1-s4] }, planRevision: { type: string, enum: [vocabulary-p1-s4-1] }, itemCount: { type: integer, enum: [5] }, items: { type: array, minItems: 5, maxItems: 5, items: { $ref: '#/components/schemas/PracticeItem' } } }
             - <<: *VocabularyP1Session
               properties: { <<: *VocabularyP1SessionProperties, focusId: { type: string, enum: [vocabulary-p1-s5] }, planRevision: { type: string, enum: [vocabulary-p1-s5-1] }, itemCount: { type: integer, enum: [5] }, items: { type: array, minItems: 5, maxItems: 5, items: { $ref: '#/components/schemas/PracticeItem' } } }
+            - &VocabularyP1CurrentSession
+              type: object
+              additionalProperties: true
+              required: [focusId, planRevision, contentRevision, generatorRevision, evaluationRevision, itemCount, introductionRequired]
+              not: { anyOf: [{ required: [followUp] }, { required: [followUpPlanRevision] }] }
+              properties: &VocabularyP1CurrentSessionProperties
+                focusId: { type: string, enum: [vocabulary-p1-s1] }
+                planRevision: { type: string, enum: [vocabulary-p1-s1-2] }
+                contentRevision: { type: string, enum: [pilot-18] }
+                generatorRevision: { type: string, enum: [generator-18] }
+                evaluationRevision: { type: string, enum: [evaluation-18] }
+                itemCount: { type: integer, enum: [4] }
+                introductionRequired: { type: boolean, enum: [true] }
+                items: { type: array, minItems: 4, maxItems: 4, items: { $ref: '#/components/schemas/PracticeItem' } }
+                currentExercise: { $ref: '#/components/schemas/PairEighteenExercise' }
+            - <<: *VocabularyP1CurrentSession
+              properties: { <<: *VocabularyP1CurrentSessionProperties, focusId: { type: string, enum: [vocabulary-p1-s2] }, planRevision: { type: string, enum: [vocabulary-p1-s2-2] } }
+            - <<: *VocabularyP1CurrentSession
+              properties: { <<: *VocabularyP1CurrentSessionProperties, focusId: { type: string, enum: [vocabulary-p1-s3] }, planRevision: { type: string, enum: [vocabulary-p1-s3-2] }, itemCount: { type: integer, enum: [5] }, items: { type: array, minItems: 5, maxItems: 5, items: { $ref: '#/components/schemas/PracticeItem' } } }
+            - <<: *VocabularyP1CurrentSession
+              properties: { <<: *VocabularyP1CurrentSessionProperties, focusId: { type: string, enum: [vocabulary-p1-s4] }, planRevision: { type: string, enum: [vocabulary-p1-s4-2] }, itemCount: { type: integer, enum: [5] }, items: { type: array, minItems: 5, maxItems: 5, items: { $ref: '#/components/schemas/PracticeItem' } } }
+            - <<: *VocabularyP1CurrentSession
+              properties: { <<: *VocabularyP1CurrentSessionProperties, focusId: { type: string, enum: [vocabulary-p1-s5] }, planRevision: { type: string, enum: [vocabulary-p1-s5-2] }, itemCount: { type: integer, enum: [5] }, items: { type: array, minItems: 5, maxItems: 5, items: { $ref: '#/components/schemas/PracticeItem' } } }
     PracticeFollowUp:
       type: object
       additionalProperties: false

@@ -19,6 +19,16 @@ class VocabularyP1FingerprintTest {
     private val engine = PilotEngine()
 
     @Test
+    fun `pair eighteen uses a distinct fingerprint from retained pair seventeen`() {
+        val pairSeventeen = generate("E033", null, 0)
+        val pairEighteen = engine.generate(
+            GenerationRequest("E033", null, 11, 0, "pilot-18", "generator-18"),
+        )
+
+        assertNotEquals(pairSeventeen.reproductionFingerprint(), pairEighteen.reproductionFingerprint())
+    }
+
+    @Test
     fun `vocabulary inspector maps structured private grading sources without legacy answer duplication`() {
         val exercise = generate("E039", null, 0)
         val source = assertNotNull(exercise.inspector.vocabularySource)

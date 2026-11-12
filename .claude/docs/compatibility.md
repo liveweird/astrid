@@ -31,7 +31,8 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-14` / `generator-14` | `evaluation-14` | + E028 contextual modal meaning and E025 modal construction | published and frozen; S11 pins this pair |
 | `pilot-15` / `generator-15` | `evaluation-15` | + E029 supplied core with final time/place constituent | published and frozen; S12 pins this pair |
 | `pilot-16` / `generator-16` | `evaluation-16` | + E030 supplied neutral positive yes/no question | published and frozen; S13 pins this pair |
-| `pilot-17` / `generator-17` | `evaluation-17` | + E031–E039 scoped work/study vocabulary operations | CURRENT; five independent P1 plans pin this pair |
+| `pilot-17` / `generator-17` | `evaluation-17` | + E031–E039 scoped work/study vocabulary operations | published; revision-one P1 plans retained; matching-layout exception below |
+| `pilot-18` / `generator-18` | `evaluation-18` | same formats; stable matching shuffle | CURRENT; five revision-two P1 plans pin this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
@@ -56,10 +57,28 @@ order outcome and exposure policies.
 The four-item `module-one-questions-1` plan pins pair sixteen and retains those same
 order policies; ja/nej remain introduced support rather than assessed vocabulary.
 The five `vocabulary-p1-s1-1` … `vocabulary-p1-s5-1` plans pin pair seventeen literally.
-They add `vocabulary-p1-outcome-1` / `vocabulary-p1-exposure-1` policies and no existing
-follow-up planner entry. P1 source metadata, typed known alternatives, matching correspondences,
-structured facts, occurrence orders and teaching/exposure inputs are private frozen evidence.
+The five `vocabulary-p1-s1-2` … `vocabulary-p1-s5-2` plans pin pair eighteen and are advertised
+as current. Both generations use unchanged `vocabulary-p1-outcome-1` /
+`vocabulary-p1-exposure-1` policies and no existing follow-up planner entry. Source metadata,
+typed known alternatives, matching correspondences, structured facts, occurrence orders and
+teaching/exposure inputs remain compatibility inputs.
 Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
+
+### Pair-seventeen matching exception
+
+The released P1 matching shuffle consumed a data-class hash containing enum identity. Its
+raw matching layout and matching-dependent plan/review bytes vary across JVM initialization
+histories. A universal deterministic raw seventeen golden would misrepresent that behavior;
+the attempted freeze remained an ignored rehearsal and created no permanent fixture.
+
+Pair eighteen uses stable lexical entry/sense hashing. For old stored seventeen E033 rows,
+normal regeneration runs first; only fingerprint mismatch permits reconstruction from the
+stored public board. The candidate must reproduce both the original complete fingerprint
+and the original public presentation. Never overwrite a stored fingerprint or regenerate
+its private practice plan. Actual released-board fixtures pin source and SHA, and preserve
+the original lexical slot/exposure associations. The
+[repair contract](../../docs/knowledge/matching-restart-compatibility.md) owns this narrow
+exception and pending-first-grade/restart acceptance. Existing one–sixteen goldens remain immutable.
 
 ## What is stored, and what that implies
 
@@ -183,7 +202,8 @@ public/private/saved-payload/replay wire. The P1 pair-seventeen change switches 
 
 | Task | Output |
 | --- | --- |
-| `:engine:exportPilotReview` | `engine/build/review/pilot-17.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotReview` | `engine/build/review/pilot-18.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotSeventeenReview` | `engine/build/review/pilot-17-retained.md`; historical matching-dependent layout is not cross-JVM byte-stable |
 | `:engine:exportPilotSixteenReview` | `engine/build/review/pilot-16-retained.md` |
 | `:engine:exportPilotFifteenReview` | `engine/build/review/pilot-15-retained.md` |
 | `:engine:exportPilotFourteenReview` | `engine/build/review/pilot-14-retained.md` |

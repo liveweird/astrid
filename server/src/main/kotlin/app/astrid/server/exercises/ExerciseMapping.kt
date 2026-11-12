@@ -295,6 +295,17 @@ internal fun GeneratedExercise.reproductionFingerprint(
             targetScopeIdForFingerprint,
         ).let { scopedFingerprintFrameWithModal("pair-seventeen", it, inspectorForFingerprint.modalSource) }
             .let { pairSeventeenFingerprintCanonical(it, vocabularySourceForFingerprint) }
+        "pilot-18" to "generator-18" -> pairNineFingerprintCanonical(
+            promptForFingerprint,
+            lexicalTargetForFingerprint,
+            inspectorForFingerprint,
+            supportSkillIdsForFingerprint,
+            readingTargetForFingerprint,
+            introductionForFingerprint,
+            lexicalTargetsForFingerprint,
+            targetScopeIdForFingerprint,
+        ).let { scopedFingerprintFrameWithModal("pair-eighteen", it, inspectorForFingerprint.modalSource) }
+            .let { pairSeventeenFingerprintCanonical(it, vocabularySourceForFingerprint) }
         in SCOPED_FINGERPRINT_PAIRS -> pairNineFingerprintCanonical(
             promptForFingerprint,
             lexicalTargetForFingerprint,

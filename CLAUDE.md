@@ -26,12 +26,16 @@ profile pins pair fifteen, followed by a four-item neutral-question profile pinn
 They require saved teaching before assessment, expose
 server-computed continuation eligibility and keep results by scope and operation. Repeat and continuation
 open the chooser.
-Five independent **A day of work and study** vocabulary sessions add 4/4/5/5/5 activities,
-literally pinned to pair seventeen, with complete direct-entry teaching, three/four-pair meaning
+Five independent **A day of work and study** vocabulary sessions add 4/4/5/5/5 activities.
+Current revision-two plans pin pair eighteen; retained revision-one plans stay on seventeen,
+with complete direct-entry teaching, three/four-pair meaning
 matching, isolated verb/chunk/mass-word recall and explicit object/place/time reading facts.
 The learner directory has twenty lessons and three unchanged Review sets. P1 uses separate
 completion/exposure policies; its outcomes do not enter existing follow-up planners.
 The activation contract is `docs/knowledge/vocabulary-expansion-activation.md`.
+The matching restart repair and strict stored-board recovery are specified in
+`docs/knowledge/matching-restart-compatibility.md`; pair seventeen's original enum-hash
+shuffle is not cross-JVM reproducible. Never mint a purported deterministic raw archive around it.
 Existing format pools and all retained pairs/plans stay unchanged; the first-step contract is
 `docs/knowledge/module-one-activation.md`; S04 is specified in
 `docs/knowledge/inanimate-reference-activation.md`. S05–S13 are specified in `docs/knowledge/module-one-course-slice.md`.

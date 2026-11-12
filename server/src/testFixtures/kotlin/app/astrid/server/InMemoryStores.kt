@@ -302,6 +302,17 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
         )
     }
 
+    suspend fun replaceExercise(exerciseId: UUID, replacement: StoredExercise) = mutex.withLock {
+        val entry = exerciseRecords.entries.single { it.key.second == exerciseId }
+        val stored = replacement.copy(id = exerciseId, sessionId = entry.key.first)
+        exerciseRecords[entry.key] = stored
+        practiceSessions.values.flatMap { it.items }.singleOrNull { it.exercise.id == exerciseId }?.exercise = stored
+    }
+
+    suspend fun storedExercise(exerciseId: UUID): StoredExercise = mutex.withLock {
+        exerciseRecords.entries.single { it.key.second == exerciseId }.value
+    }
+
     private class MemoryPracticeSession(
         val id: UUID,
         val ownerSessionId: UUID,
@@ -337,7 +348,7 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
 
     private class MemoryPracticeItem(item: NewPracticeItem) {
         val position = item.position
-        val exercise = item.exercise
+        var exercise = item.exercise
         val targetLabel = item.targetLabel
         val answerExposureKeys = item.answerExposureKeys.toList()
         val promptExposureKeys = item.promptExposureKeys.toList()

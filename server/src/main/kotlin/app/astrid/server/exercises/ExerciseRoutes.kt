@@ -6,6 +6,8 @@ import app.astrid.engine.Answer
 import app.astrid.engine.Evaluation
 import app.astrid.engine.GeneratedExercise
 import app.astrid.engine.GenerationRequest
+import app.astrid.engine.MatchingColumns
+import app.astrid.engine.MatchingItem
 import app.astrid.engine.PilotEngine
 import app.astrid.server.authz.Authenticator
 import app.astrid.server.authz.BadRequest
@@ -335,17 +337,46 @@ private fun regenerate(engine: PilotEngine, stored: StoredExercise) = try {
     throw Conflict("Exercise revision is no longer supported").apply { initCause(cause) }
 }
 
-internal fun regenerateVerified(engine: PilotEngine, stored: StoredExercise) = regenerate(engine, stored).also { generated ->
-    if (generated.reproductionFingerprint() != stored.reproductionFingerprint) {
-        throw Conflict("Exercise reproduction no longer matches its stored presentation")
+internal fun regenerateVerified(engine: PilotEngine, stored: StoredExercise): GeneratedExercise {
+    val generated = regenerate(engine, stored)
+    if (generated.reproductionFingerprint() == stored.reproductionFingerprint) return generated
+    if (stored.contentRevision != LEGACY_VOCABULARY_CONTENT_REVISION ||
+        stored.generatorRevision != LEGACY_VOCABULARY_GENERATOR_REVISION ||
+        stored.formatId != LEGACY_VOCABULARY_MATCHING_FORMAT
+    ) {
+        throw reproductionConflict()
     }
+    val columns = stored.presentation.prompt.matchingColumns ?: throw reproductionConflict()
+    val restored = try {
+        engine.restoreLegacyVocabularyMatching(
+            stored.toGenerationRequest(),
+            MatchingColumns(
+                columns.left.map { MatchingItem(it.id, it.text) },
+                columns.right.map { MatchingItem(it.id, it.text) },
+            ),
+        )
+    } catch (cause: IllegalArgumentException) {
+        throw reproductionConflict().apply { initCause(cause) }
+    }
+    if (restored.reproductionFingerprint() != stored.reproductionFingerprint ||
+        restored.toResponse(stored.id.toString()) != stored.presentation
+    ) {
+        throw reproductionConflict()
+    }
+    return restored
 }
+
+private fun reproductionConflict() = Conflict("Exercise reproduction no longer matches its stored presentation")
 
 private fun ExerciseRequest.toGenerationRequest() =
     GenerationRequest(formatId, targetSkillId, seed, index, contentRevision, generatorRevision)
 
 private fun StoredExercise.toGenerationRequest() =
     GenerationRequest(formatId, targetSkillId, seed, index, contentRevision, generatorRevision)
+
+private const val LEGACY_VOCABULARY_CONTENT_REVISION = "pilot-17"
+private const val LEGACY_VOCABULARY_GENERATOR_REVISION = "generator-17"
+private const val LEGACY_VOCABULARY_MATCHING_FORMAT = "E033"
 
 private fun ExerciseRequest.toStored(
     id: UUID,

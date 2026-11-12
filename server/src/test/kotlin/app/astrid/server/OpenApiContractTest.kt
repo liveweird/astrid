@@ -173,6 +173,11 @@ class OpenApiContractTest {
             "vocabulary-p1-s3" to "vocabulary-p1-s3-1",
             "vocabulary-p1-s4" to "vocabulary-p1-s4-1",
             "vocabulary-p1-s5" to "vocabulary-p1-s5-1",
+            "vocabulary-p1-s1" to "vocabulary-p1-s1-2",
+            "vocabulary-p1-s2" to "vocabulary-p1-s2-2",
+            "vocabulary-p1-s3" to "vocabulary-p1-s3-2",
+            "vocabulary-p1-s4" to "vocabulary-p1-s4-2",
+            "vocabulary-p1-s5" to "vocabulary-p1-s5-2",
         )
         for (focus in supportedPairs.map { it.first }) {
             for (revision in supportedPairs.map { it.second }) {
@@ -275,6 +280,24 @@ class OpenApiContractTest {
             exerciseRequest("E037", "G005", "pilot-17", "generator-17"),
             exerciseRequest("E038", "G004", "pilot-17", "generator-17"),
             exerciseRequest("E039", null, "pilot-17", "generator-17"),
+            exerciseRequest("E001", "G004", "pilot-18", "generator-18"),
+            exerciseRequest("E002", "G006", "pilot-18", "generator-18"),
+            exerciseRequest("E003", "G005", "pilot-18", "generator-18"),
+            exerciseRequest("E007", null, "pilot-18", "generator-18"),
+            exerciseRequest("E016", "G003", "pilot-18", "generator-18"),
+            exerciseRequest("E020", "G038", "pilot-18", "generator-18"),
+            exerciseRequest("E026", "G030", "pilot-18", "generator-18"),
+            exerciseRequest("E029", "G016", "pilot-18", "generator-18"),
+            exerciseRequest("E030", "G018", "pilot-18", "generator-18"),
+            exerciseRequest("E031", null, "pilot-18", "generator-18"),
+            exerciseRequest("E032", null, "pilot-18", "generator-18"),
+            exerciseRequest("E033", null, "pilot-18", "generator-18"),
+            exerciseRequest("E034", "G004", "pilot-18", "generator-18"),
+            exerciseRequest("E035", null, "pilot-18", "generator-18"),
+            exerciseRequest("E036", null, "pilot-18", "generator-18"),
+            exerciseRequest("E037", "G005", "pilot-18", "generator-18"),
+            exerciseRequest("E038", "G004", "pilot-18", "generator-18"),
+            exerciseRequest("E039", null, "pilot-18", "generator-18"),
         )
         val rejected = listOf(
             exerciseRequest("E009", null, "pilot-4", "generator-4"),
@@ -344,6 +367,11 @@ class OpenApiContractTest {
             exerciseRequest("E026", "G004", "pilot-17", "generator-17"),
             exerciseRequest("E029", "G005", "pilot-17", "generator-17"),
             exerciseRequest("E030", "G016", "pilot-17", "generator-17"),
+            exerciseRequest("E033", null, "pilot-17", "generator-18"),
+            exerciseRequest("E033", null, "pilot-18", "generator-17"),
+            exerciseRequest("E034", null, "pilot-18", "generator-18"),
+            exerciseRequest("E037", "G004", "pilot-18", "generator-18"),
+            exerciseRequest("E039", "G004", "pilot-18", "generator-18"),
         )
 
         accepted.forEach { assertExerciseRequestValidity(it, expected = true) }
@@ -435,6 +463,18 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E037", "G005", "p1-subject-first-supplied", "pilot-17"),
             moduleOneExerciseResponse("E038", "G004", "p1-drikke-present", "pilot-17"),
             exerciseResponse("E039", "pilot-17", "generator-17", readingFacet = "explicit-fact", passage = true),
+            exerciseResponse("E001", "pilot-18", "generator-18", target = "G004"),
+            exerciseResponse("E007", "pilot-18", "generator-18", lexicalFacet = "meaning", lexicalDirection = "da-en"),
+            moduleOneExerciseResponse("E030", "G018", "neutral-positive-yes-no", "pilot-18"),
+            exerciseResponse("E031", "pilot-18", "generator-18", lexicalFacet = "meaning", lexicalDirection = "da-en"),
+            exerciseResponse("E032", "pilot-18", "generator-18", lexicalFacet = "meaning", lexicalDirection = "en-da"),
+            vocabularyMatchingExerciseResponse(content = "pilot-18"),
+            moduleOneExerciseResponse("E034", "G004", "p1-studere-present", "pilot-18"),
+            exerciseResponse("E035", "pilot-18", "generator-18", lexicalFacet = "fixed-chunk", lexicalDirection = "en-da"),
+            exerciseResponse("E036", "pilot-18", "generator-18", lexicalFacet = "mass-headword", lexicalDirection = "en-da"),
+            moduleOneExerciseResponse("E037", "G005", "p1-subject-first-supplied", "pilot-18"),
+            moduleOneExerciseResponse("E038", "G004", "p1-drikke-present", "pilot-18"),
+            exerciseResponse("E039", "pilot-18", "generator-18", readingFacet = "explicit-fact", passage = true),
         )
         val rejected = listOf(
             exerciseResponse("E009", "pilot-4", "generator-4"),
@@ -576,6 +616,10 @@ class OpenApiContractTest {
             moduleOneExerciseResponse("E038", "G004", "p1-studere-present", "pilot-17"),
             exerciseResponse("E039", "pilot-17", "generator-17", lexicalFacet = "meaning", lexicalDirection = "en-da"),
             exerciseResponse("E039", "pilot-17", "generator-17", readingFacet = "participant-action-complement", passage = true),
+            exerciseResponse("E033", "pilot-17", "generator-18"),
+            exerciseResponse("E033", "pilot-18", "generator-17"),
+            moduleOneExerciseResponse("E034", "G005", "p1-studere-present", "pilot-18"),
+            exerciseResponse("E039", "pilot-18", "generator-18", readingFacet = "participant-action-complement", passage = true),
         )
 
         accepted.forEach { assertExerciseResponseValidity(it, expected = true) }
@@ -2596,13 +2640,15 @@ class OpenApiContractTest {
     private fun vocabularyMatchingExerciseResponse(
         facet: String = "meaning",
         direction: String = "en-da",
+        content: String = "pilot-17",
     ): String {
         val targets = (0..2).joinToString(",") { index ->
             """{"entryId":"L0$index","senseId":"L0$index-S01","facet":"$facet","direction":"$direction"}"""
         }
         val left = (0..2).joinToString(",") { index -> """{"id":"m-a$index","text":"English $index"}""" }
         val right = (0..2).joinToString(",") { index -> """{"id":"n-b$index","text":"Dansk $index"}""" }
-        return """{"id":"00000000-0000-0000-0000-000000000001","formatId":"E033","lexicalTargets":[$targets],"supportSkillIds":[],"contentRevision":"pilot-17","generatorRevision":"generator-17","instruction":"Instruction","context":"Context","prompt":{"before":"","after":"","choices":[],"blocks":[],"punctuation":"","cueLanguage":"en","answerLanguage":"da","matchingColumns":{"left":[$left],"right":[$right]}},"introduction":[],"hint":"Hint"}"""
+        val generator = content.replace("pilot-", "generator-")
+        return """{"id":"00000000-0000-0000-0000-000000000001","formatId":"E033","lexicalTargets":[$targets],"supportSkillIds":[],"contentRevision":"$content","generatorRevision":"$generator","instruction":"Instruction","context":"Context","prompt":{"before":"","after":"","choices":[],"blocks":[],"punctuation":"","cueLanguage":"en","answerLanguage":"da","matchingColumns":{"left":[$left],"right":[$right]}},"introduction":[],"hint":"Hint"}"""
     }
 
     private fun gapExerciseResponse(

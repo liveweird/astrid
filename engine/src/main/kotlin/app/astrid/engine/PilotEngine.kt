@@ -27,6 +27,19 @@ class PilotEngine {
         }
     }
 
+    fun restoreLegacyVocabularyMatching(
+        request: GenerationRequest,
+        columns: MatchingColumns,
+    ): GeneratedExercise {
+        validate(request)
+        require(
+            request.contentRevision == VocabularyP1Content.RETAINED_CONTENT_REVISION &&
+                request.generatorRevision == VocabularyP1Content.RETAINED_GENERATOR_REVISION &&
+                request.formatId == "E033",
+        ) { "Legacy vocabulary matching restoration only supports pilot-17/generator-17 E033" }
+        return VocabularyP1ExerciseGenerator.restoreLegacyMatching(request, columns)
+    }
+
     private fun generateRetained(request: GenerationRequest): GeneratedExercise =
         when {
             request.formatId == MODAL_INTERPRETATION_FORMAT_ID -> ModalRoundExerciseGenerator.generateInterpretation(request)
@@ -616,6 +629,10 @@ class PilotEngine {
             PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_SIXTEEN_GENERATOR_REVISION,
         )
+        val PILOT_SEVENTEEN_REVISION_PAIR = RevisionPair(
+            PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
+            PilotContent.RETAINED_SEVENTEEN_GENERATOR_REVISION,
+        )
         val CURRENT_REVISION_PAIR =
             RevisionPair(PilotContent.CURRENT_CONTENT_REVISION, PilotContent.CURRENT_GENERATOR_REVISION)
         val PILOT_TEN_REVISION_PAIR =
@@ -657,6 +674,7 @@ class PilotEngine {
                 PILOT_FOURTEEN_REVISION_PAIR,
                 PILOT_FIFTEEN_REVISION_PAIR,
                 PILOT_SIXTEEN_REVISION_PAIR,
+                PILOT_SEVENTEEN_REVISION_PAIR,
                 CURRENT_REVISION_PAIR,
             )
         val LEGACY_FORMAT_IDS = setOf("E001", "E002", "E003")
@@ -681,7 +699,8 @@ class PilotEngine {
         val PILOT_SIXTEEN_FORMAT_IDS = PILOT_FIFTEEN_FORMAT_IDS + NEUTRAL_QUESTION_FORMAT_ID
         val VOCABULARY_P1_FORMAT_IDS = (31..39).map { "E${it.toString().padStart(3, '0')}" }.toSet()
         val VOCABULARY_P1_LEXICAL_FORMAT_IDS = setOf("E031", "E032", "E033", "E035", "E036")
-        val CURRENT_FORMAT_IDS = PILOT_SIXTEEN_FORMAT_IDS + VOCABULARY_P1_FORMAT_IDS
+        val PILOT_SEVENTEEN_FORMAT_IDS = PILOT_SIXTEEN_FORMAT_IDS + VOCABULARY_P1_FORMAT_IDS
+        val CURRENT_FORMAT_IDS = PILOT_SEVENTEEN_FORMAT_IDS
         val EVALUATION_REVISION_BY_PAIR = mapOf(
             LEGACY_REVISION_PAIR to PilotContent.LEGACY_EVALUATION_REVISION,
             PILOT_TWO_REVISION_PAIR to PilotContent.RETAINED_EVALUATION_REVISION,
@@ -699,6 +718,7 @@ class PilotEngine {
             PILOT_FOURTEEN_REVISION_PAIR to PilotContent.RETAINED_FOURTEEN_EVALUATION_REVISION,
             PILOT_FIFTEEN_REVISION_PAIR to PilotContent.RETAINED_FIFTEEN_EVALUATION_REVISION,
             PILOT_SIXTEEN_REVISION_PAIR to PilotContent.RETAINED_SIXTEEN_EVALUATION_REVISION,
+            PILOT_SEVENTEEN_REVISION_PAIR to PilotContent.RETAINED_SEVENTEEN_EVALUATION_REVISION,
             CURRENT_REVISION_PAIR to PilotContent.CURRENT_EVALUATION_REVISION,
         )
         val FORMAT_IDS_BY_REVISION_PAIR = mapOf(
@@ -718,6 +738,7 @@ class PilotEngine {
             PILOT_FOURTEEN_REVISION_PAIR to PILOT_FOURTEEN_FORMAT_IDS,
             PILOT_FIFTEEN_REVISION_PAIR to PILOT_FIFTEEN_FORMAT_IDS,
             PILOT_SIXTEEN_REVISION_PAIR to PILOT_SIXTEEN_FORMAT_IDS,
+            PILOT_SEVENTEEN_REVISION_PAIR to PILOT_SEVENTEEN_FORMAT_IDS,
             CURRENT_REVISION_PAIR to CURRENT_FORMAT_IDS,
         )
         val TILE_FORMAT_IDS = setOf("E012", "E013")

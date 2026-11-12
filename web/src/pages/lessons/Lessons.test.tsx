@@ -63,11 +63,11 @@ it("persists the exact selected creation before handing it to the practice route
 });
 
 it.each([
-  ["Work, reading and today", "vocabulary-p1-s1", "vocabulary-p1-s1-1"],
-  ["Reading and writing", "vocabulary-p1-s2", "vocabulary-p1-s2-1"],
-  ["Study, courses and Danish", "vocabulary-p1-s3", "vocabulary-p1-s3-1"],
-  ["Coffee and water", "vocabulary-p1-s4", "vocabulary-p1-s4-1"],
-  ["Where and when", "vocabulary-p1-s5", "vocabulary-p1-s5-1"],
+  ["Work, reading and today", "vocabulary-p1-s1", "vocabulary-p1-s1-2"],
+  ["Reading and writing", "vocabulary-p1-s2", "vocabulary-p1-s2-2"],
+  ["Study, courses and Danish", "vocabulary-p1-s3", "vocabulary-p1-s3-2"],
+  ["Coffee and water", "vocabulary-p1-s4", "vocabulary-p1-s4-2"],
+  ["Where and when", "vocabulary-p1-s5", "vocabulary-p1-s5-2"],
 ])("saves the independently selected vocabulary lesson %s before navigation", async (title, focusId, planRevision) => {
   const createdId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
   vi.spyOn(crypto, "randomUUID").mockReturnValue(createdId);

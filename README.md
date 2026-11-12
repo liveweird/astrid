@@ -138,9 +138,12 @@ session can be entered directly. The 23 activities combine meaning choices, thre
 matching, present-form recall, isolated `nu`/`vand` recall, all/spare word tiles and explicit
 reading facts. Count nouns retain their articles; coffee and water use their selected bare
 mass meanings. Matching is one activity with separate results per meaning. These plans pin
-pair seventeen and add no cumulative mastery or targeted-review planner. See the
+pair eighteen in their current revision-two plans; retained revision-one plans stay on seventeen.
+They add no cumulative mastery or targeted-review planner. See the
 [activation contract](docs/knowledge/vocabulary-expansion-activation.md) and
 [authored packet](docs/knowledge/vocabulary-work-study-packet.md).
+The [restart compatibility contract](docs/knowledge/matching-restart-compatibility.md)
+records the historical seventeen matching limitation and strict recovery of saved boards.
 
 Practice saves operation identities in this browser before sending them. Refresh resumes the URL-bound session and replays uncertain operations with their original identities; confirmed grades are read back without regrading. Recovery requires the original valid development cookie and browser storage. If either is unavailable, use **Start new practice**; old server history remains intact. Unsent drafts need not survive refresh. The standalone playground retains its existing in-tab recovery behavior.
 
@@ -209,7 +212,7 @@ CI repeats the gates on pull requests and master, validates Kubernetes schemas a
 ./gradlew :engine:exportPilotReview
 ```
 
-The current deterministic report is `engine/build/review/pilot-17.md`. It covers 49 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotTenReview` for `pilot-10-retained.md`. See the [export and compatibility inventory](.claude/docs/compatibility.md).
+The current deterministic report is `engine/build/review/pilot-18.md`. It covers 49 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotTenReview` for `pilot-10-retained.md`. Pair seventeen's matching-dependent layout is a documented exception to cross-JVM review-byte stability. See the [export and compatibility inventory](.claude/docs/compatibility.md).
 
 Vocabulary introduces a forward migration permitting a null grammar target; its separate lexical target lives in the stored presentation. After vocabulary writes, rollback requires a reader compatible with new metadata and nullable targets; a bare older image is unsafe. See the [contract](docs/knowledge/vocabulary-assessment.md).
 

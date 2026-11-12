@@ -16,9 +16,9 @@ class ModuleOneExercisesTest {
     fun `pair eight publishes four bounded formats while retaining every older pair`() {
         assertEquals((1..39).map { "E${it.toString().padStart(3, '0')}" }, engine.catalog().formats.map { it.id })
         assertEquals(109, engine.catalog().sentenceCount)
-        assertEquals("pilot-17", engine.catalog().contentRevision)
-        assertEquals("generator-17", engine.catalog().generatorRevision)
-        assertEquals(17, engine.supportedRevisionPairs().size)
+        assertEquals("pilot-18", engine.catalog().contentRevision)
+        assertEquals("generator-18", engine.catalog().generatorRevision)
+        assertEquals(18, engine.supportedRevisionPairs().size)
         assertEquals("evaluation-7", engine.evaluationRevision("pilot-7", "generator-7"))
         assertEquals("evaluation-8", engine.evaluationRevision("pilot-8", "generator-8"))
         assertEquals(49, PilotContent.currentSnapshot.lexicalReview.size)

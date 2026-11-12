@@ -15,8 +15,8 @@ class MatchingExercisesTest {
     fun `revision seven retains matching while appending multiple gaps`() {
         val catalog = engine.catalog()
 
-        assertEquals("pilot-17", catalog.contentRevision)
-        assertEquals("generator-17", catalog.generatorRevision)
+        assertEquals("pilot-18", catalog.contentRevision)
+        assertEquals("generator-18", catalog.generatorRevision)
         assertEquals("evaluation-6", engine.evaluationRevision("pilot-6", "generator-6"))
         assertEquals("evaluation-5", engine.evaluationRevision("pilot-5", "generator-5"))
         assertEquals((1..39).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })

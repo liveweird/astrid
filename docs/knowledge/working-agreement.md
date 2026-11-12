@@ -303,3 +303,12 @@ remains BL-022. This follow-up records delivery and raises only the CI/nightly o
 from 40 to 50 minutes after the successful image job left 72 seconds of headroom. Tests,
 per-test timeouts, retries, scans and coverage floors stay unchanged; the running image
 retains the tagged source. No global Git or proxy setting was changed.
+
+**12 November 2026 — Matching restart repair:** Compatibility-freeze rehearsal exposed
+an enum-identity hash in released P1 matching. Original saved-answer replay evidence remains
+valid but did not prove a pending first grade after another JVM regenerates the board.
+Under the standing P1 correctness and verified-release authorization, repair this as
+0.20.1/pair eighteen, preserve old boards through strict stored-evidence reconstruction,
+and retain old plan/outbox identities. The [repair contract](matching-restart-compatibility.md)
+and BL-069 own the work. The failed rehearsal remains evidence; do not repin a purported
+globally deterministic pair-seventeen golden around the defect. No new curriculum is selected.

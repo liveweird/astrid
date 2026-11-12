@@ -538,7 +538,8 @@ kover {
                 // 2026-11-08, word choice/tiles HTTP and persistence coverage: actual 79.25% -> floor 79.
                 // 2026-11-09, multiple-gap HTTP and correlated outcome coverage: actual 80.42% -> floor 80.
                 // 2026-11-10, first-step lifecycle coverage: actual 81.34% -> floor 81.
-                minBound(81, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
+                // 2026-11-12, released matching restoration and raw-plan persistence: actual 82.05% -> floor 82.
+                minBound(82, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
             }
         }
     }

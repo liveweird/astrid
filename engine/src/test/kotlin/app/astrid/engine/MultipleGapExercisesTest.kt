@@ -14,8 +14,8 @@ class MultipleGapExercisesTest {
     @Test
     fun `revision seven adds the grammar gap format and retains pair six`() {
         val catalog = engine.catalog()
-        assertEquals("pilot-17", catalog.contentRevision)
-        assertEquals("generator-17", catalog.generatorRevision)
+        assertEquals("pilot-18", catalog.contentRevision)
+        assertEquals("generator-18", catalog.generatorRevision)
         assertEquals("evaluation-7", engine.evaluationRevision("pilot-7", "generator-7"))
         assertEquals("evaluation-6", engine.evaluationRevision("pilot-6", "generator-6"))
         assertEquals(

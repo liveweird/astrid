@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "description": "Exact released-process pilot-17/generator-17 E033 public, request and fingerprint evidence from main plus full public/inspector evidence from isolated QA, with guided plans; authentication and owner/practice session identifiers removed.",
+  "sourceSha": "3c22cb645c2bea45c7969e93f7f3088734f67ce0",
+  "imageId": "sha256:469111118540d81a292fabb19f809d4985cabfd993e5a8aba7be8a74b515f9e4",
+  "standaloneCoordinatesPerProcess": 12,
+  "guidedPendingProfiles": [
+    "vocabulary-p1-s2",
+    "vocabulary-p1-s3",
+    "vocabulary-p1-s4",
+    "vocabulary-p1-s5"
+  ],
+  "fixtureSha256": "5f9e73c94f0489c998face3a5aa487a5139e4af0d09dc090fdb99ce8faba541f"
+}

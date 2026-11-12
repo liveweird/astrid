@@ -12,9 +12,10 @@ class VocabularyP1ExercisesTest {
     private val engine = PilotEngine()
 
     @Test
-    fun `pair seventeen exposes all nine literal operations and 23 authored tasks`() {
-        assertEquals(RevisionPair("pilot-17", "generator-17"), engine.supportedRevisionPairs().last())
+    fun `pair eighteen exposes all nine literal operations and 23 authored tasks`() {
+        assertEquals(RevisionPair("pilot-18", "generator-18"), engine.supportedRevisionPairs().last())
         assertEquals("evaluation-17", engine.evaluationRevision("pilot-17", "generator-17"))
+        assertEquals("evaluation-18", engine.evaluationRevision("pilot-18", "generator-18"))
         assertEquals((31..39).map { "E${it.toString().padStart(3, '0')}" }.toSet(),
             engine.catalog().formats.map { it.id }.filter { it >= "E031" }.toSet())
         assertEquals(23, VocabularyP1Content.tasks.size)
@@ -35,8 +36,8 @@ class VocabularyP1ExercisesTest {
             val source = assertNotNull(exercise.inspector.vocabularySource)
             assertEquals(task.id, source.taskId)
             assertEquals(task.formatId, source.operation)
-            assertEquals("pilot-17", exercise.contentRevision)
-            assertEquals("generator-17", exercise.generatorRevision)
+            assertEquals("pilot-18", exercise.contentRevision)
+            assertEquals("generator-18", exercise.generatorRevision)
             assertContractedTargetFamily(exercise)
             val evaluation = engine.evaluate(exercise, correctAnswer(exercise))
             assertEquals(TargetStatus.MET, evaluation.targetStatus, task.id)
@@ -645,7 +646,7 @@ class VocabularyP1ExercisesTest {
     private fun exercise(taskId: String): GeneratedExercise {
         val task = VocabularyP1Content.tasks.single { it.id == taskId }
         return (0 until VocabularyP1Content.tasks(task.formatId).size).asSequence().map { index ->
-            engine.generate(GenerationRequest(task.formatId, task.targetSkillId, 11, index, "pilot-17", "generator-17"))
+            engine.generate(GenerationRequest(task.formatId, task.targetSkillId, 11, index, "pilot-18", "generator-18"))
         }.first { assertNotNull(it.inspector.vocabularySource).taskId == taskId }
     }
 

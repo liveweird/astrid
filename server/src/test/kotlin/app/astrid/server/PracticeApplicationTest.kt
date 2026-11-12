@@ -289,11 +289,11 @@ class PracticeApplicationTest {
                 "module-one-permission/module-one-permission-1",
                 "module-one-circumstances/module-one-circumstances-1",
                 "module-one-questions/module-one-questions-1",
-                "vocabulary-p1-s1/vocabulary-p1-s1-1",
-                "vocabulary-p1-s2/vocabulary-p1-s2-1",
-                "vocabulary-p1-s3/vocabulary-p1-s3-1",
-                "vocabulary-p1-s4/vocabulary-p1-s4-1",
-                "vocabulary-p1-s5/vocabulary-p1-s5-1",
+                "vocabulary-p1-s1/vocabulary-p1-s1-2",
+                "vocabulary-p1-s2/vocabulary-p1-s2-2",
+                "vocabulary-p1-s3/vocabulary-p1-s3-2",
+                "vocabulary-p1-s4/vocabulary-p1-s4-2",
+                "vocabulary-p1-s5/vocabulary-p1-s5-2",
             ),
             choices.map { profile ->
                 profile.jsonObject.let {

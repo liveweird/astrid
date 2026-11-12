@@ -8,8 +8,8 @@
 ## Scenario: P1 teaches direct entry and exercises every authored slot for ${profile.focus}
 
 1. Enter each of the five P1 sessions directly, before completing any other lesson.
-   - *Expected*: the run is independently pinned to its `vocabulary-p1-s1`…`s5` focus and plan,
-     pair seventeen and the literal 4/4/5/5/5 item count. Assessment before the saved session
+   - *Expected*: the run is independently pinned to its `vocabulary-p1-s1`…`s5` focus,
+     revision-two plan, pair eighteen and the literal 4/4/5/5/5 item count. Assessment before the saved session
      introduction is rejected and persists no attempt.
 2. Open the required introduction and work through its exact packet slots using a literal answer
    oracle independent of the inspector and grader.
