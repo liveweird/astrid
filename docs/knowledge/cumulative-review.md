@@ -203,3 +203,13 @@ ratcheted to 95/90/98/98. No migration, new linguistic content, new engine pair,
 scheduler or mastery policy was added. Direct old-binary rollback after cumulative writes
 still requires a compatible reader. BL-066 is complete; learner review remains BL-035,
 Danish teaching review remains BL-022, P2/P3 stay unactivated and S14 stays paused.
+
+## Version-two delivery — 13 November 2026
+
+App 0.22.0/source `b3fcbb4` delivered the selected six-family P2 extension. The
+[P2 delivery evidence](vocabulary-food-shopping-activation.md#observed-delivery--13-november-2026)
+records exact-source CI and 530 native/530 Linux journeys, real restart with original
+per-item graders, frozen creation replay while eligibility grows, retained version-one
+exclusion, backup restoration, promotion and 234 live checks. New preparation admits 26
+taught lesson families; retained cumulative-review-1 stays at twenty. These are introduced
+material pools within the existing owner lifetime, not mastery or unrestricted generation.

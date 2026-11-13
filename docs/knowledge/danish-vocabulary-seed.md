@@ -254,9 +254,9 @@ and pending Danish specialist review remain distinct.
 ## Selected pair-nineteen food/shopping additions
 
 The [P2 activation](vocabulary-food-shopping-activation.md) assigns fourteen new lexical
-records and one new sense on existing L009, for a planned pair-nineteen inventory of **63**
-records. These assignments are implementation work, not observed delivery or teaching
-approval. The packet has 21 placements: six reused and fifteen new uses. Old snapshots,
+records and one new sense on existing L009, for the delivered pair-nineteen inventory of **63**
+records. [Observed software delivery](vocabulary-food-shopping-activation.md#observed-delivery--13-november-2026)
+is separate from pending Danish teaching approval. The packet has 21 placements: six reused and fifteen new uses. Old snapshots,
 forms and construction permissions remain literal; P2 task frames do not enlarge the
 109-clause catalogue or old generation pools.
 

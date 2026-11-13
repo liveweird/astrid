@@ -1,5 +1,10 @@
 # P2 Vocabulary Authoring Packet: Food, Drink and a Small Purchase
 
+**Runtime delivery — 13 November 2026:** P2 is delivered in app 0.22.0; see the
+[activation and observed evidence](vocabulary-food-shopping-activation.md#observed-delivery--13-november-2026).
+The authoring/pre-selection statements below describe their recorded historical baseline;
+P3 remains unselected and specialist teaching approval remains outstanding.
+
 **Subsequent selection — 12 November 2026:** P2 implementation is now selected under the
 [activation contract](vocabulary-food-shopping-activation.md). Historical proposals below
 remain the authoring/source record; specialist teaching approval is still outstanding.

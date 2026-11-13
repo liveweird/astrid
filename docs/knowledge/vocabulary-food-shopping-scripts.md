@@ -1,5 +1,10 @@
 # P2 Food and Shopping: Complete Script Draft
 
+**Runtime delivery — 13 November 2026:** P2 is delivered in app 0.22.0; see the
+[activation and observed evidence](vocabulary-food-shopping-activation.md#observed-delivery--13-november-2026).
+The authoring/pre-selection statements below describe their recorded historical baseline;
+P3 remains unselected and specialist teaching approval remains outstanding.
+
 **Subsequent selection — 12 November 2026:** The user selected all six sessions and 21
 activities. The [activation contract](vocabulary-food-shopping-activation.md) now assigns
 runtime identities and acceptance. Unselected/proposed status below is historical;

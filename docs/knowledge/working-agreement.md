@@ -364,3 +364,16 @@ release. Aim to finish code changes by 07:00 and reserve the final half-hour for
 and a clear safe handoff by 07:30 on 13 November. Preserve focused verified commits and
 standing GitHub/release approvals. This window does not select P3, the Vocabulary library,
 S14, new grammar, accounts or operating-system power actions.
+
+## P2 delivery observed — 13 November 2026
+
+App [0.22.0](https://github.com/liveweird/astrid/releases/tag/v0.22.0), source `b3fcbb4`, delivers the six P2 sessions and
+21 activities, plus version-two cumulative admission after saved teaching. Independent
+reviews, the complete Docker-backed gate, all five [source CI jobs](https://github.com/liveweird/astrid/actions/runs/43344147950), 530
+native and 530 packaged-Linux journeys, actual old-run/restart/first-grade/replay checks,
+backup restoration, app-only promotion, 234 live checks and owned cleanup passed.
+The [observed delivery](vocabulary-food-shopping-activation.md#observed-delivery--13-november-2026)
+closes BL-070. Published pair-seventeen behavior, P1 pins and cumulative-one eligibility
+remain preserved. BL-035 learner review and BL-022 teaching review remain open; P3/library
+are unselected and S14 is paused. The following completion commit changes documentation
+only; the preview keeps the tagged feature image.

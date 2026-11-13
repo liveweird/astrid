@@ -109,3 +109,60 @@ complete Chromium/WebKit suite, including keyboard/focus, axe, both themes and 3
 Delivery requires exact-source CI, annotated tag/GitHub release, actual isolated backup
 restoration, app-only promotion preserving database process/mounts/history, live smoke and
 owned cleanup. Record observed results here after they pass; these are acceptance conditions.
+
+## Observed delivery — 13 November 2026
+
+Released app [0.22.0](https://github.com/liveweird/astrid/releases/tag/v0.22.0), source `b3fcbb4`, after independent
+content, engine/API/UI and release-operation reviews closed their findings. All five
+[exact-master CI jobs](https://github.com/liveweird/astrid/actions/runs/43344147950) passed, including **530 packaged-Linux
+Chromium/WebKit journeys** without retries or flakies. All **530 native journeys** also
+passed on the exact committed candidate. The full Docker-backed repository gate passed
+455 engine tests, the fresh Arabic-locale suite, 302 server tests and 318 web tests, with
+no skipped tests. Engine coverage was 98.44% lines / 86.06% branches; server was 98.45% /
+83.16%, raising its branch floor from 82 to 83. Web floors stayed 95/90/98/98.
+
+The six independent sessions deliver all **21 authored activities**, fourteen new lexical
+records and request sense L009-S02, bringing the inventory to **63 records**. The unchanged
+catalogue has 109 clauses; bounded task frames stay separate. The directory has 26 lessons
+and the playground has 44 exercise entries. Contextual responses, head-only cup/bottle
+matching, explicit subject/chronology reading and supplied request order retain separate
+assessment/exposure. Fixed commas stay outside tiles. English support and Danish examples
+carry their appropriate language markers. New cumulative-review-2 admits the six taught
+families; retained cumulative-review-1 keeps its original twenty-family eligibility.
+
+An actual old-to-new QA upgrade preserved seven saved-run responses and two confirmed
+attempt replays. After a real app-process restart, five old pending activities first-graded
+at retry one, all 21 P2 activities matched independent authored answers, and eight mixed
+items graded/replayed with their actual original evaluation revisions. Saved selection
+stayed unchanged as eligibility grew from seven to ten source families. An additional
+**96 E022–E025 exercises captured from the actual released 0.21.0 image** preserved their
+published pair-seventeen inputs, first-graded after restart and replayed exactly. Complete
+unknown request orders and partial matching blocked continuation until a reviewed retry;
+head matching released no beverage credit. A separate six-item cumulative run retained
+pair-ten `hedder` as unknown and accepted the correct second attempt.
+
+The exact image passed the unchanged HIGH/CRITICAL vulnerability policy and runtime
+package floors with networking disabled. A **7,138,594-byte**, mode-0600 main
+backup was actually restored in an isolated owned database and compared before app-only
+preview promotion. All six learner tables were equal immediately across promotion;
+PostgreSQL process/mounts and Flyway versions 1/2/3 stayed unchanged. All **234 live-preview
+checks** passed without retries/flakies, and every pre-existing learner row remained
+unchanged afterward. Owned QA resources were removed while main processes/mounts stayed
+unchanged. All 119 protected compatibility/provenance/migration resources retained their bytes.
+
+The initial full native candidate passed 520 of 530 checks: ten chooser assertions still
+expected 23 profiles after six P2 profiles made 29. The corrected assertions keep all-profile
+keyboard selection and passive creation checks; the failed source/image artifacts are
+retained separately. The corrected complete suite passed with retries disabled. Earlier
+focused rehearsals also exposed and corrected integration/teaching markup defects; none
+was counted as release evidence. Actual restart then caught composite-object hashing in
+P2 tile shuffling; matching had the same latent path. Explicit stable string keys replaced
+those hashes before publication. The expanded regression first failed on the old code,
+then proved identical full wire/fingerprints for all 21 P2 tasks across three seeds in
+three JVMs whose enum identity hashes were confirmed different. Final actual restart and
+first-grade/replay acceptance passed after that fix. No gate, timeout or floor was lowered.
+
+No migration, account, scheduler, mastery policy, unrestricted generation or extra packet
+was added. New stored metadata still requires a compatible reader for rollback. Danish
+remains a draft awaiting teaching review (BL-022). BL-070 is complete; learner review stays
+BL-035, P3/library remain unselected and S14 stays paused.

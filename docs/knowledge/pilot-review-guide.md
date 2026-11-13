@@ -2,12 +2,13 @@
 
 ## Purpose
 
-This walkthrough helps evaluate the private preview before broader content or media work. Open `http://localhost:8088` for Lessons: fifteen Module 1 sessions with grammar, vocabulary or combined labels, five work/study vocabulary sessions, plus three existing practice sets under Review. Browsing is passive; an explicit start opens the saved runner, and Resume saved practice returns to the same run. The thirty-nine standalone exercise entries are under Developer tools at `http://localhost:8088/playground`. Danish remains a draft awaiting teaching review; this is not a complete beginner course.
+This walkthrough helps evaluate the private preview before broader content or media work. Open `http://localhost:8088` for Lessons: fifteen Module 1 sessions with grammar, vocabulary or combined labels, five work/study vocabulary sessions and six food/cafés/shopping sessions. Review includes the three existing practice sets and explicit cumulative mixed preparation. Browsing is passive; an explicit start opens the saved runner, and Resume saved practice returns to the same run. The forty-four standalone exercise entries are under Developer tools at `http://localhost:8088/playground`. Danish remains a draft awaiting teaching review; this is not a complete beginner course.
 
 ## Try the first twenty-one standalone entries
 
-These checks cover the foundational entries. The remaining nine scoped entries are documented
-with S05–S13 in the [Module 1 course slice](module-one-course-slice.md).
+These checks cover the foundational entries. Later scoped grammar entries are documented
+with S05–S13 in the [Module 1 course slice](module-one-course-slice.md); the thematic
+vocabulary contracts and walkthrough below cover the additional vocabulary operations.
 
 1. **Present form:** open “Learn this first,” then choose the finite present form. The alternatives deliberately use the same verb. Check the answer, inspect feedback, retry, then advance. Opening the lesson or hint records supported practice; that evidence stays attached to retries of the same exercise.
 2. **Article:** expand “Generation controls” and select “Supply the indefinite article.” Type `en` or `et`. Try the wrong gender, then retry with the matching form. A matching accented numeral such as `én` has a different target interpretation from the requested unstressed article; feedback should distinguish that from a gender error.
@@ -83,6 +84,41 @@ selections and two recalls. Check its two scoped result rows and that S03 sugges
 The directory also includes S05–S13; use the [course slice](module-one-course-slice.md)
 for their scoped teaching and assessment checks.
 
+## Try food, cafés and shopping
+
+The six independent P2 sessions contain 3/4/4/3/3/4 activities. Enter any session directly
+and read its teaching first; it should review all supplied forms and alternatives.
+
+1. Try **A small breakfast** and **Drinks on the table**. Compare count-noun bundles with
+   the selected bare bread/beverage uses, meaning choices, matching and explicit subject reading.
+2. Try **Getting attention and receiving a roll**, then **Marking a polite wish**. The
+   attention, handover and thanking scenes should distinguish `Undskyld`, `Værsgo` and `Tak`.
+   Check whether the long meanings remain clear and the supplied wish order is useful.
+3. In **Buying and paying**, follow the explicitly stated purchase-before-payment relation.
+   The last-event answer should follow that relation, rather than sentence position alone.
+4. In **Requesting a supplied quantity**, match only cup and bottle heads; coffee/water must
+   not provide the answer. Submit one pair, then complete the editable retry. Assemble both
+   supplied requests with intact quantities; the comma is supplied outside the `tak` tile.
+   Request `have` and possession `har` should remain visibly distinct.
+
+Compare the scoped summary after completion and reload it. Supplied ordering is not free
+writing, article selection, conjugation or independent beverage recall. An unsupported complete
+order stays unknown and blocks continuation until a reviewed retry; it is not a universal
+judgment that the Danish is wrong. Record any unclear instruction or repetitive transition.
+
+## Prepare cumulative mixed review
+
+From Lessons → Review, choose **Prepare mixed review**. Browsing remains passive; preparation
+reads the current owner's saved teaching. Compare an empty pool, a short pool after one lesson,
+and a mixed pool after introducing grammar, work/study and P2 lessons. A run contains up to
+eight distinct activities; opening teaching grants eligibility without claiming mastery.
+
+Repeat should prepare from current history afresh. An already saved run must retain its
+original selection, graders and exact recovery even after more lessons are introduced.
+Review history belongs to the current browser development session with its fixed 24-hour
+expiry; it is not an account or cross-device course record. Assess whether mixed operations
+make revision more engaging while keeping reading, recognition and supplied ordering distinct.
+
 ## Try targeted follow-up practice
 
 From a completed summary, choose targets with the **Review …** checkboxes, then **Start selected review**. Nothing is preselected. Try one written-headword target: it produces one item, with recognition kept separate. Then return through **Source practice** and choose sentence order or articles: grammar review uses several distinct sentences, and articles alternate supply and repair.
@@ -105,7 +141,7 @@ The [first-step inventory](practice-variation-audit.md#first-step-finite-invento
 separately records the bounded one-person, group and `er` sequences. A new seed does not guarantee
 new content; the required teaching and answer banks make later recall potentially supported.
 
-For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-17.md`. Use `:engine:exportPilotTenReview` for `pilot-10-retained.md` and `:engine:exportPilotNineReview` for `pilot-9-retained.md`. Retained revision eight is available with `:engine:exportPilotEightReview` at
+For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-19.md`. Use `:engine:exportPilotTenReview` for `pilot-10-retained.md` and `:engine:exportPilotNineReview` for `pilot-9-retained.md`. Retained revision eight is available with `:engine:exportPilotEightReview` at
 `engine/build/review/pilot-8-retained.md`; revision seven is available with `:engine:exportPilotSevenReview` at `engine/build/review/pilot-7.md`; revision six is available with `:engine:exportPilotSixReview` at `engine/build/review/pilot-6.md`; revision five with `:engine:exportPilotFiveReview` at `engine/build/review/pilot-5.md`; revision four with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
 
 ## Record feedback
