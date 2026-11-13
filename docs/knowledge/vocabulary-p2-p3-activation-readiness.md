@@ -1,5 +1,11 @@
 # P2/P3 Activation Readiness
 
+**P3 selection — 13 November 2026:** P3 is now selected under its
+[activation contract](vocabulary-places-journeys-activation.md), starting from released
+app0.22.0/pair19. The original assessment below is historical; the next compatibility
+freeze must cover current pair nineteen, all six P2 plans and cumulative-review-2,
+in addition to preserving already-frozen earlier evidence. S14 stays paused.
+
 **Runtime delivery — 13 November 2026:** P2 is delivered in app 0.22.0; see the
 [activation and observed evidence](vocabulary-food-shopping-activation.md#observed-delivery--13-november-2026).
 The authoring/pre-selection statements below describe their recorded historical baseline;

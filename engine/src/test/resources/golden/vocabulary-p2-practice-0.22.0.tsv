@@ -1,0 +1,194 @@
+CATALOG	23d57689a155facff8b6ec5247279a59b41a12584223c857f5f123923da7be38
+PLAN	vocabulary-p2-s1	0	ec41946a181ac24893fd52e416824c587230b9564a0f68d5fccd6c09fe829b53
+PLAN	vocabulary-p2-s2	0	fa92c554ff1ee452fbdfd9065e909bfcdbc9db15223d806f9fa38cf1492a7c9d
+PLAN	vocabulary-p2-s3	0	90de9ef8d7e0dabb12c4f120e71b40ae2e08a271305e20252f0e5d54fa361aa5
+PLAN	vocabulary-p2-s4	0	a65602dd1698cf2bcc0c2c9caa6fb1c4ae2c421ed274220a43c5fd84a114ee56
+PLAN	vocabulary-p2-s5	0	cec8c2c4792723e04523fe4215293ce94a2216a4ca2e1decfa53b0e9c0d06834
+PLAN	vocabulary-p2-s6	0	3afcdbd6cfa2d32963451c07d06e24bf90915a6c8fb1ca4c4e75db559c322465
+PLAN	vocabulary-p2-s1	1	34bc76d18134570b2d745da4f0bc4b0e2779b750424e84b6e1455605c2abbfc4
+PLAN	vocabulary-p2-s2	1	ca65905ed22118b6f4a88c7647c7b9673186e37782c00ae51fd6b8adccc91c0c
+PLAN	vocabulary-p2-s3	1	dbb8cb1eae4aabef81c5f7b028ba0ee927ccdbcdc8a3686c6fc4172cb92191ed
+PLAN	vocabulary-p2-s4	1	5c1008df41ad7c7cee46a19d940c7ac8d1f8639ec30f48a4ded71f4ef5e94bd0
+PLAN	vocabulary-p2-s5	1	d10d339ef5743e7a3c86df3b326db53ea57d21b96442c0b9af30fb65e18b32c7
+PLAN	vocabulary-p2-s6	1	b175bc396f704d72773e98995b2a854a99bacb2c33c77f3ca7efc146c2c19937
+PLAN	vocabulary-p2-s1	47	15fba403a716066846e53cab24e9d119b8459cf0616d6a5ee320044b52002117
+PLAN	vocabulary-p2-s2	47	cbe8c96bbd280da629af3c1a6e74818e7a7bf413e3a2f2d61225badfb663d1d8
+PLAN	vocabulary-p2-s3	47	0b230af67a89b8db2c6ee093552ccabd0387b52e4aa3de4e8e827c6b5ad40e7e
+PLAN	vocabulary-p2-s4	47	223de7b4a88a68d98b5b6e3ca9c335803b2d696602e85c64e31154b908add095
+PLAN	vocabulary-p2-s5	47	70956090e674d2e95a57f2aa3444894a02e688a7afd79b43755ce02a886088a8
+PLAN	vocabulary-p2-s6	47	b3e350e4887f764bdc10a481192bab22a15cef4aa5afde8a5229ff2ab3f95fa2
+PLAN	vocabulary-p2-s1	2147483647	9a9cd5e63c1f1fa406b6f2c8900ce3ad04ec934aef409c44efb70e330fafda40
+PLAN_FAILURE	vocabulary-p2-s2	2147483647	java.util.NoSuchElementException	Sequence contains no element matching the predicate.
+PLAN_FAILURE	vocabulary-p2-s3	2147483647	java.util.NoSuchElementException	Sequence contains no element matching the predicate.
+PLAN_FAILURE	vocabulary-p2-s4	2147483647	java.util.NoSuchElementException	Sequence contains no element matching the predicate.
+PLAN	vocabulary-p2-s5	2147483647	1cf502a0f60413aa6f6000acfab94b47e17dc347c48ab0c6a2b845fbe0eacff5
+PLAN	vocabulary-p2-s6	2147483647	7f0ac9c67c3c2e244337aa1a44ab59f48eb70eb25e291686481146dc3964d7bd
+EVALUATION	vocabulary-p2-s1	0	p2-1.1	correct	50e9984aa064cc4d4cb09776526e48da5ded88ca45c27aead1c87566529181ac	true
+EXPOSURE	vocabulary-p2-s1	0	correct	vocabulary-p2:mapping:L021:L021-S01vocabulary-p2:mapping:L050:L050-S01vocabulary-p2:mapping:L012:L012-S01
+EVALUATION	vocabulary-p2-s1	0	p2-1.1	wrong	2887768dc83dafdd6329d09a26caaaef8c278c9c5d86a40ce6e24344979d7df1	true
+EXPOSURE	vocabulary-p2-s1	0	wrong	vocabulary-p2:mapping:L012:L012-S01
+EVALUATION	vocabulary-p2-s1	0	p2-1.1	partial	9b45713debbd65204dd1c6d1931301b156a06df359ea10029fc34f384131a3b4	false
+EXPOSURE	vocabulary-p2-s1	0	partial	vocabulary-p2:mapping:L021:L021-S01vocabulary-p2:mapping:L050:L050-S01
+RETRY_EXPOSURE	vocabulary-p2-s1	0	vocabulary-p2:mapping:L021:L021-S01vocabulary-p2:mapping:L050:L050-S01vocabulary-p2:mapping:L012:L012-S01
+TEACHING_REQUIRED	vocabulary-p2-s1	0	false
+EVALUATION	vocabulary-p2-s1	1	p2-1.2	correct	9f0aeb9ea68aa743c15668d838ac70b0c8dde2016cbed28e395191e1bebfefa2	true
+EXPOSURE	vocabulary-p2-s1	1	correct	vocabulary-p2:meaning:L051:L051-S01
+EVALUATION	vocabulary-p2-s1	1	p2-1.2	wrong	5e21af2786dcd4b9117a1573b5c22c6cd487216e920bac3ad85d48b0245ace51	true
+EXPOSURE	vocabulary-p2-s1	1	wrong	-
+EVALUATION	vocabulary-p2-s1	1	p2-1.2	partial	2320df1ae97f5eb864de9c06f00248f8cdbdb03d22ac02ca8e00247ba6430898	false
+EXPOSURE	vocabulary-p2-s1	1	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s1	1	vocabulary-p2:meaning:L051:L051-S01
+TEACHING_REQUIRED	vocabulary-p2-s1	1	false
+EVALUATION	vocabulary-p2-s1	2	p2-1.3	correct	3a82d62759c8f2c0cc4911eaa20dd239f5e5b7fed9bf793cdaf23fc69858db74	true
+EXPOSURE	vocabulary-p2-s1	2	correct	vocabulary-p2:proposition:p2-s1-f2
+EVALUATION	vocabulary-p2-s1	2	p2-1.3	wrong	5c68e73e31d5856d6f406082e218dfb6205784e25cc451d4b13bfa7412a3f316	true
+EXPOSURE	vocabulary-p2-s1	2	wrong	-
+EVALUATION	vocabulary-p2-s1	2	p2-1.3	partial	2320df1ae97f5eb864de9c06f00248f8cdbdb03d22ac02ca8e00247ba6430898	false
+EXPOSURE	vocabulary-p2-s1	2	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s1	2	vocabulary-p2:proposition:p2-s1-f2
+TEACHING_REQUIRED	vocabulary-p2-s1	2	false
+EVALUATION	vocabulary-p2-s2	0	p2-2.1	correct	30dd9d8282cb5e090304d88f17e1d6abb3cfddf32a7184b2cd2de5eb096961f1	true
+EXPOSURE	vocabulary-p2-s2	0	correct	vocabulary-p2:meaning:L052:L052-S01
+EVALUATION	vocabulary-p2-s2	0	p2-2.1	wrong	db7c36a5aca0ef673890bac80021a82ffbf285bd66c7185e105d4178fac7eb01	true
+EXPOSURE	vocabulary-p2-s2	0	wrong	-
+EVALUATION	vocabulary-p2-s2	0	p2-2.1	partial	2320df1ae97f5eb864de9c06f00248f8cdbdb03d22ac02ca8e00247ba6430898	false
+EXPOSURE	vocabulary-p2-s2	0	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s2	0	vocabulary-p2:meaning:L052:L052-S01
+TEACHING_REQUIRED	vocabulary-p2-s2	0	false
+EVALUATION	vocabulary-p2-s2	1	p2-2.2	correct	af34e1d7d5975c7ae96b382d649d81b445840f68fef95257b9f9f5b278ef2cb2	true
+EXPOSURE	vocabulary-p2-s2	1	correct	vocabulary-p1:mapping:L046:L046-S01vocabulary-p1:mapping:L047:L047-S01vocabulary-p2:mapping:L052:L052-S01vocabulary-p1:mapping:L045:L045-S01
+EVALUATION	vocabulary-p2-s2	1	p2-2.2	wrong	a17281d069210bba7f7407f16ab4e2ff4dd604ab3fc3082ef317a6adf3ac023c	true
+EXPOSURE	vocabulary-p2-s2	1	wrong	vocabulary-p2:mapping:L052:L052-S01vocabulary-p1:mapping:L045:L045-S01
+EVALUATION	vocabulary-p2-s2	1	p2-2.2	partial	147f43ff901930062f9ccc46a3fe49cee0ed3c6625146ad26f1c40ebcf1b48c7	false
+EXPOSURE	vocabulary-p2-s2	1	partial	vocabulary-p1:mapping:L046:L046-S01vocabulary-p1:mapping:L047:L047-S01vocabulary-p2:mapping:L052:L052-S01
+RETRY_EXPOSURE	vocabulary-p2-s2	1	vocabulary-p1:mapping:L046:L046-S01vocabulary-p1:mapping:L047:L047-S01vocabulary-p2:mapping:L052:L052-S01vocabulary-p1:mapping:L045:L045-S01
+TEACHING_REQUIRED	vocabulary-p2-s2	1	false
+EVALUATION	vocabulary-p2-s2	2	p2-2.3	correct	dea239437990d6dba38b7f5b854171dbe08387e1df00d99a51f6d311d114735f	true
+EXPOSURE	vocabulary-p2-s2	2	correct	vocabulary-p2:proposition:p2-s2-f2
+EVALUATION	vocabulary-p2-s2	2	p2-2.3	wrong	264ffbe719940b35bebdda87f0b83b131e36a00980dea71e78dd35939b2ae3cb	true
+EXPOSURE	vocabulary-p2-s2	2	wrong	-
+EVALUATION	vocabulary-p2-s2	2	p2-2.3	partial	2320df1ae97f5eb864de9c06f00248f8cdbdb03d22ac02ca8e00247ba6430898	false
+EXPOSURE	vocabulary-p2-s2	2	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s2	2	vocabulary-p2:proposition:p2-s2-f2
+TEACHING_REQUIRED	vocabulary-p2-s2	2	false
+EVALUATION	vocabulary-p2-s2	3	p2-2.4	correct	1c2bb3470fca39dacf83f9b70092108c5f1a36d57381a488fbd4ee4037d86f8a	true
+EXPOSURE	vocabulary-p2-s2	3	correct	vocabulary-p2:order:p2-2.4
+EVALUATION	vocabulary-p2-s2	3	p2-2.4	wrong	d33e8731612dc7fffbeaa4173139159d2d1650c50610bc009ce557b83f353724	false
+EXPOSURE	vocabulary-p2-s2	3	wrong	-
+EVALUATION	vocabulary-p2-s2	3	p2-2.4	partial	37176e15c1e8d8c066bab55b8fe0c03f4853f342f16651c44160d216b860eec8	false
+EXPOSURE	vocabulary-p2-s2	3	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s2	3	vocabulary-p2:order:p2-2.4
+TEACHING_REQUIRED	vocabulary-p2-s2	3	false
+EVALUATION	vocabulary-p2-s3	0	p2-3.1	correct	441f26626ea8004c5c3867bf8b38edd24c4fa1a2dc92b7f766caa7e985a62d68	true
+EXPOSURE	vocabulary-p2-s3	0	correct	vocabulary-p2:mapping:L053:L053-S01vocabulary-p2:mapping:L054:L054-S01vocabulary-p2:mapping:L055:L055-S01vocabulary-p2:mapping:L056:L056-S01
+EVALUATION	vocabulary-p2-s3	0	p2-3.1	wrong	b8d6f50ec9c9c75c924c9f7abf35f14102e991b4c904e8dbd65e62e94cf2a23f	true
+EXPOSURE	vocabulary-p2-s3	0	wrong	vocabulary-p2:mapping:L055:L055-S01vocabulary-p2:mapping:L056:L056-S01
+EVALUATION	vocabulary-p2-s3	0	p2-3.1	partial	58aa2eebfede5fc9837637f46910776e107dab5f436a4822a0eca1447c269a99	false
+EXPOSURE	vocabulary-p2-s3	0	partial	vocabulary-p2:mapping:L053:L053-S01vocabulary-p2:mapping:L054:L054-S01vocabulary-p2:mapping:L055:L055-S01
+RETRY_EXPOSURE	vocabulary-p2-s3	0	vocabulary-p2:mapping:L053:L053-S01vocabulary-p2:mapping:L054:L054-S01vocabulary-p2:mapping:L055:L055-S01vocabulary-p2:mapping:L056:L056-S01
+TEACHING_REQUIRED	vocabulary-p2-s3	0	false
+EVALUATION	vocabulary-p2-s3	1	p2-3.2	correct	8ca4bbc53983f1fcf4a73c5eb1231916fd8bf8bc192ef32d7fb5acbbfb8474a2	true
+EXPOSURE	vocabulary-p2-s3	1	correct	vocabulary-p2:meaning:L053:L053-S01
+EVALUATION	vocabulary-p2-s3	1	p2-3.2	wrong	8ab25fd80f1a05fc75f92a7d26179a9e7a7111329072f7a06e9cb4293a7ef451	true
+EXPOSURE	vocabulary-p2-s3	1	wrong	-
+EVALUATION	vocabulary-p2-s3	1	p2-3.2	partial	6a0e8661be1744806036f558954652cd32b954c7f4cc0bc7f38e58673ecbe38b	false
+EXPOSURE	vocabulary-p2-s3	1	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s3	1	vocabulary-p2:meaning:L053:L053-S01
+TEACHING_REQUIRED	vocabulary-p2-s3	1	false
+EVALUATION	vocabulary-p2-s3	2	p2-3.3	correct	0b09a74a3d3c6e91b05269fcda8c439eb927e1281f31baf050ab4b1db27ff8a1	true
+EXPOSURE	vocabulary-p2-s3	2	correct	vocabulary-p2:proposition:p2-s3-f1
+EVALUATION	vocabulary-p2-s3	2	p2-3.3	wrong	adcaf8ae9af5216da9b113775a349098168645b7e5816ee00d10ddfe1ea27b4b	true
+EXPOSURE	vocabulary-p2-s3	2	wrong	-
+EVALUATION	vocabulary-p2-s3	2	p2-3.3	partial	2320df1ae97f5eb864de9c06f00248f8cdbdb03d22ac02ca8e00247ba6430898	false
+EXPOSURE	vocabulary-p2-s3	2	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s3	2	vocabulary-p2:proposition:p2-s3-f1
+TEACHING_REQUIRED	vocabulary-p2-s3	2	false
+EVALUATION	vocabulary-p2-s3	3	p2-3.4	correct	0acb75a75a8d8773da3d186416e0046701bde2c5845ff8693f25c007bc7b7e40	true
+EXPOSURE	vocabulary-p2-s3	3	correct	vocabulary-p2:meaning:L054:L054-S01
+EVALUATION	vocabulary-p2-s3	3	p2-3.4	wrong	dbd09e691e75deba3d091b99a9c99977d3dadc489a39efe6a2598fba6261be4e	true
+EXPOSURE	vocabulary-p2-s3	3	wrong	-
+EVALUATION	vocabulary-p2-s3	3	p2-3.4	partial	6a0e8661be1744806036f558954652cd32b954c7f4cc0bc7f38e58673ecbe38b	false
+EXPOSURE	vocabulary-p2-s3	3	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s3	3	vocabulary-p2:meaning:L054:L054-S01
+TEACHING_REQUIRED	vocabulary-p2-s3	3	false
+EVALUATION	vocabulary-p2-s4	0	p2-4.1	correct	42ae7e87a6891f20ee02d3d28573b0b87b6cd5d805ac4672cf856bf0ae83676a	true
+EXPOSURE	vocabulary-p2-s4	0	correct	vocabulary-p2:meaning:L058:L058-S01
+EVALUATION	vocabulary-p2-s4	0	p2-4.1	wrong	e39f61e7d72f87484a16f140cfb651dcb1be11005e5c9707b35e34ac5f0d2a69	true
+EXPOSURE	vocabulary-p2-s4	0	wrong	-
+EVALUATION	vocabulary-p2-s4	0	p2-4.1	partial	2320df1ae97f5eb864de9c06f00248f8cdbdb03d22ac02ca8e00247ba6430898	false
+EXPOSURE	vocabulary-p2-s4	0	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s4	0	vocabulary-p2:meaning:L058:L058-S01
+TEACHING_REQUIRED	vocabulary-p2-s4	0	false
+EVALUATION	vocabulary-p2-s4	1	p2-4.2	correct	d9da6494a51200e0e1369378e8022e2c36f627369f12a79f1a480786677c787e	true
+EXPOSURE	vocabulary-p2-s4	1	correct	vocabulary-p2:chronology:p2-s4-buy-before-pay
+EVALUATION	vocabulary-p2-s4	1	p2-4.2	wrong	e2e7fbfa617e5c8d5199159782f51428fc615e7f500de231d4376e6f6df17a3e	true
+EXPOSURE	vocabulary-p2-s4	1	wrong	-
+EVALUATION	vocabulary-p2-s4	1	p2-4.2	partial	2320df1ae97f5eb864de9c06f00248f8cdbdb03d22ac02ca8e00247ba6430898	false
+EXPOSURE	vocabulary-p2-s4	1	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s4	1	vocabulary-p2:chronology:p2-s4-buy-before-pay
+TEACHING_REQUIRED	vocabulary-p2-s4	1	false
+EVALUATION	vocabulary-p2-s4	2	p2-4.3	correct	e1f3e8aaa08167617c9a86def379adc286bf3b37a907c7ce50b5399e34373b8c	true
+EXPOSURE	vocabulary-p2-s4	2	correct	vocabulary-p2:order:p2-4.3
+EVALUATION	vocabulary-p2-s4	2	p2-4.3	wrong	99b3c17527191759222328ae2c7351ef44f64cce9bccbf96f5cdcbb3d420f47e	false
+EXPOSURE	vocabulary-p2-s4	2	wrong	-
+EVALUATION	vocabulary-p2-s4	2	p2-4.3	partial	b9ac0f94a9a983fba31ab2adb3f2912402052add3f2e9751579febc6bc6c4a38	false
+EXPOSURE	vocabulary-p2-s4	2	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s4	2	vocabulary-p2:order:p2-4.3
+TEACHING_REQUIRED	vocabulary-p2-s4	2	false
+EVALUATION	vocabulary-p2-s5	0	p2-5.1	correct	cf32fdabb373b10fef643330abe48c2405535a1d3c8142796afe5f0abfbdf849	true
+EXPOSURE	vocabulary-p2-s5	0	correct	vocabulary-p2:meaning:L061:L061-S01
+EVALUATION	vocabulary-p2-s5	0	p2-5.1	wrong	6247b02fb0b0c0e0938f0938202949abe98516bba4fffdfe8bf3b4fbc562a07d	true
+EXPOSURE	vocabulary-p2-s5	0	wrong	-
+EVALUATION	vocabulary-p2-s5	0	p2-5.1	partial	2320df1ae97f5eb864de9c06f00248f8cdbdb03d22ac02ca8e00247ba6430898	false
+EXPOSURE	vocabulary-p2-s5	0	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s5	0	vocabulary-p2:meaning:L061:L061-S01
+TEACHING_REQUIRED	vocabulary-p2-s5	0	false
+EVALUATION	vocabulary-p2-s5	1	p2-5.2	correct	e91a771a290f32b0651ee9224bfd8a34b8384788a3ff47deedbce354772b5288	true
+EXPOSURE	vocabulary-p2-s5	1	correct	vocabulary-p2:order:p2-5.2
+EVALUATION	vocabulary-p2-s5	1	p2-5.2	wrong	f746f80f8a305cc3b5ef3c26f63dfd646910c7173aaad767133cc07af978a783	false
+EXPOSURE	vocabulary-p2-s5	1	wrong	-
+EVALUATION	vocabulary-p2-s5	1	p2-5.2	partial	4a483d9681685eab3339fff7baa0ffdecf333c610b808cbc0e49d0f1793b7007	false
+EXPOSURE	vocabulary-p2-s5	1	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s5	1	vocabulary-p2:order:p2-5.2
+TEACHING_REQUIRED	vocabulary-p2-s5	1	false
+EVALUATION	vocabulary-p2-s5	2	p2-5.3	correct	a08a8197d32777b8169b6a4b652654add0b891608528c9c3d41dcde6dc8797d8	true
+EXPOSURE	vocabulary-p2-s5	2	correct	vocabulary-p2:meaning:L060:L060-S01
+EVALUATION	vocabulary-p2-s5	2	p2-5.3	wrong	dbd09e691e75deba3d091b99a9c99977d3dadc489a39efe6a2598fba6261be4e	true
+EXPOSURE	vocabulary-p2-s5	2	wrong	-
+EVALUATION	vocabulary-p2-s5	2	p2-5.3	partial	6a0e8661be1744806036f558954652cd32b954c7f4cc0bc7f38e58673ecbe38b	false
+EXPOSURE	vocabulary-p2-s5	2	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s5	2	vocabulary-p2:meaning:L060:L060-S01
+TEACHING_REQUIRED	vocabulary-p2-s5	2	false
+EVALUATION	vocabulary-p2-s6	0	p2-6.1	correct	560ee9a1b1b4d0b91b4655a33f07931aab9707472169ac0106cc43913e7d0344	true
+EXPOSURE	vocabulary-p2-s6	0	correct	vocabulary-p2:mapping:L062:L062-S01vocabulary-p2:mapping:L063:L063-S01
+EVALUATION	vocabulary-p2-s6	0	p2-6.1	wrong	3c27de497d655145e81c43fb8bac6b40645d8b6e6bec2c0fb0db47183675a092	true
+EXPOSURE	vocabulary-p2-s6	0	wrong	-
+EVALUATION	vocabulary-p2-s6	0	p2-6.1	partial	8531fbbb95a00f61afb7f9cedf43463f1ac756420797c81421d53bea500d75b1	false
+EXPOSURE	vocabulary-p2-s6	0	partial	vocabulary-p2:mapping:L062:L062-S01
+RETRY_EXPOSURE	vocabulary-p2-s6	0	vocabulary-p2:mapping:L062:L062-S01vocabulary-p2:mapping:L063:L063-S01
+TEACHING_REQUIRED	vocabulary-p2-s6	0	false
+EVALUATION	vocabulary-p2-s6	1	p2-6.2	correct	5508323b5eb45f606c37abf380290b9f9c5fa97b64bd104e6b760dff4e846b1f	true
+EXPOSURE	vocabulary-p2-s6	1	correct	vocabulary-p2:proposition:p2-s6-f2
+EVALUATION	vocabulary-p2-s6	1	p2-6.2	wrong	86da09fb68aca296008539e3a3ada20bc13e77f8a6c759cc46b96ba3dbbe93a3	true
+EXPOSURE	vocabulary-p2-s6	1	wrong	-
+EVALUATION	vocabulary-p2-s6	1	p2-6.2	partial	2320df1ae97f5eb864de9c06f00248f8cdbdb03d22ac02ca8e00247ba6430898	false
+EXPOSURE	vocabulary-p2-s6	1	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s6	1	vocabulary-p2:proposition:p2-s6-f2
+TEACHING_REQUIRED	vocabulary-p2-s6	1	false
+EVALUATION	vocabulary-p2-s6	2	p2-6.3	correct	a9693759a0c44e467d70e5ec05e7ad4682a3d5599a850e710743c08852d0285c	true
+EXPOSURE	vocabulary-p2-s6	2	correct	vocabulary-p2:order:p2-6.3
+EVALUATION	vocabulary-p2-s6	2	p2-6.3	wrong	71e51da600d9dfef21c9fd817462353860c4148b5693ea0533951628f5b10c17	false
+EXPOSURE	vocabulary-p2-s6	2	wrong	-
+EVALUATION	vocabulary-p2-s6	2	p2-6.3	partial	a8ae962f717b1abb8979eb0f281d0c16f12aa476ba8210b9c1a2c976d48fda5d	false
+EXPOSURE	vocabulary-p2-s6	2	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s6	2	vocabulary-p2:order:p2-6.3
+TEACHING_REQUIRED	vocabulary-p2-s6	2	false
+EVALUATION	vocabulary-p2-s6	3	p2-6.4	correct	ca84fb21ceae7017331e4680aa3ce0276cde3457603e5c023a2d399bddc475f0	true
+EXPOSURE	vocabulary-p2-s6	3	correct	vocabulary-p2:order:p2-6.4
+EVALUATION	vocabulary-p2-s6	3	p2-6.4	wrong	06f798f9d0c64ad31d76b3cac7f702a141bbea22517428a462605546f81fe1d2	false
+EXPOSURE	vocabulary-p2-s6	3	wrong	-
+EVALUATION	vocabulary-p2-s6	3	p2-6.4	partial	cb6b401e16f13cd9cfdc64900f606a92051a7ee875fb7aebd26d95dcf7ac56e7	false
+EXPOSURE	vocabulary-p2-s6	3	partial	-
+RETRY_EXPOSURE	vocabulary-p2-s6	3	vocabulary-p2:order:p2-6.4
+TEACHING_REQUIRED	vocabulary-p2-s6	3	false
+MISSING_LATEST	false

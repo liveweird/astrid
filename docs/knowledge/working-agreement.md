@@ -33,6 +33,17 @@ owns BL-070, app 0.22.0/pair nineteen and sense/quantity/reading boundaries. Sta
 review, full checks, focused commits/merge/push, release and backed-up app-only preview
 delivery apply. P3, Vocabulary library and S14 remain separate; specialist review stays open.
 
+## Places/journeys implementation selection
+
+**13 November 2026 — P3 implementation selected:** “OK, sounds like a plan, go” selects
+six places/journeys sessions and 23 authored activities, plus their introduced-material
+eligibility in cumulative review. The [activation contract](vocabulary-places-journeys-activation.md)
+assigns app0.23.0, pair twenty and cumulative-review-3 while retaining older versions.
+Standing independent review, complete checks, focused commits/merge/push, proper release,
+verified backup restore and app-only preview promotion apply. Vocabulary library remains
+a proposed following milestone; S14 and other packets remain separate. Specialist teaching
+approval remains BL-022. The rebuilt main database is fresh; preserve its current evidence.
+
 ## Confirmed documentation rule
 
 From 6 November 2026 onward, continuously document project assumptions, requirements, constraints, open points, questions, decisions, rules, conventions, principles, and tenets. Maintain a separate work backlog with `[next]`, `[todo]`, `[new]`, `[parked]`, and `[blocked]` statuses. This is a standing user instruction, not an occasional documentation task.

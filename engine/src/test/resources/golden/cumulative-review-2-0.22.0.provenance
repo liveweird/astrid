@@ -1,0 +1,10 @@
+releaseSourceCommit=844b88af33cc729e095d443adb72fcd72cd17534
+releaseVersion=0.22.0
+captureDate=2026-11-13
+projectionSchema=cumulative-review-two-engine-v1
+planRevision=cumulative-review-2
+sourceFamilies=26
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=33
+fixtureSha256=230230fbbbdf5081bd2eb343d948e9ce89cbba466fac348175db12825048797f
+description=Published cumulative-review-2 planning over all twenty-six taught lesson families; short/full/empty pools, boundary seeds, exact selections, private per-item generation and policies.

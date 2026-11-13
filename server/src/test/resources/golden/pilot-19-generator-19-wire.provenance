@@ -1,0 +1,11 @@
+releaseSourceCommit=844b88af33cc729e095d443adb72fcd72cd17534
+releaseVersion=0.22.0
+captureDate=2026-11-13
+projectionSchema=pair19-server-wire-v1
+contentRevision=pilot-19
+generatorRevision=generator-19
+evaluationRevision=evaluation-19
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=7099
+fixtureSha256=a87beb67aae9a6a1f340f1b14a0ffbc839920e813db71d00f67e2dfde129eed6
+description=All forty-four pair-nineteen public and inspector JSON projections at cycle and boundary seeds, literal private generation evidence, requests, fingerprints, complete P2 grading responses and replay bytes.

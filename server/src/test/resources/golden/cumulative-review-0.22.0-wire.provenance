@@ -1,0 +1,10 @@
+releaseSourceCommit=844b88af33cc729e095d443adb72fcd72cd17534
+releaseVersion=0.22.0
+captureDate=2026-11-13
+projectionSchema=cumulative-review-two-server-wire-v1
+planRevision=cumulative-review-2
+sourceFamilies=26
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=25
+fixtureSha256=525067707fbaf99f8df238b46883690cf718be7cfb8417fd75123b5edd9c5841
+description=Published cumulative-review-2 exact request and private plan/item-policy payloads over all 26 source families, plus synthetic initial/taught/attempted public wire and saved request/response/context replay.

@@ -105,3 +105,5 @@ The broad language map and the small validation subset serve different purposes.
 - [Inanimate-reference activation](inanimate-reference-activation.md): selected S04 subject-reference session, supplied gender, scoped evidence and compatibility/release acceptance.
 
 - [Present forms and sentence assembly](module-one-course-slice.md#following-package--s05-and-s06): S05–S06 activity cards, bounded grading and exposure, with [verified 0.11.0 delivery](module-one-course-slice.md#observed-delivery-for-s05-and-s06).
+
+- [Places/journeys activation](vocabulary-places-journeys-activation.md): selected P3 scope, isolated revisions and spatial/reading boundaries, retained mixed-review versions and delivery acceptance.

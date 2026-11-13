@@ -1,0 +1,10 @@
+releaseSourceCommit=844b88af33cc729e095d443adb72fcd72cd17534
+releaseVersion=0.22.0
+captureDate=2026-11-13
+projectionSchema=p2-practice-engine-v1
+planPairs=vocabulary-p2-s1-1:pilot-19/generator-19/evaluation-19,vocabulary-p2-s2-1:pilot-19/generator-19/evaluation-19,vocabulary-p2-s3-1:pilot-19/generator-19/evaluation-19,vocabulary-p2-s4-1:pilot-19/generator-19/evaluation-19,vocabulary-p2-s5-1:pilot-19/generator-19/evaluation-19,vocabulary-p2-s6-1:pilot-19/generator-19/evaluation-19
+planRevisions=vocabulary-p2-s1-1,vocabulary-p2-s2-1,vocabulary-p2-s3-1,vocabulary-p2-s4-1,vocabulary-p2-s5-1,vocabulary-p2-s6-1
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=194
+fixtureSha256=9573a78a065ffe947f9419c8ee217d69cfb0ca738b036aa5157a4147c6e6924d
+description=Six published P2 plans at boundary seeds with literal tasks, teaching, policies, private assessments, correct/wrong/partial grading, ordered exposure, retries and completion eligibility.

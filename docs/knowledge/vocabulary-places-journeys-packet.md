@@ -1,5 +1,11 @@
 # P3 Vocabulary Authoring Packet: Places and a Simple Journey
 
+**13 November 2026 — Runtime activation selected:** see the [P3 activation contract](vocabulary-places-journeys-activation.md).
+The current implementation baseline is app0.22.0/pair19 with 63 lexical records; the
+0.20.1/pair18 statements below describe the historical authoring baseline. Freeze current
+pair nineteen, six P2 plans and cumulative-review-2 before production changes. The source
+ledger remains authoritative; no Danish specialist approval is implied.
+
 ## Status and boundary
 
 This is the bounded P3 continuation of the [selected vocabulary expansion

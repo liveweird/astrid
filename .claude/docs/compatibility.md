@@ -305,3 +305,23 @@ distinction consistently in advance, `canAdvance`, hooks, feedback and exposure.
 payloads omit all cumulative metadata. New stored fields require a compatible reader for
 binary rollback even though no migration or new engine pair is introduced. The selected
 contract is [cumulative review](../../docs/knowledge/cumulative-review.md).
+
+## Pair-nineteen and P2/cumulative-two freeze — 13 November 2026
+
+Before P3 production changes, unchanged published 0.22.0 source
+`844b88af33cc729e095d443adb72fcd72cd17534` supplied six new archives: engine
+pair nineteen (4,991 rows), P2 plans (194), cumulative-two (33), server pair-nineteen
+wire (7,099), P2 wire (214) and cumulative-two wire (25). Guard tests pin scalar schemas,
+actual private keys, SHA-256/provenance and the literal pair-nineteen review hash.
+Separate default and Arabic/Egypt JVM captures produced identical fixture/provenance bytes.
+All 117 pre-existing golden/provenance/migration resources remained unchanged.
+
+The source also genuinely throws `NoSuchElementException` while planning P2 S2/S3/S4
+and a full cumulative-two pool at `Int.MAX_VALUE`; failure rows preserve that published
+behavior rather than minting fictional successful plans. The diagnosed overflow window and
+new-version-only handling belong to the [P3 contract](../../docs/knowledge/vocabulary-places-journeys-activation.md).
+BL-072 tracks a separately versioned old-P2 repair. New behavior must not rewrite these archives.
+
+Before CURRENT advances to twenty, switch the moving pair-nineteen test/export adapters to
+the literal retained-nineteen snapshot and review renderer without changing a captured byte.
+The freeze changes tests and documentation only; it adds no lesson, API field or app version.

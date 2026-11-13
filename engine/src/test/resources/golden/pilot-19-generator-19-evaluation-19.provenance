@@ -1,0 +1,12 @@
+releaseSourceCommit=844b88af33cc729e095d443adb72fcd72cd17534
+releaseVersion=0.22.0
+captureDate=2026-11-13
+projectionSchema=pair19-engine-v1
+contentRevision=pilot-19
+generatorRevision=generator-19
+evaluationRevision=evaluation-19
+reviewState=compatibility-only-not-linguistic-approval
+rowCount=4991
+fixtureSha256=4bf1d117dac3f3b31a9bafc23b8bcbff20f4a23dea9273a07b158a80e467f94c
+reviewSha256=e2af9515ee4f46af2099524ecda307869b03b2f24d6b7f87f78b72a3d63bfa6d
+description=All forty-four pair-nineteen format cycles and seed/index boundaries; all P2 tasks, scalar public, inspector, private task and answer-key inputs, complete choice and tile cases, partial matching bijections, raw grading shapes and exact current review bytes.
