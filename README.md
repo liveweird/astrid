@@ -1,6 +1,6 @@
 # Astrid
 
-A Danish reading and writing engine for English-speaking beginners. Guided practice includes fifteen Module 1 profiles and five work/study vocabulary sessions, alongside a standalone playground with thirty-nine exercise formats covering grammar, vocabulary, constrained writing and short reading. The current inventory has 49 lexical records and 109 catalogue sentences plus scoped task frames. Generation and grading are deterministic; content remains a linguistic draft awaiting Danish teaching review.
+A Danish reading and writing engine for English-speaking beginners. Guided practice includes fifteen Module 1 profiles, five work/study vocabulary sessions and six food/cafés/shopping sessions, alongside a standalone playground with forty-four exercise formats covering grammar, vocabulary, constrained writing and short reading. The current inventory has 63 lexical records and 109 catalogue sentences plus scoped task frames. Generation and grading are deterministic; content remains a linguistic draft awaiting Danish teaching review.
 
 ## Run the complete app
 
@@ -40,7 +40,7 @@ Native development binds to `127.0.0.1:8088`; `ASTRID_BIND_HOST` and `ASTRID_POR
 
 ## Use the playground
 
-Open **http://localhost:8088/playground** through Developer tools. The learner home lists the existing short lessons; Review links to the three existing extra-practice profiles, rather than cumulative review of everything studied. A saved-practice link returns to the existing runner without changing its stored operation identities.
+Open **http://localhost:8088/playground** through Developer tools. The learner home lists twenty-six short lessons. Review keeps the three existing extra-practice profiles and offers cumulative mixed review over teaching saved in the current 24-hour development session. Explicit preparation checks eligibility; a review contains up to eight distinct activities, with honest empty or shorter pools. A saved-practice link returns to the existing runner without changing its stored operation identities.
 
 - **Present form:** choose between related infinitive and present forms.
 - **En or et:** type an unstressed indefinite article.
@@ -60,6 +60,7 @@ Open **http://localhost:8088/playground** through Developer tools. The learner h
 - **Subject-first assembly:** arrange whole constituents or individual words to express the supplied statement.
 - **Final time or place:** keep a supplied Danish clause in order and add one intact circumstance last, with separate target and requested-order feedback.
 - **Neutral yes/no questions:** turn a supplied statement into a question by placing the finite verb first and subject second; keep every supplied phrase intact.
+- **Food, cafés and shopping:** learn selected food/drink meanings, contextual polite responses, two-to-four-pair matching, supplied purchase/request order and explicit subject/event reading. Six independent sessions contain twenty-one activities with their own teaching and prerequisite review. Quantity phrases stay intact and request commas are supplied; these tasks do not claim free writing, article choice or conjugation.
 
 Feedback reports both the requested target and the supported linguistic judgment. An acceptable fronted statement can miss the subject-first target. Unknown writing is not automatically invalid Danish. Vocabulary feedback also separates knowing the headword from supplying the requested one-word response; `en avis` can identify the word while needing correction to the response format. Hints and retries are recorded; there is no mastery or adaptive scheduling claim.
 
@@ -212,7 +213,7 @@ CI repeats the gates on pull requests and master, validates Kubernetes schemas a
 ./gradlew :engine:exportPilotReview
 ```
 
-The current deterministic report is `engine/build/review/pilot-18.md`. It covers 49 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotTenReview` for `pilot-10-retained.md`. Pair seventeen's matching-dependent layout is a documented exception to cross-JVM review-byte stability. See the [export and compatibility inventory](.claude/docs/compatibility.md).
+The current deterministic report is `engine/build/review/pilot-19.md`. It covers 63 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotTenReview` for `pilot-10-retained.md`. Pair seventeen's matching-dependent layout is a documented exception to cross-JVM review-byte stability. See the [export and compatibility inventory](.claude/docs/compatibility.md).
 
 Vocabulary introduces a forward migration permitting a null grammar target; its separate lexical target lives in the stored presentation. After vocabulary writes, rollback requires a reader compatible with new metadata and nullable targets; a bare older image is unsafe. See the [contract](docs/knowledge/vocabulary-assessment.md).
 

@@ -9,7 +9,8 @@ import type { PracticeProfile, PracticeReviewContext } from "../../api/models";
 import classes from "../../theme.module.css";
 import { outboxEntry, PracticeCatalogError, practiceError } from "../practice/practiceOperations";
 import {
-  EXISTING_PRACTICE_PROFILES, MODULE_ONE_PROFILES, VOCABULARY_P1_PROFILES, preparePracticeCreation, profileKey,
+  EXISTING_PRACTICE_PROFILES, MODULE_ONE_PROFILES, VOCABULARY_P1_PROFILES, VOCABULARY_P2_PROFILES,
+  preparePracticeCreation, profileKey,
 } from "../practice/practiceProfiles";
 import {
   latestRunRecoveryEntry, PracticePersistenceError, saveRunWithCreation,
@@ -59,7 +60,7 @@ function startError(error: unknown) {
 function validateReviewContext(context: PracticeReviewContext) {
   if (!context.ownerSessionId || !Number.isSafeInteger(context.sessionExpiresAt) || context.sessionExpiresAt <= 0 ||
     context.focusId !== "cumulative-review" ||
-    context.planRevision !== "cumulative-review-1" || !Number.isSafeInteger(context.itemCount) ||
+    !["cumulative-review-1", "cumulative-review-2"].includes(context.planRevision) || !Number.isSafeInteger(context.itemCount) ||
     context.itemCount < 0 || context.itemCount > 8 || !Number.isSafeInteger(context.sourceLessonCount) ||
     context.sourceLessonCount < 0) {
     throw new PracticeCatalogError("The mixed review preparation is unavailable or unsupported.");
@@ -181,7 +182,7 @@ export default function Lessons() {
       const request = {
         practiceSessionId,
         focusId: "cumulative-review" as const,
-        planRevision: "cumulative-review-1" as const,
+        planRevision: "cumulative-review-2" as const,
         seed: freshSeed(),
       };
       const recovery = { ownerSessionId: current.ownerSessionId, ...request };
@@ -273,6 +274,19 @@ export default function Lessons() {
         </Text>
         <Stack component="ol" className={classes.lessonList} gap="sm">
           {VOCABULARY_P1_PROFILES.map((profile, index) => (
+            <ProfileRow key={profileKey(profile)} profile={profile} number={index + 1}
+              kind="Vocabulary" busy={busy} onStart={choose} />
+          ))}
+        </Stack>
+      </Box>
+
+      <Box component="section" aria-labelledby="vocabulary-p2-heading">
+        <Title id="vocabulary-p2-heading" order={2} size="h2">Food, cafés and shopping</Title>
+        <Text c="dimmed" mt="xs" mb="md" maw={700}>
+          Learn useful food, drink and shopping language through short readings, matching and supplied sentences.
+        </Text>
+        <Stack component="ol" className={classes.lessonList} gap="sm">
+          {VOCABULARY_P2_PROFILES.map((profile, index) => (
             <ProfileRow key={profileKey(profile)} profile={profile} number={index + 1}
               kind="Vocabulary" busy={busy} onStart={choose} />
           ))}

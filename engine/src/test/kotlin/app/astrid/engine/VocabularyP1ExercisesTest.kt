@@ -13,18 +13,21 @@ class VocabularyP1ExercisesTest {
 
     @Test
     fun `pair eighteen exposes all nine literal operations and 23 authored tasks`() {
-        assertEquals(RevisionPair("pilot-18", "generator-18"), engine.supportedRevisionPairs().last())
+        assertEquals(RevisionPair("pilot-19", "generator-19"), engine.supportedRevisionPairs().last())
         assertEquals("evaluation-17", engine.evaluationRevision("pilot-17", "generator-17"))
         assertEquals("evaluation-18", engine.evaluationRevision("pilot-18", "generator-18"))
         assertEquals((31..39).map { "E${it.toString().padStart(3, '0')}" }.toSet(),
-            engine.catalog().formats.map { it.id }.filter { it >= "E031" }.toSet())
+            PilotContent.pilotEighteenSnapshot.formats.map { it.id }.filter { it >= "E031" }.toSet())
         assertEquals(23, VocabularyP1Content.tasks.size)
         assertEquals(18, VocabularyP1Content.placements.size)
         assertEquals(9, VocabularyP1Content.newLexemes.size)
-        assertEquals(49, PilotContent.currentSnapshot.lexicalReview.size)
+        assertEquals(49, PilotContent.pilotEighteenSnapshot.lexicalReview.size)
         assertEquals((41..49).map { "L${it.toString().padStart(3, '0')}" }.toSet(),
             VocabularyP1Content.newLexemes.map { it.entryId }.toSet())
-        assertEquals(VocabularyLexicalKind.entries.toSet(), VocabularyP1Content.placements.map { it.kind }.toSet())
+        assertEquals(
+            VocabularyLexicalKind.entries.toSet() - setOf(VocabularyLexicalKind.ADJECTIVE, VocabularyLexicalKind.INTERJECTION),
+            VocabularyP1Content.placements.map { it.kind }.toSet(),
+        )
         assertEquals(
             mapOf("E031" to 3, "E032" to 1, "E033" to 4, "E034" to 2, "E035" to 1,
                 "E036" to 1, "E037" to 3, "E038" to 1, "E039" to 7),

@@ -9,6 +9,15 @@ function orderedBlockText(value: string, index: number) {
   return index === 0 ? value.charAt(0).toLocaleUpperCase("da-DK") + value.slice(1) : value;
 }
 
+function fixedPunctuationFor(prompt: object) {
+  if (!("fixedPunctuation" in prompt) || !Array.isArray(prompt.fixedPunctuation)) return new Map<string, string>();
+  return new Map(prompt.fixedPunctuation.flatMap((item) => {
+    if (typeof item !== "object" || item === null || !("beforeBlockId" in item) || !("text" in item) ||
+      typeof item.beforeBlockId !== "string" || typeof item.text !== "string") return [];
+    return [[item.beforeBlockId, item.text] as const];
+  }));
+}
+
 export default function SentenceOrderPrompt({ prompt, order, disabled, tileMode, onOrder }: {
   prompt: Exclude<Exercise, { formatId: "E014" | "E015" }>["prompt"];
   order: string[];
@@ -22,6 +31,7 @@ export default function SentenceOrderPrompt({ prompt, order, disabled, tileMode,
   const chosen = new Set(order);
   const available = prompt.blocks.filter((block) => !chosen.has(block.id));
   const blocksById = new Map(prompt.blocks.map((block) => [block.id, block]));
+  const fixedPunctuation = fixedPunctuationFor(prompt);
   const tileExercise = tileMode != null;
 
   useEffect(() => {
@@ -55,22 +65,33 @@ export default function SentenceOrderPrompt({ prompt, order, disabled, tileMode,
               {tileExercise ? "Choose Danish words in sentence order." : "Choose the parts in sentence order."}
             </Text>
           )}
-          {order.map((id, index) => (
-            <Button
-              key={id}
-              ref={(node) => { if (node) chosenRefs.current.set(id, node); else chosenRefs.current.delete(id); }}
-              variant="light"
-              color="gray"
-              disabled={disabled}
-              onClick={() => {
-                focusTarget.current = { id, area: "available" };
-                onOrder(order.filter((candidate) => candidate !== id));
-              }}
-              aria-label={`Remove ${blocksById.get(id)?.text ?? "part"} from position ${index + 1}`}
-            >
-              <span lang="da">{orderedBlockText(blocksById.get(id)?.text ?? "", index)}</span>
-            </Button>
-          ))}
+          {order.map((id, index) => {
+            const punctuation = fixedPunctuation.get(order[index + 1] ?? "");
+            const block = (
+              <Button
+                key={id}
+                ref={(node) => { if (node) chosenRefs.current.set(id, node); else chosenRefs.current.delete(id); }}
+                variant="light"
+                color="gray"
+                disabled={disabled}
+                onClick={() => {
+                  focusTarget.current = { id, area: "available" };
+                  onOrder(order.filter((candidate) => candidate !== id));
+                }}
+                aria-label={`Remove ${blocksById.get(id)?.text ?? "part"} from position ${index + 1}`}
+              >
+                <span lang="da">{orderedBlockText(blocksById.get(id)?.text ?? "", index)}</span>
+              </Button>
+            );
+            return punctuation ? (
+              <Group key={id} gap={0} wrap="nowrap" maw="100%" data-fixed-punctuation-unit>
+                {block}
+                <Text component="span" lang="en" aria-label={`Fixed punctuation ${punctuation}`}>
+                  {punctuation}
+                </Text>
+              </Group>
+            ) : block;
+          })}
           {order.length > 0 && <Text lang="da">{prompt.punctuation}</Text>}
         </Group>
       </Paper>

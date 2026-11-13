@@ -10,17 +10,19 @@ import { listOutbox, saveOutboxEntry, saveRunRecovery } from "./practiceRecovery
 
 beforeEach(resetPracticeBrowser);
 
-it("routes a completed cumulative review back to a fresh preparation instead of offering unsupported follow-ups", async () => {
+it.each(["cumulative-review-1", "cumulative-review-2"] as const)(
+  "routes completed %s back to a fresh preparation instead of offering unsupported follow-ups",
+  async (planRevision) => {
   const run = {
     ownerSessionId: owner, practiceSessionId: practiceId,
-    focusId: "cumulative-review", planRevision: "cumulative-review-1", seed: 47,
+    focusId: "cumulative-review", planRevision, seed: 47,
   };
   saveRunRecovery(run);
   window.history.replaceState(null, "", `/practice?session=${practiceId}`);
   vi.stubGlobal("fetch", vi.fn(async (path: string) => {
     if (path.endsWith("practice-context")) return json(context());
     if (path.includes(`/practice-sessions/${practiceId}`)) return json(state({
-      ...completedState(), focusId: "cumulative-review", planRevision: "cumulative-review-1",
+      ...completedState(), focusId: "cumulative-review", planRevision,
       title: "Mixed review from your lessons", introductionRequired: true,
     }));
     throw new Error(`Unexpected ${path}`);

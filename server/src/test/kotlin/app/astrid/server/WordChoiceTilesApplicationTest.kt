@@ -105,9 +105,9 @@ class WordChoiceTilesApplicationTest {
             trustedHost()
             cookie(SESSION_COOKIE, owner)
         }.json()
-        assertEquals("pilot-18", catalog.getValue("contentRevision").jsonPrimitive.content)
-        assertEquals("generator-18", catalog.getValue("generatorRevision").jsonPrimitive.content)
-        assertEquals("evaluation-18", catalog.getValue("evaluationRevision").jsonPrimitive.content)
+        assertEquals("pilot-19", catalog.getValue("contentRevision").jsonPrimitive.content)
+        assertEquals("generator-19", catalog.getValue("generatorRevision").jsonPrimitive.content)
+        assertEquals("evaluation-19", catalog.getValue("evaluationRevision").jsonPrimitive.content)
         val formats = catalog.getValue("formats").jsonArray.associateBy { it.jsonObject.getValue("id").jsonPrimitive.content }
         assertEquals("en-da", formats.getValue("E011").jsonObject.getValue("lexicalTask").jsonObject.getValue("direction").jsonPrimitive.content)
         assertEquals("G005", formats.getValue("E012").jsonObject.getValue("targetSkillId").jsonPrimitive.content)

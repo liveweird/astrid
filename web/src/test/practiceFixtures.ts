@@ -176,13 +176,28 @@ export function profiles(ownerSessionId = owner) {
         description: "Read beverage facts and choose a present form.", itemCount: 5, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
       { focusId: "vocabulary-p1-s5", planRevision: "vocabulary-p1-s5-2", title: "Where and when",
         description: "Read about places and times.", itemCount: 5, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
+      ...[
+        ["vocabulary-p2-s1", "A small breakfast", 3],
+        ["vocabulary-p2-s2", "Drinks on the table", 4],
+        ["vocabulary-p2-s3", "Getting attention and receiving a roll", 4],
+        ["vocabulary-p2-s4", "Buying and paying", 3],
+        ["vocabulary-p2-s5", "Marking a polite wish", 3],
+        ["vocabulary-p2-s6", "Requesting a supplied quantity", 4],
+      ].map(([focusId, title, itemCount]) => ({
+        focusId: focusId as string,
+        planRevision: `${focusId}-1`,
+        title: title as string,
+        description: "Learn and practise the vocabulary, reading, and sentence material in this lesson.",
+        itemCount: itemCount as number,
+        prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+      })),
     ],
   };
 }
 
 export async function choosePractice(
   user: ReturnType<typeof userEvent.setup>,
-  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Saying what someone has" | "Words for things you read" | "Names, homes and languages" | "Using a verb after kan" | "Expressing an intention" | "Understanding a requirement" | "Understanding permission" | "Adding when and where" | "Asking yes or no questions" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" = "Mixed practice",
+  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Saying what someone has" | "Words for things you read" | "Names, homes and languages" | "Using a verb after kan" | "Expressing an intention" | "Understanding a requirement" | "Understanding permission" | "Adding when and where" | "Asking yes or no questions" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" | "A small breakfast" | "Drinks on the table" | "Getting attention and receiving a roll" | "Buying and paying" | "Marking a polite wish" | "Requesting a supplied quantity" = "Mixed practice",
 ) {
   await screen.findByRole("heading", { name: "Choose your practice" });
   await user.click(screen.getByRole("radio", { name }));

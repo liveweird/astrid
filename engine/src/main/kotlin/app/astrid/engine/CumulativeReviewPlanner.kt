@@ -27,7 +27,14 @@ data class CumulativeReviewResult(
 )
 
 /** Builds the bounded mixed review from tasks proven introduced by saved source lessons. */
-class CumulativeReviewPlanner(private val engine: PilotEngine = PilotEngine()) {
+class CumulativeReviewPlanner(
+    private val engine: PilotEngine = PilotEngine(),
+    private val planRevision: String = PLAN_REVISION_ONE,
+) {
+    init {
+        require(planRevision in setOf(PLAN_REVISION_ONE, PLAN_REVISION_TWO)) { "Unsupported cumulative-review revision" }
+    }
+
     fun plan(
         seed: Int,
         sources: List<CumulativeReviewSourceItem>,
@@ -35,7 +42,7 @@ class CumulativeReviewPlanner(private val engine: PilotEngine = PilotEngine()) {
     ): CumulativeReviewResult? {
         require(seed >= 0) { "seed must be non-negative" }
         val usableCandidates = sources.mapNotNull { source ->
-            val semanticId = candidateSemanticId(source.item)
+            val semanticId = candidateSemanticIdOrNull(source.item) ?: return@mapNotNull null
             source.item.rebased(seed, semanticId, source)?.let { rebased ->
                 Candidate(source, semanticId, source.item.targetDescriptor.targetKey(), rebased)
             }
@@ -75,7 +82,7 @@ class CumulativeReviewPlanner(private val engine: PilotEngine = PilotEngine()) {
         return CumulativeReviewResult(
             PracticePlan(
                 focusId = FOCUS_ID,
-                planRevision = PLAN_REVISION,
+                planRevision = planRevision,
                 seed = seed,
                 title = TITLE,
                 prerequisiteSkillIds = emptyList(),
@@ -104,13 +111,13 @@ class CumulativeReviewPlanner(private val engine: PilotEngine = PilotEngine()) {
         seed: Int,
         expectedSemanticId: String,
         source: CumulativeReviewSourceItem,
-    ): PracticePlanItem? = if (exercise.source is VocabularyP1ExerciseSource) {
-        rebaseVocabulary(seed, expectedSemanticId, source)
-    } else {
-        rebaseSamePair(seed, expectedSemanticId, source)
+    ): PracticePlanItem? = when (exercise.source) {
+        is VocabularyP1ExerciseSource -> rebaseVocabularyP1(seed, expectedSemanticId, source)
+        is VocabularyP2ExerciseSource -> rebaseVocabularyP2(seed, expectedSemanticId, source)
+        else -> rebaseSamePair(seed, expectedSemanticId, source)
     }
 
-    private fun PracticePlanItem.rebaseVocabulary(
+    private fun PracticePlanItem.rebaseVocabularyP1(
         seed: Int,
         expectedSemanticId: String,
         source: CumulativeReviewSourceItem,
@@ -118,6 +125,16 @@ class CumulativeReviewPlanner(private val engine: PilotEngine = PilotEngine()) {
         val currentRevision = source.sourceFocusId + "-2"
         val current = PracticePlanner(engine).plan(source.sourceFocusId, currentRevision, seed)
         val candidate = current.items.singleOrNull { candidateSemanticId(it) == expectedSemanticId }
+        return candidate?.takeIf { authoredTemplateEquivalent(exercise, it.exercise) }?.copy(policy = source.policy)
+    }
+
+    private fun PracticePlanItem.rebaseVocabularyP2(
+        seed: Int,
+        expectedSemanticId: String,
+        source: CumulativeReviewSourceItem,
+    ): PracticePlanItem? {
+        val current = PracticePlanner(engine).plan(source.sourceFocusId, source.sourcePlanRevision, seed)
+        val candidate = current.items.singleOrNull { candidateSemanticIdOrNull(it) == expectedSemanticId }
         return candidate?.takeIf { authoredTemplateEquivalent(exercise, it.exercise) }?.copy(policy = source.policy)
     }
 
@@ -163,6 +180,7 @@ class CumulativeReviewPlanner(private val engine: PilotEngine = PilotEngine()) {
 
     private fun sameEarlyCourseSource(source: ExerciseSource, candidate: ExerciseSource): Boolean? = when (source) {
         is VocabularyP1ExerciseSource -> candidate is VocabularyP1ExerciseSource && source.task == candidate.task
+        is VocabularyP2ExerciseSource -> candidate is VocabularyP2ExerciseSource && source.task == candidate.task
         is ModuleOneExerciseSource -> candidate is ModuleOneExerciseSource && source.task == candidate.task
         is InanimateReferenceExerciseSource ->
             candidate is InanimateReferenceExerciseSource && source.task == candidate.task
@@ -189,7 +207,13 @@ class CumulativeReviewPlanner(private val engine: PilotEngine = PilotEngine()) {
         else -> false
     }
 
-    fun candidateSemanticId(item: PracticePlanItem): String = semanticId(item.exercise, item.targetDescriptor.targetKey())
+    fun candidateSemanticId(item: PracticePlanItem): String =
+        requireNotNull(candidateSemanticIdOrNull(item)) { "Course task must have a stable task id" }
+
+    fun candidateSemanticIdOrNull(item: PracticePlanItem): String? {
+        if (item.exercise.source is VocabularyP2ExerciseSource && planRevision == PLAN_REVISION_ONE) return null
+        return semanticId(item.exercise, item.targetDescriptor.targetKey())
+    }
 
     private fun semanticId(exercise: GeneratedExercise, targetKey: String): String {
         val task = courseTaskId(exercise.source) ?: foundationTaskId(exercise, targetKey)
@@ -198,6 +222,7 @@ class CumulativeReviewPlanner(private val engine: PilotEngine = PilotEngine()) {
 
     private fun courseTaskId(source: ExerciseSource): String? = when (source) {
         is VocabularyP1ExerciseSource -> source.task.id
+        is VocabularyP2ExerciseSource -> source.task.id
         is ModuleOneExerciseSource -> source.task.id
         is InanimateReferenceExerciseSource -> source.task.id
         is PresentOrderExerciseSource -> source.task.id
@@ -231,7 +256,9 @@ class CumulativeReviewPlanner(private val engine: PilotEngine = PilotEngine()) {
 
     companion object {
         const val FOCUS_ID = "cumulative-review"
-        const val PLAN_REVISION = "cumulative-review-1"
+        const val PLAN_REVISION_ONE = "cumulative-review-1"
+        const val PLAN_REVISION_TWO = "cumulative-review-2"
+        const val PLAN_REVISION = PLAN_REVISION_ONE
         const val TITLE = "Mixed review from your lessons"
         private const val ITEM_LIMIT = 8
         private const val SCAN_LIMIT = 512

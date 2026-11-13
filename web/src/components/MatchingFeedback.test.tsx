@@ -49,9 +49,9 @@ it("maps server matching feedback to the displayed English cue and selected Dani
 
   render(<MantineProvider env="test"><FeedbackPanel attempt={matching} exercise={exercise} /></MantineProvider>);
 
-  expect(screen.getByText("Four lexical meanings")).toBeVisible();
+  expect(screen.getByText("Two lexical meanings")).toBeVisible();
   expect(screen.getByText("Supplied Danish noun phrases")).toBeVisible();
-  expect(screen.getByText("Complete four matches")).toBeVisible();
+  expect(screen.getByText("Complete two matches")).toBeVisible();
   expect(screen.getByRole("group", { name: "Match for book" })).toHaveTextContent("book → en avis");
   expect(screen.getByRole("group", { name: "Match for newspaper" })).toHaveTextContent("newspaper — no match selected");
   expect(screen.getByText("Retry after feedback", { exact: true })).toBeVisible();

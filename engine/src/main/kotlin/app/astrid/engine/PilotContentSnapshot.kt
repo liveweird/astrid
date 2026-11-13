@@ -23,6 +23,8 @@ internal data class ContentValidationIssue(
     val message: String,
 )
 
+// This validator deliberately keeps every frozen revision's cross-record invariants in one audit boundary.
+@Suppress("LargeClass")
 internal object PilotContentValidator {
     fun requireValid(snapshot: PilotContentSnapshot) {
         val issues = validate(snapshot)
@@ -77,6 +79,7 @@ internal object PilotContentValidator {
         } else if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -106,6 +109,7 @@ internal object PilotContentValidator {
                     PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
                     PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                     PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
+                    PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) CURRENT_SENTENCE_COUNT else RETAINED_SENTENCE_COUNT
@@ -135,8 +139,10 @@ internal object PilotContentValidator {
             contentRevision == PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION -> EXPECTED_PILOT_SIXTEEN_LEXICAL_IDS
             contentRevision in setOf(
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
-                PilotContent.CURRENT_CONTENT_REVISION,
+                PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
             ) -> EXPECTED_PILOT_SEVENTEEN_LEXICAL_IDS
+            contentRevision == PilotContent.CURRENT_CONTENT_REVISION ->
+                EXPECTED_PILOT_SEVENTEEN_LEXICAL_IDS + PilotNineteenValidation.lexicalIds
             else -> EXPECTED_RETAINED_LEXICAL_IDS
         }
 
@@ -205,6 +211,7 @@ internal object PilotContentValidator {
                 "E034" to "G004",
                 "E037" to "G005",
                 "E038" to "G004",
+                "E043" to "G005",
             )
         snapshot.formats.forEach { format ->
             expectedTargets[format.id]?.let { expected ->
@@ -223,6 +230,9 @@ internal object PilotContentValidator {
                 "E033" to LexicalTask("meaning", "en-da"),
                 "E035" to LexicalTask("fixed-chunk", "en-da"),
                 "E036" to LexicalTask("mass-headword", "en-da"),
+                "E040" to LexicalTask("meaning", "da-en"),
+                "E041" to LexicalTask("meaning", "en-da"),
+                "E042" to LexicalTask("meaning", "en-da"),
             )
         snapshot.formats.forEach { format ->
             expectedLexicalTasks[format.id]?.let { expected ->
@@ -246,6 +256,11 @@ internal object PilotContentValidator {
         snapshot.formats.singleOrNull { it.id == "E039" }?.let { p1 ->
             if (p1.readingTask != ReadingTask("explicit-fact") || p1.targetSkillId != null || p1.lexicalTask != null) {
                 add(issue(p1.id, "expected reading task explicit-fact"))
+            }
+        }
+        snapshot.formats.singleOrNull { it.id == "E044" }?.let { p2 ->
+            if (p2.readingTask != ReadingTask("explicit-fact") || p2.targetSkillId != null || p2.lexicalTask != null) {
+                add(issue(p2.id, "expected reading task explicit-fact"))
             }
         }
     }
@@ -348,6 +363,7 @@ internal object PilotContentValidator {
                 PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
                 ->
                     setOf("L014-S01", "L015-S01", "L018-S01", "L024-S01")
@@ -595,6 +611,20 @@ internal object PilotContentValidator {
             "https://ordregister.dk/id/COR.41032",
             "https://ordregister.dk/id/COR.10260",
             "https://ordregister.dk/id/COR.43995",
+            "https://ordregister.dk/id/COR.42096",
+            "https://ordregister.dk/id/COR.15843",
+            "https://ordregister.dk/id/COR.40408",
+            "https://ordregister.dk/id/COR.03908",
+            "https://ordregister.dk/id/COR.03709",
+            "https://ordregister.dk/id/COR.61066",
+            "https://ordregister.dk/id/COR.46584",
+            "https://ordregister.dk/id/COR.77252",
+            "https://ordregister.dk/id/COR.30649",
+            "https://ordregister.dk/id/COR.30300",
+            "https://ordregister.dk/id/COR.43870",
+            "https://ordregister.dk/id/COR.10180",
+            "https://ordregister.dk/id/COR.40370",
+            "https://ordregister.dk/id/COR.41536",
         )
     private const val ROLE_SUBJECT = "SUBJECT"
     private const val ROLE_OBJECT = "OBJECT"
@@ -630,7 +660,8 @@ internal object PilotContentValidator {
         PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION to EXPECTED_PILOT_FIFTEEN_FORMAT_IDS,
         PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION to EXPECTED_PILOT_SIXTEEN_FORMAT_IDS,
         PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION to EXPECTED_PILOT_SEVENTEEN_FORMAT_IDS,
-        PilotContent.CURRENT_CONTENT_REVISION to EXPECTED_PILOT_SEVENTEEN_FORMAT_IDS,
+        PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION to EXPECTED_PILOT_SEVENTEEN_FORMAT_IDS,
+        PilotContent.CURRENT_CONTENT_REVISION to PilotNineteenValidation.formatIds,
     )
     private const val LAST_PILOT_EIGHT_FORMAT_NUMBER = 19
     private const val LAST_PILOT_NINE_FORMAT_NUMBER = 21
@@ -640,4 +671,16 @@ internal object PilotContentValidator {
     private const val LAST_PILOT_FIFTEEN_FORMAT_NUMBER = 29
     private const val LAST_PILOT_SIXTEEN_FORMAT_NUMBER = 30
     private const val LAST_PILOT_SEVENTEEN_FORMAT_NUMBER = 39
+}
+
+private object PilotNineteenValidation {
+    val formatIds = (1..LAST_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
+    val lexicalIds = (FIRST_LEXICAL_NUMBER..LAST_LEXICAL_NUMBER).map {
+        "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}"
+    }
+
+    private const val LAST_FORMAT_NUMBER = 44
+    private const val FIRST_LEXICAL_NUMBER = 50
+    private const val LAST_LEXICAL_NUMBER = 63
+    private const val ID_NUMBER_WIDTH = 3
 }

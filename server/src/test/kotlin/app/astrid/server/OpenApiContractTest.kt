@@ -179,6 +179,13 @@ class OpenApiContractTest {
             "vocabulary-p1-s4" to "vocabulary-p1-s4-2",
             "vocabulary-p1-s5" to "vocabulary-p1-s5-2",
             "cumulative-review" to "cumulative-review-1",
+            "vocabulary-p2-s1" to "vocabulary-p2-s1-1",
+            "vocabulary-p2-s2" to "vocabulary-p2-s2-1",
+            "vocabulary-p2-s3" to "vocabulary-p2-s3-1",
+            "vocabulary-p2-s4" to "vocabulary-p2-s4-1",
+            "vocabulary-p2-s5" to "vocabulary-p2-s5-1",
+            "vocabulary-p2-s6" to "vocabulary-p2-s6-1",
+            "cumulative-review" to "cumulative-review-2",
         )
         for (focus in supportedPairs.map { it.first }) {
             for (revision in supportedPairs.map { it.second }) {
@@ -299,6 +306,17 @@ class OpenApiContractTest {
             exerciseRequest("E037", "G005", "pilot-18", "generator-18"),
             exerciseRequest("E038", "G004", "pilot-18", "generator-18"),
             exerciseRequest("E039", null, "pilot-18", "generator-18"),
+            exerciseRequest("E001", "G004", "pilot-19", "generator-19"),
+            exerciseRequest("E007", null, "pilot-19", "generator-19"),
+            exerciseRequest("E033", null, "pilot-19", "generator-19"),
+            exerciseRequest("E034", "G004", "pilot-19", "generator-19"),
+            exerciseRequest("E037", "G005", "pilot-19", "generator-19"),
+            exerciseRequest("E039", null, "pilot-19", "generator-19"),
+            exerciseRequest("E040", null, "pilot-19", "generator-19"),
+            exerciseRequest("E041", null, "pilot-19", "generator-19"),
+            exerciseRequest("E042", null, "pilot-19", "generator-19"),
+            exerciseRequest("E043", "G005", "pilot-19", "generator-19"),
+            exerciseRequest("E044", null, "pilot-19", "generator-19"),
         )
         val rejected = listOf(
             exerciseRequest("E009", null, "pilot-4", "generator-4"),
@@ -373,6 +391,23 @@ class OpenApiContractTest {
             exerciseRequest("E034", null, "pilot-18", "generator-18"),
             exerciseRequest("E037", "G004", "pilot-18", "generator-18"),
             exerciseRequest("E039", "G004", "pilot-18", "generator-18"),
+            exerciseRequest("E001", null, "pilot-19", "generator-19"),
+            exerciseRequest("E001", "G005", "pilot-19", "generator-19"),
+            exerciseRequest("E007", "G004", "pilot-19", "generator-19"),
+            exerciseRequest("E033", "G005", "pilot-19", "generator-19"),
+            exerciseRequest("E034", null, "pilot-19", "generator-19"),
+            exerciseRequest("E034", "G005", "pilot-19", "generator-19"),
+            exerciseRequest("E037", null, "pilot-19", "generator-19"),
+            exerciseRequest("E037", "G004", "pilot-19", "generator-19"),
+            exerciseRequest("E039", "G004", "pilot-19", "generator-19"),
+            exerciseRequest("E040", "G004", "pilot-19", "generator-19"),
+            exerciseRequest("E041", "G005", "pilot-19", "generator-19"),
+            exerciseRequest("E042", "G005", "pilot-19", "generator-19"),
+            exerciseRequest("E043", null, "pilot-19", "generator-19"),
+            exerciseRequest("E043", "G004", "pilot-19", "generator-19"),
+            exerciseRequest("E044", "G004", "pilot-19", "generator-19"),
+            exerciseRequest("E040", null, "pilot-19", "generator-18"),
+            exerciseRequest("E040", null, "pilot-18", "generator-19"),
         )
 
         accepted.forEach { assertExerciseRequestValidity(it, expected = true) }
@@ -1516,6 +1551,17 @@ class OpenApiContractTest {
                 val attempted = submitAttempt(cookie, exerciseId, answer)
                 validate(HttpMethod.Post, "/api/v1/attempts", attempted)
                 assertEquals(200, attempted.status.value, attempted.bodyAsText())
+                if (exercise.getValue("formatId").jsonPrimitive.content == "E033") {
+                    assertInspectorResponseValidity(
+                        inspectorPath,
+                        crossVocabularyPair(inspected.bodyAsText(), "matchingPairs", "n", "r"),
+                        expected = false,
+                    )
+                    assertAttemptResponseValidity(
+                        crossVocabularyPair(attempted.bodyAsText(), "matchingResults", "n", "r"),
+                        expected = false,
+                    )
+                }
                 val advanced = advanceModuleOne(cookie, owner, practiceId, position)
                 validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/advance", advanced)
                 state = advanced.bodyAsText().asObject()
@@ -1523,6 +1569,103 @@ class OpenApiContractTest {
             assertEquals("completed", state.getValue("state").jsonPrimitive.content)
             assertTrue(state.getValue("summary").jsonObject.getValue("rows").jsonArray.isNotEmpty())
         }
+    }
+
+    @Test
+    fun `all vocabulary P2 practice journeys and summaries conform to the contract`() = testApplication {
+        val inspectorKey = "w".repeat(32)
+        application { astridModule(config(inspectorKey = inspectorKey), InMemoryStores()) }
+        val session = client.post("/api/v1/development-session") {
+            trustedHost()
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+        validate(HttpMethod.Post, "/api/v1/development-session", session)
+        val cookie = session.headers[HttpHeaders.SetCookie]!!.substringAfter("astrid_session=").substringBefore(';')
+        val context = client.get("/api/v1/practice-context") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+        }
+        validate(HttpMethod.Get, "/api/v1/practice-context", context)
+        val owner = context.bodyAsText().asObject().getValue("ownerSessionId").jsonPrimitive.content
+        val observedFormats = mutableSetOf<String>()
+
+        (1..6).forEach { sessionIndex ->
+            val practiceId = UUID.randomUUID()
+            val focusId = "vocabulary-p2-s$sessionIndex"
+            val created = client.post("/api/v1/practice-sessions") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                header("X-Astrid-Practice-Owner", owner)
+                contentType(ContentType.Application.Json)
+                setBody(
+                    """{"practiceSessionId":"$practiceId","focusId":"$focusId","planRevision":"$focusId-1","seed":11}""",
+                )
+            }
+            validate(HttpMethod.Post, "/api/v1/practice-sessions", created)
+            assertP2PracticeItemCorrelations(created.bodyAsText())
+            val support = client.post("/api/v1/practice-sessions/$practiceId/support") {
+                trustedHost()
+                cookie("astrid_session", cookie)
+                header("X-Astrid-Client", "playground")
+                header("X-Astrid-Practice-Owner", owner)
+                contentType(ContentType.Application.Json)
+                setBody("""{"kind":"introduction"}""")
+            }
+            validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/support", support)
+            var state = support.bodyAsText().asObject()
+
+            repeat(state.getValue("itemCount").jsonPrimitive.content.toInt()) { position ->
+                val exercise = state.getValue("currentExercise").jsonObject
+                val exerciseId = exercise.getValue("id").jsonPrimitive.content
+                val format = exercise.getValue("formatId").jsonPrimitive.content
+                observedFormats += format
+                val inspectorPath = "/api/v1/dev/exercises/$exerciseId"
+                val inspected = client.get(inspectorPath) {
+                    trustedHost()
+                    cookie("astrid_session", cookie)
+                    header("X-Astrid-Inspector-Key", inspectorKey)
+                }
+                validate(HttpMethod.Get, inspectorPath, inspected)
+                val source = inspected.bodyAsText().asObject().getValue("vocabularySource").jsonObject
+                val answer = when (format) {
+                    "E042" -> AttemptAnswerDto.Matching(source.getValue("matchingPairs").jsonArray.map { value ->
+                        value.jsonObject.let {
+                            app.astrid.server.exercises.MatchingPairDto(
+                                it.getValue("leftId").jsonPrimitive.content,
+                                it.getValue("rightId").jsonPrimitive.content,
+                            )
+                        }
+                    })
+                    "E043" -> AttemptAnswerDto.Order(
+                        source.getValue("acceptedOrders").jsonArray.first().jsonArray.map { it.jsonPrimitive.content },
+                    )
+                    else -> AttemptAnswerDto.Text(source.getValue("expectedAnswer").jsonPrimitive.content)
+                }
+                val attempted = submitAttempt(cookie, exerciseId, answer)
+                validate(HttpMethod.Post, "/api/v1/attempts", attempted)
+                assertEquals(200, attempted.status.value, attempted.bodyAsText())
+                if (format == "E042") {
+                    assertInspectorResponseValidity(
+                        inspectorPath,
+                        crossVocabularyPair(inspected.bodyAsText(), "matchingPairs", "r", "n"),
+                        expected = false,
+                    )
+                    assertAttemptResponseValidity(
+                        crossVocabularyPair(attempted.bodyAsText(), "matchingResults", "r", "n"),
+                        expected = false,
+                    )
+                }
+                val advanced = advanceModuleOne(cookie, owner, practiceId, position)
+                validate(HttpMethod.Post, "/api/v1/practice-sessions/$practiceId/advance", advanced)
+                state = advanced.bodyAsText().asObject()
+            }
+            assertEquals("completed", state.getValue("state").jsonPrimitive.content)
+            assertTrue(state.getValue("summary").jsonObject.getValue("rows").jsonArray.isNotEmpty())
+        }
+        assertEquals(setOf("E040", "E041", "E042", "E043", "E044"), observedFormats)
     }
 
     @Test
@@ -2581,6 +2724,98 @@ class OpenApiContractTest {
             .build()
         val report = validator.validateResponse("/api/v1/practice-sessions", request.method, response)
         assertEquals(expected, !report.hasErrors(), SimpleValidationReportFormat.getInstance().apply(report))
+    }
+
+    private fun assertAttemptResponseValidity(body: String, expected: Boolean) {
+        val request = SimpleRequest.Builder.post("/api/v1/attempts").build()
+        val response = SimpleResponse.Builder(200)
+            .withHeader("Content-Type", "application/json")
+            .withBody(body)
+            .build()
+        val report = validator.validateResponse("/api/v1/attempts", request.method, response)
+        assertEquals(expected, !report.hasErrors(), SimpleValidationReportFormat.getInstance().apply(report))
+    }
+
+    private fun assertInspectorResponseValidity(path: String, body: String, expected: Boolean) {
+        val request = SimpleRequest.Builder.get(path).build()
+        val response = SimpleResponse.Builder(200)
+            .withHeader("Content-Type", "application/json")
+            .withBody(body)
+            .build()
+        val report = validator.validateResponse(path, request.method, response)
+        assertEquals(expected, !report.hasErrors(), SimpleValidationReportFormat.getInstance().apply(report))
+    }
+
+    private fun assertP2PracticeItemCorrelations(body: String) {
+        val state = body.asObject()
+        state.getValue("items").jsonArray.forEachIndexed { index, element ->
+            when (element.jsonObject.getValue("formatId").jsonPrimitive.content) {
+                "E040", "E041" -> assertInvalidPracticeItem(state, index, remove = setOf("lexicalTarget"))
+                "E042" -> assertInvalidPracticeItem(state, index, remove = setOf("matchingTarget"))
+                "E043" -> listOf("targetSkillId", "targetScopeId", "assessmentMode").forEach { property ->
+                    assertInvalidPracticeItem(state, index, remove = setOf(property))
+                }
+                "E044" -> {
+                    assertInvalidPracticeItem(state, index, remove = setOf("readingTarget"))
+                    assertInvalidPracticeItem(state, index, remove = setOf("readingRole"))
+                    assertInvalidPracticeItem(state, index, add = mapOf("lexicalTarget" to sampleLexicalTarget()))
+                }
+            }
+        }
+        val current = state.getValue("currentExercise").jsonObject
+        if (current.getValue("formatId").jsonPrimitive.content == "E042") {
+            listOf("r-cross" to null, "outside" to null, null to "l-cross").forEach { (leftId, rightId) ->
+                assertPracticeResponseValidity(mutateP2MatchingColumns(state, leftId, rightId).toString(), expected = false)
+            }
+        }
+    }
+
+    private fun assertInvalidPracticeItem(
+        state: JsonObject,
+        index: Int,
+        remove: Set<String> = emptySet(),
+        add: Map<String, kotlinx.serialization.json.JsonElement> = emptyMap(),
+    ) {
+        val items = state.getValue("items").jsonArray
+        val changed = JsonObject((items[index].jsonObject - remove) + add)
+        val changedItems = JsonArray(items.mapIndexed { itemIndex, item -> if (itemIndex == index) changed else item })
+        assertPracticeResponseValidity(JsonObject(state + ("items" to changedItems)).toString(), expected = false)
+    }
+
+    private fun mutateP2MatchingColumns(state: JsonObject, leftId: String?, rightId: String?): JsonObject {
+        val exercise = state.getValue("currentExercise").jsonObject
+        val prompt = exercise.getValue("prompt").jsonObject
+        val columns = prompt.getValue("matchingColumns").jsonObject
+        fun changed(items: JsonArray, id: String?) = if (id == null) items else JsonArray(items.mapIndexed { index, item ->
+            if (index == 0) JsonObject(item.jsonObject + ("id" to JsonPrimitive(id))) else item
+        })
+        val changedColumns = JsonObject(
+            columns + mapOf(
+                "left" to changed(columns.getValue("left").jsonArray, leftId),
+                "right" to changed(columns.getValue("right").jsonArray, rightId),
+            ),
+        )
+        val changedPrompt = JsonObject(prompt + ("matchingColumns" to changedColumns))
+        val changedExercise = JsonObject(exercise + ("prompt" to changedPrompt))
+        return JsonObject(state + ("currentExercise" to changedExercise))
+    }
+
+    private fun sampleLexicalTarget() = JsonObject(
+        mapOf(
+            "entryId" to JsonPrimitive("L999"),
+            "senseId" to JsonPrimitive("L999-S01"),
+            "facet" to JsonPrimitive("meaning"),
+            "direction" to JsonPrimitive("da-en"),
+        ),
+    )
+
+    private fun crossVocabularyPair(body: String, arrayName: String, fromPrefix: String, toPrefix: String): String {
+        val arrayStart = body.indexOf("\"$arrayName\":[")
+        require(arrayStart >= 0) { "Missing $arrayName" }
+        val prefixStart = body.indexOf("\"rightId\":\"$fromPrefix-", arrayStart)
+        require(prefixStart >= 0) { "Missing $fromPrefix right ID in $arrayName" }
+        val valueStart = prefixStart + "\"rightId\":\"".length
+        return body.replaceRange(valueStart, valueStart + fromPrefix.length, toPrefix)
     }
 
     private fun matchingAttemptRequest(pairs: List<Pair<String, String>>): String {

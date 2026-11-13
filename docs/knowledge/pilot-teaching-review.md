@@ -1,6 +1,32 @@
 # Pilot Danish Teaching Review Handoff
 
-## Status and boundary
+## Current candidate packet — P2 / app 0.22.0
+
+The selected [P2 activation](vocabulary-food-shopping-activation.md) extends the review
+surface to `pilot-19` / `generator-19` / `evaluation-19`: 63 lexical records, the unchanged
+109-clause catalogue, 44 exercise entries, fifteen Module 1 profiles, five work/study
+profiles and six food/shopping profiles. Separate scoped frames are not extra catalogue
+clauses. All content remains `draft-not-teacher-reviewed`; implementation checks do not
+establish naturalness, teaching quality or CEFR attainment.
+
+Run `./gradlew :engine:exportPilotReview` and use `engine/build/review/pilot-19.md`,
+recording the exact commit and application version. The retained exports preserve earlier
+review surfaces. Include the [P2 placement/source packet](vocabulary-food-shopping-packet.md),
+[complete scripts](vocabulary-food-shopping-scripts.md), activation contract and current
+[vocabulary seed](danish-vocabulary-seed.md). Inspect all six introductions, 21 activities,
+feedback and summaries in the matching candidate preview.
+
+Check contextual `Undskyld` / `Værsgo` / `Tak`, count and mass uses, head-only cup/bottle
+matching, request `have` (L009-S02) versus possession, intact quantity phrases and the fixed
+comma before `tak`. Review explicit subject and stated event chronology separately from
+lexical recognition and supplied ordering. New cumulative-two review can mix taught P2
+material with older lessons using their original graders; admission is not mastery.
+
+The detailed checklist below is the retained app-0.17.0 handoff. Its inventory counts and
+export path describe that historical packet, rather than the current candidate. Its
+linguistic review questions still apply where relevant.
+
+## Retained app-0.17.0 status and boundary
 
 This is a **proposed review process**, not a user-approved rubric, an arranged specialist
 engagement, or evidence that a specialist has reviewed or approved the content. It covers the
@@ -19,7 +45,7 @@ material. See the [beginner slice](beginner-slice-spec.md#initial-draft-review-a
 [beginner outcome reference](beginner-outcome-reference.md#what-the-pilot-currently-demonstrates)
 and [first-step activation contract](module-one-activation.md).
 
-## Prepare the current review packet
+## Prepare the retained app-0.17.0 review packet
 
 - From the repository root, run `./gradlew :engine:exportPilotReview`. The current output is
   `engine/build/review/pilot-15.md`. Confirm content `pilot-15`, generator
@@ -40,7 +66,7 @@ and [first-step activation contract](module-one-activation.md).
   lesson or hint had been opened, the displayed feedback, latest saved result, `canAdvance`
   behavior and summary state.
 
-### What the current export covers
+### What the retained app-0.17.0 export covers
 
 | Review surface | Current exported coverage |
 | --- | --- |

@@ -267,7 +267,6 @@ describe("ExercisePrompt present and order formats", () => {
     expect(screen.getByLabelText("Your Danish sentence")).toHaveTextContent("Jeg.");
     expect(screen.getByRole("group", { name: "Available Danish word tiles" })).toHaveTextContent("læserenavis");
   });
-
 });
 
 describe("ExercisePrompt", () => {
@@ -727,4 +726,5 @@ describe("ExercisePrompt legacy formats", () => {
     await userEvent.keyboard("{Enter}");
     expect(screen.getByRole("button", { name: "I" })).toHaveFocus();
   });
+
 });

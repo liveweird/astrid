@@ -10,6 +10,7 @@ import kotlin.test.assertTrue
 class CumulativeReviewPlannerTest {
     private val engine = PilotEngine()
     private val planner = CumulativeReviewPlanner(engine)
+    private val plannerV2 = CumulativeReviewPlanner(engine, "cumulative-review-2")
 
     @Test
     fun `empty history has no plan and short pools stay short`() {
@@ -49,6 +50,43 @@ class CumulativeReviewPlannerTest {
         assertEquals("pilot-18", selected.exercise.contentRevision)
         assertEquals(columns.left.map { it.id }.toSet(), selected.assessments.mapNotNull { it.slotId }.toSet())
         assertEquals(3, selected.assessments.size)
+    }
+
+    @Test
+    fun `cumulative one ignores P2 while cumulative two admits every taught P2 family`() {
+        val p2Sources = (1..6).flatMap { lesson ->
+            source("vocabulary-p2-s$lesson", "vocabulary-p2-s$lesson-1", lesson)
+        }
+        assertNull(planner.plan(47, p2Sources))
+        assertFailsWith<IllegalArgumentException> { planner.candidateSemanticId(p2Sources.first().item) }
+        val selected = assertNotNull(plannerV2.plan(47, p2Sources))
+        assertEquals("cumulative-review-2", selected.plan.planRevision)
+        assertTrue(selected.plan.items.isNotEmpty())
+        assertTrue(selected.plan.items.all { it.exercise.contentRevision == "pilot-19" })
+        assertTrue(selected.selections.all { it.sourceLessonId.startsWith("vocabulary-p2-s") })
+        selected.selections.zip(selected.plan.items).forEach { (selection, item) ->
+            val original = p2Sources.single {
+                it.sourcePracticeSessionId == selection.sourcePracticeSessionId &&
+                    it.sourcePosition == selection.sourcePosition
+            }.item
+            assertEquals(plannerV2.candidateSemanticId(original), plannerV2.candidateSemanticId(item))
+        }
+    }
+
+    @Test
+    fun `P2 matching regeneration rebuilds assessment slots against the displayed board`() {
+        val source = source("vocabulary-p2-s1", "vocabulary-p2-s1-1", 11).first()
+        val originalSlots = source.item.assessments.mapNotNull { it.slotId }.toSet()
+        val selected = assertNotNull(plannerV2.plan(73, listOf(source))).plan.items.single()
+        val columns = assertNotNull(selected.exercise.prompt.matchingColumns)
+        assertEquals(columns.left.map { it.id }.toSet(), selected.assessments.mapNotNull { it.slotId }.toSet())
+        assertEquals(columns.left.size, selected.assessments.size)
+        assertTrue(selected.assessments.all { assessment ->
+            assessment.slotId != null && assessment.targetDescriptor.lexicalTarget != null
+        })
+        if (columns.left.map { it.id }.toSet() != originalSlots) {
+            assertTrue(selected.assessments.none { it.slotId in originalSlots })
+        }
     }
 
     @Test
@@ -153,6 +191,9 @@ class CumulativeReviewPlannerTest {
 
     @Test
     fun `invalid seeds fail and unmatched retained P1 tasks fail closed`() {
+        assertFailsWith<IllegalArgumentException> {
+            CumulativeReviewPlanner(engine, "cumulative-review-unknown")
+        }
         assertFailsWith<IllegalArgumentException> {
             planner.plan(-1, source("module-one-singular", "module-one-singular-1", 0))
         }

@@ -250,3 +250,42 @@ one supplied chunk. `skrive` permits the authored letter object, `studere` is in
 and `drikke` permits the two selected beverages. No unrestricted combination, plural/definite
 paradigm, noun-only parser, or productive chunk substitution follows. Source/content review
 and pending Danish specialist review remain distinct.
+
+## Selected pair-nineteen food/shopping additions
+
+The [P2 activation](vocabulary-food-shopping-activation.md) assigns fourteen new lexical
+records and one new sense on existing L009, for a planned pair-nineteen inventory of **63**
+records. These assignments are implementation work, not observed delivery or teaching
+approval. The packet has 21 placements: six reused and fifteen new uses. Old snapshots,
+forms and construction permissions remain literal; P2 task frames do not enlarge the
+109-clause catalogue or old generation pools.
+
+| ID | Selected meaning | Teaching surface | Official morphology record |
+| --- | --- | --- | --- |
+| L050 | bread as the selected food/substance | brød, bare mass use | [COR.42096](https://ordregister.dk/id/COR.42096.json) |
+| L051 | inexpensive on a supplied product label | billig, base form only | [COR.15843](https://ordregister.dk/id/COR.15843.json) |
+| L052 | milk as the selected beverage/substance | mælk, bare mass use | [COR.40408](https://ordregister.dk/id/COR.40408.json), liquid sense |
+| L053 | politely get attention in a shop | Undskyld. | [COR.03908](https://ordregister.dk/id/COR.03908.json), interjection |
+| L054 | hand over the stated item | Værsgo. | [COR.03709](https://ordregister.dk/id/COR.03709.json), interjection |
+| L055 | bread roll | en bolle | [COR.61066](https://ordregister.dk/id/COR.61066.json), noun rather than verb |
+| L056 | retail shop | en butik | [COR.46584](https://ordregister.dk/id/COR.46584.json) |
+| L057 | café venue | en café | [COR.77252](https://ordregister.dk/id/COR.77252.json), selected accented spelling |
+| L058 | buy the supplied item | at købe → køber | [COR.30649](https://ordregister.dk/id/COR.30649.json) |
+| L059 | pay in the stated purchase situation | at betale → betaler | [COR.30300](https://ordregister.dk/id/COR.30300.json) |
+| L060 | thank the shopkeeper in the supplied scene | Tak. | [COR.43870](https://ordregister.dk/id/COR.43870.json); response use is authored |
+| L061 | willing/polite wish in the exact frame | gerne, inside vil gerne | [COR.10180](https://ordregister.dk/id/COR.10180.json) |
+| L062 | cup container/head | en kop | [COR.40370](https://ordregister.dk/id/COR.40370.json) |
+| L063 | bottle container/head | en flaske | [COR.41536](https://ordregister.dk/id/COR.41536.json), noun rather than verb |
+
+L009-S02 is bare request-frame `have` in the exact taught `vil gerne have` construction.
+It shares lemma L009 with possession but never borrows possession sense L009-S01 or its
+active present `har`. The latter is translated support only. Its morphology locator is
+[COR.30035](https://ordregister.dk/id/COR.30035.json); the selected sense/frame is authored.
+
+The [placement ledger](vocabulary-food-shopping-packet.md#placement-ledger) preserves exact
+form locators, lookup dates, sense exclusions and source limits. COR morphology does not
+validate English glosses, pragmatic meanings, count/mass choices or sentence naturalness.
+Count nouns retain supplied articles; the bare mass uses remain article-free in these
+frames. Cup/bottle matching directly tests their heads. Full quantities stay taught intact
+constituents in request tiles, with separate head/beverage exposure and no independent
+article, quantity-rule, conjugation or beverage-production credit.

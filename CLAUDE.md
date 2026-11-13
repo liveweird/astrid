@@ -7,8 +7,8 @@ Codex reads `AGENTS.md`, which points here.
 
 Astrid is a Danish reading and writing engine for English-speaking complete beginners. Today it is a
 **private development preview**: a learner lesson directory (`/`), a standalone engine playground (`/playground`) and short guided practice sessions
-(`/practice`) over a connected beginner slice with 49 vocabulary entries, 109 licensed sentences in the
-catalogue and separate scoped task frames. The thirty-nine exercise entries include grammar selection/supply/order/repair, vocabulary recognition/recall, constrained
+(`/practice`) over a connected beginner slice with 63 vocabulary entries, 109 licensed sentences in the
+catalogue and separate scoped task frames. The forty-four exercise entries include grammar selection/supply/order/repair, vocabulary recognition/recall, constrained
 sentence writing, short reading comprehension, English→Danish word choice and all/spare word tiles,
 bilingual matching, verb/article gaps, and scoped subject reference, present-form practice and sentence assembly.
 Generation and grading are deterministic and reproducible
@@ -30,13 +30,19 @@ Five independent **A day of work and study** vocabulary sessions add 4/4/5/5/5 a
 Current revision-two plans pin pair eighteen; retained revision-one plans stay on seventeen,
 with complete direct-entry teaching, three/four-pair meaning
 matching, isolated verb/chunk/mass-word recall and explicit object/place/time reading facts.
-The learner directory has twenty lessons and three unchanged Review sets. P1 uses separate
+The learner directory has twenty-six lessons and three unchanged Review sets. P1 uses separate
 completion/exposure policies; its outcomes do not enter existing follow-up planners.
 The activation contract is `docs/knowledge/vocabulary-expansion-activation.md`.
+Six independent **Food, cafés and shopping** sessions add 3/4/4/3/3/4 activities on
+pair nineteen (E040–E044), with contextual response choices, two-to-four-pair matching,
+explicit subject/chronology reading and supplied request frames. Count/mass uses, request
+L009-S02 versus possession, quantity provenance and fixed comma support are bounded by
+`docs/knowledge/vocabulary-food-shopping-activation.md`. P1 retains its literal pair pins.
 **Cumulative mixed review** is a separate prepared run over material from saved teaching
-in the twenty lesson profiles, scoped to the current development-session owner. Empty
+in twenty-six lesson profiles for new `cumulative-review-2` runs, scoped to the current
+development-session owner. Retained `cumulative-review-1` keeps its twenty-family source set. Empty
 pools create no run; smaller pools produce shorter runs up to eight distinct activities.
-Its composite `cumulative-review-1` plan uses `per-item` summary markers and preserves each
+Both composite plans use `per-item` summary markers and preserve each
 exercise's original grading pair, with the existing P1 matching repair exception. The
 contract is `docs/knowledge/cumulative-review.md`; old fixed reviews and profiles stay intact.
 The matching restart repair and strict stored-board recovery are specified in

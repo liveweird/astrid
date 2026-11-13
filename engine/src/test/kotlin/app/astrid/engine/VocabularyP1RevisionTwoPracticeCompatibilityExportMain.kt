@@ -435,8 +435,8 @@ internal object VocabularyP1RevisionTwoPracticeCompatibilityFixture {
     private fun taskId(item: PracticePlanItem) = requireNotNull(item.exercise.inspector.vocabularySource).taskId
     private fun row(vararg values: String) = values.joinToString("\t")
     private fun requireLiteralPairEighteen() {
-        require(PilotContent.currentSnapshot.contentRevision == "pilot-18")
-        require(PilotContent.currentSnapshot.generatorRevision == "generator-18")
+        require(PilotContent.pilotEighteenSnapshot.contentRevision == "pilot-18")
+        require(PilotContent.pilotEighteenSnapshot.generatorRevision == "generator-18")
         require(engine.evaluationRevision("pilot-18", "generator-18") == "evaluation-18")
     }
 

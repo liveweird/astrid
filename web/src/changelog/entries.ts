@@ -10,6 +10,18 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.22.0",
+    date: "2026-11-13",
+    body: `**Use Danish for food, cafés and a small purchase.**
+
+- Six short sessions teach and review everyday food, drinks, buying, paying and polite requests through twenty-one activities.
+- Practise meanings with choices and matching, identify people and stated event order in short readings, and assemble taught purchase and request sentences from word blocks.
+- Learn count nouns with their articles and the selected bare uses of bread and beverages. Match cup and bottle meanings directly, then use the complete taught quantities in requests.
+- Each session includes its own teaching and prerequisite review. Request sentences supply punctuation, keeping the task focused on the taught word order.
+- New cumulative mixed reviews can include these lessons after their teaching is saved in your current 24-hour development session. Results keep lexical meanings, reading and supplied sentence order separate.
+- Saved lessons, review plans and answers retain their original behavior and recovery. The new Danish material remains a draft awaiting teaching review.`,
+  },
+  {
     version: "0.21.0",
     date: "2026-11-12",
     body: `**Mix practice from lessons you have introduced.**

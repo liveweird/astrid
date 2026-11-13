@@ -105,6 +105,10 @@ data class PracticeItemDto(
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val matchingTarget: LexicalTaskDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val readingTarget: ReadingTaskDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val readingRole: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
     val canAdvance: Boolean? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val revisions: PracticeItemRevisionsDto? = null,

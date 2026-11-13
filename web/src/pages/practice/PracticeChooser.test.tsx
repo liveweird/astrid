@@ -99,6 +99,39 @@ it("deduplicates fresh catalog bootstrap across Strict Mode remounts without cre
   expect(paths.filter((path) => path.endsWith("practice-sessions"))).toHaveLength(0);
 });
 
+it("shows all six P2 catalog profiles and starts the explicitly selected lesson identity", async () => {
+  let creation = "";
+  vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+    if (path.endsWith("development-session")) return json({ mode: "development" });
+    if (path.endsWith("practice-profiles")) return json(profiles());
+    if (path.endsWith("practice-sessions")) {
+      creation = String(init?.body);
+      const request = JSON.parse(creation) as { practiceSessionId: string };
+      return json(state({
+        id: request.practiceSessionId, focusId: "vocabulary-p2-s6", planRevision: "vocabulary-p2-s6-1",
+        title: "Requesting a supplied quantity", itemCount: 4, introductionRequired: true,
+      }), 201);
+    }
+    throw new Error(`Unexpected ${path}`);
+  }));
+  const user = userEvent.setup();
+  renderWithProviders(<Practice />);
+
+  expect(await screen.findByRole("heading", { name: "Food, cafés and shopping" })).toBeVisible();
+  for (const title of [
+    "A small breakfast", "Drinks on the table", "Getting attention and receiving a roll",
+    "Buying and paying", "Marking a polite wish", "Requesting a supplied quantity",
+  ]) {
+    expect(screen.getByRole("radio", { name: title })).not.toBeChecked();
+  }
+  await choosePractice(user, "Requesting a supplied quantity");
+
+  expect(await screen.findByRole("heading", { name: "Requesting a supplied quantity" })).toBeVisible();
+  expect(JSON.parse(creation)).toMatchObject({
+    focusId: "vocabulary-p2-s6", planRevision: "vocabulary-p2-s6-1",
+  });
+});
+
 it("ignores a stale Strict Mode recovery after a newer chosen run starts", async () => {
   const run = { ownerSessionId: owner, practiceSessionId: practiceId, focusId: "reading-basics", planRevision: "practice-1", seed: 47 };
   saveRunRecovery(run);

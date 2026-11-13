@@ -279,8 +279,9 @@ internal object PresentOrderExerciseGenerator {
             -> Triple(true, true, false)
             PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
-            PilotContent.CURRENT_CONTENT_REVISION,
             PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
+            PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+            PilotContent.CURRENT_CONTENT_REVISION,
             -> Triple(true, true, true)
             else -> Triple(false, false, false)
         }
@@ -301,14 +302,7 @@ internal object PresentOrderExerciseGenerator {
                 task,
                 request.seed,
                 request.index,
-                request.contentRevision in setOf(
-                    PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
-                    PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
-                    PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
-                    PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
-                    PilotContent.CURRENT_CONTENT_REVISION,
-                    PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
-                ),
+                usesExpandedPresentChoices(request.contentRevision),
             )
         } else {
             emptyList()
@@ -373,6 +367,16 @@ internal object PresentOrderExerciseGenerator {
             ),
         )
     }
+
+    private fun usesExpandedPresentChoices(contentRevision: String) = contentRevision in setOf(
+        PilotContent.RETAINED_TWELVE_CONTENT_REVISION,
+        PilotContent.RETAINED_THIRTEEN_CONTENT_REVISION,
+        PilotContent.RETAINED_FOURTEEN_CONTENT_REVISION,
+        PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
+        PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
+        PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+        PilotContent.CURRENT_CONTENT_REVISION,
+    )
 
     private fun orderExercise(request: GenerationRequest, task: SubjectFirstOrderTask): GeneratedExercise {
         val shuffledParts = shuffled(task.parts, request.seed, request.index)

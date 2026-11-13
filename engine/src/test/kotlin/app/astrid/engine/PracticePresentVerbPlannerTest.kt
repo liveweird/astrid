@@ -36,6 +36,12 @@ class PracticePresentVerbPlannerTest {
                 "vocabulary-p1-s3/vocabulary-p1-s3-2",
                 "vocabulary-p1-s4/vocabulary-p1-s4-2",
                 "vocabulary-p1-s5/vocabulary-p1-s5-2",
+                "vocabulary-p2-s1/vocabulary-p2-s1-1",
+                "vocabulary-p2-s2/vocabulary-p2-s2-1",
+                "vocabulary-p2-s3/vocabulary-p2-s3-1",
+                "vocabulary-p2-s4/vocabulary-p2-s4-1",
+                "vocabulary-p2-s5/vocabulary-p2-s5-1",
+                "vocabulary-p2-s6/vocabulary-p2-s6-1",
             ),
             planner.profiles().map { "${it.focusId}/${it.planRevision}" },
         )
@@ -63,9 +69,15 @@ class PracticePresentVerbPlannerTest {
             "Study, courses and Danish",
             "Coffee and water",
             "Where and when",
+            "A small breakfast",
+            "Drinks on the table",
+            "Getting attention and receiving a roll",
+            "Buying and paying",
+            "Marking a polite wish",
+            "Requesting a supplied quantity",
         ),
             planner.profiles().map { it.title })
-        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4, 6, 6, 4, 4, 6, 4, 2, 2, 2, 4, 4, 4, 4, 5, 5, 5),
+        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4, 6, 6, 4, 4, 6, 4, 2, 2, 2, 4, 4, 4, 4, 5, 5, 5, 3, 4, 4, 3, 3, 4),
             planner.profiles().map { it.itemCount })
         assertEquals("Words and simple statements", planner.plan("reading-basics", "practice-1", 0).title)
     }

@@ -90,10 +90,11 @@ internal const val VOCABULARY_P1_S5_FOCUS = "vocabulary-p1-s5"
 internal const val VOCABULARY_P1_S5_REVISION = "vocabulary-p1-s5-1"
 internal const val VOCABULARY_P1_S5_CURRENT_REVISION = "vocabulary-p1-s5-2"
 internal const val CUMULATIVE_REVIEW_FOCUS = "cumulative-review"
-internal const val CUMULATIVE_REVIEW_REVISION = "cumulative-review-1"
+internal const val CUMULATIVE_REVIEW_RETAINED_REVISION = "cumulative-review-1"
+internal const val CUMULATIVE_REVIEW_REVISION = "cumulative-review-2"
 private const val TARGETED_REVIEW_FOCUS = "targeted-review"
 private const val INTRODUCTION_POSITION = -1
-private val CUMULATIVE_SOURCE_PLANS = setOf(
+private val CUMULATIVE_ONE_SOURCE_PLANS = setOf(
     MODULE_ONE_SINGULAR_FOCUS to MODULE_ONE_SINGULAR_REVISION,
     MODULE_ONE_GROUPS_FOCUS to MODULE_ONE_GROUPS_REVISION,
     MODULE_ONE_ER_FOCUS to MODULE_ONE_ER_REVISION,
@@ -112,6 +113,10 @@ private val CUMULATIVE_SOURCE_PLANS = setOf(
 ) + (1..VOCABULARY_LESSON_COUNT).flatMap { lesson ->
     val focus = "vocabulary-p1-s$lesson"
     listOf(focus to "$focus-1", focus to "$focus-2")
+}
+private val CUMULATIVE_TWO_SOURCE_PLANS = CUMULATIVE_ONE_SOURCE_PLANS + (1..P2_VOCABULARY_LESSON_COUNT).map { lesson ->
+    val focus = "vocabulary-p2-s$lesson"
+    focus to "$focus-1"
 }
 
 internal fun app.astrid.engine.PracticePlan.toNewPracticeSession(ownerId: UUID) = NewPracticeSession(
@@ -151,8 +156,13 @@ internal fun CumulativeReviewHistory.toCumulativeReview(
     ownerId: UUID,
     engine: PilotEngine,
 ): NewPracticeSession? {
-    val planner = CumulativeReviewPlanner(engine)
-    val eligible = sessions.filter { it.introductionOpened && it.focusId to it.planRevision in CUMULATIVE_SOURCE_PLANS }
+    val sourcePlans = when (request.planRevision) {
+        CUMULATIVE_REVIEW_RETAINED_REVISION -> CUMULATIVE_ONE_SOURCE_PLANS
+        CUMULATIVE_REVIEW_REVISION -> CUMULATIVE_TWO_SOURCE_PLANS
+        else -> throw IllegalArgumentException("Unsupported cumulative review revision")
+    }
+    val planner = CumulativeReviewPlanner(engine, request.planRevision)
+    val eligible = sessions.filter { it.introductionOpened && it.focusId to it.planRevision in sourcePlans }
     val sources = eligible.flatMap { session ->
         session.items.map { item ->
             CumulativeReviewSourceItem(
@@ -176,8 +186,8 @@ internal fun CumulativeReviewHistory.toCumulativeReview(
         sessions.sortedWith(compareBy(StoredPracticeSession::createdAt, { it.id.toString() })).forEach { session ->
             session.items.filter { it.position <= session.cursor }.forEach { item ->
                 val storedSelection = session.cumulativeReview?.selections?.getOrNull(item.position)
-                val semanticId = storedSelection?.semanticId ?: planner.candidateSemanticId(item.toEnginePlanItem(engine))
-                put(semanticId, rank++)
+                val semanticId = storedSelection?.semanticId ?: planner.candidateSemanticIdOrNull(item.toEnginePlanItem(engine))
+                if (semanticId != null) put(semanticId, rank++)
             }
         }
     }
@@ -187,7 +197,7 @@ internal fun CumulativeReviewHistory.toCumulativeReview(
     return result.plan.toNewPracticeSession(ownerId).copy(
         sourceExposure = exposure,
         cumulativeReview = CumulativeReviewPayload(
-            selectionPolicyRevision = CUMULATIVE_REVIEW_REVISION,
+            selectionPolicyRevision = request.planRevision,
             sourceLessonCount = result.sourceLessonCount,
             selections = result.selections.map {
                 CumulativeReviewSelectionPayload(
@@ -202,29 +212,34 @@ internal fun CumulativeReviewHistory.toCumulativeReview(
     )
 }
 
-private fun StoredPracticeItem.toEnginePlanItem(engine: PilotEngine) = PracticePlanItem(
-    position,
-    regenerateVerified(engine, exercise),
-    PracticeTargetDescriptor(
-        targetLabel,
-        exercise.targetSkillId,
-        exercise.presentation.lexicalTarget?.let {
-            app.astrid.engine.LexicalTarget(it.entryId, it.senseId, it.facet, it.direction)
-        },
-        assessmentMode,
-        targetScopeId,
-        exercise.presentation.readingTarget?.let { app.astrid.engine.ReadingTask(it.facet) },
-        readingRole,
-        matchingTarget?.let { app.astrid.engine.LexicalTask(it.facet, it.direction) },
-    ),
-    answerExposureKeys,
-    promptExposureKeys,
-    lessonExposureKeys,
-    hintExposureKeys,
-    feedbackExposureKeys,
-    assessments.map { it.toEngineAssessment() },
-    policy?.toEngine(),
-)
+private fun StoredPracticeItem.toEnginePlanItem(engine: PilotEngine): PracticePlanItem {
+    val readingTarget = exercise.presentation.readingTarget?.let { app.astrid.engine.ReadingTask(it.facet) }
+    val matching = matchingTarget?.let { app.astrid.engine.LexicalTask(it.facet, it.direction) }
+    val lexicalTarget = exercise.presentation.lexicalTarget
+        ?.takeIf { readingTarget == null && matching == null }
+        ?.let { app.astrid.engine.LexicalTarget(it.entryId, it.senseId, it.facet, it.direction) }
+    return PracticePlanItem(
+        position,
+        regenerateVerified(engine, exercise),
+        PracticeTargetDescriptor(
+            targetLabel,
+            exercise.targetSkillId,
+            lexicalTarget,
+            assessmentMode,
+            targetScopeId,
+            readingTarget,
+            readingRole,
+            matching,
+        ),
+        answerExposureKeys,
+        promptExposureKeys,
+        lessonExposureKeys,
+        hintExposureKeys,
+        feedbackExposureKeys,
+        assessments.map { it.toEngineAssessment() },
+        policy?.toEngine(),
+    )
+}
 
 private fun List<StoredPracticeSession>.cumulativeExposure(relevantKeys: Set<String>): List<PracticeCrossRunExposureDto> {
     val witnessByKey = linkedMapOf<String, PracticeCrossRunExposureDto>()
@@ -278,6 +293,8 @@ private fun List<StoredPracticeSession>.cumulativeExposure(relevantKeys: Set<Str
 }
 
 private const val VOCABULARY_LESSON_COUNT = 5
+private const val P2_VOCABULARY_LESSON_COUNT = 6
+private const val P2_READING_FORMAT = "E044"
 
 internal fun StoredPracticeSession.toFollowUp(
     request: PracticeFollowUpRequest,
@@ -449,7 +466,8 @@ internal fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
         items.map { item -> itemToDto(item) }, items.singleOrNull { it.position == cursor }?.exercise?.presentation,
         summary.toDto(
             includeRows = cursor == items.size,
-            includeVocabularyFields = focusId.startsWith("vocabulary-p1-") || focusId == CUMULATIVE_REVIEW_FOCUS,
+            includeVocabularyFields = focusId.startsWith("vocabulary-p1-") || focusId.startsWith("vocabulary-p2-") ||
+                focusId == CUMULATIVE_REVIEW_FOCUS,
         ),
         followUp?.let { PracticeFollowUpDto(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },
         followUpPlanRevision(),
@@ -469,23 +487,23 @@ private fun StoredPracticeSession.followUpPlanRevision(): String? =
     }
 
 private fun StoredPracticeSession.itemToDto(item: StoredPracticeItem): PracticeItemDto = PracticeItemDto(
-    item.position,
-    item.exercise.id.toString(),
-    item.exercise.formatId,
-    item.exercise.targetSkillId,
-    item.exercise.presentation.lexicalTarget,
-    item.lessonOpened,
-    item.hintOpened,
-    item.attempts.map { it.response.attemptId },
-    item.attempts.size,
-    item.attempts.firstOrNull()?.response,
-    item.attempts.lastOrNull()?.response,
-    item.attempts.firstOrNull()?.answer,
-    item.attempts.lastOrNull()?.answer,
-    item.attempts.firstOrNull()?.context,
-    item.attempts.lastOrNull()?.context,
-    item.assessmentMode,
-    item.assessments.map {
+    position = item.position,
+    exerciseId = item.exercise.id.toString(),
+    formatId = item.exercise.formatId,
+    targetSkillId = item.exercise.targetSkillId,
+    lexicalTarget = item.exercise.presentation.lexicalTarget,
+    lessonOpened = item.lessonOpened,
+    hintOpened = item.hintOpened,
+    attemptIds = item.attempts.map { it.response.attemptId },
+    attemptCount = item.attempts.size,
+    firstAttempt = item.attempts.firstOrNull()?.response,
+    lastAttempt = item.attempts.lastOrNull()?.response,
+    firstAnswer = item.attempts.firstOrNull()?.answer,
+    lastAnswer = item.attempts.lastOrNull()?.answer,
+    firstAttemptContext = item.attempts.firstOrNull()?.context,
+    lastAttemptContext = item.attempts.lastOrNull()?.context,
+    assessmentMode = item.assessmentMode,
+    assessments = item.assessments.map {
         PracticeAssessmentDto(
             slotId = it.slotId,
             label = it.label,
@@ -499,9 +517,11 @@ private fun StoredPracticeSession.itemToDto(item: StoredPracticeItem): PracticeI
             matchingTarget = it.matchingTarget,
         )
     },
-    item.targetScopeId,
-    item.matchingTarget,
-    (item.policy != null || completionRuleId != null).takeIf { it }?.let {
+    targetScopeId = item.targetScopeId,
+    matchingTarget = item.matchingTarget,
+    readingTarget = item.exercise.presentation.readingTarget.takeIf { item.exercise.formatId == P2_READING_FORMAT },
+    readingRole = item.readingRole.takeIf { item.exercise.formatId == P2_READING_FORMAT },
+    canAdvance = (item.policy != null || completionRuleId != null).takeIf { it }?.let {
         if (item.position == cursor) {
             PracticeCompletionPolicy.canAdvance(
                 item.policy.effectiveCompletionRule(completionRuleId),
@@ -511,7 +531,7 @@ private fun StoredPracticeSession.itemToDto(item: StoredPracticeItem): PracticeI
             null
         }
     },
-    if (focusId == CUMULATIVE_REVIEW_FOCUS) {
+    revisions = if (focusId == CUMULATIVE_REVIEW_FOCUS) {
         PracticeItemRevisionsDto(
             item.exercise.contentRevision,
             item.exercise.generatorRevision,

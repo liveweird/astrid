@@ -12,10 +12,10 @@ class PresentOrderExercisesTest {
     @Test
     fun `pair ten publishes exact present and order activities while retaining pair nine`() {
         val catalog = engine.catalog()
-        assertEquals("pilot-18", catalog.contentRevision)
-        assertEquals("generator-18", catalog.generatorRevision)
+        assertEquals("pilot-19", catalog.contentRevision)
+        assertEquals("generator-19", catalog.generatorRevision)
         assertEquals(109, catalog.sentenceCount)
-        assertEquals((1..39).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
+        assertEquals((1..44).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
         assertEquals("evaluation-9", engine.evaluationRevision("pilot-9", "generator-9"))
         assertEquals("evaluation-10", engine.evaluationRevision("pilot-10", "generator-10"))
         assertEquals("evaluation-11", engine.evaluationRevision("pilot-11", "generator-11"))
@@ -94,6 +94,22 @@ class PresentOrderExercisesTest {
             }.toSet()
             assertEquals(setOf(0, 1), positions, task.id)
         }
+    }
+
+    @Test
+    fun `pair seventeen retains its literal three-card selection and index-dependent choice order`() {
+        val exercises = (0..2).map { index ->
+            engine.generate(GenerationRequest("E022", "G004", 47, index, "pilot-17", "generator-17"))
+        }
+
+        assertEquals(
+            listOf("Vi sover.", "Hun læser en avis.", "Jeg arbejder."),
+            exercises.map { it.inspector.canonicalSentence },
+        )
+        assertEquals(
+            listOf(listOf("sover", "sove"), listOf("læse", "læser"), listOf("arbejder", "arbejde")),
+            exercises.map { it.prompt.choices },
+        )
     }
 
     @Test

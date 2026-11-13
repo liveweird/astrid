@@ -22,6 +22,7 @@ object PracticeCompletionPolicy {
             MODULE_ONE_ORDER_RULE -> latestAttempt.hasKnownOrderConstraintOutcome()
             ModalRoundPolicies.COMPLETION_RULE_ID -> ModalRoundPolicies.canAdvance(latestAttempt)
             VOCABULARY_P1_RULE -> latestAttempt.hasVocabularyP1Outcome()
+            VOCABULARY_P2_RULE -> latestAttempt.hasVocabularyP2Outcome()
             else -> false
         }
     }
@@ -58,9 +59,25 @@ object PracticeCompletionPolicy {
         return teachingSaved && knownOutcome
     }
 
+    private fun PracticeCompletionAttemptObservation.hasVocabularyP2Outcome(): Boolean {
+        val knownOutcome = if (matchingResults.isNotEmpty()) {
+            matchingResults.size in P2_MATCHING_MIN..P2_MATCHING_MAX && matchingResults.all {
+                it.targetStatus in setOf(TargetStatus.MET, TargetStatus.NOT_MET) &&
+                    it.linguisticStatus == LinguisticStatus.ACCEPTABLE &&
+                    it.responseConstraintStatus == ResponseConstraintStatus.MET
+            }
+        } else {
+            targetStatus in setOf(TargetStatus.MET, TargetStatus.NOT_MET) &&
+                linguisticStatus == LinguisticStatus.ACCEPTABLE &&
+                responseConstraintStatus == ResponseConstraintStatus.MET
+        }
+        return teachingSaved && knownOutcome
+    }
+
     private const val MODULE_ONE_RULE = "module-one-known-outcome-1"
     private const val MODULE_ONE_ORDER_RULE = "module-one-order-outcome-1"
     const val VOCABULARY_P1_RULE = "vocabulary-p1-outcome-1"
+    const val VOCABULARY_P2_RULE = "vocabulary-p2-outcome-1"
     private val COMPLETION_ISSUE_CODES = setOf(
         "STANDALONE_PRONOUN_CASE_REQUIRED",
         "ONE_WORD_RESPONSE_REQUIRED",
@@ -69,4 +86,6 @@ object PracticeCompletionPolicy {
     private val VOCABULARY_P1_ORDER_ISSUES = setOf("REQUESTED_ORDER_CONSTRAINT")
     private const val P1_MATCHING_MIN = 3
     private const val P1_MATCHING_MAX = 4
+    private const val P2_MATCHING_MIN = 2
+    private const val P2_MATCHING_MAX = 4
 }

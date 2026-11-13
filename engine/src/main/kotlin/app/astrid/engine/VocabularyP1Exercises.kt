@@ -384,8 +384,8 @@ internal object VocabularyP1ExerciseGenerator {
 
     private fun matching(request: GenerationRequest, task: VocabularyP1Task): GeneratedExercise {
         val rowHash: (Pair<VocabularyP1Lexeme, Pair<String, String>>) -> Int = if (
-            request.contentRevision == VocabularyP1Content.CONTENT_REVISION &&
-                request.generatorRevision == VocabularyP1Content.GENERATOR_REVISION
+            request.contentRevision != VocabularyP1Content.RETAINED_CONTENT_REVISION ||
+                request.generatorRevision != VocabularyP1Content.RETAINED_GENERATOR_REVISION
         ) {
             { row -> "${row.first.entryId}\u001f${row.first.senseId}".hashCode() }
         } else {

@@ -7,6 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class PilotEighteenCompatibilityGoldenTest {
@@ -24,7 +25,13 @@ class PilotEighteenCompatibilityGoldenTest {
         assertEquals(FIXTURE_SHA256, bytes.sha256(), "The frozen fixture must never be regenerated")
         val expected = bytes.toString(Charsets.UTF_8).lineSequence().filter(String::isNotBlank).toList()
         assertEquals(FIXTURE_ROW_COUNT, expected.size)
-        assertEquals(expected, PilotEighteenCompatibilityGolden.rows())
+        val actual = PilotEighteenCompatibilityGolden.rows()
+        val firstDifference = expected.indices.firstOrNull { expected[it] != actual.getOrNull(it) }
+        assertEquals(expected.size, actual.size, "pair-eighteen row count")
+        assertNull(
+            firstDifference,
+            firstDifference?.let { "first pair-eighteen difference at row $it\nexpected=${expected[it]}\nactual=${actual[it]}" },
+        )
     }
 
     @Test

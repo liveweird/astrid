@@ -273,7 +273,7 @@ export default function ExercisePrompt({
     );
   }
 
-  if (["E003", "E024", "E025", "E029", "E030"].includes(formatId) || tileMode) {
+  if (["E003", "E024", "E025", "E029", "E030", "E043"].includes(formatId) || tileMode) {
     return (
       <SentenceOrderPrompt prompt={prompt} order={order} disabled={disabled} tileMode={tileMode} onOrder={onOrder} />
     );

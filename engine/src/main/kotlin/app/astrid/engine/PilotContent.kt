@@ -59,8 +59,10 @@ internal object PilotContent {
     const val RETAINED_SIXTEEN_GENERATOR_REVISION = "generator-16"
     const val RETAINED_SEVENTEEN_CONTENT_REVISION = "pilot-17"
     const val RETAINED_SEVENTEEN_GENERATOR_REVISION = "generator-17"
-    const val CURRENT_CONTENT_REVISION = "pilot-18"
-    const val CURRENT_GENERATOR_REVISION = "generator-18"
+    const val RETAINED_EIGHTEEN_CONTENT_REVISION = "pilot-18"
+    const val RETAINED_EIGHTEEN_GENERATOR_REVISION = "generator-18"
+    const val CURRENT_CONTENT_REVISION = "pilot-19"
+    const val CURRENT_GENERATOR_REVISION = "generator-19"
     const val LEGACY_EVALUATION_REVISION = "evaluation-1"
     const val RETAINED_EVALUATION_REVISION = "evaluation-2"
     const val RETAINED_THREE_EVALUATION_REVISION = "evaluation-3"
@@ -78,7 +80,8 @@ internal object PilotContent {
     const val RETAINED_FIFTEEN_EVALUATION_REVISION = "evaluation-15"
     const val RETAINED_SIXTEEN_EVALUATION_REVISION = "evaluation-16"
     const val RETAINED_SEVENTEEN_EVALUATION_REVISION = "evaluation-17"
-    const val CURRENT_EVALUATION_REVISION = "evaluation-18"
+    const val RETAINED_EIGHTEEN_EVALUATION_REVISION = "evaluation-18"
+    const val CURRENT_EVALUATION_REVISION = "evaluation-19"
 
     val humanPronouns =
         listOf(
@@ -568,10 +571,11 @@ internal object PilotContent {
         RETAINED_SEVENTEEN_CONTENT_REVISION,
         RETAINED_SEVENTEEN_GENERATOR_REVISION,
     )
-    val currentSnapshot = pilotSeventeenSnapshot.copy(
-        contentRevision = CURRENT_CONTENT_REVISION,
-        generatorRevision = CURRENT_GENERATOR_REVISION,
+    val pilotEighteenSnapshot = pilotSeventeenSnapshot.copy(
+        contentRevision = RETAINED_EIGHTEEN_CONTENT_REVISION,
+        generatorRevision = RETAINED_EIGHTEEN_GENERATOR_REVISION,
     )
+    val currentSnapshot = VocabularyP2Snapshot.extend(pilotEighteenSnapshot)
 
     init {
         PilotContentValidator.requireValid(snapshot)
@@ -591,6 +595,7 @@ internal object PilotContent {
         PilotContentValidator.requireValid(pilotFifteenSnapshot)
         PilotContentValidator.requireValid(pilotSixteenSnapshot)
         PilotContentValidator.requireValid(pilotSeventeenSnapshot)
+        PilotContentValidator.requireValid(pilotEighteenSnapshot)
         PilotContentValidator.requireValid(currentSnapshot)
     }
 

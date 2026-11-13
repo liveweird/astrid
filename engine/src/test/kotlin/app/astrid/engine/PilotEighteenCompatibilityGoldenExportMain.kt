@@ -17,16 +17,12 @@ object PilotEighteenCompatibilityGoldenExportMain {
     }
 }
 
-/**
- * Pair eighteen has no retained production hook while it is CURRENT. This adapter is deliberately
- * fail-closed: the future pair-nineteen change must bind it to a retained snapshot/review renderer.
- */
 internal fun publishedPairEighteenReviewBytes(): ByteArray {
     val engine = PilotEngine()
-    require(PilotContent.currentSnapshot.contentRevision == CONTENT_REVISION)
-    require(PilotContent.currentSnapshot.generatorRevision == GENERATOR_REVISION)
+    require(PilotContent.pilotEighteenSnapshot.contentRevision == CONTENT_REVISION)
+    require(PilotContent.pilotEighteenSnapshot.generatorRevision == GENERATOR_REVISION)
     require(engine.evaluationRevision(CONTENT_REVISION, GENERATOR_REVISION) == EVALUATION_REVISION)
-    return PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
+    return PilotReview.renderPilotEighteenMarkdown().toByteArray(Charsets.UTF_8)
 }
 
 internal object PilotEighteenCompatibilityGolden {
@@ -178,7 +174,7 @@ internal object PilotEighteenCompatibilityGolden {
     }
 
     private fun FreezeHasher.vocabularyMetadata() {
-        val snapshot = PilotContent.currentSnapshot
+        val snapshot = PilotContent.pilotEighteenSnapshot
         val formats = snapshot.formats.filter { it.id in P1_TASK_COUNTS }
         integer("p1Formats.count", formats.size)
         formats.forEachIndexed { index, format -> exerciseFormat("p1Formats[$index]", format) }
@@ -493,8 +489,8 @@ internal object PilotEighteenCompatibilityGolden {
     }
 
     private fun requireLiteralPairEighteen() {
-        require(PilotContent.currentSnapshot.contentRevision == CONTENT_REVISION)
-        require(PilotContent.currentSnapshot.generatorRevision == GENERATOR_REVISION)
+        require(PilotContent.pilotEighteenSnapshot.contentRevision == CONTENT_REVISION)
+        require(PilotContent.pilotEighteenSnapshot.generatorRevision == GENERATOR_REVISION)
         require(engine.evaluationRevision(CONTENT_REVISION, GENERATOR_REVISION) == EVALUATION_REVISION)
     }
 

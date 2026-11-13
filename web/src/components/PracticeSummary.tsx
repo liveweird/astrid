@@ -62,6 +62,9 @@ const SCOPED_TARGET_KINDS: Record<string, string> = {
   "one-final-circumstance:constituent-order": "Constituent order",
   "neutral-positive-yes-no:constituent-order": "Question order",
   "p1-subject-first-supplied:word-order": "Word order",
+  "p2-subject-first-supplied:word-order": "Word order",
+  "p2-polite-wish:word-order": "Word order",
+  "p2-polite-request:word-order": "Word order",
 };
 
 const GRAMMAR_TARGET_KINDS: Record<string, string> = {
@@ -101,7 +104,8 @@ export default function PracticeSummary({
   const moduleOne = session.introductionRequired === true;
   const sessionFocusId: string = session.focusId;
   const sessionPlanRevision: string = session.planRevision;
-  const cumulativeReview = sessionFocusId === "cumulative-review" && sessionPlanRevision === "cumulative-review-1";
+  const cumulativeReview = sessionFocusId === "cumulative-review"
+    && ["cumulative-review-1", "cumulative-review-2"].includes(sessionPlanRevision);
   return (
     <Stack gap="lg">
       <Box>

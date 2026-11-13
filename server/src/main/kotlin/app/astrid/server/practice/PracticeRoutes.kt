@@ -57,6 +57,13 @@ private val SUPPORTED_PRACTICE_PLANS = setOf(
     VOCABULARY_P1_S4_FOCUS to VOCABULARY_P1_S4_CURRENT_REVISION,
     VOCABULARY_P1_S5_FOCUS to VOCABULARY_P1_S5_REVISION,
     VOCABULARY_P1_S5_FOCUS to VOCABULARY_P1_S5_CURRENT_REVISION,
+    "vocabulary-p2-s1" to "vocabulary-p2-s1-1",
+    "vocabulary-p2-s2" to "vocabulary-p2-s2-1",
+    "vocabulary-p2-s3" to "vocabulary-p2-s3-1",
+    "vocabulary-p2-s4" to "vocabulary-p2-s4-1",
+    "vocabulary-p2-s5" to "vocabulary-p2-s5-1",
+    "vocabulary-p2-s6" to "vocabulary-p2-s6-1",
+    CUMULATIVE_REVIEW_FOCUS to CUMULATIVE_REVIEW_RETAINED_REVISION,
     CUMULATIVE_REVIEW_FOCUS to CUMULATIVE_REVIEW_REVISION,
 )
 

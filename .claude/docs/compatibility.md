@@ -32,7 +32,8 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-15` / `generator-15` | `evaluation-15` | + E029 supplied core with final time/place constituent | published and frozen; S12 pins this pair |
 | `pilot-16` / `generator-16` | `evaluation-16` | + E030 supplied neutral positive yes/no question | published and frozen; S13 pins this pair |
 | `pilot-17` / `generator-17` | `evaluation-17` | + E031–E039 scoped work/study vocabulary operations | published; revision-one P1 plans retained; matching-layout exception below |
-| `pilot-18` / `generator-18` | `evaluation-18` | same formats; stable matching shuffle | CURRENT, published and frozen; five revision-two P1 plans pin this pair |
+| `pilot-18` / `generator-18` | `evaluation-18` | same formats; stable matching shuffle | published and frozen; five revision-two P1 plans pin this pair |
+| `pilot-19` / `generator-19` | `evaluation-19` | + E040–E044 scoped food/shopping operations | CURRENT; six P2 revision-one plans pin this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
@@ -62,6 +63,12 @@ as current. Both generations use unchanged `vocabulary-p1-outcome-1` /
 `vocabulary-p1-exposure-1` policies and no existing follow-up planner entry. Source metadata,
 typed known alternatives, matching correspondences, structured facts, occurrence orders and
 teaching/exposure inputs remain compatibility inputs.
+The six `vocabulary-p2-s1-1` … `vocabulary-p2-s6-1` plans pin pair nineteen with
+`vocabulary-p2-outcome-1` / `vocabulary-p2-exposure-1` policies. Their sense-aware
+sources, explicit subject/chronology facts, quantity components and fixed punctuation
+are fingerprint inputs. E044 has a reading primary target; supplied lexical content is
+support. E042 assesses only matched heads, and E043 supplied order establishes no
+lexical recall or conjugation. Old payloads omit the optional fields.
 Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 
 ### Pair-seventeen matching exception
@@ -206,7 +213,7 @@ public/private/saved-payload/replay wire. The P1 pair-seventeen change switches 
 
 | Task | Output |
 | --- | --- |
-| `:engine:exportPilotReview` | `engine/build/review/pilot-18.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotReview` | `engine/build/review/pilot-19.md` (current; run in CI and uploaded as `server-reports`) |
 | `:engine:exportPilotSeventeenReview` | `engine/build/review/pilot-17-retained.md`; historical matching-dependent layout is not cross-JVM byte-stable |
 | `:engine:exportPilotSixteenReview` | `engine/build/review/pilot-16-retained.md` |
 | `:engine:exportPilotFifteenReview` | `engine/build/review/pilot-15-retained.md` |
@@ -276,7 +283,12 @@ of real-database grading; actual upgrade/restart acceptance is separate. Two fre
 captures under default and Arabic locales were byte-identical. Both archives/provenance
 and their SHA guards are immutable; all 115 earlier protected resources stayed unchanged.
 
-`cumulative-review-1` is a composite plan. Its three run-level revision fields are the
+New `cumulative-review-2` admits the six taught P2 families in addition to the original
+twenty. Retained `cumulative-review-1` preserves its twenty-family eligibility even for
+new requests; neither a CURRENT constant nor later teaching expands it. Both versions
+keep their saved private selection, original per-item graders and replay-before-history.
+
+Both cumulative versions are composite plans. Their three run-level revision fields are the
 literal marker `per-item`; this is **not an engine revision**. Each cumulative public
 item supplies `revisions` with its actual content/generator/evaluation triple. Grade and
 fingerprint only the stored exercise's literal pair, never the plan's summary markers.

@@ -63,7 +63,7 @@ function feedbackTitle(
 }
 
 function failedConstraintLabel(scope: string | null | undefined, tileResponse: boolean, matchingCount: number) {
-  if (scope === "danish-matching") return `Complete ${matchingCount === 3 ? "three" : "four"} matches`;
+  if (scope === "danish-matching") return `Complete ${numberWord(matchingCount).toLocaleLowerCase()} matches`;
   if (scope === "danish-gaps") return "Complete both gaps";
   if (tileResponse) return "Response constraint to revisit";
   if (scope === "danish-headword") return "One-word response required";
@@ -73,12 +73,16 @@ function failedConstraintLabel(scope: string | null | undefined, tileResponse: b
 }
 
 function metConstraintLabel(scope: string | null | undefined, tileResponse: boolean, matchingCount: number) {
-  if (scope === "danish-matching") return `${matchingCount === 3 ? "Three" : "Four"} matches supplied`;
+  if (scope === "danish-matching") return `${numberWord(matchingCount)} matches supplied`;
   if (scope === "danish-gaps") return "Both gaps supplied";
   if (tileResponse) return "Response constraint met";
   if (scope === "danish-sentence") return "One statement supplied";
   if (scope === "danish-word-form") return "One-word form supplied";
   return "Supplied choice used";
+}
+
+function numberWord(value: number) {
+  return ({ 2: "Two", 3: "Three", 4: "Four" } as Record<number, string>)[value] ?? String(value);
 }
 
 function matchingEvidence(attempt: Attempt, exercise: Exercise | undefined) {
@@ -175,7 +179,7 @@ function FeedbackBadges({ attempt, tileResponse, matchingCount, packetMatching }
   return (
     <Group className={classes.feedbackBadges} gap="xs">
       <Badge className={classes.feedbackBadge} variant="default">
-        {matching ? `${matchingCount === 3 ? "Three" : "Four"} lexical meanings` : targetLabel(attempt.targetSatisfaction)}
+        {matching ? `${numberWord(matchingCount)} lexical meanings` : targetLabel(attempt.targetSatisfaction)}
       </Badge>
       {meaningSatisfaction && (
         <Badge className={classes.feedbackBadge} variant="default">
@@ -229,7 +233,7 @@ export default function FeedbackPanel({ attempt, exercise, focusRef, supportDesc
   const wordFormTitle = wordFormFeedbackTitle(attempt, met, goodWork);
   const matchingDetails = matchingEvidence(attempt, exercise);
   const matchingCount = matchingDetails?.columns.left.length ?? 4;
-  const packetMatching = matching && ["E033"].includes(exercise?.formatId ?? "");
+  const packetMatching = matching && ["E033", "E042"].includes(exercise?.formatId ?? "");
   const gapDetails = gapEvidence(attempt, exercise);
   return (
     <Alert

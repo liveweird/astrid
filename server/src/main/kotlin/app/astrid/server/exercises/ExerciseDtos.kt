@@ -80,7 +80,12 @@ data class ExercisePromptDto(
     val matchingColumns: MatchingColumnsDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val gapPrompt: GapPromptDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val fixedPunctuation: List<FixedPunctuationDto> = emptyList(),
 )
+
+@Serializable
+data class FixedPunctuationDto(val beforeBlockId: String, val text: String)
 
 @Serializable
 data class MatchingColumnsDto(
@@ -412,6 +417,27 @@ data class VocabularySupportFactDto(
     val valueRole: String,
     val sentence: String,
     val exposureKeys: List<String>,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val referentDisplay: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val predicateSource: VocabularyLexicalSourceDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val objectSource: VocabularyLexicalSourceDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val quantitySource: VocabularyQuantitySourceDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val translation: String? = null,
+)
+
+@Serializable
+data class VocabularyChronologyRelationDto(val relationId: String, val beforeFactId: String, val afterFactId: String)
+
+@Serializable
+data class VocabularyQuantitySourceDto(
+    val constructionId: String,
+    val display: String,
+    val headSource: VocabularyLexicalSourceDto,
+    val componentSources: List<VocabularyLexicalSourceDto>,
 )
 
 @Serializable
@@ -448,6 +474,10 @@ data class VocabularyTileOccurrenceDto(
     val blockId: String,
     val lexicalId: String,
     val form: String,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val lexicalSource: VocabularyLexicalSourceDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val quantitySource: VocabularyQuantitySourceDto? = null,
 )
 
 @Serializable
@@ -470,4 +500,8 @@ data class VocabularyExerciseSourceDto(
     val normalizationPolicy: String? = null,
     val knownAlternatives: List<VocabularyKnownAlternativeDto>,
     val reviewedOrders: List<VocabularyReviewedOrderDto>,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val chronologyRelations: List<VocabularyChronologyRelationDto> = emptyList(),
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val targetChronologyRelationId: String? = null,
 )

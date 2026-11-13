@@ -38,6 +38,21 @@ import kotlinx.serialization.json.jsonPrimitive
 
 class PracticeApplicationTest {
     @Test
+    fun `practice creation rejects a negative deterministic seed`() = testApplication {
+        application { astridModule(config(), InMemoryStores()) }
+        val auth = authenticate()
+
+        val response = create(
+            auth.cookie,
+            auth.ownerId,
+            """{"practiceSessionId":"${UUID.randomUUID()}","focusId":"vocabulary-p2-s1",""" +
+                """"planRevision":"vocabulary-p2-s1-1","seed":-1}""",
+        )
+
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
+
+    @Test
     fun `cumulative review uses only taught lessons persists mixed revisions and replays exactly`() = testApplication {
         application { astridModule(config(), InMemoryStores()) }
         val auth = authenticate()
@@ -146,6 +161,73 @@ class PracticeApplicationTest {
             ).status,
         )
         assertNotNull(stores.practice.findPracticeSession(UUID.fromString(auth.ownerId), UUID.fromString(eligibleId)))
+    }
+
+    @Test
+    fun `cumulative two admits taught P2 while cumulative one ignores it in mixed history`() = testApplication {
+        application { astridModule(config(), InMemoryStores()) }
+        val auth = authenticate()
+        val p2Id = UUID.randomUUID().toString()
+        assertEquals(HttpStatusCode.Created, create(
+            auth.cookie,
+            auth.ownerId,
+            """{"practiceSessionId":"$p2Id","focusId":"vocabulary-p2-s1","planRevision":"vocabulary-p2-s1-1","seed":11}""",
+        ).status)
+        var context = client.get("/api/v1/practice-review-context") {
+            trustedHost(); cookie("astrid_session", auth.cookie)
+        }.bodyAsText().let { wireJson.parseToJsonElement(it).jsonObject }
+        assertEquals("cumulative-review-2", context.getValue("planRevision").jsonPrimitive.content)
+        assertEquals(0, context.getValue("sourceLessonCount").jsonPrimitive.content.toInt())
+
+        assertEquals(HttpStatusCode.OK, support(auth, p2Id, """{"kind":"introduction"}""").status)
+        context = client.get("/api/v1/practice-review-context") {
+            trustedHost(); cookie("astrid_session", auth.cookie)
+        }.bodyAsText().let { wireJson.parseToJsonElement(it).jsonObject }
+        assertEquals(1, context.getValue("sourceLessonCount").jsonPrimitive.content.toInt())
+        assertEquals(3, context.getValue("itemCount").jsonPrimitive.content.toInt())
+
+        val v1WithoutLegacy = create(
+            auth.cookie,
+            auth.ownerId,
+            """{"practiceSessionId":"${UUID.randomUUID()}","focusId":"cumulative-review","planRevision":"cumulative-review-1","seed":17}""",
+        )
+        assertEquals(HttpStatusCode.Conflict, v1WithoutLegacy.status)
+        val v2P2 = create(
+            auth.cookie,
+            auth.ownerId,
+            """{"practiceSessionId":"${UUID.randomUUID()}","focusId":"cumulative-review","planRevision":"cumulative-review-2","seed":17}""",
+        )
+        assertEquals(HttpStatusCode.Created, v2P2.status, v2P2.bodyAsText())
+        assertTrue(wireJson.parseToJsonElement(v2P2.bodyAsText()).jsonObject.getValue("items").jsonArray.all {
+            it.jsonObject.getValue("formatId").jsonPrimitive.content in setOf("E040", "E041", "E042", "E043", "E044")
+        })
+
+        val grammarId = UUID.randomUUID().toString()
+        assertEquals(HttpStatusCode.Created, create(
+            auth.cookie,
+            auth.ownerId,
+            """{"practiceSessionId":"$grammarId","focusId":"module-one-singular","planRevision":"module-one-singular-1","seed":7}""",
+        ).status)
+        assertEquals(HttpStatusCode.OK, support(auth, grammarId, """{"kind":"introduction"}""").status)
+        val v1Mixed = create(
+            auth.cookie,
+            auth.ownerId,
+            """{"practiceSessionId":"${UUID.randomUUID()}","focusId":"cumulative-review","planRevision":"cumulative-review-1","seed":19}""",
+        )
+        assertEquals(HttpStatusCode.Created, v1Mixed.status, v1Mixed.bodyAsText())
+        assertTrue(wireJson.parseToJsonElement(v1Mixed.bodyAsText()).jsonObject.getValue("items").jsonArray.all {
+            it.jsonObject.getValue("formatId").jsonPrimitive.content !in setOf("E040", "E041", "E042", "E043", "E044")
+        })
+        val v2Mixed = create(
+            auth.cookie,
+            auth.ownerId,
+            """{"practiceSessionId":"${UUID.randomUUID()}","focusId":"cumulative-review","planRevision":"cumulative-review-2","seed":19}""",
+        )
+        assertEquals(HttpStatusCode.Created, v2Mixed.status, v2Mixed.bodyAsText())
+        val formats = wireJson.parseToJsonElement(v2Mixed.bodyAsText()).jsonObject.getValue("items").jsonArray
+            .map { it.jsonObject.getValue("formatId").jsonPrimitive.content }
+        assertTrue(formats.any { it in setOf("E040", "E041", "E042", "E043", "E044") })
+        assertTrue(formats.any { it !in setOf("E040", "E041", "E042", "E043", "E044") })
     }
 
     @Test
@@ -359,6 +441,91 @@ class PracticeApplicationTest {
     }
 
     @Test
+    fun `P2 practice requires teaching and validates every new answer family before persistence`() = testApplication {
+        val inspectorKey = "p".repeat(32)
+        application { astridModule(config(inspectorKey), InMemoryStores()) }
+        val auth = authenticate()
+        val seenFormats = mutableSetOf<String>()
+        listOf(1, 3, 5).forEach { lesson ->
+            val focus = "vocabulary-p2-s$lesson"
+            val practiceId = UUID.randomUUID().toString()
+            val created = create(
+                auth.cookie,
+                auth.ownerId,
+                """{"practiceSessionId":"$practiceId","focusId":"$focus","planRevision":"$focus-1","seed":47}""",
+            )
+            assertEquals(HttpStatusCode.Created, created.status, created.bodyAsText())
+            var state = wireJson.parseToJsonElement(created.bodyAsText()).jsonObject
+            for (position in state.getValue("items").jsonArray.indices) {
+                val exercise = state.getValue("currentExercise").jsonObject
+                val exerciseId = exercise.getValue("id").jsonPrimitive.content
+                val format = exercise.getValue("formatId").jsonPrimitive.content
+                seenFormats += format
+                val source = client.get("/api/v1/dev/exercises/$exerciseId") {
+                    trustedHost()
+                    cookie("astrid_session", auth.cookie)
+                    header("X-Astrid-Inspector-Key", inspectorKey)
+                }.bodyAsText().let {
+                    wireJson.parseToJsonElement(it).jsonObject.getValue("vocabularySource").jsonObject
+                }
+                val validAnswer: AttemptAnswerDto = when (format) {
+                    "E042" -> AttemptAnswerDto.Matching(source.getValue("matchingPairs").jsonArray.map { value ->
+                        val pair = value.jsonObject
+                        MatchingPairDto(
+                            pair.getValue("leftId").jsonPrimitive.content,
+                            pair.getValue("rightId").jsonPrimitive.content,
+                        )
+                    })
+                    "E043" -> AttemptAnswerDto.Order(
+                        source.getValue("acceptedOrders").jsonArray.first().jsonArray.map { it.jsonPrimitive.content },
+                    )
+                    else -> AttemptAnswerDto.Text(source.getValue("expectedAnswer").jsonPrimitive.content)
+                }
+                fun body(attemptId: String, answer: AttemptAnswerDto) = wireJson.encodeToString(
+                    AttemptRequest(attemptId, exerciseId, answer, false),
+                )
+                if (position == 0) {
+                    assertEquals(HttpStatusCode.Conflict,
+                        submit(auth.cookie, body(UUID.randomUUID().toString(), validAnswer)).status)
+                    assertEquals(HttpStatusCode.OK, support(auth, practiceId, """{"kind":"introduction"}""").status)
+                }
+                val wrongKind = if (format in setOf("E042", "E043")) AttemptAnswerDto.Text("wrong") else AttemptAnswerDto.Order(emptyList())
+                val wrongKindId = UUID.randomUUID().toString()
+                assertEquals(HttpStatusCode.BadRequest, submit(auth.cookie, body(wrongKindId, wrongKind)).status, format)
+                assertEquals(HttpStatusCode.NotFound, client.get("/api/v1/attempts/$wrongKindId") {
+                    trustedHost(); cookie("astrid_session", auth.cookie)
+                }.status)
+
+                val malformed = when (format) {
+                    "E042" -> {
+                        val answer = validAnswer as AttemptAnswerDto.Matching
+                        AttemptAnswerDto.Matching(answer.pairs + MatchingPairDto("outside", answer.pairs.first().rightId))
+                    }
+                    "E043" -> AttemptAnswerDto.Order((validAnswer as AttemptAnswerDto.Order).blockIds.dropLast(1))
+                    else -> AttemptAnswerDto.Text("outside supplied bank")
+                }
+                assertEquals(HttpStatusCode.BadRequest,
+                    submit(auth.cookie, body(UUID.randomUUID().toString(), malformed)).status, format)
+                assertEquals(HttpStatusCode.OK,
+                    submit(auth.cookie, body(UUID.randomUUID().toString(), validAnswer)).status, format)
+                assertLatestUnknownP2OrderBlocks(
+                    auth,
+                    practiceId,
+                    position,
+                    exerciseId,
+                    validAnswer as? AttemptAnswerDto.Order,
+                )
+                if (position < state.getValue("items").jsonArray.lastIndex) {
+                    val advanced = advance(auth, practiceId, position)
+                    assertEquals(HttpStatusCode.OK, advanced.status, advanced.bodyAsText())
+                    state = wireJson.parseToJsonElement(advanced.bodyAsText()).jsonObject
+                }
+            }
+        }
+        assertEquals(setOf("E040", "E041", "E042", "E043", "E044"), seenFormats)
+    }
+
+    @Test
     fun `guided gaps preserve per-slot outcomes snapshots exposure and selected follow-ups`() = testApplication {
         val inspectorKey = "k".repeat(32)
         val stores = InMemoryStores()
@@ -368,7 +535,7 @@ class PracticeApplicationTest {
             trustedHost()
             cookie("astrid_session", auth.cookie)
         }.bodyAsText().let { wireJson.parseToJsonElement(it).jsonObject.getValue("profiles").jsonArray }
-        assertEquals(23, profiles.size)
+        assertEquals(29, profiles.size)
         val profile = profiles.single { it.jsonObject.getValue("focusId").jsonPrimitive.content == "verb-article-gaps" }.jsonObject
         assertEquals("verb-article-gaps-1", profile.getValue("planRevision").jsonPrimitive.content)
         assertEquals("Verbs and articles together", profile.getValue("title").jsonPrimitive.content)
@@ -501,6 +668,12 @@ class PracticeApplicationTest {
                 "vocabulary-p1-s3/vocabulary-p1-s3-2",
                 "vocabulary-p1-s4/vocabulary-p1-s4-2",
                 "vocabulary-p1-s5/vocabulary-p1-s5-2",
+                "vocabulary-p2-s1/vocabulary-p2-s1-1",
+                "vocabulary-p2-s2/vocabulary-p2-s2-1",
+                "vocabulary-p2-s3/vocabulary-p2-s3-1",
+                "vocabulary-p2-s4/vocabulary-p2-s4-1",
+                "vocabulary-p2-s5/vocabulary-p2-s5-1",
+                "vocabulary-p2-s6/vocabulary-p2-s6-1",
             ),
             choices.map { profile ->
                 profile.jsonObject.let {
@@ -508,7 +681,7 @@ class PracticeApplicationTest {
                 }
             },
         )
-        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4, 6, 6, 4, 4, 6, 4, 2, 2, 2, 4, 4, 4, 4, 5, 5, 5), choices.map {
+        assertEquals(listOf(8, 6, 4, 6, 6, 6, 4, 6, 6, 4, 4, 6, 4, 2, 2, 2, 4, 4, 4, 4, 5, 5, 5, 3, 4, 4, 3, 3, 4), choices.map {
             it.jsonObject.getValue("itemCount").jsonPrimitive.content.toInt()
         })
 
@@ -522,7 +695,7 @@ class PracticeApplicationTest {
     }
 
     @Test
-    fun `every advertised and retained P1 plan creates with required teaching and rereads`() = testApplication {
+    fun `every advertised vocabulary plan and retained P1 plan creates with required teaching and rereads`() = testApplication {
         application { astridModule(config(), InMemoryStores()) }
         val auth = authenticate()
         val profiles = client.get("/api/v1/practice-profiles") {
@@ -530,8 +703,8 @@ class PracticeApplicationTest {
             cookie("astrid_session", auth.cookie)
         }.bodyAsText().let { wireJson.parseToJsonElement(it).jsonObject.getValue("profiles").jsonArray }
             .map { it.jsonObject }
-            .filter { it.getValue("focusId").jsonPrimitive.content.startsWith("vocabulary-p1-") }
-        assertEquals(5, profiles.size)
+            .filter { it.getValue("focusId").jsonPrimitive.content.startsWith("vocabulary-") }
+        assertEquals(11, profiles.size)
 
         val pairs = profiles.map { profile ->
             profile.getValue("focusId").jsonPrimitive.content to
@@ -547,7 +720,11 @@ class PracticeApplicationTest {
             assertEquals(HttpStatusCode.Created, created.status, "$focus/$revision: ${created.bodyAsText()}")
             val createdState = wireJson.parseToJsonElement(created.bodyAsText()).jsonObject
             assertEquals(revision, createdState.getValue("planRevision").jsonPrimitive.content)
-            val pair = if (revision.endsWith("-2")) "18" else "17"
+            val pair = when {
+                focus.startsWith("vocabulary-p2-") -> "19"
+                revision.endsWith("-2") -> "18"
+                else -> "17"
+            }
             assertEquals("pilot-$pair", createdState.getValue("contentRevision").jsonPrimitive.content)
             assertEquals("generator-$pair", createdState.getValue("generatorRevision").jsonPrimitive.content)
             assertEquals("evaluation-$pair", createdState.getValue("evaluationRevision").jsonPrimitive.content)
@@ -1060,6 +1237,28 @@ class PracticeApplicationTest {
             trustedHost()
             cookie("astrid_session", cookie)
         }
+
+    private suspend fun ApplicationTestBuilder.assertLatestUnknownP2OrderBlocks(
+        auth: Auth,
+        practiceId: String,
+        position: Int,
+        exerciseId: String,
+        validAnswer: AttemptAnswerDto.Order?,
+    ) {
+        if (validAnswer == null) return
+        fun body(answer: AttemptAnswerDto.Order) = wireJson.encodeToString(
+            AttemptRequest(UUID.randomUUID().toString(), exerciseId, answer, false),
+        )
+        var state = wireJson.parseToJsonElement(getPractice(auth.cookie, practiceId).bodyAsText()).jsonObject
+        assertTrue(state.getValue("items").jsonArray[position].jsonObject
+            .getValue("canAdvance").jsonPrimitive.content.toBoolean())
+        assertEquals(HttpStatusCode.OK, submit(auth.cookie, body(validAnswer.copy(blockIds = validAnswer.blockIds.reversed()))).status)
+        state = wireJson.parseToJsonElement(getPractice(auth.cookie, practiceId).bodyAsText()).jsonObject
+        assertFalse(state.getValue("items").jsonArray[position].jsonObject
+            .getValue("canAdvance").jsonPrimitive.content.toBoolean())
+        assertEquals(HttpStatusCode.Conflict, advance(auth, practiceId, position).status)
+        assertEquals(HttpStatusCode.OK, submit(auth.cookie, body(validAnswer)).status)
+    }
 
     private fun io.ktor.client.request.HttpRequestBuilder.trustedHost() = header(HttpHeaders.Host, "localhost:8088")
 

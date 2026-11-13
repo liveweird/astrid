@@ -77,6 +77,7 @@ class GeneratedExercise internal constructor(
         is CircumstanceExerciseSource -> exerciseSource.task.targetScopeId
         is QuestionExerciseSource -> exerciseSource.task.targetScopeId
         is VocabularyP1ExerciseSource -> exerciseSource.task.targetScopeId
+        is VocabularyP2ExerciseSource -> exerciseSource.task.targetScopeId
         else -> null
     }
     val instruction: String get() = presentation.instruction
@@ -110,7 +111,10 @@ data class ExercisePrompt(
     val requiredTileCount: Int? = null,
     val matchingColumns: MatchingColumns? = null,
     val gapPrompt: GapPrompt? = null,
+    val fixedPunctuation: List<FixedPunctuation> = emptyList(),
 )
+
+data class FixedPunctuation(val beforeBlockId: String, val text: String)
 
 data class GapPrompt(val segments: List<String>, val slots: List<GapSlot>)
 
@@ -180,6 +184,8 @@ enum class VocabularyLexicalKind(val wireValue: String) {
     BARE_LANGUAGE("bare-language"),
     ADVERB("adverb"),
     FIXED_CHUNK("fixed-chunk"),
+    ADJECTIVE("adjective"),
+    INTERJECTION("interjection"),
 }
 
 data class VocabularyLexicalForms(
@@ -213,6 +219,8 @@ data class VocabularyExerciseSourceDetails(
     val normalizationPolicy: String? = null,
     val knownAlternatives: List<VocabularyKnownAlternativeDetails> = emptyList(),
     val reviewedOrders: List<VocabularyReviewedOrderDetails> = emptyList(),
+    val chronologyRelations: List<VocabularyChronologyRelationDetails> = emptyList(),
+    val targetChronologyRelationId: String? = null,
 )
 
 data class VocabularySupportFactDetails(
@@ -224,6 +232,24 @@ data class VocabularySupportFactDetails(
     val valueRole: String,
     val sentence: String,
     val exposureKeys: List<String>,
+    val referentDisplay: String? = null,
+    val predicateSource: VocabularyLexicalSourceDetails? = null,
+    val objectSource: VocabularyLexicalSourceDetails? = null,
+    val quantitySource: VocabularyQuantitySourceDetails? = null,
+    val translation: String? = null,
+)
+
+data class VocabularyChronologyRelationDetails(
+    val relationId: String,
+    val beforeFactId: String,
+    val afterFactId: String,
+)
+
+data class VocabularyQuantitySourceDetails(
+    val constructionId: String,
+    val display: String,
+    val headSource: VocabularyLexicalSourceDetails,
+    val componentSources: List<VocabularyLexicalSourceDetails>,
 )
 
 data class VocabularyKnownAlternativeDetails(
@@ -254,6 +280,8 @@ data class VocabularyTileOccurrenceDetails(
     val blockId: String,
     val lexicalId: String,
     val form: String,
+    val lexicalSource: VocabularyLexicalSourceDetails? = null,
+    val quantitySource: VocabularyQuantitySourceDetails? = null,
 )
 
 data class InanimateReferenceSourceDetails(
@@ -454,6 +482,12 @@ internal sealed interface ExerciseSource {
 
 internal data class VocabularyP1ExerciseSource(
     val task: VocabularyP1Task,
+    override val answerKey: AnswerKey,
+    override val blockRoles: Map<String, String> = emptyMap(),
+) : ExerciseSource
+
+internal data class VocabularyP2ExerciseSource(
+    val task: VocabularyP2Task,
     override val answerKey: AnswerKey,
     override val blockRoles: Map<String, String> = emptyMap(),
 ) : ExerciseSource

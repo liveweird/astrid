@@ -92,6 +92,9 @@ it.each([
   ["supplied-modal-order", "G005", "Supplied-modal statement order"],
   ["one-final-circumstance", "G016", "Time or place at the end"],
   ["neutral-positive-yes-no", "G018", "Neutral yes/no question order"],
+  ["p2-subject-first-supplied", "G005", "Subject-first statement order"],
+  ["p2-polite-wish", "G005", "Polite wish statement order"],
+  ["p2-polite-request", "G005", "Polite request statement order"],
 ] as const)("shows a learning label instead of the %s implementation scope", async (targetScopeId, targetSkillId, label) => {
   saveModuleOneRun();
   const scopedExercise = { ...subjectExercise, targetScopeId, targetSkillId };

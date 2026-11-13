@@ -30,6 +30,9 @@ const TARGET_SCOPE_LABELS: Record<string, string> = {
   "p1-studere-present": "Present form of studere",
   "p1-drikke-present": "Present form of drikke",
   "p1-subject-first-supplied": "Subject-first statement order",
+  "p2-subject-first-supplied": "Subject-first statement order",
+  "p2-polite-wish": "Polite wish statement order",
+  "p2-polite-request": "Polite request statement order",
 };
 
 function targetBadge(exercise: NonNullable<PracticeSession["currentExercise"]>) {

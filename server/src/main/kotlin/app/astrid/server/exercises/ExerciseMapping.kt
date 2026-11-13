@@ -53,6 +53,7 @@ internal fun GeneratedExercise.toResponse(id: String) = ExerciseResponse(
                 },
             )
         },
+        fixedPunctuation = prompt.fixedPunctuation.map { FixedPunctuationDto(it.beforeBlockId, it.text) },
     ),
     introduction = introduction.map { IntroductionDto(it.title, it.body, it.bodyLanguage) },
     hint = hint,
@@ -155,12 +156,15 @@ private fun app.astrid.engine.VocabularyExerciseSourceDetails.toDto() = Vocabula
     supportFacts = supportFacts.map {
         VocabularySupportFactDto(
             it.factId, it.referentId, it.predicateId, it.valueId, it.valueText, it.valueRole, it.sentence, it.exposureKeys,
+            it.referentDisplay, it.predicateSource?.toDto(), it.objectSource?.toDto(), it.quantitySource?.toDto(), it.translation,
         )
     },
     matchingPairs = matchingPairs.map {
         VocabularyMatchingPairSourceDto(it.leftId, it.rightId, it.lexicalSource.toDto())
     },
-    tileOccurrences = tileOccurrences.map { VocabularyTileOccurrenceDto(it.blockId, it.lexicalId, it.form) },
+    tileOccurrences = tileOccurrences.map {
+        VocabularyTileOccurrenceDto(it.blockId, it.lexicalId, it.form, it.lexicalSource?.toDto(), it.quantitySource?.toDto())
+    },
     acceptedOrders = acceptedOrders,
     targetSupportFactId = targetSupportFactId,
     questionRole = questionRole,
@@ -185,6 +189,14 @@ private fun app.astrid.engine.VocabularyExerciseSourceDetails.toDto() = Vocabula
             it.issueCode,
         )
     },
+    chronologyRelations = chronologyRelations.map {
+        VocabularyChronologyRelationDto(it.relationId, it.beforeFactId, it.afterFactId)
+    },
+    targetChronologyRelationId = targetChronologyRelationId,
+)
+
+private fun app.astrid.engine.VocabularyQuantitySourceDetails.toDto() = VocabularyQuantitySourceDto(
+    constructionId, display, headSource.toDto(), componentSources.map { it.toDto() },
 )
 
 private fun app.astrid.engine.VocabularyLexicalSourceDetails.toDto() = VocabularyLexicalSourceDto(
@@ -306,6 +318,18 @@ internal fun GeneratedExercise.reproductionFingerprint(
             targetScopeIdForFingerprint,
         ).let { scopedFingerprintFrameWithModal("pair-eighteen", it, inspectorForFingerprint.modalSource) }
             .let { pairSeventeenFingerprintCanonical(it, vocabularySourceForFingerprint) }
+        "pilot-19" to "generator-19" -> pairNineFingerprintCanonical(
+            promptForFingerprint,
+            lexicalTargetForFingerprint,
+            inspectorForFingerprint,
+            supportSkillIdsForFingerprint,
+            readingTargetForFingerprint,
+            introductionForFingerprint,
+            lexicalTargetsForFingerprint,
+            targetScopeIdForFingerprint,
+        ).let { scopedFingerprintFrameWithModal("pair-nineteen", it, inspectorForFingerprint.modalSource) }
+            .let { pairSeventeenFingerprintCanonical(it, vocabularySourceForFingerprint) }
+            .let { pairNineteenFingerprintCanonical(it, promptForFingerprint, vocabularySourceForFingerprint) }
         in SCOPED_FINGERPRINT_PAIRS -> pairNineFingerprintCanonical(
             promptForFingerprint,
             lexicalTargetForFingerprint,
@@ -390,6 +414,48 @@ private fun vocabularyLexicalSourceFingerprint(source: app.astrid.engine.Vocabul
         framedNullable(source.forms.form),
         source.gloss,
         source.selectedUse,
+    ))
+
+private fun pairNineteenFingerprintCanonical(
+    inheritedCanonical: String,
+    prompt: ExercisePrompt,
+    source: app.astrid.engine.VocabularyExerciseSourceDetails?,
+): String = framedList(listOf(
+    inheritedCanonical,
+    framedList(prompt.fixedPunctuation.map { punctuation ->
+        framedList(listOf(punctuation.beforeBlockId, punctuation.text))
+    }),
+    framedNullable(source?.let { details ->
+        framedList(listOf(
+            framedList(details.supportFacts.map { fact ->
+                framedList(listOf(
+                    framedNullable(fact.referentDisplay),
+                    framedNullable(fact.predicateSource?.let(::vocabularyLexicalSourceFingerprint)),
+                    framedNullable(fact.objectSource?.let(::vocabularyLexicalSourceFingerprint)),
+                    framedNullable(fact.quantitySource?.let(::vocabularyQuantitySourceFingerprint)),
+                    framedNullable(fact.translation),
+                ))
+            }),
+            framedList(details.tileOccurrences.map { occurrence ->
+                framedList(listOf(
+                    framedNullable(occurrence.lexicalSource?.let(::vocabularyLexicalSourceFingerprint)),
+                    framedNullable(occurrence.quantitySource?.let(::vocabularyQuantitySourceFingerprint)),
+                ))
+            }),
+            framedList(details.chronologyRelations.map { relation ->
+                framedList(listOf(relation.relationId, relation.beforeFactId, relation.afterFactId))
+            }),
+            framedNullable(details.targetChronologyRelationId),
+        ))
+    }),
+))
+
+private fun vocabularyQuantitySourceFingerprint(source: app.astrid.engine.VocabularyQuantitySourceDetails): String =
+    framedList(listOf(
+        source.constructionId,
+        source.display,
+        vocabularyLexicalSourceFingerprint(source.headSource),
+        framedList(source.componentSources.map(::vocabularyLexicalSourceFingerprint)),
     ))
 
 private fun fingerprintSha256(canonical: String): String =

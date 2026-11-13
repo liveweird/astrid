@@ -10,7 +10,11 @@ internal object PilotReviewVersions {
     fun hasPresentOrder(snapshot: PilotContentSnapshot) = snapshot.contentRevision in PRESENT_ORDER_REVISIONS
 
     fun provenance(snapshot: PilotContentSnapshot): String = when (snapshot.contentRevision) {
-        in setOf(PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION, PilotContent.CURRENT_CONTENT_REVISION) ->
+        PilotContent.CURRENT_CONTENT_REVISION ->
+            "docs/knowledge/vocabulary-food-shopping-activation.md and " +
+                "docs/knowledge/vocabulary-food-shopping-packet.md (P2 L050-L063, L009-S02 and 21 literal activities; " +
+                "2026-11-12), plus retained pair-eighteen sources"
+        in setOf(PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION, PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION) ->
             "docs/knowledge/vocabulary-course-blueprint.md and docs/knowledge/vocabulary-expansion-activation.md " +
                 "(P1 L041-L049 and 23 literal activities; 2026-11-12), plus retained pair-sixteen sources"
         PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION ->
@@ -74,7 +78,10 @@ internal object PilotReviewVersions {
     }
 
     fun sourceReview(snapshot: PilotContentSnapshot): String = when (snapshot.contentRevision) {
-        in setOf(PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION, PilotContent.CURRENT_CONTENT_REVISION) ->
+        PilotContent.CURRENT_CONTENT_REVISION ->
+            "2026-11-12 official COR form checks and bounded authored P2 frame review; see " +
+                "docs/knowledge/vocabulary-food-shopping-activation.md and docs/knowledge/vocabulary-food-shopping-packet.md"
+        in setOf(PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION, PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION) ->
             "2026-11-12 official COR form checks and bounded authored P1 frame review; see " +
                 "docs/knowledge/vocabulary-expansion-activation.md and docs/knowledge/vocabulary-work-study-packet.md"
         PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION ->
@@ -152,6 +159,7 @@ internal object PilotReviewVersions {
         PilotContent.RETAINED_FIFTEEN_CONTENT_REVISION,
         PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
         PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
+        PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
         PilotContent.CURRENT_CONTENT_REVISION,
     )
     private val WORD_CHOICE_REVISIONS = WRITING_REVISIONS - PilotContent.RETAINED_FOUR_CONTENT_REVISION

@@ -24,7 +24,7 @@ focused commits/merge/push and versioned release/private-preview delivery apply.
 activation, the Vocabulary library and resuming S14 remain later milestones; this selection
 does not introduce accounts, cross-device history, scheduling or mastery thresholds.
 
-## Confirmed documentation rule
+## Food/shopping implementation selection
 
 **12 November 2026 — P2 implementation selected:** The user's “OK, go for it, implement”
 selects six food/cafés/shopping sessions and 21 activities, including introduced-material
@@ -32,6 +32,8 @@ eligibility in cumulative review. The [activation contract](vocabulary-food-shop
 owns BL-070, app 0.22.0/pair nineteen and sense/quantity/reading boundaries. Standing independent
 review, full checks, focused commits/merge/push, release and backed-up app-only preview
 delivery apply. P3, Vocabulary library and S14 remain separate; specialist review stays open.
+
+## Confirmed documentation rule
 
 From 6 November 2026 onward, continuously document project assumptions, requirements, constraints, open points, questions, decisions, rules, conventions, principles, and tenets. Maintain a separate work backlog with `[next]`, `[todo]`, `[new]`, `[parked]`, and `[blocked]` statuses. This is a standing user instruction, not an occasional documentation task.
 
@@ -352,3 +354,13 @@ remain explicit. P2/P3 and the Vocabulary library remain later milestones; S14 s
 Git writes used the authenticated `gh` credential helper per command after the default
 macOS helper returned `-128`; no global Git or proxy setting changed. This completion
 follow-up changes tests and documentation only; the preview keeps the tagged source.
+
+## P2 continuation window — 12–13 November 2026
+
+The user asked whether useful work can continue until **07:30 Europe/Warsaw**.
+Continue the selected P2 implementation, independent content/runtime review, compatibility,
+recovery/accessibility checks, full repository/browser gates and versioned private-preview
+release. Aim to finish code changes by 07:00 and reserve the final half-hour for verification
+and a clear safe handoff by 07:30 on 13 November. Preserve focused verified commits and
+standing GitHub/release approvals. This window does not select P3, the Vocabulary library,
+S14, new grammar, accounts or operating-system power actions.

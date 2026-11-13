@@ -10,10 +10,25 @@ and plan **cumulative-review-1** are implementation assignments, separate from l
 the existing learning pairs, whose content, generation and grading remain unchanged.
 
 Existing fixed Mixed practice, other Review sets, source-linked follow-ups and lessons
-retain their contracts. Food/shopping activation, the Vocabulary library and S14 remain
-later milestones. Accounts, cross-device history, spaced scheduling, mastery thresholds,
+retain their contracts. The Vocabulary library and S14 remain later milestones. Food/shopping activation was
+subsequently selected separately; its versioned extension is recorded below. Accounts, cross-device history, spaced scheduling, mastery thresholds,
 new grammar and runtime AI generation are outside this release. Danish teaching review
 remains BL-022; software verification does not confer teaching approval.
+
+## Selected food/shopping extension — 12 November 2026
+
+The user subsequently selected [P2 activation](vocabulary-food-shopping-activation.md)
+under BL-070. App **0.22.0** advertises **cumulative-review-2**, admitting the six P2
+lesson families after saved teaching, for twenty-six eligible source families. The new
+version retains the eight-item cap, empty/short pools, fixed-lifetime owner boundary,
+atomic creation and frozen replay. Each P2 item keeps pair nineteen and its own completion
+and exposure policies; other source items keep their original graders.
+
+Retained **cumulative-review-1** keeps its original twenty-family eligibility, including
+new explicit version-one requests. Later P2 teaching cannot change a saved selection or
+expand that old contract. Its published engine and synthetic wire archives were frozen
+before production changes. Actual upgrade/restart and release observations belong in
+the P2 activation record after verification; this section records the selected contract.
 
 ## Eligibility and ownership
 
