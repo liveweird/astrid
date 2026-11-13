@@ -13,6 +13,8 @@
 2. Open teaching and complete all 21 authored activities.
    - *Expected*: Danish teaching is visibly marked, every E040–E044 response uses its advertised
      text, matching or order transport, and the completed summary survives reload without overcredit.
+   - *Expected*: Session 4 separates the English location gloss from its Danish-tagged phrase;
+     Session 6 marks the English request/possession explanation as English.
 3. Exercise the corrected Session 6 board when that session is selected.
    - *Expected*: only `a cup ↔ en kop` and `a bottle ↔ en flaske` appear; one partial pair cannot
      continue, retry preserves the pair, and the complete two-pair board can continue.

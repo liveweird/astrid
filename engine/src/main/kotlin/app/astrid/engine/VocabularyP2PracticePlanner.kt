@@ -180,7 +180,7 @@ internal class VocabularyP2PracticePlanner(private val engine: PilotEngine) {
                 IntroductionSection("Handover scene", "Værsgo. — Here you are when handing over the item.", "en"),
             )
             PURCHASE_LESSON -> listOf(
-                IntroductionSection("Supplied location", "i en café = in a café", "da"),
+                IntroductionSection("Supplied location — in a café", "i en café", "da"),
                 IntroductionSection("Stated event order",
                     "First, the speaker buys a bread roll in a café. After that purchase, the speaker pays. Paying is last.", "en"),
             )
@@ -192,7 +192,7 @@ internal class VocabularyP2PracticePlanner(private val engine: PilotEngine) {
             REQUEST_LESSON -> listOf(
                 IntroductionSection("A cup of coffee", "en kop kaffe", "da"),
                 IntroductionSection("A bottle of water", "en flaske vand", "da"),
-                IntroductionSection("Request and possession are different uses", "request have ≠ possession har = has", "da"),
+                IntroductionSection("Request and possession are different uses", "request have ≠ possession har = has", "en"),
                 IntroductionSection("Request frame", "vil is finite; have remains the bare infinitive", "en"),
             )
             else -> emptyList()

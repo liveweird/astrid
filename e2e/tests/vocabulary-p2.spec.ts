@@ -63,7 +63,7 @@ const PROFILES: readonly {
   },
   {
     focus: "vocabulary-p2-s4", title: "Buying and paying", count: 3,
-    teaching: ["en café", "at købe → køber", "at betale → betaler"],
+    teaching: ["en café", "at købe → køber", "at betale → betaler", "i en café"],
     answers: [
       { kind: "text", value: "buys" }, { kind: "text", value: "the speaker pays" },
       { kind: "order", words: ["Jeg", "køber", "en bolle"] },
@@ -242,6 +242,13 @@ for (const profile of PROFILES) {
     const introduction = page.getByRole("region", { name: "Session introduction", exact: true });
     for (const form of profile.teaching) {
       await expect(introduction.getByText(form, { exact: true }).first()).toHaveAttribute("lang", "da");
+    }
+    if (profile.focus === "vocabulary-p2-s4") {
+      await expect(introduction.getByText("Supplied location — in a café", { exact: true })).toBeVisible();
+    }
+    if (profile.focus === "vocabulary-p2-s6") {
+      await expect(introduction.getByText("request have ≠ possession har = has", { exact: true }))
+        .toHaveAttribute("lang", "en");
     }
     const seen: string[] = [];
     while (state.state !== "completed") {
