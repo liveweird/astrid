@@ -289,7 +289,7 @@ internal object VocabularyP2ExerciseGenerator {
     }
 
     private fun choice(request: GenerationRequest, task: VocabularyP2Task): GeneratedExercise {
-        val choices = shuffled(task.choices, request.seed xor task.id.hashCode())
+        val choices = shuffled(task.choices, request.seed xor task.id.hashCode()) { it }
         val expected = expectedChoice(task)
         return exercise(
             request,
@@ -311,8 +311,11 @@ internal object VocabularyP2ExerciseGenerator {
     }
 
     private fun matching(request: GenerationRequest, task: VocabularyP2Task): GeneratedExercise {
-        val left = shuffled(task.matching.map { it.first }, request.seed xor task.id.hashCode())
-        val right = shuffled(task.matching.map { it.second }, request.seed xor task.id.hashCode() xor MATCHING_COLUMN_SALT)
+        val left = shuffled(task.matching.map { it.first }, request.seed xor task.id.hashCode()) { it }
+        val right = shuffled(
+            task.matching.map { it.second },
+            request.seed xor task.id.hashCode() xor MATCHING_COLUMN_SALT,
+        ) { lexeme -> "${lexeme.entryId}:${lexeme.senseId}" }
         val leftItems = left.mapIndexed { index, text -> MatchingItem(opaque("l", request.seed, index, text), text) }
         val rightItems = right.mapIndexed { index, lexeme ->
             MatchingItem(opaque("r", request.seed, index, lexeme.display), lexeme.display)
@@ -339,7 +342,9 @@ internal object VocabularyP2ExerciseGenerator {
 
     private fun tiles(request: GenerationRequest, task: VocabularyP2Task): GeneratedExercise {
         val canonical = task.tiles.mapIndexed { index, tile -> GeneratedTile(index, opaque("b", request.seed, index, tile.text), tile) }
-        val displayed = shuffled(canonical, request.seed xor task.id.hashCode())
+        val displayed = shuffled(canonical, request.seed xor task.id.hashCode()) { generated ->
+            "${generated.index}:${generated.id}:${generated.tile.text}"
+        }
         val punctuation = if (task.fixedCommaBeforeLast) {
             listOf(FixedPunctuation(canonical.last().id, ","))
         } else emptyList()
@@ -495,10 +500,14 @@ internal object VocabularyP2ExerciseGenerator {
     private fun sentenceWithPunctuation(words: String, comma: Boolean) =
         (if (comma) words.replace(" tak", ", tak") else words).replaceFirstChar(Char::uppercase) + "."
 
-    private fun <T> shuffled(values: List<T>, salt: Int): List<T> = values.sortedBy { value ->
-        var mixed = salt.toLong() xor value.hashCode().toLong() * MIX_MULTIPLIER_ONE
+    private fun <T> shuffled(values: List<T>, salt: Int, stableKey: (T) -> String): List<T> = values.sortedWith(
+        compareBy<T> { value -> shuffleRank(stableKey(value), salt) }.thenBy(stableKey),
+    )
+
+    private fun shuffleRank(stableKey: String, salt: Int): Long {
+        var mixed = salt.toLong() xor stableKey.hashCode().toLong() * MIX_MULTIPLIER_ONE
         mixed = (mixed xor (mixed ushr MIX_SHIFT_ONE)) * MIX_MULTIPLIER_TWO
-        mixed xor (mixed ushr MIX_SHIFT_TWO)
+        return mixed xor (mixed ushr MIX_SHIFT_TWO)
     }
 
     private fun opaque(prefix: String, seed: Int, index: Int, value: String): String =

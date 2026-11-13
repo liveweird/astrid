@@ -75,10 +75,15 @@ class VocabularyP2FingerprintTest {
     }
 
     @Test
-    fun `pair nineteen inherited and P2 matching fingerprints are deterministic in fresh locale JVMs`() {
+    fun `all pair nineteen P2 tasks and inherited matching are deterministic in perturbed fresh JVMs`() {
         val classpath = System.getProperty("java.class.path")
         val java = File(System.getProperty("java.home"), "bin/java").absolutePath
-        val fingerprints = listOf("en-US", "tr-TR", "ar-EG").map { locale ->
+        val configurations = listOf(
+            "en-US" to "forward",
+            "tr-TR" to "reverse",
+            "ar-EG" to "churn-reverse",
+        )
+        val outputs = configurations.map { (locale, identityHashOrder) ->
             val process = ProcessBuilder(
                 java,
                 "-Duser.language=${locale.substringBefore('-')}",
@@ -86,12 +91,18 @@ class VocabularyP2FingerprintTest {
                 "-cp",
                 classpath,
                 VocabularyP2FingerprintProbeMain::class.qualifiedName,
+                identityHashOrder,
             ).redirectErrorStream(true).start()
             val output = process.inputStream.bufferedReader().use { it.readText() }
             assertEquals(0, process.waitFor(), output)
-            output.lineSequence().filter(String::isNotBlank).toList()
+            val lines = output.lineSequence().filter(String::isNotBlank).toList()
+            val identityHashTuple = lines.single { it.startsWith("META\t") }.substringAfterLast('\t')
+            val fingerprints = lines.filter { it.startsWith("P2\t") || it.startsWith("E033\t") }
+            assertEquals(FRESH_JVM_FINGERPRINT_COUNT, fingerprints.size, output)
+            identityHashTuple to fingerprints
         }
-        assertEquals(1, fingerprints.distinct().size)
+        assertEquals(configurations.size, outputs.map { it.first }.distinct().size)
+        assertEquals(1, outputs.map { it.second }.distinct().size)
     }
 
     private fun mutations(
@@ -133,4 +144,8 @@ class VocabularyP2FingerprintTest {
     }
 
     private fun <T> List<T>.replace(old: T, new: T): List<T> = map { if (it == old) new else it }
+
+    private companion object {
+        const val FRESH_JVM_FINGERPRINT_COUNT = 87
+    }
 }
