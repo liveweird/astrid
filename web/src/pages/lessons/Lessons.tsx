@@ -10,6 +10,7 @@ import classes from "../../theme.module.css";
 import { outboxEntry, PracticeCatalogError, practiceError } from "../practice/practiceOperations";
 import {
   EXISTING_PRACTICE_PROFILES, MODULE_ONE_PROFILES, VOCABULARY_P1_PROFILES, VOCABULARY_P2_PROFILES,
+  VOCABULARY_P3_PROFILES,
   preparePracticeCreation, profileKey,
 } from "../practice/practiceProfiles";
 import {
@@ -60,7 +61,7 @@ function startError(error: unknown) {
 function validateReviewContext(context: PracticeReviewContext) {
   if (!context.ownerSessionId || !Number.isSafeInteger(context.sessionExpiresAt) || context.sessionExpiresAt <= 0 ||
     context.focusId !== "cumulative-review" ||
-    !["cumulative-review-1", "cumulative-review-2"].includes(context.planRevision) || !Number.isSafeInteger(context.itemCount) ||
+    context.planRevision !== "cumulative-review-3" || !Number.isSafeInteger(context.itemCount) ||
     context.itemCount < 0 || context.itemCount > 8 || !Number.isSafeInteger(context.sourceLessonCount) ||
     context.sourceLessonCount < 0) {
     throw new PracticeCatalogError("The mixed review preparation is unavailable or unsupported.");
@@ -182,7 +183,7 @@ export default function Lessons() {
       const request = {
         practiceSessionId,
         focusId: "cumulative-review" as const,
-        planRevision: "cumulative-review-2" as const,
+        planRevision: "cumulative-review-3" as const,
         seed: freshSeed(),
       };
       const recovery = { ownerSessionId: current.ownerSessionId, ...request };
@@ -287,6 +288,19 @@ export default function Lessons() {
         </Text>
         <Stack component="ol" className={classes.lessonList} gap="sm">
           {VOCABULARY_P2_PROFILES.map((profile, index) => (
+            <ProfileRow key={profileKey(profile)} profile={profile} number={index + 1}
+              kind="Vocabulary" busy={busy} onStart={choose} />
+          ))}
+        </Stack>
+      </Box>
+
+      <Box component="section" aria-labelledby="vocabulary-p3-heading">
+        <Title id="vocabulary-p3-heading" order={2} size="h2">Places and journeys</Title>
+        <Text c="dimmed" mt="xs" mb="md" maw={700}>
+          Learn travel, destination and location meanings through labelled readings, matching and supplied sentences.
+        </Text>
+        <Stack component="ol" className={classes.lessonList} gap="sm">
+          {VOCABULARY_P3_PROFILES.map((profile, index) => (
             <ProfileRow key={profileKey(profile)} profile={profile} number={index + 1}
               kind="Vocabulary" busy={busy} onStart={choose} />
           ))}

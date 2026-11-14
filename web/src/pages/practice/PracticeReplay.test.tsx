@@ -10,7 +10,7 @@ import { listOutbox, saveOutboxEntry, saveRunRecovery } from "./practiceRecovery
 
 beforeEach(resetPracticeBrowser);
 
-it.each(["cumulative-review-1", "cumulative-review-2"] as const)(
+it.each(["cumulative-review-1", "cumulative-review-2", "cumulative-review-3"] as const)(
   "routes completed %s back to a fresh preparation instead of offering unsupported follow-ups",
   async (planRevision) => {
   const run = {

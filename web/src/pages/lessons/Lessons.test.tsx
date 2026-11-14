@@ -14,7 +14,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 function reviewContext(itemCount: number, sourceLessonCount = itemCount ? 3 : 0, ownerSessionId = owner,
-  planRevision = "cumulative-review-2") {
+  planRevision = "cumulative-review-3") {
   return {
     ownerSessionId, sessionExpiresAt: 9999999999999, focusId: "cumulative-review",
     planRevision, title: "Mixed review from your lessons", itemCount, sourceLessonCount,
@@ -32,9 +32,10 @@ it("renders all lesson and bounded review choices without network or storage mut
   expect(screen.getByRole("heading", { level: 1, name: "Learn Danish" })).toBeVisible();
   expect(screen.getByRole("heading", { level: 2, name: "A day of work and study" })).toBeVisible();
   expect(screen.getByRole("heading", { level: 2, name: "Food, cafés and shopping" })).toBeVisible();
-  expect(screen.getAllByRole("button", { name: /^Start / })).toHaveLength(29);
+  expect(screen.getByRole("heading", { level: 2, name: "Places and journeys" })).toBeVisible();
+  expect(screen.getAllByRole("button", { name: /^Start / })).toHaveLength(35);
   expect(screen.getByRole("button", { name: "Start Words for things you read" })).toBeVisible();
-  expect(screen.getAllByText("Vocabulary")).toHaveLength(12);
+  expect(screen.getAllByText("Vocabulary")).toHaveLength(18);
   expect(screen.getByRole("heading", { level: 2, name: "Review" })).toHaveAttribute("tabindex", "-1");
   expect(screen.getByText(/familiar words, sentence order, verb forms and articles/)).toBeVisible();
   expect(fetch).not.toHaveBeenCalled();
@@ -148,7 +149,7 @@ it("shows an honest short preparation and saves its exact cumulative creation be
   expect(listOutbox(createdId)[0]).toMatchObject({
     ownerSessionId: owner, practiceSessionId: createdId, kind: "creation", identity: createdId,
     body: JSON.stringify({
-      practiceSessionId: createdId, focusId: "cumulative-review", planRevision: "cumulative-review-2", seed: 456,
+      practiceSessionId: createdId, focusId: "cumulative-review", planRevision: "cumulative-review-3", seed: 456,
     }),
   });
 });

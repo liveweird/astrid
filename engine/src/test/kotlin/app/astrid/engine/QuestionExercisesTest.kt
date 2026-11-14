@@ -24,9 +24,9 @@ class QuestionExercisesTest {
         )
 
         val engine = PilotEngine()
-        assertEquals("pilot-19", engine.catalog().contentRevision)
-        assertEquals("generator-19", engine.catalog().generatorRevision)
-        assertEquals(44, engine.catalog().formats.size)
+        assertEquals("pilot-20", engine.catalog().contentRevision)
+        assertEquals("generator-20", engine.catalog().generatorRevision)
+        assertEquals(51, engine.catalog().formats.size)
         assertEquals("evaluation-15", engine.evaluationRevision("pilot-15", "generator-15"))
         assertEquals("evaluation-16", engine.evaluationRevision("pilot-16", "generator-16"))
         val retainedLocation = retained.lexicalReview.single { it.id == "L032" }.constraints

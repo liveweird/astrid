@@ -49,7 +49,7 @@ function selectedTargetSet(current: Set<string>, targetKey: string, selected: bo
 
 function isCumulativeReview(session: Pick<PracticeSession, "focusId" | "planRevision">) {
   return String(session.focusId) === "cumulative-review"
-    && ["cumulative-review-1", "cumulative-review-2"].includes(String(session.planRevision));
+    && ["cumulative-review-1", "cumulative-review-2", "cumulative-review-3"].includes(String(session.planRevision));
 }
 
 function PracticeProgress({ session }: { session: PracticeSession }) {

@@ -33,6 +33,11 @@ const TARGET_SCOPE_LABELS: Record<string, string> = {
   "p2-subject-first-supplied": "Subject-first statement order",
   "p2-polite-wish": "Polite wish statement order",
   "p2-polite-request": "Polite request statement order",
+  "p3-kore-present": "Present form of køre",
+  "p3-subject-first-supplied": "Subject-first statement order",
+  "p3-home-direction": "Homeward direction",
+  "p3-home-spatial-contrast": "Home direction and static location",
+  "p3-station-spatial-contrast": "Station destination and static location",
 };
 
 function targetBadge(exercise: NonNullable<PracticeSession["currentExercise"]>) {
@@ -108,7 +113,7 @@ export default function ActivePractice({ session, blocked, busy, text, order, ga
         <Stack gap="lg">
           <Group justify="space-between"><Text fw={650}>Practice item {item.position + 1}</Text><Badge variant="light" color="astrid">{targetBadge(exercise)}</Badge></Group>
           <Divider />
-          <Box><Title ref={itemRef} tabIndex={-1} order={2} size="h4">{exercise.instruction}</Title><Text c="dimmed" mt={4}>{exercise.context}</Text></Box>
+          <Box><Title ref={itemRef} tabIndex={-1} order={2} size="h4">{exercise.instruction}</Title><Text lang="en" c="dimmed" mt={4}>{exercise.context}</Text></Box>
           <ExercisePrompt
             exercise={exercise}
             text={text}

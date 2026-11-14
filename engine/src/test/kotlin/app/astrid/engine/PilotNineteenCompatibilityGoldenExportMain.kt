@@ -15,9 +15,9 @@ object PilotNineteenCompatibilityGoldenExportMain {
 }
 
 internal fun publishedPairNineteenReviewBytes(): ByteArray {
-    require(PilotContent.currentSnapshot.contentRevision == "pilot-19")
-    require(PilotContent.currentSnapshot.generatorRevision == "generator-19")
-    return PilotReview.renderMarkdown().toByteArray(Charsets.UTF_8)
+    require(PilotContent.pilotNineteenSnapshot.contentRevision == "pilot-19")
+    require(PilotContent.pilotNineteenSnapshot.generatorRevision == "generator-19")
+    return PilotReview.renderPilotNineteenMarkdown().toByteArray(Charsets.UTF_8)
 }
 
 internal object PilotNineteenCompatibilityGolden {
@@ -29,8 +29,8 @@ internal object PilotNineteenCompatibilityGolden {
 
     fun rows(): List<String> {
         require(engine.evaluationRevision(CONTENT_REVISION, GENERATOR_REVISION) == EVALUATION_REVISION)
-        require(PilotContent.currentSnapshot.contentRevision == CONTENT_REVISION)
-        require(PilotContent.currentSnapshot.generatorRevision == GENERATOR_REVISION)
+        require(PilotContent.pilotNineteenSnapshot.contentRevision == CONTENT_REVISION)
+        require(PilotContent.pilotNineteenSnapshot.generatorRevision == GENERATOR_REVISION)
         return buildList {
             formats.forEach { format ->
                 repeat(format.cycleSize) { index ->

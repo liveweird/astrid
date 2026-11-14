@@ -13,10 +13,10 @@ class VocabularyP2ExercisesTest {
 
     @Test
     fun `pair nineteen publishes the bounded P2 packet without changing pair eighteen`() {
-        assertEquals(RevisionPair("pilot-19", "generator-19"), engine.supportedRevisionPairs().last())
+        assertTrue(RevisionPair("pilot-19", "generator-19") in engine.supportedRevisionPairs())
         assertEquals("evaluation-18", engine.evaluationRevision("pilot-18", "generator-18"))
         assertEquals("evaluation-19", engine.evaluationRevision("pilot-19", "generator-19"))
-        assertEquals((40..44).map(::formatId), engine.catalog().formats.takeLast(5).map { it.id })
+        assertEquals((40..44).map(::formatId), PilotContent.pilotNineteenSnapshot.formats.takeLast(5).map { it.id })
         assertEquals(21, VocabularyP2Content.tasks.size)
         assertEquals(
             mapOf("E040" to 4, "E041" to 3, "E042" to 4, "E043" to 5, "E044" to 5),

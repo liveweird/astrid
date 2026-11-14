@@ -33,7 +33,8 @@ Three strings travel together; a **revision pair** is `(contentRevision, generat
 | `pilot-16` / `generator-16` | `evaluation-16` | + E030 supplied neutral positive yes/no question | published and frozen; S13 pins this pair |
 | `pilot-17` / `generator-17` | `evaluation-17` | + E031–E039 scoped work/study vocabulary operations | published; revision-one P1 plans retained; matching-layout exception below |
 | `pilot-18` / `generator-18` | `evaluation-18` | same formats; stable matching shuffle | published and frozen; five revision-two P1 plans pin this pair |
-| `pilot-19` / `generator-19` | `evaluation-19` | + E040–E044 scoped food/shopping operations | CURRENT; six P2 revision-one plans pin this pair |
+| `pilot-19` / `generator-19` | `evaluation-19` | + E040–E044 scoped food/shopping operations | published and frozen; six P2 revision-one plans pin this pair |
+| `pilot-20` / `generator-20` | `evaluation-20` | + E045–E051 scoped places/journeys operations | CURRENT; six P3 revision-one plans pin this pair |
 
 Guided practice plans (`practice-1`, `present-verbs-1`) and follow-ups (`follow-up-1/2`) carry their own plan revisions and remain
 pinned to pair three. The separately selected `verb-article-gaps-1` and `follow-up-3` plans pin pair seven literally.
@@ -69,6 +70,13 @@ sources, explicit subject/chronology facts, quantity components and fixed punctu
 are fingerprint inputs. E044 has a reading primary target; supplied lexical content is
 support. E042 assesses only matched heads, and E043 supplied order establishes no
 lexical recall or conjugation. Old payloads omit the optional fields.
+The six `vocabulary-p3-s1-1` … `vocabulary-p3-s6-1` plans pin pair twenty literally,
+with separate `vocabulary-p3-outcome-1` / `vocabulary-p3-exposure-1` policies. Typed spatial
+meanings, action/complement roles, minimal assessment scenes, passage labels and bilingual
+mapping row order are fingerprint inputs. Full teaching scenes stay separate from assessment.
+New cumulative-review-3 admits 32 source families; retained one/two keep 20/26 and unchanged
+private selections. The narrow version-three-only legacy P2 extreme-seed fallback is defined
+in `docs/knowledge/vocabulary-places-journeys-activation.md`; never apply it to older versions.
 Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 
 ### Pair-seventeen matching exception
@@ -213,7 +221,9 @@ public/private/saved-payload/replay wire. The P1 pair-seventeen change switches 
 
 | Task | Output |
 | --- | --- |
-| `:engine:exportPilotReview` | `engine/build/review/pilot-19.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotReview` | `engine/build/review/pilot-20.md` (current; run in CI and uploaded as `server-reports`) |
+| `:engine:exportPilotNineteenReview` | `engine/build/review/pilot-19-retained.md` |
+| `:engine:exportPilotEighteenReview` | `engine/build/review/pilot-18-retained.md` |
 | `:engine:exportPilotSeventeenReview` | `engine/build/review/pilot-17-retained.md`; historical matching-dependent layout is not cross-JVM byte-stable |
 | `:engine:exportPilotSixteenReview` | `engine/build/review/pilot-16-retained.md` |
 | `:engine:exportPilotFifteenReview` | `engine/build/review/pilot-15-retained.md` |

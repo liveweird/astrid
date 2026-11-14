@@ -41,8 +41,8 @@ records this gives **79**. The packet adds no grammar skill IDs. Seven isolated 
 - E048: one-word selected vehicular present-form recall, G004 / `p3-kore-present`.
 - E049: all-block supplied subject-first order, G005 / `p3-subject-first-supplied`.
 - E050: explicit P3 reading facts, without a lexical or grammar primary outcome.
-- E051: bounded spatial meaning selection, G016, with distinct home-direction,
-  home-paired-contrast and station-paired-contrast scopes.
+- E051: bounded spatial meaning selection, G016, with literal `p3-home-direction`,
+  `p3-home-spatial-contrast` and `p3-station-spatial-contrast` scopes.
 
 Matching assesses only the selected mappings. Reading owns one named fact and role, including
 subject, object, action, destination or static location. Direction and static position remain
@@ -215,3 +215,29 @@ floors and 318 web tests. Docker-backed tests actually executed with OrbStack's 
 set for Testcontainers. Initial exporter-complexity findings were fixed by splitting helpers;
 a first full test run without that socket failed Docker discovery and is retained separately.
 No production change, new lesson or version was included in this preparation.
+
+## Assessment-scene reconciliation — 13 November 2026
+
+Independent review confirmed that copying the full rail teaching scene into activity 6.2
+would reveal its English action answer without reading Danish. Keep the complete authored
+teaching scenes/translations in introduction/support, with their own teaching identities.
+Assessment context is exactly **“Rail context: This journey is by train.”** or
+**“Car context: This journey is by car.”** where that selected sense needs the cue.
+The task's `presentation.context` and private `source.scene` use this minimal text and a
+distinct assessment-scene ID. Required scene IDs on relevant facts reference it.
+
+Do not project the full translation, named actor/location or `changes trains/connections`
+into the rail assessment context. Keep private action answers/translations and scene
+values as independently fingerprinted inputs. Assessment-scene exposure records rail/car
+support only, not an answered fact or lexical mapping; saved teaching separately records
+its visible full explanations. Confirm the full teaching remains accessible and the same
+minimal context survives standalone, practice and cumulative presentations. Reading 6.2's
+context must exclude “changes” and “connections”; its Danish passage stays unchanged.
+
+## Scope identity reconciliation
+
+The authored paired home/station contrasts use the implementation IDs
+`p3-home-spatial-contrast` and `p3-station-spatial-contrast` consistently in engine,
+exposure, API and UI. These are the same paired activities described above; “paired”
+was the descriptive draft wording, not a published identifier. This unreleased naming
+choice is now explicit so the activation record and executable contract agree.

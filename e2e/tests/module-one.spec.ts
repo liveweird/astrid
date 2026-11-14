@@ -1509,10 +1509,12 @@ for (const theme of ["light", "dark"] as const) {
       await expect(page.getByRole("heading", { name: "Module 1: First steps", exact: true })).toBeVisible();
       await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
       const radios = page.getByRole("radio");
-      await expect(radios).toHaveCount(29);
+      await expect(radios).toHaveCount(35);
       await expect(page.getByRole("radio", { name: "A small breakfast", exact: true })).toBeVisible();
       await expect(page.getByRole("radio", { name: "Requesting a supplied quantity", exact: true })).toBeVisible();
-      for (let index = 0; index < 29; index += 1) {
+      await expect(page.getByRole("radio", { name: "Two ways to travel", exact: true })).toBeVisible();
+      await expect(page.getByRole("radio", { name: "A change and the pharmacy", exact: true })).toBeVisible();
+      for (let index = 0; index < 35; index += 1) {
         await radios.nth(index).focus();
         await page.keyboard.press("Space");
         await expect(radios.nth(index)).toBeChecked();

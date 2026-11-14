@@ -82,7 +82,20 @@ data class ExercisePromptDto(
     val gapPrompt: GapPromptDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val fixedPunctuation: List<FixedPunctuationDto> = emptyList(),
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val passageLabels: List<PassageLabelDto> = emptyList(),
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val choiceMappings: List<ChoiceMappingDto> = emptyList(),
 )
+
+@Serializable
+data class PassageLabelDto(val sentenceIndex: Int, val text: String)
+
+@Serializable
+data class BilingualMappingDto(val danish: String, val english: String)
+
+@Serializable
+data class ChoiceMappingDto(val choice: String, val mappings: List<BilingualMappingDto>)
 
 @Serializable
 data class FixedPunctuationDto(val beforeBlockId: String, val text: String)
@@ -427,6 +440,26 @@ data class VocabularySupportFactDto(
     val quantitySource: VocabularyQuantitySourceDto? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val translation: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val actionText: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val complementSource: VocabularyLexicalSourceDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val complementRole: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val constructionId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val sceneId: String? = null,
+)
+
+@Serializable
+data class VocabularySceneDto(val id: String, val text: String, val exposureKeys: List<String>)
+
+@Serializable
+data class VocabularySpatialMeaningDto(
+    val form: String,
+    val lexicalSource: VocabularyLexicalSourceDto,
+    val classification: String,
 )
 
 @Serializable
@@ -504,4 +537,10 @@ data class VocabularyExerciseSourceDto(
     val chronologyRelations: List<VocabularyChronologyRelationDto> = emptyList(),
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val targetChronologyRelationId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val scene: VocabularySceneDto? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val contrastId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val spatialMeanings: List<VocabularySpatialMeaningDto> = emptyList(),
 )

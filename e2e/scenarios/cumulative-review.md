@@ -21,7 +21,7 @@
    They prepare again.
    - *Expected*: the card honestly reports a non-zero run shorter than eight.
 2. Three more distinct lessons record their introductions and the learner refreshes preparation.
-   - *Expected*: the server advertises eight items from multiple source lessons and the visible
+   - *Expected*: the server advertises current `cumulative-review-3` with eight items from multiple source lessons and the visible
      prepared summary receives focus.
 3. They start the review, wait for the visible **Session introduction** confirming creation,
    and inspect its persisted server plan.
@@ -34,7 +34,7 @@
    server but the first response is lost.
    - *Expected*: the page keeps an alert and the generated session id in the URL.
 2. The learner reloads.
-   - *Expected*: the saved creation is replayed byte-for-byte and resolves to the same server
+   - *Expected*: the saved `cumulative-review-3` creation is replayed byte-for-byte and resolves to the same server
      session without generating a new identity. The learner opens and saves **Session
      introduction**, then the first answer control is available.
 

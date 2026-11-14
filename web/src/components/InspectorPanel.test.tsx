@@ -68,6 +68,42 @@ describe("InspectorPanel", () => {
     expect(screen.getByLabelText("Inspector key")).toHaveValue(key);
   });
 
+  it("renders P3 scene, spatial and role-sensitive fact evidence", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({
+      exercise: { formatId: "E050" }, seed: 11, index: 5,
+      vocabularySource: {
+        taskId: "p3-6.2", operation: "reading", lexicalSources: [], suppliedChoices: [],
+        expectedAnswer: "changes trains/connections",
+        scene: { id: "p3-rail-change", text: "Anna is travelling by train and changes trains in Aarhus.", exposureKeys: [] },
+        contrastId: "p3-station-contrast",
+        spatialMeanings: [{ form: "til stationen", classification: "destination", lexicalSource: {
+          entryId: "L068", senseId: "L068-S01", kind: "fixed-chunk", forms: { form: "til stationen" },
+          gloss: "to the station", selectedUse: "Destination chunk.",
+        } }],
+        supportFacts: [{
+          factId: "p3-s6-f1", referentId: "p3:Anna", predicateId: "L077", valueId: "i Aarhus",
+          valueText: "changes trains/connections", valueRole: "action", sentence: "Anna skifter i Aarhus.", exposureKeys: [],
+          actionText: "changes trains/connections", complementRole: "static-location",
+          complementSource: { entryId: "L032", senseId: "L032-S01", kind: "fixed-chunk", forms: { form: "i Aarhus" },
+            gloss: "in Aarhus", selectedUse: "A supplied location in the rail-change construction." },
+          constructionId: "p3-skifter-i-aarhus",
+          sceneId: "p3-rail-change",
+        }],
+        matchingPairs: [], tileOccurrences: [], acceptedOrders: [],
+      },
+    })));
+    render(<MantineProvider env="test"><InspectorPanel exerciseId="p3-exercise" /></MantineProvider>);
+    await userEvent.type(screen.getByLabelText("Inspector key"), "a-secure-inspector-key-with-32-chars");
+    await userEvent.click(screen.getByRole("button", { name: "Inspect this exercise" }));
+
+    expect(await screen.findByText("Required English scene")).toBeVisible();
+    expect(screen.getAllByText("changes trains/connections").every((element) => element.lang === "en")).toBe(true);
+    expect(screen.getByText(/Anna is travelling by train/)).toHaveAttribute("lang", "en");
+    expect(screen.getByText("til stationen").closest("code")).toHaveTextContent("til stationen · destination · L068 · L068-S01");
+    expect(screen.getByText("static-location · L032 · L032-S01")).toBeVisible();
+    expect(screen.getByText("p3-skifter-i-aarhus")).toBeVisible();
+  });
+
   it("renders private lexical evidence without grammar-only labels", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => Response.json({
       exercise: {}, seed: 9, index: 1,

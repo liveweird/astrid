@@ -1,4 +1,4 @@
-import { Button, Group, Paper, Stack, Text, Textarea, TextInput, VisuallyHidden } from "@mantine/core";
+import { Box, Button, Group, Paper, Stack, Text, Textarea, TextInput, VisuallyHidden } from "@mantine/core";
 import { useLayoutEffect, useRef, useState, type Ref, type RefObject } from "react";
 import type { Exercise, GapSelection, MatchingPair } from "../api/models";
 import classes from "../theme.module.css";
@@ -40,6 +40,34 @@ function matchingColumnsFor(exercise: Exercise) {
 
 function gapPromptFor(exercise: Exercise) {
   return "gapPrompt" in exercise.prompt ? exercise.prompt.gapPrompt : undefined;
+}
+
+type PassageLabel = { sentenceIndex: number; text: string };
+type ChoiceMapping = { choice: string; mappings: { danish: string; english: string }[] };
+
+function passageLabelsFor(exercise: Exercise) {
+  const prompt = exercise.prompt as Exercise["prompt"] & { passageLabels?: PassageLabel[] };
+  return prompt.passageLabels ?? [];
+}
+
+function choiceMappingsFor(exercise: Exercise) {
+  const prompt = exercise.prompt as Exercise["prompt"] & { choiceMappings?: ChoiceMapping[] };
+  return new Map((prompt.choiceMappings ?? []).map((mapping) => [mapping.choice, mapping.mappings]));
+}
+
+function ChoiceContent({ choice, mappings }: { choice: string; mappings?: ChoiceMapping["mappings"] }) {
+  if (!mappings) return <span lang="en">{choice}</span>;
+  return (
+    <Stack component="span" gap={2} align="start">
+      {mappings.map((mapping, index) => (
+        <Text component="span" key={`${mapping.danish}:${mapping.english}`} size="sm">
+          <span lang="da">{mapping.danish}</span>
+          <span> = </span>
+          <span lang="en">{mapping.english}</span>{index < mappings.length - 1 ? ";" : null}
+        </Text>
+      ))}
+    </Stack>
+  );
 }
 
 function choiceGroupLabel(formatId: Exercise["formatId"]) {
@@ -204,24 +232,35 @@ export default function ExercisePrompt({
   const inputLabel = "inputLabel" in prompt ? prompt.inputLabel : undefined;
   const replacementWord = "replacementWord" in prompt ? prompt.replacementWord : undefined;
   const passage = "passage" in prompt ? prompt.passage : undefined;
+  const passageLabels = passageLabelsFor(exercise);
+  const choiceMappings = choiceMappingsFor(exercise);
   const tileMode = "tileMode" in prompt ? prompt.tileMode : undefined;
   if (hasReadingTarget(exercise)) {
     return (
       <Stack gap="md">
         <Stack gap="xs" role="group" aria-label="Reading passage" lang="da">
-          {passage?.map((sentence, index) => <Text key={`${index}-${sentence}`}>{sentence}</Text>)}
+          {passage?.map((sentence, index) => {
+            const label = passageLabels.find((candidate) => candidate.sentenceIndex === index);
+            return (
+              <Box key={`${index}-${sentence}`}>
+                {label && <Text lang="en" size="sm" c="dimmed" fw={650}>{label.text}</Text>}
+                <Text lang="da">{sentence}</Text>
+              </Box>
+            );
+          })}
         </Stack>
         {cue && <Text lang="en" size="lg" fw={650}>{cue}</Text>}
         <Group gap="xs" role="group" aria-label="Answer choices">
           {prompt.choices.map((choice) => (
             <Button
               key={choice}
+              className={choiceMappings.has(choice) ? classes.mappingChoice : undefined}
               variant={text === choice ? "filled" : "default"}
               disabled={disabled}
               onClick={() => onText(choice)}
               aria-pressed={text === choice}
             >
-              <span lang="en">{choice}</span>
+              <ChoiceContent choice={choice} mappings={choiceMappings.get(choice)} />
             </Button>
           ))}
         </Group>
@@ -252,6 +291,7 @@ export default function ExercisePrompt({
             {prompt.choices.map((choice) => (
               <Button
                 key={choice}
+                className={choiceMappings.has(choice) ? classes.mappingChoice : undefined}
                 variant={text === choice ? "filled" : "default"}
                 disabled={disabled}
                 onClick={() => onText(choice)}
@@ -294,12 +334,15 @@ export default function ExercisePrompt({
             {prompt.choices.map((choice) => (
               <Button
                 key={choice}
+                className={choiceMappings.has(choice) ? classes.mappingChoice : undefined}
                 variant={text === choice ? "filled" : "default"}
                 disabled={disabled}
                 onClick={() => onText(choice)}
                 aria-pressed={text === choice}
               >
-                <span lang={prompt.answerLanguage ?? "da"}>{choice}</span>
+                {choiceMappings.has(choice)
+                  ? <ChoiceContent choice={choice} mappings={choiceMappings.get(choice)} />
+                  : <span lang={prompt.answerLanguage ?? "da"}>{choice}</span>}
               </Button>
             ))}
           </Group>

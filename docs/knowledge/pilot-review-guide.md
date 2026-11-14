@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This walkthrough helps evaluate the private preview before broader content or media work. Open `http://localhost:8088` for Lessons: fifteen Module 1 sessions with grammar, vocabulary or combined labels, five work/study vocabulary sessions and six food/cafés/shopping sessions. Review includes the three existing practice sets and explicit cumulative mixed preparation. Browsing is passive; an explicit start opens the saved runner, and Resume saved practice returns to the same run. The forty-four standalone exercise entries are under Developer tools at `http://localhost:8088/playground`. Danish remains a draft awaiting teaching review; this is not a complete beginner course.
+This walkthrough helps evaluate the private preview before broader content or media work. Open `http://localhost:8088` for Lessons: fifteen Module 1 sessions with grammar, vocabulary or combined labels, five work/study vocabulary sessions six food/cafés/shopping sessions and six places/journeys sessions. Review includes the three existing practice sets and explicit cumulative mixed preparation. Browsing is passive; an explicit start opens the saved runner, and Resume saved practice returns to the same run. The fifty-one standalone exercise entries are under Developer tools at `http://localhost:8088/playground`. Danish remains a draft awaiting teaching review; this is not a complete beginner course.
 
 ## Try the first twenty-one standalone entries
 
@@ -154,6 +154,26 @@ Capture the coordinates, answer and expected result when something seems wrong. 
 - whether the interaction or variation becomes repetitive.
 
 Use this feedback to choose the next engine work. Danish teaching review and learner trials remain separate from automated software checks; these attempts are practice evidence, with no mastery judgment.
+
+## Try Places and journeys
+
+Enter each of the six sessions directly and inspect its required teaching. Count nouns keep
+their articles; station/pharmacy destinations remain complete phrases. Compare homeward
+`hjem` with static `hjemme`, and `til stationen` with `på stationen`. A paired mapping choice
+should show two readable Danish/English rows and yield one whole-response outcome.
+
+In **Waiting at the station**, try `køre`, `cykler`, `venter`, an unsupported synonym and
+`kører`. Check that the first needs present form, the next two describe another action,
+and unsupported writing stays unknown. Recall accepts one word. In **A change and the
+pharmacy**, rail context supplies the transport situation while the Danish text supplies
+the action answer; English context must not reveal it. Reading summaries keep subject,
+object, action, destination and static-location facts distinct.
+
+Refresh after partial matching and after a confirmed answer. Saved teaching, editable
+pairs, unknown-answer blocking and exact replay must survive. Prepare cumulative review
+before and after teaching a P3 session: only a newly prepared version-three run may gain
+that material. Check narrow/enlarged layouts and both themes for mapping rows and labels.
+See the [contract](vocabulary-places-journeys-activation.md) for grading and version limits.
 
 ## Initial user review — 7 November 2026
 

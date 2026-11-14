@@ -5,7 +5,8 @@ import type { PracticeProfile, PracticeSession } from "../../api/models";
 import classes from "../../theme.module.css";
 import { PracticeError } from "./PracticeMessages";
 import {
-  EXISTING_PRACTICE_PROFILES, MODULE_ONE_PROFILES, VOCABULARY_P1_PROFILES, VOCABULARY_P2_PROFILES, profileKey,
+  EXISTING_PRACTICE_PROFILES, MODULE_ONE_PROFILES, VOCABULARY_P1_PROFILES, VOCABULARY_P2_PROFILES,
+  VOCABULARY_P3_PROFILES, profileKey,
 } from "./practiceProfiles";
 
 function ProfileChoices({ profiles, busy, selected, selectedRef }: {
@@ -58,6 +59,8 @@ export default function PracticeChooser({ selected, busy, canCancel, message, on
           <ProfileChoices profiles={VOCABULARY_P1_PROFILES} busy={busy} selected={selected} selectedRef={selectedRef} />
           <Title order={2} size="h3" mt="md">Food, cafés and shopping</Title>
           <ProfileChoices profiles={VOCABULARY_P2_PROFILES} busy={busy} selected={selected} selectedRef={selectedRef} />
+          <Title order={2} size="h3" mt="md">Places and journeys</Title>
+          <ProfileChoices profiles={VOCABULARY_P3_PROFILES} busy={busy} selected={selected} selectedRef={selectedRef} />
           <Title order={2} size="h3" mt="md">More practice</Title>
           <ProfileChoices profiles={EXISTING_PRACTICE_PROFILES} busy={busy} selected={selected} selectedRef={selectedRef} />
         </Stack>

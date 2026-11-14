@@ -38,6 +38,7 @@ object PracticeFeedbackExposureCalculator {
             if (attempts.any { it.confirmsReadingMeaning() }) candidateKeys else emptyList()
         VOCABULARY_P1_EXPOSURE_POLICY -> vocabularyP1ReleasedKeys(candidateKeys, assessments, attempts)
         VOCABULARY_P2_EXPOSURE_POLICY -> vocabularyP1ReleasedKeys(candidateKeys, assessments, attempts)
+        VOCABULARY_P3_EXPOSURE_POLICY -> vocabularyP1ReleasedKeys(candidateKeys, assessments, attempts)
         ModalRoundPolicies.EXPOSURE_POLICY_ID -> ModalRoundPolicies.releasedKeys(candidateKeys, attempts)
         else -> error("Unsupported exposure policy: $exposurePolicyId")
     }
@@ -140,6 +141,7 @@ object PracticeFeedbackExposureCalculator {
     private const val MODULE_ONE_ORDER_EXPOSURE_POLICY = "module-one-order-exposure-1"
     const val VOCABULARY_P1_EXPOSURE_POLICY = "vocabulary-p1-exposure-1"
     const val VOCABULARY_P2_EXPOSURE_POLICY = "vocabulary-p2-exposure-1"
+    const val VOCABULARY_P3_EXPOSURE_POLICY = "vocabulary-p3-exposure-1"
     private const val MATCHING_MODE = "matching"
     private val MODULE_ONE_DISCLOSURE_CODES = setOf(
         "STANDALONE_PRONOUN_CASE_REQUIRED",

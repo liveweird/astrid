@@ -22,12 +22,14 @@ object PilotReviewExportMain {
         "--pilot-fifteen" to PilotReview::renderPilotFifteenMarkdown,
         "--pilot-sixteen" to PilotReview::renderPilotSixteenMarkdown,
         "--pilot-seventeen" to PilotReview::renderPilotSeventeenMarkdown,
+        "--pilot-eighteen" to PilotReview::renderPilotEighteenMarkdown,
+        "--pilot-nineteen" to PilotReview::renderPilotNineteenMarkdown,
     )
 
     @JvmStatic
     fun main(args: Array<String>) {
         require(args.size == 1 || (args.size == 2 && args.first() in retainedRenderers)) {
-            "Expected an output path, optionally preceded by a retained-pilot flag from --legacy through --pilot-seventeen"
+            "Expected an output path, optionally preceded by a retained-pilot flag from --legacy through --pilot-nineteen"
         }
         val output = Path.of(args.last())
         Files.createDirectories(output.parent)

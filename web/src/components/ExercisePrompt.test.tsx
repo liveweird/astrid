@@ -72,6 +72,63 @@ describe("ExercisePrompt", () => {
     expect(onText).toHaveBeenCalledWith("du");
   });
 
+  it("keeps English passage labels outside Danish sentences", () => {
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E050" as Exercise["formatId"], {
+              cue: "What is Vehicle B?", cueLanguage: "en", answerLanguage: "en",
+              passage: ["Anna har en billet.", "Det er en bus.", "Det er et tog."],
+              passageLabels: [{ sentenceIndex: 1, text: "Vehicle A" }, { sentenceIndex: 2, text: "Vehicle B" }],
+              choices: ["a train", "a bus"],
+            }),
+            contentRevision: "pilot-20", generatorRevision: "generator-20",
+            readingTarget: { facet: "explicit-fact" }, lexicalTarget: undefined,
+          } as Exercise}
+          text="" order={[]} disabled={false} onText={vi.fn()} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("Vehicle A")).toHaveAttribute("lang", "en");
+    expect(screen.getByText("Vehicle B")).toHaveAttribute("lang", "en");
+    expect(screen.getByText("Det er en bus.")).toHaveAttribute("lang", "da");
+    expect(screen.getByText("Det er et tog.")).toHaveAttribute("lang", "da");
+  });
+
+  it("renders spatial mappings bilingually and submits the exact whole choice", async () => {
+    const onText = vi.fn();
+    const correct = "hjemme = static at home; hjem = homeward destination";
+    render(
+      <MantineProvider env="test">
+        <ExercisePrompt
+          exercise={{
+            ...exercise("E051" as Exercise["formatId"], {
+              cue: "Choose the exact taught mapping.", cueLanguage: "en", answerLanguage: "en",
+              choices: [correct, "hjemme = homeward destination; hjem = static at home"],
+              choiceMappings: [{ choice: correct, mappings: [
+                { danish: "hjemme", english: "static at home" },
+                { danish: "hjem", english: "homeward destination" },
+              ] }],
+            }),
+            contentRevision: "pilot-20", generatorRevision: "generator-20",
+            targetSkillId: "G016", targetScopeId: "p3-home-spatial-contrast", lexicalTarget: undefined,
+          } as Exercise}
+          text="" order={[]} disabled={false} onText={onText} onOrder={vi.fn()}
+        />
+      </MantineProvider>,
+    );
+
+    expect(screen.getByText("hjemme")).toHaveAttribute("lang", "da");
+    expect(screen.getByText("static at home")).toHaveAttribute("lang", "en");
+    const mappedChoice = screen.getByText("hjemme").closest("button")!;
+    expect(mappedChoice).not.toHaveAttribute("aria-label");
+    expect(mappedChoice).toHaveAccessibleName(/hjemme = static at home.*hjem = homeward destination/);
+    await userEvent.click(mappedChoice);
+    expect(onText).toHaveBeenCalledWith(correct);
+  });
+
 });
 
 describe("ExercisePrompt present and order formats", () => {

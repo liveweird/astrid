@@ -289,3 +289,41 @@ Count nouns retain supplied articles; the bare mass uses remain article-free in 
 frames. Cup/bottle matching directly tests their heads. Full quantities stay taught intact
 constituents in request tiles, with separate head/beverage exposure and no independent
 article, quantity-rule, conjugation or beverage-production credit.
+
+## Selected pair-twenty places/journeys additions
+
+The [P3 activation contract](vocabulary-places-journeys-activation.md) allocates sixteen new
+records, for a selected inventory of **79**, with the same **109 catalogue clauses**.
+The task-specific frames do not expand earlier pools. Its 21 placements contain five
+reused senses plus sixteen new records; teaching review remains pending.
+
+| ID | Selected meaning | Teaching surface | Official morphology record |
+| --- | --- | --- | --- |
+| L064 | bicycle vehicle | en cykel | [COR.45412](https://ordregister.dk/id/COR.45412.json) |
+| L065 | travel by bicycle | at cykle → cykler | [COR.37334](https://ordregister.dk/id/COR.37334.json) |
+| L066 | transport station | en station | [COR.69303](https://ordregister.dk/id/COR.69303.json) |
+| L067 | walk/go on foot to the supplied destination | at gå → går | [COR.30234](https://ordregister.dk/id/COR.30234.json) |
+| L068 | station destination, fixed chunk | til stationen | [COR.00947](https://ordregister.dk/id/COR.00947.json) + [COR.69303](https://ordregister.dk/id/COR.69303.json) |
+| L069 | homeward destination, directional adverb | hjem | [COR.10109](https://ordregister.dk/id/COR.10109.json), excludes noun COR.40431 |
+| L070 | library place, supplied identification | et bibliotek | [COR.58895](https://ordregister.dk/id/COR.58895.json) |
+| L071 | bus vehicle, supplied identification | en bus | [COR.63246](https://ordregister.dk/id/COR.63246.json) |
+| L072 | train vehicle, supplied identification | et tog | [COR.51979](https://ordregister.dk/id/COR.51979.json), excludes procession COR.48221 |
+| L073 | travel ticket, exact possession frame | en billet | [COR.45414](https://ordregister.dk/id/COR.45414.json) |
+| L074 | vehicular travel in an explicit car scene | at køre → kører | [COR.30695](https://ordregister.dk/id/COR.30695.json), excludes noun COR.47027 |
+| L075 | wait in the supplied station frame | at vente → venter | [COR.30094](https://ordregister.dk/id/COR.30094.json), excludes phrase COR.04094 |
+| L076 | static station location, fixed chunk | på stationen | [COR.00190](https://ordregister.dk/id/COR.00190.json) + [COR.69303](https://ordregister.dk/id/COR.69303.json) |
+| L077 | change trains/connections in an explicit rail scene | at skifte → skifter | [COR.30102](https://ordregister.dk/id/COR.30102.json), excludes noun COR.52909 |
+| L078 | pharmacy place, supplied identification | et apotek | [COR.98580](https://ordregister.dk/id/COR.98580.json) |
+| L079 | pharmacy destination, fixed chunk | til apoteket | [COR.00947](https://ordregister.dk/id/COR.00947.json) + [COR.98580](https://ordregister.dk/id/COR.98580.json) |
+
+Each record uses its own `-S01` selected sense. Reuse L016-S01 (car), L038-S01 (now),
+L048-S01 (static home), L029-S01 (residence) and L032-S01 (the two supplied city
+chunks) literally. P3 separately licenses the exact rail-context `skifter i Aarhus`
+construction for that existing city sense; it does not broaden residence or old pools.
+
+The [placement ledger](vocabulary-places-journeys-packet.md#placement-ledger) owns
+precise form locators, 11 November lookup dates, homograph exclusions and use limits.
+These references validate morphology only; English senses and authored frames remain
+separate reviewed drafts. Preserve noun articles and intact city/destination/location
+chunks. No general preposition, definite/plural paradigm, transport-means phrase,
+boarding route, object-taking change/wait construction or S14 fronting is introduced.

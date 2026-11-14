@@ -534,6 +534,41 @@ async function verifyNeutralQuestionOrder() {
   });
 }
 
+async function verifyP3CarContext() {
+  const pairTwentySession = {
+    ...session, contentRevision: "pilot-20", generatorRevision: "generator-20", evaluationRevision: "evaluation-20",
+  };
+  const pairTwentyCatalog = {
+    ...catalog,
+    contentRevision: "pilot-20", generatorRevision: "generator-20", evaluationRevision: "evaluation-20",
+    formats: [{ id: "E048", title: "Recall a selected vehicular present form", targetSkillId: "G004" }],
+  };
+  const carExercise = {
+    ...exercise,
+    id: "20202020-2020-4020-8020-202020202020", formatId: "E048", targetSkillId: "G004",
+    targetScopeId: "p3-kore-present", contentRevision: "pilot-20", generatorRevision: "generator-20",
+    instruction: "The person is travelling home by car. Type the introduced present form of this verb.",
+    context: "Car context: This journey is by car.",
+    prompt: {
+      before: "", after: "", choices: [], blocks: [], punctuation: "", cue: "at køre",
+      cueLanguage: "da", answerLanguage: "da", inputLabel: "Danish present form",
+    },
+    introduction: [],
+  };
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("development-session")) return json(pairTwentySession);
+    if (path.endsWith("catalog")) return json(pairTwentyCatalog);
+    if (path.endsWith("exercises")) return json(carExercise);
+    throw new Error(`Unexpected ${path}`);
+  }));
+
+  await renderPlayground();
+
+  expect(await screen.findByText("Car context: This journey is by car.")).toBeVisible();
+  expect(screen.getByText("at køre")).toHaveAttribute("lang", "da");
+  expect(screen.getByRole("textbox", { name: "Danish present form" })).toHaveAttribute("lang", "da");
+}
+
 describe("Playground formats", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -555,6 +590,8 @@ describe("Playground formats", () => {
   it("submits and exactly replays a complete standalone final-circumstance order", verifyFinalCircumstanceOrder);
 
   it("submits and exactly replays a complete standalone neutral-question order", verifyNeutralQuestionOrder);
+
+  it("keeps the English car scene visible in standalone P3 recall", verifyP3CarContext);
 
   it("commits the auto-highlighted exact search with Enter", () => verifyKeyboardFormatSelection(false));
 

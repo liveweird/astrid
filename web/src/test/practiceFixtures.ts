@@ -191,13 +191,28 @@ export function profiles(ownerSessionId = owner) {
         itemCount: itemCount as number,
         prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
       })),
+      ...[
+        ["vocabulary-p3-s1", "Two ways to travel", 4],
+        ["vocabulary-p3-s2", "Walking to the station and home", 4],
+        ["vocabulary-p3-s3", "City, home and library", 4],
+        ["vocabulary-p3-s4", "Ticket, bus and train", 3],
+        ["vocabulary-p3-s5", "Waiting at the station", 4],
+        ["vocabulary-p3-s6", "A change and the pharmacy", 4],
+      ].map(([focusId, title, itemCount]) => ({
+        focusId: focusId as string,
+        planRevision: `${focusId}-1`,
+        title: title as string,
+        description: "Learn and practise the places, journeys, reading, and sentence material in this lesson.",
+        itemCount: itemCount as number,
+        prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"],
+      })),
     ],
   };
 }
 
 export async function choosePractice(
   user: ReturnType<typeof userEvent.setup>,
-  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Saying what someone has" | "Words for things you read" | "Names, homes and languages" | "Using a verb after kan" | "Expressing an intention" | "Understanding a requirement" | "Understanding permission" | "Adding when and where" | "Asking yes or no questions" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" | "A small breakfast" | "Drinks on the table" | "Getting attention and receiving a roll" | "Buying and paying" | "Marking a polite wish" | "Requesting a supplied quantity" = "Mixed practice",
+  name: "Talking about one person" | "Talking to and about groups" | "Using the verb to be" | "Referring to one thing" | "Using present verb forms" | "Building subject-first statements" | "Saying what someone has" | "Words for things you read" | "Names, homes and languages" | "Using a verb after kan" | "Expressing an intention" | "Understanding a requirement" | "Understanding permission" | "Adding when and where" | "Asking yes or no questions" | "Mixed practice" | "Present verb forms" | "Verbs and articles together" | "A small breakfast" | "Drinks on the table" | "Getting attention and receiving a roll" | "Buying and paying" | "Marking a polite wish" | "Requesting a supplied quantity" | "Two ways to travel" | "Walking to the station and home" | "City, home and library" | "Ticket, bus and train" | "Waiting at the station" | "A change and the pharmacy" = "Mixed practice",
 ) {
   await screen.findByRole("heading", { name: "Choose your practice" });
   await user.click(screen.getByRole("radio", { name }));

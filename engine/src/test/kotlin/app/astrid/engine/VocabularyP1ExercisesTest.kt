@@ -13,7 +13,7 @@ class VocabularyP1ExercisesTest {
 
     @Test
     fun `pair eighteen exposes all nine literal operations and 23 authored tasks`() {
-        assertEquals(RevisionPair("pilot-19", "generator-19"), engine.supportedRevisionPairs().last())
+        assertEquals(RevisionPair("pilot-20", "generator-20"), engine.supportedRevisionPairs().last())
         assertEquals("evaluation-17", engine.evaluationRevision("pilot-17", "generator-17"))
         assertEquals("evaluation-18", engine.evaluationRevision("pilot-18", "generator-18"))
         assertEquals((31..39).map { "E${it.toString().padStart(3, '0')}" }.toSet(),

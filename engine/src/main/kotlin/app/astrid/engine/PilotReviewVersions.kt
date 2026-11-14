@@ -9,8 +9,13 @@ internal object PilotReviewVersions {
     fun hasInanimateReference(snapshot: PilotContentSnapshot) = snapshot.contentRevision in REFERENCE_REVISIONS
     fun hasPresentOrder(snapshot: PilotContentSnapshot) = snapshot.contentRevision in PRESENT_ORDER_REVISIONS
 
+    @Suppress("CyclomaticComplexMethod")
     fun provenance(snapshot: PilotContentSnapshot): String = when (snapshot.contentRevision) {
         PilotContent.CURRENT_CONTENT_REVISION ->
+            "docs/knowledge/vocabulary-places-journeys-activation.md and " +
+                "docs/knowledge/vocabulary-places-journeys-packet.md (P3 L064-L079 and 23 literal activities; " +
+                "2026-11-13), plus retained pair-nineteen sources"
+        PilotContent.RETAINED_NINETEEN_CONTENT_REVISION ->
             "docs/knowledge/vocabulary-food-shopping-activation.md and " +
                 "docs/knowledge/vocabulary-food-shopping-packet.md (P2 L050-L063, L009-S02 and 21 literal activities; " +
                 "2026-11-12), plus retained pair-eighteen sources"
@@ -77,8 +82,13 @@ internal object PilotReviewVersions {
         else -> PilotReviewMetadata.PROVENANCE
     }
 
+    @Suppress("CyclomaticComplexMethod")
     fun sourceReview(snapshot: PilotContentSnapshot): String = when (snapshot.contentRevision) {
         PilotContent.CURRENT_CONTENT_REVISION ->
+            "2026-11-13 official COR form checks and bounded authored P3 frame review; see " +
+                "docs/knowledge/vocabulary-places-journeys-activation.md and " +
+                "docs/knowledge/vocabulary-places-journeys-packet.md"
+        PilotContent.RETAINED_NINETEEN_CONTENT_REVISION ->
             "2026-11-12 official COR form checks and bounded authored P2 frame review; see " +
                 "docs/knowledge/vocabulary-food-shopping-activation.md and docs/knowledge/vocabulary-food-shopping-packet.md"
         in setOf(PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION, PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION) ->
@@ -160,6 +170,7 @@ internal object PilotReviewVersions {
         PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
         PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
         PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+        PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
         PilotContent.CURRENT_CONTENT_REVISION,
     )
     private val WORD_CHOICE_REVISIONS = WRITING_REVISIONS - PilotContent.RETAINED_FOUR_CONTENT_REVISION

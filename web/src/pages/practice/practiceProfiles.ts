@@ -53,6 +53,23 @@ export const VOCABULARY_P2_PROFILES = [
     description: P2_DESCRIPTION, itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
 ] satisfies PracticeProfile[];
 
+const P3_DESCRIPTION = "Learn and practise the places, journeys, reading, and sentence material in this lesson.";
+
+export const VOCABULARY_P3_PROFILES = [
+  { focusId: "vocabulary-p3-s1", planRevision: "vocabulary-p3-s1-1", title: "Two ways to travel",
+    description: P3_DESCRIPTION, itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
+  { focusId: "vocabulary-p3-s2", planRevision: "vocabulary-p3-s2-1", title: "Walking to the station and home",
+    description: P3_DESCRIPTION, itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
+  { focusId: "vocabulary-p3-s3", planRevision: "vocabulary-p3-s3-1", title: "City, home and library",
+    description: P3_DESCRIPTION, itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
+  { focusId: "vocabulary-p3-s4", planRevision: "vocabulary-p3-s4-1", title: "Ticket, bus and train",
+    description: P3_DESCRIPTION, itemCount: 3, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
+  { focusId: "vocabulary-p3-s5", planRevision: "vocabulary-p3-s5-1", title: "Waiting at the station",
+    description: P3_DESCRIPTION, itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
+  { focusId: "vocabulary-p3-s6", planRevision: "vocabulary-p3-s6-1", title: "A change and the pharmacy",
+    description: P3_DESCRIPTION, itemCount: 4, prerequisiteSkillIds: ["G001", "G002", "G003", "G004", "G005"] },
+] satisfies PracticeProfile[];
+
 const PRESENTATION_PROFILES = [
   {
     focusId: "module-one-singular", planRevision: "module-one-singular-1", title: "Talking about one person",
@@ -146,6 +163,7 @@ const PRESENTATION_PROFILES = [
   },
   ...VOCABULARY_P1_PROFILES,
   ...VOCABULARY_P2_PROFILES,
+  ...VOCABULARY_P3_PROFILES,
 ] satisfies PracticeProfile[];
 
 export const MODULE_ONE_PROFILES = [
@@ -220,11 +238,36 @@ async function profilesForExplicitStart() {
   }
 }
 
+function p3CreationRequestFor(
+  chosenKey: string,
+  practiceSessionId: string,
+  seed: number,
+): PracticeCreationRequest | null {
+  switch (chosenKey) {
+    case "vocabulary-p3-s1/vocabulary-p3-s1-1":
+      return { practiceSessionId, focusId: "vocabulary-p3-s1", planRevision: "vocabulary-p3-s1-1", seed };
+    case "vocabulary-p3-s2/vocabulary-p3-s2-1":
+      return { practiceSessionId, focusId: "vocabulary-p3-s2", planRevision: "vocabulary-p3-s2-1", seed };
+    case "vocabulary-p3-s3/vocabulary-p3-s3-1":
+      return { practiceSessionId, focusId: "vocabulary-p3-s3", planRevision: "vocabulary-p3-s3-1", seed };
+    case "vocabulary-p3-s4/vocabulary-p3-s4-1":
+      return { practiceSessionId, focusId: "vocabulary-p3-s4", planRevision: "vocabulary-p3-s4-1", seed };
+    case "vocabulary-p3-s5/vocabulary-p3-s5-1":
+      return { practiceSessionId, focusId: "vocabulary-p3-s5", planRevision: "vocabulary-p3-s5-1", seed };
+    case "vocabulary-p3-s6/vocabulary-p3-s6-1":
+      return { practiceSessionId, focusId: "vocabulary-p3-s6", planRevision: "vocabulary-p3-s6-1", seed };
+    default:
+      return null;
+  }
+}
+
 function creationRequestFor(
   profile: PracticeProfile,
   practiceSessionId: string,
   seed: number,
 ): PracticeCreationRequest {
+  const p3Request = p3CreationRequestFor(profileKey(profile), practiceSessionId, seed);
+  if (p3Request) return p3Request;
   switch (profileKey(profile)) {
     case "reading-basics/practice-1":
       return { practiceSessionId, focusId: "reading-basics", planRevision: "practice-1", seed };
@@ -301,7 +344,7 @@ export async function preparePracticeCreation(chosenKey: string) {
 }
 
 export function taughtProfileKey(session: Pick<PracticeRunRecovery, "focusId" | "planRevision">) {
-  const profile = [...MODULE_ONE_PROFILES, ...VOCABULARY_P1_PROFILES, ...VOCABULARY_P2_PROFILES].find((candidate) =>
+  const profile = [...MODULE_ONE_PROFILES, ...VOCABULARY_P1_PROFILES, ...VOCABULARY_P2_PROFILES, ...VOCABULARY_P3_PROFILES].find((candidate) =>
     candidate.focusId === session.focusId && candidate.planRevision === session.planRevision);
   if (profile) return profileKey(profile);
   const retained = VOCABULARY_P1_PROFILES.find((candidate) =>
@@ -315,6 +358,8 @@ export function nextTaughtProfile(session: Pick<PracticeRunRecovery, "focusId" |
     ? VOCABULARY_P1_PROFILES
     : VOCABULARY_P2_PROFILES.some((profile) => profileKey(profile) === currentKey)
       ? VOCABULARY_P2_PROFILES
+      : VOCABULARY_P3_PROFILES.some((profile) => profileKey(profile) === currentKey)
+        ? VOCABULARY_P3_PROFILES
       : MODULE_ONE_PROFILES;
   const index = sequence.findIndex((profile) => profileKey(profile) === currentKey);
   return index >= 0 ? sequence[index + 1] ?? null : null;

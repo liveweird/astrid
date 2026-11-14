@@ -130,7 +130,7 @@ test("cumulative review reports short and full eligible pools and mixes introduc
   }
   await page.getByRole("button", { name: "Refresh preparation", exact: true }).click();
   const full = await reviewContext(page);
-  expect(full).toMatchObject({ focusId: "cumulative-review", planRevision: "cumulative-review-2", itemCount: 8 });
+  expect(full).toMatchObject({ focusId: "cumulative-review", planRevision: "cumulative-review-3", itemCount: 8 });
   expect(full.sourceLessonCount).toBeGreaterThanOrEqual(2);
   await expect(page.getByText(`8 parts from ${full.sourceLessonCount} lessons`, { exact: true })).toBeVisible();
   await expect(page.getByRole("status")).toBeFocused();
@@ -174,7 +174,7 @@ test("cumulative review replays an exact saved creation and resumes the URL-boun
   expect(bodies).toHaveLength(2);
   expect(bodies[1]).toBe(bodies[0]);
   expect(JSON.parse(bodies[0]!)).toMatchObject({
-    practiceSessionId: id, focusId: "cumulative-review", planRevision: "cumulative-review-2",
+    practiceSessionId: id, focusId: "cumulative-review", planRevision: "cumulative-review-3",
   });
 });
 

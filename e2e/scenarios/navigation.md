@@ -66,6 +66,6 @@ Runs once with a light preference and once with a dark preference.
 
 ## Not covered here (and why)
 
-- Exercise grading, full practice recovery variants and all twenty-three chooser profiles remain in the
+- Exercise grading, full practice recovery variants and all thirty-five chooser profiles remain in the
   existing practice, recovery, topic-practice, module-one and P1 vocabulary journeys. This file covers only the new
   learner-navigation handoffs and does not duplicate their matrices.

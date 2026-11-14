@@ -53,6 +53,10 @@ internal fun GeneratedExercise.toResponse(id: String) = ExerciseResponse(
                 },
             )
         },
+        passageLabels = prompt.passageLabels.map { PassageLabelDto(it.sentenceIndex, it.text) },
+        choiceMappings = prompt.choiceMappings.map { mapping ->
+            ChoiceMappingDto(mapping.choice, mapping.mappings.map { BilingualMappingDto(it.danish, it.english) })
+        },
         fixedPunctuation = prompt.fixedPunctuation.map { FixedPunctuationDto(it.beforeBlockId, it.text) },
     ),
     introduction = introduction.map { IntroductionDto(it.title, it.body, it.bodyLanguage) },
@@ -157,6 +161,7 @@ private fun app.astrid.engine.VocabularyExerciseSourceDetails.toDto() = Vocabula
         VocabularySupportFactDto(
             it.factId, it.referentId, it.predicateId, it.valueId, it.valueText, it.valueRole, it.sentence, it.exposureKeys,
             it.referentDisplay, it.predicateSource?.toDto(), it.objectSource?.toDto(), it.quantitySource?.toDto(), it.translation,
+            it.actionText, it.complementSource?.toDto(), it.complementRole, it.constructionId, it.sceneId,
         )
     },
     matchingPairs = matchingPairs.map {
@@ -193,6 +198,9 @@ private fun app.astrid.engine.VocabularyExerciseSourceDetails.toDto() = Vocabula
         VocabularyChronologyRelationDto(it.relationId, it.beforeFactId, it.afterFactId)
     },
     targetChronologyRelationId = targetChronologyRelationId,
+    scene = scene?.let { VocabularySceneDto(it.id, it.text, it.exposureKeys) },
+    contrastId = contrastId,
+    spatialMeanings = spatialMeanings.map { VocabularySpatialMeaningDto(it.form, it.lexicalSource.toDto(), it.classification) },
 )
 
 private fun app.astrid.engine.VocabularyQuantitySourceDetails.toDto() = VocabularyQuantitySourceDto(
@@ -330,6 +338,19 @@ internal fun GeneratedExercise.reproductionFingerprint(
         ).let { scopedFingerprintFrameWithModal("pair-nineteen", it, inspectorForFingerprint.modalSource) }
             .let { pairSeventeenFingerprintCanonical(it, vocabularySourceForFingerprint) }
             .let { pairNineteenFingerprintCanonical(it, promptForFingerprint, vocabularySourceForFingerprint) }
+        "pilot-20" to "generator-20" -> pairNineFingerprintCanonical(
+            promptForFingerprint,
+            lexicalTargetForFingerprint,
+            inspectorForFingerprint,
+            supportSkillIdsForFingerprint,
+            readingTargetForFingerprint,
+            introductionForFingerprint,
+            lexicalTargetsForFingerprint,
+            targetScopeIdForFingerprint,
+        ).let { scopedFingerprintFrameWithModal("pair-twenty", it, inspectorForFingerprint.modalSource) }
+            .let { pairSeventeenFingerprintCanonical(it, vocabularySourceForFingerprint) }
+            .let { pairNineteenFingerprintCanonical(it, promptForFingerprint, vocabularySourceForFingerprint) }
+            .let { pairTwentyFingerprintCanonical(it, promptForFingerprint, vocabularySourceForFingerprint) }
         in SCOPED_FINGERPRINT_PAIRS -> pairNineFingerprintCanonical(
             promptForFingerprint,
             lexicalTargetForFingerprint,
@@ -457,6 +478,38 @@ private fun vocabularyQuantitySourceFingerprint(source: app.astrid.engine.Vocabu
         vocabularyLexicalSourceFingerprint(source.headSource),
         framedList(source.componentSources.map(::vocabularyLexicalSourceFingerprint)),
     ))
+
+private fun pairTwentyFingerprintCanonical(
+    inheritedCanonical: String,
+    prompt: ExercisePrompt,
+    source: app.astrid.engine.VocabularyExerciseSourceDetails?,
+): String = framedList(listOf(
+    inheritedCanonical,
+    framedList(prompt.passageLabels.map { framedList(listOf(it.sentenceIndex.toString(), it.text)) }),
+    framedList(prompt.choiceMappings.map { choice ->
+        framedList(listOf(choice.choice, framedList(choice.mappings.map { framedList(listOf(it.danish, it.english)) })))
+    }),
+    framedNullable(source?.let { details ->
+        framedList(listOf(
+            framedList(details.supportFacts.map { fact ->
+                framedList(listOf(
+                    framedNullable(fact.actionText),
+                    framedNullable(fact.complementSource?.let(::vocabularyLexicalSourceFingerprint)),
+                    framedNullable(fact.complementRole),
+                    framedNullable(fact.constructionId),
+                    framedNullable(fact.sceneId),
+                ))
+            }),
+            framedNullable(details.scene?.let { scene ->
+                framedList(listOf(scene.id, scene.text, framedList(scene.exposureKeys)))
+            }),
+            framedNullable(details.contrastId),
+            framedList(details.spatialMeanings.map { meaning ->
+                framedList(listOf(meaning.form, vocabularyLexicalSourceFingerprint(meaning.lexicalSource), meaning.classification))
+            }),
+        ))
+    }),
+))
 
 private fun fingerprintSha256(canonical: String): String =
     MessageDigest.getInstance("SHA-256").digest(canonical.toByteArray(Charsets.UTF_8))

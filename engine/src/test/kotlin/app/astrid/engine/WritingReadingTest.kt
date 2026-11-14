@@ -14,9 +14,9 @@ class WritingReadingTest {
     fun `revision four catalog appends writing and reading without changing request defaults`() {
         val catalog = engine.catalog()
 
-        assertEquals("pilot-19", catalog.contentRevision)
-        assertEquals("generator-19", catalog.generatorRevision)
-        assertEquals((1..44).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
+        assertEquals("pilot-20", catalog.contentRevision)
+        assertEquals("generator-20", catalog.generatorRevision)
+        assertEquals((1..51).map { "E${it.toString().padStart(3, '0')}" }, catalog.formats.map { it.id })
         assertEquals("Write a Danish sentence", catalog.formats.single { it.id == "E009" }.title)
         assertEquals("Read a short text", catalog.formats.single { it.id == "E010" }.title)
         assertEquals(
@@ -26,7 +26,7 @@ class WritingReadingTest {
         assertEquals("pilot-1", GenerationRequest("E001", "G004", 0, 0).contentRevision)
         assertEquals("generator-1", GenerationRequest("E001", "G004", 0, 0).generatorRevision)
         assertEquals("evaluation-4", engine.evaluationRevision("pilot-4", "generator-4"))
-        assertEquals(19, engine.supportedRevisionPairs().size)
+        assertEquals(20, engine.supportedRevisionPairs().size)
     }
 
     @Test
@@ -217,7 +217,7 @@ class WritingReadingTest {
         assertFalse("Short-reading teaching units" in retained)
         assertTrue("Content revision: `pilot-4`" in retainedFour)
         assertTrue("Generator revision: `generator-4`" in retainedFour)
-        assertTrue("Content revision: `pilot-19`" in current)
+        assertTrue("Content revision: `pilot-20`" in current)
         assertTrue("Content revision: `pilot-10`" in PilotReview.renderPilotTenMarkdown())
         val writingReview = retainedFour.substringAfter("## Sentence-writing teaching units")
             .substringBefore("## Short-reading teaching units")

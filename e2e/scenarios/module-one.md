@@ -249,7 +249,7 @@
 
 ## Scenario: first-step chooser keeps all profiles keyboard-accessible in ${theme} at ${viewport.width}
 
-1. Open the chooser with twenty-nine profiles: 15 Module 1 sessions, five work/study vocabulary sessions, six food/cafés/shopping vocabulary sessions and three review sets, in both themes, narrow portrait and short landscape, at 200% text.
+1. Open the chooser with thirty-five profiles: 15 Module 1 sessions, five work/study vocabulary sessions, six food/cafés/shopping vocabulary sessions, six places/journeys vocabulary sessions and three review sets, in both themes, narrow portrait and short landscape, at 200% text.
    - Expected: its first-step grouping and every profile remain accessible, without page/text overflow or configured Axe violations.
 2. Focus and select every profile radio with Space, then return to the group-pronoun option.
    - Expected: the choice is checked and Start practice is enabled; no session is created automatically.

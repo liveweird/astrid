@@ -5,7 +5,7 @@ import type { PracticeSession } from "../api/models";
 import { completedState, outcomes } from "../test/practiceFixtures";
 import PracticeSummary from "./PracticeSummary";
 
-function readingRow(label: string, readingRole: "subject" | "last-event", advancedItems: number) {
+function readingRow(label: string, readingRole: "subject" | "object" | "action" | "destination" | "static-location" | "last-event", advancedItems: number) {
   return {
     label, readingTarget: { facet: "explicit-fact" as const }, readingRole,
     plannedItems: 1, attemptedItems: 1, advancedItems, attemptCount: 1, retryCount: 0,
@@ -39,5 +39,25 @@ it("keeps P2 subject and chronology facts separate and reports their actual cont
   expect(screen.getByText("Explicit last-event facts")).toBeVisible();
   expect(screen.getByRole("article", { name: "Explicit subject fact" })).toHaveTextContent("1/1 continued");
   expect(screen.getByRole("article", { name: "Explicit last event" })).toHaveTextContent("0/1 continued");
+  expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+});
+
+it("keeps every P3 reading role visible as its own fact result", () => {
+  const baseline = completedState();
+  const roles = ["subject", "object", "action", "destination", "static-location"] as const;
+  const session = {
+    ...baseline,
+    focusId: "vocabulary-p3-s6", planRevision: "vocabulary-p3-s6-1", title: "A change and the pharmacy",
+    introductionRequired: true,
+    summary: { ...baseline.summary, rows: roles.map((role) => readingRow(`P3 ${role}`, role, 1)) },
+  } as unknown as PracticeSession;
+  render(
+    <MantineProvider env="test">
+      <PracticeSummary session={session} headingRef={createRef()} selectedTargets={new Set()} busy={false}
+        onToggleTarget={vi.fn()} onStartReview={vi.fn()} onRepeat={vi.fn()} />
+    </MantineProvider>,
+  );
+
+  for (const role of roles) expect(screen.getByText(`Explicit ${role} facts`)).toBeVisible();
   expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
 });

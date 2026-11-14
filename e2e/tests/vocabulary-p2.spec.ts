@@ -268,7 +268,7 @@ for (const profile of PROFILES) {
       itemCount: number; focusId: string; planRevision: string; sourceLessonCount: number;
     };
     expect(reviewState).toMatchObject({
-      focusId: "cumulative-review", planRevision: "cumulative-review-2", sourceLessonCount: 1,
+      focusId: "cumulative-review", planRevision: "cumulative-review-3", sourceLessonCount: 1,
     });
     expect(reviewState.itemCount).toBeGreaterThan(0);
     await page.reload();
@@ -362,7 +362,7 @@ test("cumulative review admits all six taught P2 families while a saved revision
   let currentResponse = await page.request.get("/api/v1/practice-review-context");
   expect(currentResponse.status()).toBe(200);
   expect(await currentResponse.json()).toMatchObject({
-    planRevision: "cumulative-review-2", sourceLessonCount: 1,
+    planRevision: "cumulative-review-3", sourceLessonCount: 1,
   });
 
   const legacyId = crypto.randomUUID();
@@ -381,7 +381,7 @@ test("cumulative review admits all six taught P2 families while a saved revision
   const current = await currentResponse.json() as {
     itemCount: number; planRevision: string; sourceLessonCount: number;
   };
-  expect(current).toMatchObject({ planRevision: "cumulative-review-2", sourceLessonCount: 7, itemCount: 8 });
+  expect(current).toMatchObject({ planRevision: "cumulative-review-3", sourceLessonCount: 7, itemCount: 8 });
 
   const legacyAfter = await readPractice(page.request, legacyId);
   expect(legacyAfter).toEqual(legacyBefore);

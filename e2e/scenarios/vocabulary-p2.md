@@ -23,7 +23,7 @@
      server feedback preserves the complete punctuated sentence.
 5. Complete the run and reload the summary.
    - *Expected*: the actual activity and summary counts are saved without turning supplied words into
-     independent recall or grammar credit; the family becomes eligible for revision-two cumulative review.
+     independent recall or grammar credit; the family becomes eligible for current revision-three cumulative review.
 
 ## Scenario: P2 two-pair matching preserves a partial retry and then completes
 
@@ -48,10 +48,10 @@
 
 ## Scenario: cumulative review admits all six taught P2 families while a saved revision-one plan stays unchanged
 
-1. Introduce P1 and inspect revision-two preparation before any P2 teaching is saved.
+1. Introduce P1 and inspect revision-three preparation before any P2 teaching is saved.
    - *Expected*: untaught P2 families are absent and only one source lesson is reported.
 2. Save a revision-one cumulative plan, then introduce all six P2 families.
-   - *Expected*: new preparation advertises `cumulative-review-2` with all seven taught source
+   - *Expected*: new preparation advertises `cumulative-review-3` with all seven taught source
      families, while the saved revision-one plan remains byte-for-byte unchanged and resumable.
 
 ## Scenario: P2 matching requests fixed punctuation and summary reflow at 320px and 200% in ${theme}

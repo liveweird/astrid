@@ -30,6 +30,20 @@ expand that old contract. Its published engine and synthetic wire archives were 
 before production changes. Actual upgrade/restart and release observations belong in
 the P2 activation record after verification; this section records the selected contract.
 
+## Selected places/journeys extension — 13 November 2026
+
+The selected [P3 activation](vocabulary-places-journeys-activation.md) assigns app **0.23.0**
+and **cumulative-review-3**, adding six P3 families for 32 eligible families. Versions one/two
+retain 20/26 families even for new explicit requests. Current preparation uses version three;
+saved selections, eight-item cap, owner lifetime and original per-item graders remain intact.
+P3 contributes only its taught bounded tasks with packet-specific completion/exposure policies.
+
+The unchanged P2 freeze exposed an integer-overflow failure at extreme positive seeds.
+Only version three has the narrowly guarded fallback described in the P3 activation contract:
+reuse the verified original P2 recipe and policy when the legacy scan overflows and misses a
+task, assigning a fresh exercise UUID. Older versions and P2 planners retain their released
+behavior; BL-072 tracks their separate future repair.
+
 ## Eligibility and ownership
 
 Use only the authenticated current development session's stored evidence. Its existing

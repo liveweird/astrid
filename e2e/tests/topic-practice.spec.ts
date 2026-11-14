@@ -51,10 +51,12 @@ test("a fresh chooser creates no run before an explicit focus selection", async 
   });
   await page.goto("/practice");
   await expect(page.getByRole("heading", { name: "Choose your practice", exact: true })).toBeVisible();
-  await expect(page.getByRole("radio")).toHaveCount(29);
+  await expect(page.getByRole("radio")).toHaveCount(35);
   await expect(page.getByRole("radio", { name: "Referring to one thing", exact: true })).toBeVisible();
   await expect(page.getByRole("radio", { name: "A small breakfast", exact: true })).toBeVisible();
   await expect(page.getByRole("radio", { name: "Requesting a supplied quantity", exact: true })).toBeVisible();
+  await expect(page.getByRole("radio", { name: "Two ways to travel", exact: true })).toBeVisible();
+  await expect(page.getByRole("radio", { name: "A change and the pharmacy", exact: true })).toBeVisible();
   await expect(page.getByRole("radio", { checked: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Start practice", exact: true })).toBeDisabled();
   expect(bodies).toEqual([]);

@@ -75,7 +75,7 @@ class VocabularyP2FingerprintTest {
     }
 
     @Test
-    fun `all pair nineteen P2 tasks and inherited matching are deterministic in perturbed fresh JVMs`() {
+    fun `all P2 and P3 tasks plus inherited matching are deterministic in perturbed fresh JVMs`() {
         val classpath = System.getProperty("java.class.path")
         val java = File(System.getProperty("java.home"), "bin/java").absolutePath
         val configurations = listOf(
@@ -97,7 +97,10 @@ class VocabularyP2FingerprintTest {
             assertEquals(0, process.waitFor(), output)
             val lines = output.lineSequence().filter(String::isNotBlank).toList()
             val identityHashTuple = lines.single { it.startsWith("META\t") }.substringAfterLast('\t')
-            val fingerprints = lines.filter { it.startsWith("P2\t") || it.startsWith("E033\t") }
+            val fingerprints = lines.filter {
+                it.startsWith("P2\t") || it.startsWith("P3\t") || it.startsWith("E033\t") ||
+                    it.startsWith("E033P20\t") || it.startsWith("E042P20\t")
+            }
             assertEquals(FRESH_JVM_FINGERPRINT_COUNT, fingerprints.size, output)
             identityHashTuple to fingerprints
         }
@@ -146,6 +149,6 @@ class VocabularyP2FingerprintTest {
     private fun <T> List<T>.replace(old: T, new: T): List<T> = map { if (it == old) new else it }
 
     private companion object {
-        const val FRESH_JVM_FINGERPRINT_COUNT = 87
+        const val FRESH_JVM_FINGERPRINT_COUNT = 204
     }
 }

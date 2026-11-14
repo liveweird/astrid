@@ -1,6 +1,6 @@
 # Astrid
 
-A Danish reading and writing engine for English-speaking beginners. Guided practice includes fifteen Module 1 profiles, five work/study vocabulary sessions and six food/cafés/shopping sessions, alongside a standalone playground with forty-four exercise formats covering grammar, vocabulary, constrained writing and short reading. The current inventory has 63 lexical records and 109 catalogue sentences plus scoped task frames. Generation and grading are deterministic; content remains a linguistic draft awaiting Danish teaching review.
+A Danish reading and writing engine for English-speaking beginners. Guided practice includes fifteen Module 1 profiles, five work/study vocabulary sessions and six food/cafés/shopping sessions and six places/journeys sessions, alongside a standalone playground with fifty-one exercise formats covering grammar, vocabulary, constrained writing and short reading. The current inventory has 79 lexical records and 109 catalogue sentences plus scoped task frames. Generation and grading are deterministic; content remains a linguistic draft awaiting Danish teaching review.
 
 ## Run the complete app
 
@@ -146,6 +146,17 @@ They add no cumulative mastery or targeted-review planner. See the
 The [restart compatibility contract](docs/knowledge/matching-restart-compatibility.md)
 records the historical seventeen matching limitation and strict recovery of saved boards.
 
+**Places and journeys** adds six independent sessions and 23 activities: transport meanings,
+article-and-noun choices, matching, explicit reading, supplied sentence order, vehicular
+present-form recall and destination/static-location contrasts. Required teaching supplies
+complete station/pharmacy phrases and separate English car/rail contexts. These are bounded
+uses, not a general rule for Danish prepositions. Plans pin pair twenty; see the
+[activation contract](docs/knowledge/vocabulary-places-journeys-activation.md).
+
+New cumulative preparation uses **cumulative-review-3**, admitting material from 32 taught
+lesson families. Explicit versions one/two retain their original 20/26 families. Each saved
+review keeps at most eight distinct activities and each activity's original grader.
+
 Practice saves operation identities in this browser before sending them. Refresh resumes the URL-bound session and replays uncertain operations with their original identities; confirmed grades are read back without regrading. Recovery requires the original valid development cookie and browser storage. If either is unavailable, use **Start new practice**; old server history remains intact. Unsent drafts need not survive refresh. The standalone playground retains its existing in-tab recovery behavior.
 
 From a completed mixed/verb/guided-gap summary, select individual grammar or vocabulary targets and choose **Start selected review**. Recognition and written recall stay separate. Vocabulary targets add one item each; selecting grammar adds distinct sentences for a short run of up to eight items. No targets are selected automatically. Present-verb summaries keep selection, written recall and repair separate; choosing one, two or three operations produces four, four or six review items. The review saves its source link and possible earlier exposure, and keeps the original session's results intact. A single-word review can contain one item because repeating its cue would not add meaningful variation.
@@ -213,7 +224,7 @@ CI repeats the gates on pull requests and master, validates Kubernetes schemas a
 ./gradlew :engine:exportPilotReview
 ```
 
-The current deterministic report is `engine/build/review/pilot-19.md`. It covers 63 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotTenReview` for `pilot-10-retained.md`. Pair seventeen's matching-dependent layout is a documented exception to cross-JVM review-byte stability. See the [export and compatibility inventory](.claude/docs/compatibility.md).
+The current deterministic report is `engine/build/review/pilot-20.md`. It covers 79 lexical entries, 109 catalogue sentences, and the scoped tasks, with sources and draft review status. Retained reports have separate tasks, including `:engine:exportPilotTenReview` for `pilot-10-retained.md`. Pair seventeen's matching-dependent layout is a documented exception to cross-JVM review-byte stability. See the [export and compatibility inventory](.claude/docs/compatibility.md).
 
 Vocabulary introduces a forward migration permitting a null grammar target; its separate lexical target lives in the stored presentation. After vocabulary writes, rollback requires a reader compatible with new metadata and nullable targets; a bare older image is unsafe. See the [contract](docs/knowledge/vocabulary-assessment.md).
 

@@ -23,6 +23,7 @@ object PracticeCompletionPolicy {
             ModalRoundPolicies.COMPLETION_RULE_ID -> ModalRoundPolicies.canAdvance(latestAttempt)
             VOCABULARY_P1_RULE -> latestAttempt.hasVocabularyP1Outcome()
             VOCABULARY_P2_RULE -> latestAttempt.hasVocabularyP2Outcome()
+            VOCABULARY_P3_RULE -> latestAttempt.hasVocabularyP3Outcome()
             else -> false
         }
     }
@@ -74,10 +75,14 @@ object PracticeCompletionPolicy {
         return teachingSaved && knownOutcome
     }
 
+    private fun PracticeCompletionAttemptObservation.hasVocabularyP3Outcome(): Boolean =
+        hasVocabularyP2Outcome()
+
     private const val MODULE_ONE_RULE = "module-one-known-outcome-1"
     private const val MODULE_ONE_ORDER_RULE = "module-one-order-outcome-1"
     const val VOCABULARY_P1_RULE = "vocabulary-p1-outcome-1"
     const val VOCABULARY_P2_RULE = "vocabulary-p2-outcome-1"
+    const val VOCABULARY_P3_RULE = "vocabulary-p3-outcome-1"
     private val COMPLETION_ISSUE_CODES = setOf(
         "STANDALONE_PRONOUN_CASE_REQUIRED",
         "ONE_WORD_RESPONSE_REQUIRED",

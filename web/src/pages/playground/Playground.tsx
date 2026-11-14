@@ -278,7 +278,7 @@ export default function Playground() {
               )}
               <Box>
                 <Title ref={exerciseHeadingRef} tabIndex={-1} order={3} size="h4">{exercise.instruction}</Title>
-                <Text c="dimmed" mt={4}>{exercise.context}</Text>
+                <Text lang="en" c="dimmed" mt={4}>{exercise.context}</Text>
               </Box>
               <ExercisePrompt
                 exercise={exercise}

@@ -5,12 +5,15 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotSame
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class CumulativeReviewPlannerTest {
     private val engine = PilotEngine()
     private val planner = CumulativeReviewPlanner(engine)
     private val plannerV2 = CumulativeReviewPlanner(engine, "cumulative-review-2")
+    private val plannerV3 = CumulativeReviewPlanner(engine, "cumulative-review-3")
 
     @Test
     fun `empty history has no plan and short pools stay short`() {
@@ -71,6 +74,51 @@ class CumulativeReviewPlannerTest {
             }.item
             assertEquals(plannerV2.candidateSemanticId(original), plannerV2.candidateSemanticId(item))
         }
+    }
+
+    @Test
+    fun `only cumulative three admits P3 and retains its authored target identities`() {
+        val sources = (1..6).flatMap { lesson ->
+            source("vocabulary-p3-s$lesson", "vocabulary-p3-s$lesson-1", lesson)
+        }
+        assertNull(planner.plan(47, sources))
+        assertNull(plannerV2.plan(47, sources))
+        val selected = assertNotNull(plannerV3.plan(47, sources))
+        assertEquals("cumulative-review-3", selected.plan.planRevision)
+        assertTrue(selected.plan.items.all { it.exercise.contentRevision == "pilot-20" })
+        assertTrue(selected.selections.all { it.sourceLessonId.startsWith("vocabulary-p3-s") })
+        selected.selections.zip(selected.plan.items).forEach { (selection, item) ->
+            val original = sources.single {
+                it.sourcePracticeSessionId == selection.sourcePracticeSessionId &&
+                    it.sourcePosition == selection.sourcePosition
+            }.item
+            assertEquals(plannerV3.candidateSemanticId(original), plannerV3.candidateSemanticId(item))
+            assertEquals(original.exercise.introduction, item.exercise.introduction)
+            assertEquals(original.lessonExposureKeys, item.lessonExposureKeys)
+            assertTrue(item.exercise.introduction.isNotEmpty())
+        }
+    }
+
+    @Test
+    fun `cumulative three preserves P2 recipes across the confirmed overflow boundary`() {
+        val sources = source("vocabulary-p2-s6", "vocabulary-p2-s6-1", 47)
+        ((Int.MAX_VALUE - 4)..Int.MAX_VALUE).forEach { seed ->
+            val forward = assertNotNull(plannerV3.plan(seed, sources))
+            val reversed = assertNotNull(plannerV3.plan(seed, sources.reversed()))
+            assertEquals(forward.selections.map { it.semanticId }, reversed.selections.map { it.semanticId }, "seed=$seed")
+            forward.selections.zip(forward.plan.items).forEach { (selection, item) ->
+                val original = sources.single { it.sourcePosition == selection.sourcePosition }.item
+                assertEquals(plannerV3.candidateSemanticId(original), plannerV3.candidateSemanticId(item), "seed=$seed")
+                assertEquals(sources.single { it.sourcePosition == selection.sourcePosition }.policy, item.policy, "seed=$seed")
+            }
+        }
+    }
+
+    @Test
+    fun `cumulative three reuses the complete original P2 item only inside the confirmed overflow window`() {
+        assertP2OverflowFallback(2, setOf(Int.MAX_VALUE - 1, Int.MAX_VALUE))
+        assertP2OverflowFallback(3, setOf(Int.MAX_VALUE))
+        assertP2OverflowFallback(4, setOf(Int.MAX_VALUE - 3, Int.MAX_VALUE))
     }
 
     @Test
@@ -317,6 +365,35 @@ class CumulativeReviewPlannerTest {
         val second = assertNotNull(planner.plan(Int.MAX_VALUE, sources.reversed(), ranks))
 
         assertEquals(first.selections.map { it.candidateKey }, second.selections.map { it.candidateKey })
+    }
+
+    private fun assertP2OverflowFallback(lesson: Int, fallbackSeeds: Set<Int>) {
+        val sources = source("vocabulary-p2-s$lesson", "vocabulary-p2-s$lesson-1", 47)
+        val boundary = assertNotNull(plannerV3.plan(Int.MAX_VALUE - 4, sources))
+        boundary.selections.zip(boundary.plan.items).forEach { (selection, item) ->
+            val original = sources.single { it.sourcePosition == selection.sourcePosition }.item
+            assertNotSame(original.exercise, item.exercise, "lesson=$lesson outside overflow")
+        }
+        ((Int.MAX_VALUE - 3)..Int.MAX_VALUE).forEach { seed ->
+            val forward = assertNotNull(plannerV3.plan(seed, sources))
+            val reversed = assertNotNull(plannerV3.plan(seed, sources.reversed()))
+            assertEquals(forward.selections.map { it.semanticId }, reversed.selections.map { it.semanticId }, "seed=$seed")
+            forward.selections.zip(forward.plan.items).forEach { (selection, item) ->
+                assertP2OverflowItem(lesson, seed, sources.single { it.sourcePosition == selection.sourcePosition }, item,
+                    seed in fallbackSeeds)
+            }
+        }
+    }
+
+    private fun assertP2OverflowItem(lesson: Int, seed: Int, source: CumulativeReviewSourceItem,
+        item: PracticePlanItem, fallback: Boolean) {
+        if (fallback) {
+            assertSame(source.item.exercise, item.exercise, "lesson=$lesson seed=$seed")
+            assertEquals(source.item.copy(position = item.position, policy = source.policy), item, "lesson=$lesson seed=$seed")
+        } else {
+            assertNotSame(source.item.exercise, item.exercise, "lesson=$lesson seed=$seed")
+            assertEquals(plannerV3.candidateSemanticId(source.item), plannerV3.candidateSemanticId(item))
+        }
     }
 
     private fun source(focus: String, revision: String, seed: Int): List<CumulativeReviewSourceItem> {

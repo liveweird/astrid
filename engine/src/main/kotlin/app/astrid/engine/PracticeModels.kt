@@ -123,10 +123,12 @@ object PracticeTargetKeys {
         "G006" to setOf("selection", "recall"),
         "G038" to setOf("selection", "recall"),
         "G030" to setOf("selection", "recall"),
-        "G016" to setOf("constituent-order"),
+        "G016" to setOf("selection", "constituent-order"),
         "G018" to setOf("constituent-order"),
     )
-        private val READING_ROLES = setOf("object", "place", "time", "subject", "last-event")
+        private val READING_ROLES = setOf(
+            "object", "place", "time", "subject", "last-event", "action", "destination", "static-location",
+        )
     private const val MATCHING_MODE = "matching"
 
     private data class ScopedAssessment(
@@ -167,6 +169,11 @@ object PracticeTargetKeys {
         ScopedAssessment("G005", "p2-subject-first-supplied", "word-order"),
         ScopedAssessment("G005", "p2-polite-wish", "word-order"),
         ScopedAssessment("G005", "p2-polite-request", "word-order"),
+        ScopedAssessment("G004", "p3-kore-present", "recall"),
+        ScopedAssessment("G005", "p3-subject-first-supplied", "word-order"),
+        ScopedAssessment("G016", "p3-home-spatial-contrast", "selection"),
+        ScopedAssessment("G016", "p3-station-spatial-contrast", "selection"),
+        ScopedAssessment("G016", "p3-home-direction", "selection"),
     )
 }
 

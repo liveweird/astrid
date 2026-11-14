@@ -10,6 +10,18 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.23.0",
+    date: "2026-11-14",
+    body: `**Use Danish for places and everyday journeys.**
+
+- Six short sessions introduce and review bicycles, walking, home, stations, tickets, buses, trains and a pharmacy through twenty-three activities.
+- Distinguish where someone is from where they are going. Match introduced meanings, read specific people, actions and destinations, and assemble taught journey sentences from intact word blocks.
+- Practise the introduced present form for vehicular travel in a car context. Home and station contrasts assess their exact taught meanings, rather than productive prepositions or noun endings.
+- Every session includes its own teaching and prerequisite review. Train and car cues keep the selected meanings clear without revealing a reading answer.
+- New cumulative mixed reviews can include the six lessons after their teaching is saved in your current 24-hour development session. Existing saved lessons, answers and earlier review versions keep their original behavior.
+- The new Danish material remains a draft awaiting teaching review.`,
+  },
+  {
     version: "0.22.0",
     date: "2026-11-13",
     body: `**Use Danish for food, cafés and a small purchase.**

@@ -11,8 +11,8 @@ class PersonalIntroductionExercisesTest {
 
     @Test
     fun `pair twelve publishes literal personal cards and keeps earlier task pools bounded`() {
-        assertEquals("pilot-19", engine.catalog().contentRevision)
-        assertEquals("generator-19", engine.catalog().generatorRevision)
+        assertEquals("pilot-20", engine.catalog().contentRevision)
+        assertEquals("generator-20", engine.catalog().generatorRevision)
         assertEquals("evaluation-11", engine.evaluationRevision("pilot-11", "generator-11"))
         assertEquals("evaluation-12", engine.evaluationRevision("pilot-12", "generator-12"))
         assertEquals(109, engine.catalog().sentenceCount)

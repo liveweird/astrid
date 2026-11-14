@@ -388,3 +388,13 @@ closes BL-070. Published pair-seventeen behavior, P1 pins and cumulative-one eli
 remain preserved. BL-035 learner review and BL-022 teaching review remain open; P3/library
 are unselected and S14 is paused. The following completion commit changes documentation
 only; the preview keeps the tagged feature image.
+
+## P3 verification window — 14 November 2026
+
+The user asked whether useful work remains until **08:00 Europe/Warsaw**. The assistant
+committed to finishing selected P3 verification, focused commits/merge/push, release,
+backed-up app-only promotion and cleanup, then using remaining time for vocabulary
+variation checks and a reviewable Vocabulary library plan. Aim for a safe stopping point
+by **07:30**, leaving a buffer before 08:00. This continuation plan selects no additional
+runtime feature, library implementation, content packet, account or scheduler. Danish
+teaching approval remains separate; report actual completion and persist any remaining work.

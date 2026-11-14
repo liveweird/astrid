@@ -157,6 +157,19 @@
   line-height: 1.7;
 }
 
+.mappingChoice {
+  flex: 1 1 18rem;
+  height: auto;
+  min-height: var(--button-height);
+  max-width: 100%;
+  padding-block: var(--mantine-spacing-xs);
+}
+
+.mappingChoice :global(.mantine-Button-label) {
+  width: 100%;
+  white-space: normal;
+}
+
 .replacementWord {
   background: light-dark(#fff3bf, #665200);
   border-block-end: 2px solid currentColor;

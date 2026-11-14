@@ -80,6 +80,7 @@ internal object PilotContentValidator {
                 PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -110,6 +111,7 @@ internal object PilotContentValidator {
                     PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                     PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                     PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+                    PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
                     PilotContent.CURRENT_CONTENT_REVISION,
                 )
             ) CURRENT_SENTENCE_COUNT else RETAINED_SENTENCE_COUNT
@@ -121,6 +123,7 @@ internal object PilotContentValidator {
     private fun expectedFormatIds(contentRevision: String): Set<String> =
         EXPECTED_FORMAT_IDS_BY_REVISION[contentRevision].orEmpty()
 
+    @Suppress("CyclomaticComplexMethod")
     private fun expectedLexicalIds(contentRevision: String): Set<String> =
         when {
             contentRevision in setOf(
@@ -141,8 +144,9 @@ internal object PilotContentValidator {
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
             ) -> EXPECTED_PILOT_SEVENTEEN_LEXICAL_IDS
-            contentRevision == PilotContent.CURRENT_CONTENT_REVISION ->
+            contentRevision == PilotContent.RETAINED_NINETEEN_CONTENT_REVISION ->
                 EXPECTED_PILOT_SEVENTEEN_LEXICAL_IDS + PilotNineteenValidation.lexicalIds
+            contentRevision == PilotContent.CURRENT_CONTENT_REVISION -> EXPECTED_PILOT_TWENTY_LEXICAL_IDS
             else -> EXPECTED_RETAINED_LEXICAL_IDS
         }
 
@@ -364,6 +368,7 @@ internal object PilotContentValidator {
                 PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
                 ->
                     setOf("L014-S01", "L015-S01", "L018-S01", "L024-S01")
@@ -539,6 +544,8 @@ internal object PilotContentValidator {
         (1..LAST_PILOT_SIXTEEN_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_PILOT_SEVENTEEN_LEXICAL_IDS =
         (1..LAST_PILOT_SEVENTEEN_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
+    private val EXPECTED_PILOT_TWENTY_LEXICAL_IDS =
+        (1..LAST_PILOT_TWENTY_LEXICAL_NUMBER).map { "L${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_PILOT_EIGHT_FORMAT_IDS =
         (1..LAST_PILOT_EIGHT_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet()
     private val EXPECTED_PILOT_NINE_FORMAT_IDS =
@@ -625,6 +632,21 @@ internal object PilotContentValidator {
             "https://ordregister.dk/id/COR.10180",
             "https://ordregister.dk/id/COR.40370",
             "https://ordregister.dk/id/COR.41536",
+            "https://ordregister.dk/id/COR.45412",
+            "https://ordregister.dk/id/COR.37334",
+            "https://ordregister.dk/id/COR.69303",
+            "https://ordregister.dk/id/COR.30234",
+            "https://ordregister.dk/id/COR.00947",
+            "https://ordregister.dk/id/COR.10109",
+            "https://ordregister.dk/id/COR.58895",
+            "https://ordregister.dk/id/COR.63246",
+            "https://ordregister.dk/id/COR.51979",
+            "https://ordregister.dk/id/COR.45414",
+            "https://ordregister.dk/id/COR.30695",
+            "https://ordregister.dk/id/COR.30094",
+            "https://ordregister.dk/id/COR.00190",
+            "https://ordregister.dk/id/COR.30102",
+            "https://ordregister.dk/id/COR.98580",
         )
     private const val ROLE_SUBJECT = "SUBJECT"
     private const val ROLE_OBJECT = "OBJECT"
@@ -661,11 +683,15 @@ internal object PilotContentValidator {
         PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION to EXPECTED_PILOT_SIXTEEN_FORMAT_IDS,
         PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION to EXPECTED_PILOT_SEVENTEEN_FORMAT_IDS,
         PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION to EXPECTED_PILOT_SEVENTEEN_FORMAT_IDS,
-        PilotContent.CURRENT_CONTENT_REVISION to PilotNineteenValidation.formatIds,
+        PilotContent.RETAINED_NINETEEN_CONTENT_REVISION to PilotNineteenValidation.formatIds,
+        PilotContent.CURRENT_CONTENT_REVISION to
+            (1..LAST_PILOT_TWENTY_FORMAT_NUMBER).map { "E${it.toString().padStart(ID_NUMBER_WIDTH, '0')}" }.toSet(),
     )
     private const val LAST_PILOT_EIGHT_FORMAT_NUMBER = 19
     private const val LAST_PILOT_NINE_FORMAT_NUMBER = 21
     private const val LAST_CURRENT_FORMAT_NUMBER = 25
+    private const val LAST_PILOT_TWENTY_FORMAT_NUMBER = 51
+    private const val LAST_PILOT_TWENTY_LEXICAL_NUMBER = 79
     private const val LAST_PILOT_THIRTEEN_FORMAT_NUMBER = 27
     private const val LAST_PILOT_FOURTEEN_FORMAT_NUMBER = 28
     private const val LAST_PILOT_FIFTEEN_FORMAT_NUMBER = 29

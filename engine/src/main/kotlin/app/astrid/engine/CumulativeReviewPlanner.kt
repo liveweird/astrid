@@ -32,7 +32,9 @@ class CumulativeReviewPlanner(
     private val planRevision: String = PLAN_REVISION_ONE,
 ) {
     init {
-        require(planRevision in setOf(PLAN_REVISION_ONE, PLAN_REVISION_TWO)) { "Unsupported cumulative-review revision" }
+        require(planRevision in setOf(PLAN_REVISION_ONE, PLAN_REVISION_TWO, PLAN_REVISION_THREE)) {
+            "Unsupported cumulative-review revision"
+        }
     }
 
     fun plan(
@@ -114,6 +116,7 @@ class CumulativeReviewPlanner(
     ): PracticePlanItem? = when (exercise.source) {
         is VocabularyP1ExerciseSource -> rebaseVocabularyP1(seed, expectedSemanticId, source)
         is VocabularyP2ExerciseSource -> rebaseVocabularyP2(seed, expectedSemanticId, source)
+        is VocabularyP3ExerciseSource -> rebaseSamePair(seed, expectedSemanticId, source)
         else -> rebaseSamePair(seed, expectedSemanticId, source)
     }
 
@@ -133,7 +136,14 @@ class CumulativeReviewPlanner(
         expectedSemanticId: String,
         source: CumulativeReviewSourceItem,
     ): PracticePlanItem? {
-        val current = PracticePlanner(engine).plan(source.sourceFocusId, source.sourcePlanRevision, seed)
+        val current = try {
+            PracticePlanner(engine).plan(source.sourceFocusId, source.sourcePlanRevision, seed)
+        } catch (failure: NoSuchElementException) {
+            if (planRevision == PLAN_REVISION_THREE && seed.toLong() + MAX_P2_SCAN_INDEX > Int.MAX_VALUE) {
+                return copy(policy = source.policy)
+            }
+            throw failure
+        }
         val candidate = current.items.singleOrNull { candidateSemanticIdOrNull(it) == expectedSemanticId }
         return candidate?.takeIf { authoredTemplateEquivalent(exercise, it.exercise) }?.copy(policy = source.policy)
     }
@@ -181,6 +191,7 @@ class CumulativeReviewPlanner(
     private fun sameEarlyCourseSource(source: ExerciseSource, candidate: ExerciseSource): Boolean? = when (source) {
         is VocabularyP1ExerciseSource -> candidate is VocabularyP1ExerciseSource && source.task == candidate.task
         is VocabularyP2ExerciseSource -> candidate is VocabularyP2ExerciseSource && source.task == candidate.task
+        is VocabularyP3ExerciseSource -> candidate is VocabularyP3ExerciseSource && source.task == candidate.task
         is ModuleOneExerciseSource -> candidate is ModuleOneExerciseSource && source.task == candidate.task
         is InanimateReferenceExerciseSource ->
             candidate is InanimateReferenceExerciseSource && source.task == candidate.task
@@ -211,8 +222,9 @@ class CumulativeReviewPlanner(
         requireNotNull(candidateSemanticIdOrNull(item)) { "Course task must have a stable task id" }
 
     fun candidateSemanticIdOrNull(item: PracticePlanItem): String? {
-        if (item.exercise.source is VocabularyP2ExerciseSource && planRevision == PLAN_REVISION_ONE) return null
-        return semanticId(item.exercise, item.targetDescriptor.targetKey())
+        val excluded = item.exercise.source is VocabularyP2ExerciseSource && planRevision == PLAN_REVISION_ONE ||
+            item.exercise.source is VocabularyP3ExerciseSource && planRevision != PLAN_REVISION_THREE
+        return if (excluded) null else semanticId(item.exercise, item.targetDescriptor.targetKey())
     }
 
     private fun semanticId(exercise: GeneratedExercise, targetKey: String): String {
@@ -223,6 +235,7 @@ class CumulativeReviewPlanner(
     private fun courseTaskId(source: ExerciseSource): String? = when (source) {
         is VocabularyP1ExerciseSource -> source.task.id
         is VocabularyP2ExerciseSource -> source.task.id
+        is VocabularyP3ExerciseSource -> source.task.id
         is ModuleOneExerciseSource -> source.task.id
         is InanimateReferenceExerciseSource -> source.task.id
         is PresentOrderExerciseSource -> source.task.id
@@ -258,10 +271,12 @@ class CumulativeReviewPlanner(
         const val FOCUS_ID = "cumulative-review"
         const val PLAN_REVISION_ONE = "cumulative-review-1"
         const val PLAN_REVISION_TWO = "cumulative-review-2"
+        const val PLAN_REVISION_THREE = "cumulative-review-3"
         const val PLAN_REVISION = PLAN_REVISION_ONE
         const val TITLE = "Mixed review from your lessons"
         private const val ITEM_LIMIT = 8
         private const val SCAN_LIMIT = 512
         private const val PER_ITEM_REVISION = "per-item"
+        private const val MAX_P2_SCAN_INDEX = 4L
     }
 }

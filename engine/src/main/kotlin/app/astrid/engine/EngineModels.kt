@@ -78,6 +78,7 @@ class GeneratedExercise internal constructor(
         is QuestionExerciseSource -> exerciseSource.task.targetScopeId
         is VocabularyP1ExerciseSource -> exerciseSource.task.targetScopeId
         is VocabularyP2ExerciseSource -> exerciseSource.task.targetScopeId
+        is VocabularyP3ExerciseSource -> exerciseSource.task.targetScopeId
         else -> null
     }
     val instruction: String get() = presentation.instruction
@@ -112,7 +113,15 @@ data class ExercisePrompt(
     val matchingColumns: MatchingColumns? = null,
     val gapPrompt: GapPrompt? = null,
     val fixedPunctuation: List<FixedPunctuation> = emptyList(),
+    val passageLabels: List<PassageLabel> = emptyList(),
+    val choiceMappings: List<ChoiceMapping> = emptyList(),
 )
+
+data class PassageLabel(val sentenceIndex: Int, val text: String)
+
+data class ChoiceMapping(val choice: String, val mappings: List<BilingualMapping>)
+
+data class BilingualMapping(val danish: String, val english: String)
 
 data class FixedPunctuation(val beforeBlockId: String, val text: String)
 
@@ -221,6 +230,21 @@ data class VocabularyExerciseSourceDetails(
     val reviewedOrders: List<VocabularyReviewedOrderDetails> = emptyList(),
     val chronologyRelations: List<VocabularyChronologyRelationDetails> = emptyList(),
     val targetChronologyRelationId: String? = null,
+    val scene: VocabularySceneDetails? = null,
+    val contrastId: String? = null,
+    val spatialMeanings: List<VocabularySpatialMeaningDetails> = emptyList(),
+)
+
+data class VocabularySceneDetails(
+    val id: String,
+    val text: String,
+    val exposureKeys: List<String>,
+)
+
+data class VocabularySpatialMeaningDetails(
+    val form: String,
+    val lexicalSource: VocabularyLexicalSourceDetails,
+    val classification: String,
 )
 
 data class VocabularySupportFactDetails(
@@ -237,6 +261,11 @@ data class VocabularySupportFactDetails(
     val objectSource: VocabularyLexicalSourceDetails? = null,
     val quantitySource: VocabularyQuantitySourceDetails? = null,
     val translation: String? = null,
+    val actionText: String? = null,
+    val complementSource: VocabularyLexicalSourceDetails? = null,
+    val complementRole: String? = null,
+    val constructionId: String? = null,
+    val sceneId: String? = null,
 )
 
 data class VocabularyChronologyRelationDetails(
@@ -488,6 +517,12 @@ internal data class VocabularyP1ExerciseSource(
 
 internal data class VocabularyP2ExerciseSource(
     val task: VocabularyP2Task,
+    override val answerKey: AnswerKey,
+    override val blockRoles: Map<String, String> = emptyMap(),
+) : ExerciseSource
+
+internal data class VocabularyP3ExerciseSource(
+    val task: VocabularyP3Task,
     override val answerKey: AnswerKey,
     override val blockRoles: Map<String, String> = emptyMap(),
 ) : ExerciseSource

@@ -91,7 +91,8 @@ internal const val VOCABULARY_P1_S5_REVISION = "vocabulary-p1-s5-1"
 internal const val VOCABULARY_P1_S5_CURRENT_REVISION = "vocabulary-p1-s5-2"
 internal const val CUMULATIVE_REVIEW_FOCUS = "cumulative-review"
 internal const val CUMULATIVE_REVIEW_RETAINED_REVISION = "cumulative-review-1"
-internal const val CUMULATIVE_REVIEW_REVISION = "cumulative-review-2"
+internal const val CUMULATIVE_REVIEW_TWO_RETAINED_REVISION = "cumulative-review-2"
+internal const val CUMULATIVE_REVIEW_REVISION = "cumulative-review-3"
 private const val TARGETED_REVIEW_FOCUS = "targeted-review"
 private const val INTRODUCTION_POSITION = -1
 private val CUMULATIVE_ONE_SOURCE_PLANS = setOf(
@@ -116,6 +117,10 @@ private val CUMULATIVE_ONE_SOURCE_PLANS = setOf(
 }
 private val CUMULATIVE_TWO_SOURCE_PLANS = CUMULATIVE_ONE_SOURCE_PLANS + (1..P2_VOCABULARY_LESSON_COUNT).map { lesson ->
     val focus = "vocabulary-p2-s$lesson"
+    focus to "$focus-1"
+}
+private val CUMULATIVE_THREE_SOURCE_PLANS = CUMULATIVE_TWO_SOURCE_PLANS + (1..P3_VOCABULARY_LESSON_COUNT).map { lesson ->
+    val focus = "vocabulary-p3-s$lesson"
     focus to "$focus-1"
 }
 
@@ -158,7 +163,8 @@ internal fun CumulativeReviewHistory.toCumulativeReview(
 ): NewPracticeSession? {
     val sourcePlans = when (request.planRevision) {
         CUMULATIVE_REVIEW_RETAINED_REVISION -> CUMULATIVE_ONE_SOURCE_PLANS
-        CUMULATIVE_REVIEW_REVISION -> CUMULATIVE_TWO_SOURCE_PLANS
+        CUMULATIVE_REVIEW_TWO_RETAINED_REVISION -> CUMULATIVE_TWO_SOURCE_PLANS
+        CUMULATIVE_REVIEW_REVISION -> CUMULATIVE_THREE_SOURCE_PLANS
         else -> throw IllegalArgumentException("Unsupported cumulative review revision")
     }
     val planner = CumulativeReviewPlanner(engine, request.planRevision)
@@ -294,7 +300,10 @@ private fun List<StoredPracticeSession>.cumulativeExposure(relevantKeys: Set<Str
 
 private const val VOCABULARY_LESSON_COUNT = 5
 private const val P2_VOCABULARY_LESSON_COUNT = 6
+private const val P3_VOCABULARY_LESSON_COUNT = 6
 private const val P2_READING_FORMAT = "E044"
+private const val P3_READING_FORMAT = "E050"
+private val VOCABULARY_READING_FORMATS = setOf(P2_READING_FORMAT, P3_READING_FORMAT)
 
 internal fun StoredPracticeSession.toFollowUp(
     request: PracticeFollowUpRequest,
@@ -467,7 +476,7 @@ internal fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
         summary.toDto(
             includeRows = cursor == items.size,
             includeVocabularyFields = focusId.startsWith("vocabulary-p1-") || focusId.startsWith("vocabulary-p2-") ||
-                focusId == CUMULATIVE_REVIEW_FOCUS,
+                focusId.startsWith("vocabulary-p3-") || focusId == CUMULATIVE_REVIEW_FOCUS,
         ),
         followUp?.let { PracticeFollowUpDto(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },
         followUpPlanRevision(),
@@ -519,8 +528,8 @@ private fun StoredPracticeSession.itemToDto(item: StoredPracticeItem): PracticeI
     },
     targetScopeId = item.targetScopeId,
     matchingTarget = item.matchingTarget,
-    readingTarget = item.exercise.presentation.readingTarget.takeIf { item.exercise.formatId == P2_READING_FORMAT },
-    readingRole = item.readingRole.takeIf { item.exercise.formatId == P2_READING_FORMAT },
+    readingTarget = item.exercise.presentation.readingTarget.takeIf { item.exercise.formatId in VOCABULARY_READING_FORMATS },
+    readingRole = item.readingRole.takeIf { item.exercise.formatId in VOCABULARY_READING_FORMATS },
     canAdvance = (item.policy != null || completionRuleId != null).takeIf { it }?.let {
         if (item.position == cursor) {
             PracticeCompletionPolicy.canAdvance(

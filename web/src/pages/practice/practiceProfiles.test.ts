@@ -1,7 +1,7 @@
 import { owner, practiceId, profiles, resetPracticeBrowser } from "../../test/practiceFixtures";
 import {
   nextTaughtProfile, preparePracticeCreation, profileKey, taughtProfileKey, VOCABULARY_P1_PROFILES,
-  VOCABULARY_P2_PROFILES,
+  VOCABULARY_P2_PROFILES, VOCABULARY_P3_PROFILES,
 } from "./practiceProfiles";
 import { listOutbox, loadRunRecovery, saveRunWithCreation } from "./practiceRecovery";
 
@@ -25,6 +25,26 @@ it.each(VOCABULARY_P2_PROFILES)("maps current $focusId completion to its repeat 
 });
 
 it.each(VOCABULARY_P2_PROFILES)("creates the exact current request for $focusId", async (profile) => {
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(profiles()), {
+    status: 200, headers: { "Content-Type": "application/json" },
+  })));
+  try {
+    const prepared = await preparePracticeCreation(profileKey(profile));
+    expect(JSON.parse(prepared.creation.body)).toMatchObject({
+      focusId: profile.focusId, planRevision: profile.planRevision,
+    });
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});
+
+it.each(VOCABULARY_P3_PROFILES)("maps current $focusId completion to its repeat and next choices", (profile) => {
+  expect(taughtProfileKey(profile)).toBe(profileKey(profile));
+  const next = VOCABULARY_P3_PROFILES[VOCABULARY_P3_PROFILES.indexOf(profile) + 1];
+  expect(nextTaughtProfile(profile)).toEqual(next ?? null);
+});
+
+it.each(VOCABULARY_P3_PROFILES)("creates the exact current request for $focusId", async (profile) => {
   vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(profiles()), {
     status: 200, headers: { "Content-Type": "application/json" },
   })));

@@ -6,10 +6,32 @@ import type { InspectorDetails } from "../api/models";
 function VocabularyEvidence({ details }: { details: InspectorDetails }) {
   const source = details.vocabularySource;
   if (!source) return null;
-  const answerLanguage = ["E031", "E039"].includes(details.exercise.formatId) ? "en" : "da";
+  const p3Source = source as typeof source & {
+    scene?: { id: string; text: string; exposureKeys: string[] };
+    contrastId?: string;
+    spatialMeanings?: {
+      form: string;
+      classification: string;
+      lexicalSource: { entryId: string; senseId: string };
+    }[];
+  };
+  const answerLanguage = ["E031", "E039", "E045", "E050"].includes(details.exercise.formatId)
+    ? "en" : details.exercise.formatId === "E051" ? undefined : "da";
   return (
     <Stack gap="sm" style={{ gridColumn: "1 / -1" }}>
       <Text size="sm">Vocabulary packet task<br /><Code>{source.taskId} · {source.operation}</Code></Text>
+      {p3Source.scene && (
+        <Box>
+          <Text size="sm">Required English scene<br /><Code>{p3Source.scene.id}</Code></Text>
+          <Text size="sm" lang="en">{p3Source.scene.text}</Text>
+        </Box>
+      )}
+      {p3Source.contrastId && <Text size="sm">Spatial contrast<br /><Code>{p3Source.contrastId}</Code></Text>}
+      {p3Source.spatialMeanings?.map((meaning) => (
+        <Text size="sm" key={`${meaning.lexicalSource.entryId}:${meaning.lexicalSource.senseId}:${meaning.form}`}>
+          Spatial meaning<br /><Code><span lang="da">{meaning.form}</span> · {meaning.classification} · {meaning.lexicalSource.entryId} · {meaning.lexicalSource.senseId}</Code>
+        </Text>
+      ))}
       {source.lexicalSources.map((lexical) => (
         <Box key={`${lexical.entryId}:${lexical.senseId}`}>
           <Text size="sm"><Code>{lexical.entryId} · {lexical.senseId} · {lexical.kind}</Code></Text>
@@ -21,13 +43,24 @@ function VocabularyEvidence({ details }: { details: InspectorDetails }) {
         </Box>
       ))}
       {source.expectedAnswer && <Text size="sm">Expected answer<br /><Code lang={answerLanguage}>{source.expectedAnswer}</Code></Text>}
-      {source.supportFacts.map((fact) => (
-        <Box key={fact.factId}>
+      {source.supportFacts.map((fact) => {
+        const p3Fact = fact as typeof fact & {
+          actionText?: string;
+          complementRole?: string;
+          complementSource?: { entryId: string; senseId: string };
+          constructionId?: string;
+          sceneId?: string;
+        };
+        return <Box key={fact.factId}>
           <Text size="sm">Supporting fact<br /><Code>{fact.factId}: {fact.referentId} · {fact.predicateId} · {fact.valueRole} · {fact.valueId}</Code></Text>
           <Text size="sm" lang="da">{fact.sentence}</Text>
           <Text size="sm" lang="en">{fact.valueText}</Text>
+          {p3Fact.actionText && <Text size="sm">Action<br /><Code lang="en">{p3Fact.actionText}</Code></Text>}
+          {p3Fact.complementRole && <Text size="sm">Complement<br /><Code>{p3Fact.complementRole}{p3Fact.complementSource ? ` · ${p3Fact.complementSource.entryId} · ${p3Fact.complementSource.senseId}` : ""}</Code></Text>}
+          {p3Fact.constructionId && <Text size="sm">Construction<br /><Code>{p3Fact.constructionId}</Code></Text>}
+          {p3Fact.sceneId && <Text size="sm">Required scene<br /><Code>{p3Fact.sceneId}</Code></Text>}
         </Box>
-      ))}
+      })}
       {source.matchingPairs.map((pair) => <Text size="sm" key={pair.leftId}>
         <Code>{pair.leftId} → {pair.rightId}: {pair.lexicalSource.entryId} · {pair.lexicalSource.senseId}</Code>
       </Text>)}

@@ -24,6 +24,8 @@ object PilotReview {
 
     fun renderPilotEighteenMarkdown(): String = renderSnapshot(PilotContent.pilotEighteenSnapshot)
 
+    fun renderPilotNineteenMarkdown(): String = renderSnapshot(PilotContent.pilotNineteenSnapshot)
+
     fun renderPilotEightMarkdown(): String = renderSnapshot(PilotContent.pilotEightSnapshot)
 
     fun renderPilotNineMarkdown(): String = renderSnapshot(PilotContent.pilotNineSnapshot)
@@ -89,6 +91,7 @@ object PilotReview {
                 PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -100,6 +103,7 @@ object PilotReview {
                 PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -110,6 +114,7 @@ object PilotReview {
                 PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -119,6 +124,7 @@ object PilotReview {
                 PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -127,6 +133,7 @@ object PilotReview {
         if (snapshot.contentRevision in setOf(
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -141,6 +148,7 @@ object PilotReview {
                 PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -199,6 +207,7 @@ object PilotReview {
                 PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
                 PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+                PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
                 PilotContent.CURRENT_CONTENT_REVISION,
             )
         ) {
@@ -220,6 +229,7 @@ object PilotReview {
             PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+            PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
             PilotContent.CURRENT_CONTENT_REVISION,
         ) ->
             "## S05–S13 required teaching"
@@ -670,6 +680,7 @@ object PilotReview {
             PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+            PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
             PilotContent.CURRENT_CONTENT_REVISION,
         )
         val includePersonal = snapshot.contentRevision in setOf(
@@ -680,6 +691,7 @@ object PilotReview {
             PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+            PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
             PilotContent.CURRENT_CONTENT_REVISION,
         )
         val includeModalConstruction = snapshot.contentRevision in setOf(
@@ -688,6 +700,7 @@ object PilotReview {
             PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
             PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+            PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
             PilotContent.CURRENT_CONTENT_REVISION,
         )
         listOf("E022", "E023", "E024", "E025").flatMap { formatId ->
@@ -748,6 +761,7 @@ object PilotReview {
         PilotContent.RETAINED_SIXTEEN_CONTENT_REVISION,
         PilotContent.RETAINED_SEVENTEEN_CONTENT_REVISION,
         PilotContent.RETAINED_EIGHTEEN_CONTENT_REVISION,
+        PilotContent.RETAINED_NINETEEN_CONTENT_REVISION,
         PilotContent.CURRENT_CONTENT_REVISION,
     )
     private val ABILITY_TEACHING_REVISIONS = PERSONAL_TEACHING_REVISIONS -

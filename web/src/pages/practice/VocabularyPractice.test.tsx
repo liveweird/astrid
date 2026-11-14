@@ -297,3 +297,38 @@ it("lists all five independent P1 profiles in their own chooser group", async ()
     expect(screen.getByRole("radio", { name: title })).toBeVisible();
   }
 });
+
+it.each([
+  ["vocabulary-p3-s5", "vocabulary-p3-s5-1"],
+  ["cumulative-review", "cumulative-review-3"],
+] as const)("keeps the English car scene visible for %s practice", async (focusId, planRevision) => {
+  const carExercise = {
+    ...matchingExercise,
+    id: "91919191-9191-4919-8919-919191919191", formatId: "E048",
+    lexicalTargets: undefined, lexicalTarget: undefined, matchingTarget: undefined,
+    targetSkillId: "G004", targetScopeId: "p3-kore-present",
+    contentRevision: "pilot-20", generatorRevision: "generator-20",
+    instruction: "The person is travelling home by car. Type the introduced present form of this verb.",
+    context: "Car context: This journey is by car.",
+    prompt: { before: "", after: "", choices: [], blocks: [], punctuation: "", cue: "at køre", cueLanguage: "da", answerLanguage: "da", inputLabel: "Danish present form" },
+  };
+  saveRunRecovery({ ownerSessionId: owner, practiceSessionId: practiceId, focusId, planRevision, seed: 47 });
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  const session = state({
+    focusId, planRevision, title: "Waiting at the station", introductionRequired: true, introductionOpened: true,
+    contentRevision: "pilot-20", generatorRevision: "generator-20", evaluationRevision: "evaluation-20",
+    currentExercise: carExercise,
+    items: [{ ...state().items[0]!, exerciseId: carExercise.id, formatId: "E048", targetSkillId: "G004",
+      targetScopeId: "p3-kore-present", assessmentMode: "recall" }],
+  });
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.includes("/practice-sessions/")) return json(session);
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Practice />);
+
+  expect(await screen.findByText("Car context: This journey is by car.")).toBeVisible();
+  expect(screen.getByText("Present form of køre")).toBeVisible();
+  expect(screen.getByRole("textbox", { name: "Danish present form" })).toHaveAttribute("lang", "da");
+});
