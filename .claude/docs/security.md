@@ -9,10 +9,11 @@ expose publicly. Keep the deployment private (`README.md`; k8s is reached by `po
 - `POST /api/v1/development-session` creates (or reuses) a session: 32 random bytes, base64url (43 chars) in the `astrid_session` cookie
   (`HttpOnly`, `SameSite=Strict`, `Path=/`, 24 h `Max-Age`, `Secure` only when `ASTRID_SECURE_COOKIE=true`). Only the SHA-256 **hash**
   is stored (`development_sessions.token_hash`); the TTL is fixed, never renewed by use. Reading the changelog creates no session.
-- Everything else authenticates through `Authenticator` (`authz/Principal.kt`): `DevelopmentSessionAuthenticator` is the **only**
+- Except for the narrowly scoped vocabulary reference read below, everything else authenticates through `Authenticator` (`authz/Principal.kt`): `DevelopmentSessionAuthenticator` is the **only**
   implementation and returns a `SessionPrincipal(id, expiresAt)`. Handlers call `call.caller(authenticator)` (memoized per call) and only
   ever see the principal. The whole API is **404 when `ASTRID_DEVELOPMENT_MODE` is not `true`** (fail closed: the image bakes `false`; compose
   and the k8s ConfigMap opt in), then 401 without a well-shaped, unexpired token.
+- `GET /api/v1/vocabulary-entries` is an owner-free reference exception: check development mode first (404 when off), then return only the finite public library projection. It creates no session or teaching evidence and reads no learner history. Host/origin/forwarded-header guards and API `no-store` remain mandatory. `GET /api/v1/vocabulary-context` still uses ordinary `caller` authentication and current-owner expiry checks; it never bootstraps a development session. This does not relax any existing endpoint.
 - A real login slots in as a second `Authenticator` that returns a `SessionPrincipal` and replaces `DevelopmentSessionAuthenticator` at its
   single construction site in `astridModule`; routes and guards do not change. It is **not** free: stores and foreign keys are scoped by
   `development_sessions.id`, so accounts need a migration and a product decision first (see

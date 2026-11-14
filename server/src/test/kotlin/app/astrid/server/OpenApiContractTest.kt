@@ -1676,6 +1676,16 @@ class OpenApiContractTest {
             header(HttpHeaders.Origin, "https://attacker.example")
         }
         validate(HttpMethod.Get, "/api/v1/catalog", forbiddenCatalog)
+        val forbiddenVocabulary = client.get("/api/v1/vocabulary-entries") {
+            trustedHost()
+            header(HttpHeaders.Origin, "https://attacker.example")
+        }
+        validate(HttpMethod.Get, "/api/v1/vocabulary-entries", forbiddenVocabulary)
+        val forbiddenVocabularyContext = client.get("/api/v1/vocabulary-context") {
+            trustedHost()
+            header(HttpHeaders.Origin, "https://attacker.example")
+        }
+        validate(HttpMethod.Get, "/api/v1/vocabulary-context", forbiddenVocabularyContext)
         val forbiddenHealth = client.get("/api/v1/health") {
             trustedHost()
             header("X-Forwarded-Host", "attacker.example")
@@ -1687,6 +1697,16 @@ class OpenApiContractTest {
         }
         validate(HttpMethod.Get, "/api/v1/ready", forbiddenReady)
         validate(HttpMethod.Get, "/api/v1/catalog", client.get("/api/v1/catalog") { trustedHost() })
+        validate(
+            HttpMethod.Get,
+            "/api/v1/vocabulary-entries",
+            client.get("/api/v1/vocabulary-entries") { trustedHost() },
+        )
+        validate(
+            HttpMethod.Get,
+            "/api/v1/vocabulary-context",
+            client.get("/api/v1/vocabulary-context") { trustedHost() },
+        )
         val createExercise = client.post("/api/v1/exercises") {
             trustedHost()
             header("X-Astrid-Client", "playground")
@@ -1694,6 +1714,23 @@ class OpenApiContractTest {
             setBody(EXERCISE_REQUEST)
         }
         validate(HttpMethod.Post, "/api/v1/exercises", createExercise)
+    }
+
+    @Test
+    fun `vocabulary library responses conform to the declared public and owner contracts`() = testApplication {
+        application { astridModule(config(), InMemoryStores()) }
+        val entries = client.get("/api/v1/vocabulary-entries") { trustedHost() }
+        validate(HttpMethod.Get, "/api/v1/vocabulary-entries", entries)
+        assertEquals(79, entries.bodyAsText().asObject().getValue("items").jsonArray.size)
+
+        val unauthorized = client.get("/api/v1/vocabulary-context") { trustedHost() }
+        validate(HttpMethod.Get, "/api/v1/vocabulary-context", unauthorized)
+        val cookie = moduleOneCookie()
+        val context = client.get("/api/v1/vocabulary-context") {
+            trustedHost()
+            cookie("astrid_session", cookie)
+        }
+        validate(HttpMethod.Get, "/api/v1/vocabulary-context", context)
     }
 
     @Test

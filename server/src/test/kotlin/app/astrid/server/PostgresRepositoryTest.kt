@@ -68,6 +68,23 @@ import org.flywaydb.core.Flyway
 
 class PostgresRepositoryTest {
     @Test
+    fun `saved vocabulary teaching is a lock free read`() = withRepositories { first, _ ->
+        val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
+        PostgresTestDatabase.connect().use { blocker ->
+            blocker.autoCommit = false
+            blocker.prepareStatement("SELECT id FROM development_sessions WHERE id = ? FOR UPDATE").use { statement ->
+                statement.setObject(1, owner.id)
+                statement.executeQuery().use { result -> assertTrue(result.next()) }
+            }
+
+            val history = withTimeout(TIMEOUT_MILLIS) { first.practice.savedVocabularyTeaching(owner) }
+            assertTrue(history.ownerAvailable)
+            assertTrue(history.witnesses.isEmpty())
+            blocker.rollback()
+        }
+    }
+
+    @Test
     fun `cumulative creation serializes across pools and plans only once`() = withRepositories { first, second ->
         val owner = first.sessions.createSession(UUID.randomUUID().toString().replace("-", "").repeat(2), Long.MAX_VALUE)
         val request = PracticeSessionRequest(

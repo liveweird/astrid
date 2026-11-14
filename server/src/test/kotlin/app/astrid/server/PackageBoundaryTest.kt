@@ -9,8 +9,9 @@ import kotlin.test.assertTrue
  * The one-way package layering of `server/` (README "Structure and conventions", ported from Flow's `PackageBoundaryTest`).
  *
  * The foundation (`infra`, `plugins`, `authz`) references no feature. The features layer `session` < `exercises` <
- * `practice`: `session` references neither of the others, and `exercises` never references `practice` (the attempt write
- * reaches practice state only through `exercises/AttemptPracticeHook`, implemented in `practice/`). The composition root
+ * `practice` < `vocabulary`: lower features never reference a higher one, while vocabulary may read saved teaching only
+ * through `practice`. The attempt write reaches practice state only through `exercises/AttemptPracticeHook`, implemented in
+ * `practice/`. The composition root
  * (`app.astrid.server` itself: `Application.kt`, `Main.kt`, `Stores.kt`, `PostgresStores.kt`) wires everything and is
  * referenced by nothing, whatever it declares (any qualified `app.astrid.server.<name>` that is not a known
  * sub-package). The engine never references the server.
@@ -24,7 +25,7 @@ class PackageBoundaryTest {
 
     private val mainSources: List<File> by lazy { sources("server/src/main/kotlin") }
 
-    private val featurePackages = listOf("session", "exercises", "practice")
+    private val featurePackages = listOf("session", "exercises", "practice", "vocabulary")
 
     private fun sources(path: String): List<File> {
         val root = File(repoRoot, path)
@@ -79,15 +80,33 @@ class PackageBoundaryTest {
     }
 
     @Test
-    fun `session references neither exercises nor practice`() {
+    fun `session references no higher feature`() {
         assertDeclared("app.astrid.server.session")
-        assertEquals(emptyList(), violations(setOf("app.astrid.server.session"), listOf("exercises", "practice")))
+        assertEquals(
+            emptyList(),
+            violations(setOf("app.astrid.server.session"), listOf("exercises", "practice", "vocabulary")),
+        )
     }
 
     @Test
-    fun `exercises never references practice`() {
+    fun `exercises references neither practice nor vocabulary`() {
         assertDeclared("app.astrid.server.exercises")
-        assertEquals(emptyList(), violations(setOf("app.astrid.server.exercises"), listOf("practice")))
+        assertEquals(emptyList(), violations(setOf("app.astrid.server.exercises"), listOf("practice", "vocabulary")))
+    }
+
+    @Test
+    fun `practice never references vocabulary`() {
+        assertDeclared("app.astrid.server.practice")
+        assertEquals(emptyList(), violations(setOf("app.astrid.server.practice"), listOf("vocabulary")))
+    }
+
+    @Test
+    fun `vocabulary references no feature except practice`() {
+        assertDeclared("app.astrid.server.vocabulary")
+        assertEquals(
+            emptyList(),
+            violations(setOf("app.astrid.server.vocabulary"), listOf("session", "exercises")),
+        )
     }
 
     /**
@@ -95,7 +114,10 @@ class PackageBoundaryTest {
      * composition-root declaration of any kind (`class`, `data class`, `internal fun`, `const val`, `typealias`, an
      * extension...), found by the qualified name rather than by guessing the declaration keyword.
      */
-    private val rootReference = Regex("""\bapp\.astrid\.server\.(?!(?:infra|plugins|authz|session|exercises|practice)\b)[A-Za-z]""")
+    private val rootReference = Regex(
+        """\bapp\.astrid\.server\.""" +
+            """(?!(?:infra|plugins|authz|session|exercises|practice|vocabulary)\b)[A-Za-z]""",
+    )
 
     @Test
     fun `nothing outside the composition root references it`() {

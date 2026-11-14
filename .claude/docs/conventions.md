@@ -28,8 +28,9 @@ Everything is `app.astrid.server.<package>` under `server/src/main/kotlin/app/as
 | `session/` | development session store, routes, `DevelopmentSessionAuthenticator` | foundation only |
 | `exercises/` | catalog, exercises, attempts, inspector; the `AttemptPracticeHook` seam | `session` |
 | `practice/` | practice runs, follow-ups, support, advance; implements the hook | `session`, `exercises` |
+| `vocabulary/` | safe reference projection and authenticated saved-teaching context reads | `practice` |
 
-Features layer `session` < `exercises` < `practice`. `exercises/` reaches practice state only through `AttemptPracticeHook`
+Features layer `session` < `exercises` < `practice` < `vocabulary`. `exercises/` reaches practice state only through `AttemptPracticeHook`
 (implemented by `practice/PostgresPracticeHook`), which runs inside the attempt's own transaction (`persistence.md`).
 Each feature owns its DTOs (`*Dtos.kt`), routes, store port (`*Store.kt`), Exposed tables (`*Tables.kt`, `internal`) and
 Postgres store (`Postgres*Store.kt`). Test files all sit in the root package `app.astrid.server`.

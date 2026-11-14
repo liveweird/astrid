@@ -36,6 +36,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/vocabulary-entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Unpaged finite reference projection of all 79 vocabulary entries. No query filters or sorting are supported; items use authored catalogue order. */
+        get: operations["getVocabularyEntries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vocabulary-context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read saved lesson-teaching claims for the current development-session owner without creating or changing learning evidence. */
+        get: operations["getVocabularyContext"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/exercises": {
         parameters: {
             query?: never;
@@ -300,6 +334,57 @@ export interface components {
             sentenceCount: 109;
             skills: components["schemas"]["Skill"][];
             formats: components["schemas"]["Format"][];
+        };
+        VocabularyEntries: {
+            libraryRevision: string;
+            contentRevision: string;
+            items: components["schemas"]["VocabularyEntry"][];
+        };
+        VocabularyEntry: {
+            entryId: string;
+            headword: string;
+            situationIds: string[];
+            senses: components["schemas"]["VocabularySense"][];
+        };
+        VocabularySense: {
+            senseId: string;
+            meaning: string;
+            activeForms: components["schemas"]["VocabularyForm"][];
+            restrictions: string[];
+            examples: components["schemas"]["VocabularyExample"][];
+            exampleNote?: string | null;
+            lessons: components["schemas"]["VocabularyLesson"][];
+            sourceUrls: string[];
+            reviewState: string;
+        };
+        VocabularyForm: {
+            formId: string;
+            label: string;
+            text: string;
+        };
+        VocabularyExample: {
+            exampleId: string;
+            danish: string;
+            english?: string | null;
+            scene?: string | null;
+        };
+        VocabularyLesson: {
+            focusId: string;
+            title: string;
+        };
+        VocabularyContext: {
+            libraryRevision: string;
+            /** Format: uuid */
+            ownerSessionId: string;
+            /** Format: int64 */
+            sessionExpiresAt: number;
+            items: components["schemas"]["VocabularyTeachingClaim"][];
+        };
+        VocabularyTeachingClaim: {
+            entryId: string;
+            senseId: string;
+            meaningRecorded: boolean;
+            formIds: string[];
         };
         Skill: {
             id: string;
@@ -14298,6 +14383,53 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Catalog"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+        };
+    };
+    getVocabularyEntries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Vocabulary library */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VocabularyEntries"];
+                };
+            };
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            500: components["responses"]["Problem"];
+        };
+    };
+    getVocabularyContext: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current owner's saved vocabulary teaching */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VocabularyContext"];
                 };
             };
             401: components["responses"]["Problem"];

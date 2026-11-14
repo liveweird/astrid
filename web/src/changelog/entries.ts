@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.24.0",
+    date: "2026-11-14",
+    body: `**Revisit Danish words and phrases in the Vocabulary library.**
+
+- Browse the existing vocabulary by situation, search Danish forms or English meanings, and open details with article bundles, selected uses, examples and lesson links.
+- Keep different meanings and forms separate, including possession and polite requests, homeward movement and being at home, and complete station or pharmacy phrases.
+- Load saved lesson teaching from your current browser session to see which meanings and individual forms have recorded teaching. This is a reference filter, not a mastery score or cross-device history.
+- Browsing and opening details do not start practice or record new teaching. Targeted library recognition and recall practice will follow separately.
+- Existing lessons, saved answers and mixed review retain their original behavior. Danish content remains a draft awaiting teaching review.`,
+  },
+  {
     version: "0.23.0",
     date: "2026-11-14",
     body: `**Use Danish for places and everyday journeys.**

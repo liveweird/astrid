@@ -15,6 +15,7 @@ import app.astrid.server.plugins.staticRoutes
 import app.astrid.server.practice.practiceRoutes
 import app.astrid.server.session.DevelopmentSessionAuthenticator
 import app.astrid.server.session.sessionRoutes
+import app.astrid.server.vocabulary.vocabularyRoutes
 import io.ktor.server.application.Application
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
@@ -37,6 +38,7 @@ fun Application.astridModule(
             sessionRoutes(config, stores.sessions, clock)
             exerciseRoutes(config, stores.exercises, authenticator, engine, evaluator)
             practiceRoutes(stores.practice, authenticator, engine)
+            vocabularyRoutes(config, stores.practice, authenticator)
         }
         staticRoutes(config)
     }

@@ -2,6 +2,7 @@ package app.astrid.server
 
 import app.astrid.engine.LinguisticStatus
 import app.astrid.engine.PracticeCompletionPolicy
+import app.astrid.engine.VocabularyTeachingWitness
 import app.astrid.engine.ResponseConstraintStatus
 import app.astrid.engine.TargetStatus
 import app.astrid.server.authz.SessionPrincipal
@@ -30,6 +31,7 @@ import app.astrid.server.practice.PracticeSupportRequest
 import app.astrid.server.practice.StoredPracticeAttempt
 import app.astrid.server.practice.StoredPracticeItem
 import app.astrid.server.practice.StoredPracticeSession
+import app.astrid.server.practice.VocabularyTeachingHistory
 import app.astrid.server.practice.toCompletionObservation
 import app.astrid.server.practice.toEngineAssessment
 import app.astrid.server.practice.effectiveCompletionRule
@@ -193,6 +195,28 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                 CumulativeReviewHistory(emptyList(), false)
             } else {
                 history(ownerSession)
+            }
+        }
+
+        override suspend fun savedVocabularyTeaching(ownerSession: SessionPrincipal): VocabularyTeachingHistory = mutex.withLock {
+            if (sessionRecords.values.none { it.id == ownerSession.id && it.expiresAt > clock() }) {
+                VocabularyTeachingHistory(emptyList(), false)
+            } else {
+                VocabularyTeachingHistory(
+                    practiceSessions.values.filter {
+                        it.ownerSessionId == ownerSession.id && it.introductionOpened
+                    }.mapNotNull { stored ->
+                        stored.introductionExposureKeys?.let { keys ->
+                            VocabularyTeachingWitness(
+                                stored.focusId,
+                                stored.planRevision,
+                                stored.contentRevision,
+                                stored.generatorRevision,
+                                keys.toList(),
+                            )
+                        }
+                    },
+                )
             }
         }
 

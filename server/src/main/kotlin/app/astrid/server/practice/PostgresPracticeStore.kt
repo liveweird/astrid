@@ -1,12 +1,14 @@
 package app.astrid.server.practice
 
 import app.astrid.engine.PracticeCompletionPolicy
+import app.astrid.engine.VocabularyTeachingWitness
 import app.astrid.server.authz.SessionPrincipal
 import app.astrid.server.exercises.AttemptRequest
 import app.astrid.server.exercises.Attempts
 import app.astrid.server.exercises.findExerciseInTransaction
 import app.astrid.server.exercises.insertExerciseInTransaction
 import app.astrid.server.infra.db.Database
+import app.astrid.server.session.Sessions
 import app.astrid.server.session.lockSession
 import java.util.UUID
 import kotlinx.coroutines.flow.toList
@@ -15,6 +17,7 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -123,6 +126,35 @@ class PostgresPracticeStore(
             if (!lockSession(ownerSession.id)) return@suspendTransaction CumulativeReviewHistory(emptyList(), false)
             if (ownerSession.expiresAt <= clock()) return@suspendTransaction CumulativeReviewHistory(emptyList(), false)
             cumulativeHistory(ownerSession)
+        }
+
+    override suspend fun savedVocabularyTeaching(ownerSession: SessionPrincipal): VocabularyTeachingHistory =
+        suspendTransaction(database.r2dbc) {
+            val ownerIsLive = Sessions.select(Sessions.id).where {
+                (Sessions.id eq ownerSession.id) and (Sessions.expiresAt greater clock())
+            }.toList().isNotEmpty()
+            if (!ownerIsLive) return@suspendTransaction VocabularyTeachingHistory(emptyList(), false)
+
+            val witnesses = PracticeSessions.select(
+                PracticeSessions.focusId,
+                PracticeSessions.planRevision,
+                PracticeSessions.planPayload,
+            ).where {
+                (PracticeSessions.ownerSessionId eq ownerSession.id) and
+                    (PracticeSessions.introductionOpened eq true)
+            }.toList().mapNotNull { practice ->
+                val payload = json.decodeFromString<PracticePlanPayload>(practice[PracticeSessions.planPayload])
+                payload.introductionExposureKeys?.let { keys ->
+                    VocabularyTeachingWitness(
+                        practice[PracticeSessions.focusId],
+                        practice[PracticeSessions.planRevision],
+                        payload.contentRevision,
+                        payload.generatorRevision,
+                        keys,
+                    )
+                }
+            }
+            VocabularyTeachingHistory(witnesses)
         }
 
     override suspend fun createCumulativeReview(

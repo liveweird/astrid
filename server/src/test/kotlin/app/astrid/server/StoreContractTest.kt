@@ -31,6 +31,7 @@ import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -366,6 +367,38 @@ abstract class StoreContractTest {
         assertIs<PracticeMutationResult.Missing>(stores.practice.advancePracticeSession(owner.id, unknown, 0))
         val outsider = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
         assertIs<PracticeMutationResult.Missing>(stores.practice.advancePracticeSession(outsider.id, practice.id, 0))
+    }
+
+    @Test
+    fun `saved vocabulary teaching reads only opened introductions for the live owner`() = withStores { stores ->
+        val owner = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
+        val openedRequest = practiceRequest()
+        val opened = assertIs<PracticeCreateResult.Created>(
+            stores.practice.createPracticeSession(owner, openedRequest, wireJson.encodeToString(openedRequest)) {
+                plan(owner, openedRequest).copy(introductionExposureKeys = listOf("meaning:entry", "form:surface"))
+            },
+        ).session
+        assertIs<PracticeMutationResult.Success>(
+            stores.practice.openPracticeSupport(owner.id, opened.id, PracticeSupportRequest("introduction")),
+        )
+        val unopenedRequest = practiceRequest()
+        stores.practice.createPracticeSession(owner, unopenedRequest, wireJson.encodeToString(unopenedRequest)) {
+            plan(owner, unopenedRequest).copy(introductionExposureKeys = listOf("not:saved"))
+        }
+
+        val history = stores.practice.savedVocabularyTeaching(owner)
+        assertTrue(history.ownerAvailable)
+        assertEquals(1, history.witnesses.size)
+        assertEquals(opened.focusId, history.witnesses.single().focusId)
+        assertEquals(opened.planRevision, history.witnesses.single().planRevision)
+        assertEquals(opened.contentRevision, history.witnesses.single().contentRevision)
+        assertEquals(opened.generatorRevision, history.witnesses.single().generatorRevision)
+        assertEquals(listOf("meaning:entry", "form:surface"), history.witnesses.single().introductionExposureKeys)
+
+        val outsider = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
+        assertTrue(stores.practice.savedVocabularyTeaching(outsider).witnesses.isEmpty())
+        val expired = stores.sessions.createSession(tokenHash(), 0)
+        assertFalse(stores.practice.savedVocabularyTeaching(expired).ownerAvailable)
     }
 
     private suspend fun createPractice(stores: Stores, owner: SessionPrincipal): StoredPracticeSession {

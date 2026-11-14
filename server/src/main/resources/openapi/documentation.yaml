@@ -1,7 +1,7 @@
 openapi: 3.0.3
-info: { title: Astrid pilot API, version: 0.23.0 }
+info: { title: Astrid pilot API, version: 0.24.0 }
 servers: [{ url: 'http://localhost:8088' }]
-# Every operation needs the development session cookie except the three that declare `security: []`.
+# Every operation needs the development session cookie except the four that declare `security: []`.
 security:
   - developmentSession: []
 paths:
@@ -24,6 +24,26 @@ paths:
       operationId: getCatalog
       responses:
         '200': { description: Catalog, content: { application/json: { schema: { $ref: '#/components/schemas/Catalog' } } } }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
+  /api/v1/vocabulary-entries:
+    get:
+      operationId: getVocabularyEntries
+      security: []
+      description: Unpaged finite reference projection of all 79 vocabulary entries. No query filters or sorting are supported; items use authored catalogue order.
+      responses:
+        '200': { description: Vocabulary library, content: { application/json: { schema: { $ref: '#/components/schemas/VocabularyEntries' } } } }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
+  /api/v1/vocabulary-context:
+    get:
+      operationId: getVocabularyContext
+      description: Read saved lesson-teaching claims for the current development-session owner without creating or changing learning evidence.
+      responses:
+        '200': { description: Current owner's saved vocabulary teaching, content: { application/json: { schema: { $ref: '#/components/schemas/VocabularyContext' } } } }
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
@@ -264,6 +284,79 @@ components:
         sentenceCount: { type: integer, enum: [109] }
         skills: { type: array, items: { $ref: '#/components/schemas/Skill' } }
         formats: { type: array, items: { $ref: '#/components/schemas/Format' } }
+    VocabularyEntries:
+      type: object
+      additionalProperties: false
+      required: [libraryRevision, contentRevision, items]
+      properties:
+        libraryRevision: { type: string }
+        contentRevision: { type: string }
+        items: { type: array, minItems: 79, maxItems: 79, items: { $ref: '#/components/schemas/VocabularyEntry' } }
+    VocabularyEntry:
+      type: object
+      additionalProperties: false
+      required: [entryId, headword, situationIds, senses]
+      properties:
+        entryId: { type: string }
+        headword: { type: string }
+        situationIds: { type: array, items: { type: string } }
+        senses: { type: array, items: { $ref: '#/components/schemas/VocabularySense' } }
+    VocabularySense:
+      type: object
+      additionalProperties: false
+      required: [senseId, meaning, activeForms, restrictions, examples, lessons, sourceUrls, reviewState]
+      properties:
+        senseId: { type: string }
+        meaning: { type: string }
+        activeForms: { type: array, items: { $ref: '#/components/schemas/VocabularyForm' } }
+        restrictions: { type: array, items: { type: string } }
+        examples: { type: array, items: { $ref: '#/components/schemas/VocabularyExample' } }
+        exampleNote: { type: string, nullable: true }
+        lessons: { type: array, items: { $ref: '#/components/schemas/VocabularyLesson' } }
+        sourceUrls: { type: array, items: { type: string, format: uri } }
+        reviewState: { type: string }
+    VocabularyForm:
+      type: object
+      additionalProperties: false
+      required: [formId, label, text]
+      properties:
+        formId: { type: string }
+        label: { type: string }
+        text: { type: string }
+    VocabularyExample:
+      type: object
+      additionalProperties: false
+      required: [exampleId, danish]
+      properties:
+        exampleId: { type: string }
+        danish: { type: string }
+        english: { type: string, nullable: true }
+        scene: { type: string, nullable: true }
+    VocabularyLesson:
+      type: object
+      additionalProperties: false
+      required: [focusId, title]
+      properties:
+        focusId: { type: string }
+        title: { type: string }
+    VocabularyContext:
+      type: object
+      additionalProperties: false
+      required: [libraryRevision, ownerSessionId, sessionExpiresAt, items]
+      properties:
+        libraryRevision: { type: string }
+        ownerSessionId: { type: string, format: uuid }
+        sessionExpiresAt: { type: integer, format: int64, minimum: 0 }
+        items: { type: array, items: { $ref: '#/components/schemas/VocabularyTeachingClaim' } }
+    VocabularyTeachingClaim:
+      type: object
+      additionalProperties: false
+      required: [entryId, senseId, meaningRecorded, formIds]
+      properties:
+        entryId: { type: string }
+        senseId: { type: string }
+        meaningRecorded: { type: boolean }
+        formIds: { type: array, items: { type: string } }
     Skill:
       type: object
       additionalProperties: false

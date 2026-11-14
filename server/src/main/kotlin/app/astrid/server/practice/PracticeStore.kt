@@ -1,5 +1,6 @@
 package app.astrid.server.practice
 
+import app.astrid.engine.VocabularyTeachingWitness
 import app.astrid.server.authz.SessionPrincipal
 import java.util.UUID
 
@@ -14,6 +15,11 @@ sealed interface PracticeCreateResult {
 }
 
 data class CumulativeReviewHistory(val sessions: List<StoredPracticeSession>, val ownerAvailable: Boolean = true)
+
+data class VocabularyTeachingHistory(
+    val witnesses: List<VocabularyTeachingWitness>,
+    val ownerAvailable: Boolean = true,
+)
 
 sealed interface PracticeMutationResult {
     data class Success(val session: StoredPracticeSession) : PracticeMutationResult
@@ -36,6 +42,8 @@ interface PracticeStore {
         create: suspend (StoredPracticeSession) -> NewPracticeSession,
     ): PracticeCreateResult
     suspend fun cumulativeReviewHistory(ownerSession: SessionPrincipal): CumulativeReviewHistory
+    /** Saved introduction witnesses only; implementations must not lock the owner or load attempts/items. */
+    suspend fun savedVocabularyTeaching(ownerSession: SessionPrincipal): VocabularyTeachingHistory
     suspend fun createCumulativeReview(
         ownerSession: SessionPrincipal,
         request: PracticeSessionRequest,
