@@ -3,7 +3,7 @@
 How Astrid is laid out and how a feature is added end to end. Read before adding an endpoint, store, migration or page.
 Long-form decisions and product records live in `docs/knowledge/` (index: `docs/knowledge/README.md`); this file is the
 operational rulebook. Astrid was scaffolded from Flow and aligned with Flow/Lettuce/Toadie; what it deliberately omits is in
-`docs/knowledge/flow-reuse-manifest.md` (no JWT, no i18n, no mail, no OpenTelemetry, no audit trail, no list endpoints,
+`docs/knowledge/flow-reuse-manifest.md` (no JWT, no i18n, no mail, no OpenTelemetry, no audit trail, no paginated CRUD registries,
 no `application.yaml`).
 
 ## Modules
@@ -44,6 +44,8 @@ entry point; `Stores` is the one persistence seam (`sessions`, `exercises`, `pra
 over `InMemoryStores` (`server/src/testFixtures`, Docker-free); `StoreContractTest` keeps the fake and Postgres on one contract
 (`testing.md`). New configuration is an environment variable read in `ServerConfig.fromEnvironment` (validated with `require`),
 documented in `README.md` and `.env.example`.
+
+Astrid’s executable OpenAPI contract uses the `3.0.3` header. The shared donor guide’s historical `3.1.0` label note does not change this repository’s spec or its 3.0-compatible schema conventions.
 
 ## Feature template — adding an endpoint end to end
 

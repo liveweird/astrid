@@ -1,6 +1,6 @@
 # Vocabulary Library: Browse-and-Revise Milestone
 
-Status: browse-and-revise milestone selected on 14 November 2026 following the user’s “vocabulary library looks awesome” response to the two-stage recommendation. The assistant proceeds with the recommended first stage: all-entry reference browsing, the saved-lesson-teaching filter and untracked reference use. This interpretation was stated before implementation; recognition/recall practice remains stage two, and the [backlog](../../BACKLOG.md) retains BL-067 until its accepted practice scope is delivered. Baseline: app 0.23.0, source `6080df921240cb27b68bd59a7bfa76d3b471f19c`.
+Status: browse-and-revise precursor delivered in app [0.24.0](https://github.com/liveweird/astrid/releases/tag/v0.24.0), source `30a464e`. The user selected the first stage on 14 November 2026 after the two-stage recommendation. All-entry reference browsing, the saved-lesson-teaching filter and untracked reference use are implemented. BL-067 remains open for separately selected introduced-content recognition/recall practice. Implementation began from app 0.23.0/source `6080df9`.
 
 ## Selected first-stage scope
 
@@ -8,7 +8,7 @@ This reference-only milestone is a partial precursor, not completion or closure 
 
 Provide reference cards for all 79 existing lexical entry records, grouped by their course situations, with selected meanings, actually taught forms/article bundles/fixed chunks, use restrictions, reviewed examples and links to existing lessons. An optional current-owner filter should be labelled **In saved lesson teaching**. Do not promise 79 senses, 79 independently practisable words, mastery or new entry-specific exercises.
 
-Initial library reading would be untracked reference exposure. Opening, searching or expanding a card would create no development session/run, support acknowledgment, attempt, summary change or cumulative admission. Explain the limit alongside exposure information. Recording reference reveals later needs its own event/replay contract; never disguise browsing as opening a lesson or backfill frozen attempt contexts.
+Library reading is untracked reference use. Opening, searching or expanding a card would create no development session/run, support acknowledgment, attempt, summary change or cumulative admission. Explain the limit alongside exposure information. Recording reference reveals later needs its own event/replay contract; never disguise browsing as opening a lesson or backfill frozen attempt contexts.
 
 ## Existing data and required crosswalk
 
@@ -35,7 +35,7 @@ An owner-context projection should read saved teaching witnesses directly. Do no
 
 ## Implementation contract: API and UI
 
-Selected read-only endpoints: a finite unpaged `/api/v1/vocabulary-entries` envelope with library/content revisions and safe explicit DTOs; a separately authenticated `/api/v1/vocabulary-context` for the current owner's teaching claims. For truly passive browsing, the reference endpoint needs a narrowly documented development-mode/no-owner exception, ordinary host/origin guards, no learner history and no private task keys/accepted answers/matching solutions. This narrow exception requires independent API/security review and changes no other endpoint’s authentication. No migration is currently indicated.
+Selected read-only endpoints: a finite unpaged `/api/v1/vocabulary-entries` envelope with library/content revisions and safe explicit DTOs; a separately authenticated `/api/v1/vocabulary-context` for the current owner's teaching claims. For truly passive browsing, the reference endpoint needs a narrowly documented development-mode/no-owner exception, ordinary host/origin guards, no learner history and no private task keys/accepted answers/matching solutions. This narrow exception requires independent API/security review and changes no other endpoint’s authentication. No migration was needed.
 
 Add `/vocabulary`, a navigation item, four situation filters, local labelled search over supplied forms/headwords/English meanings, expandable cards and passive lesson links. Keep Danish/English markup separate, preserve case-sensitive presentation such as pronoun `I`, and preserve the existing navigation/focus/mobile/reflow conventions. Do not invent `/practice?focus=` deep links; the runner currently binds actual session IDs. Explicit starts must reuse existing creation/outbox behavior.
 
@@ -49,12 +49,12 @@ Donors inspected by the architect: Flow's `web/src/components/EmptyState.tsx:9` 
 4. UI/search/filter/details/navigation with passive browsing, owner-safe states, keyboard/focus, axe, both themes and 320px/200% reflow; preserve uncertain practice operations.
 5. Independent content/API/exposure review, immutable compatibility checks, full Docker-backed/browser gates and standing versioned release/backed-up promotion workflow.
 
-The library needs its own projection revision and the next selected minor app version. A reference-only projection does not itself require a new learning pair, evaluator, practice-plan revision or migration.
+The library uses its own projection revision and app 0.24.0. A reference-only projection does not itself require a new learning pair, evaluator, practice-plan revision or migration.
 
-## Product choices before implementing a precursor
+## First-stage choices and later scope
 
-1. May a reference-only partial precursor ship first, leaving BL-067's accepted recognition/recall scope open, or should the first selected library milestone include that practice? New practice needs explicit populated operation pools and a separate versioned plan.
-2. Should library reading remain untracked reference use, or must reveal events become recorded exposure? Recorded reveals require precise persistence/replay semantics and still grant no automatic cumulative eligibility.
+1. The selected first stage ships reference browsing across all 79 records. BL-067’s recognition/recall scope remains open; new practice needs explicit populated operation pools and a separately selected versioned plan.
+2. Reference reading remains untracked. Durable reveal events would require a separate persistence/replay contract and would still grant no automatic cumulative eligibility.
 
 The user’s positive response to the specific two-stage recommendation selects the smaller first-stage milestone as the working scope. Untracked reference browsing and all-entry visibility are its implementation defaults; neither creates teaching evidence. Future durable reveal events or targeted library practice require a separate selected contract.
 
@@ -89,4 +89,19 @@ The implemented read projection has 79 entries and 81 selected uses: L008 has se
 
 A real-plan matrix checks all 32 lesson families and both P1 plan generations. Exact-key regressions distinguish the personal introduction’s `i Odense`, the P3 rail review’s `i Aarhus`, legacy noun-bundle labels, finite-only review, and request versus possession support. Missing evidence stays absent rather than being inferred from a task example or another city/form. Learner use notes omit internal construction/format/revision identifiers.
 
-Independent content and API/UI reviews identified and corrected false city credit, missing recorded bundles/support, a delayed-reference/context race and lesson-anchor focus. Assembled browser checks additionally found and corrected accessible-name mismatch and enlarged-heading overflow. Visual review corrected double detail padding and rounded multiline badges that could mask text at narrow widths. Final release acceptance will record the exact source/image, complete gates, browser/upgrade/no-write evidence, backup restore, preview promotion and cleanup below; this section is implementation evidence, not a release claim or Danish specialist approval.
+Independent content and API/UI reviews identified and corrected false city credit, missing recorded bundles/support, a delayed-reference/context race and lesson-anchor focus. Assembled browser checks additionally found and corrected accessible-name mismatch and enlarged-heading overflow. Visual review corrected double detail padding and rounded multiline badges that could mask text at narrow widths. Observed release acceptance is recorded below. Software validation does not confer Danish specialist approval.
+
+
+## Observed delivery — 14 November 2026
+
+App [0.24.0](https://github.com/liveweird/astrid/releases/tag/v0.24.0), tagged source `30a464e`, delivers the reference milestone in the private Compose preview at `/vocabulary`. All 79 entries and 81 selected uses retain exact sense/form boundaries; the stage adds no lesson, grader, migration, durable reference exposure or library-specific practice. The learning pair stays twenty and cumulative review stays version three.
+
+- Four focused implementation commits were fast-forward merged and pushed. All five [exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/43600221247) passed; the authenticated packaged-image log records 572 Linux journeys without retries/flakies. The local packaged Chromium/WebKit run passed the same 572 journeys without retries/flakies against the exact candidate image.
+- Complete `scripts/check.sh` passed, including 489 engine tests in both default and Arabic/Egypt JVMs, 336 server tests with real PostgreSQL contracts and 355 web tests. Coverage floors remain unchanged: engine branch/line 86.2551%/98.5398%, server 83.5727%/98.5244%, web statement/branch/function/line 95.67%/90.23%/98.32%/98.19%. All 129 existing golden/provenance/migration resources kept their hashes.
+- Independent content and API/UI reviews closed their findings. The exact release image passed the HIGH/CRITICAL ignore-unfixed image policy. Four previous-version saved runs and grade responses replayed exactly after the isolated upgrade. Reference/context reads preserved all six learner-data tables; separate-owner teaching remained isolated.
+- Both themes passed axe and 320px/200% checks, including saved-teaching badges, keyboard expansion, visible lesson-anchor focus and unchanged pending creation bytes. Desktop and enlarged narrow screenshots were inspected. Earlier draft failures remain private evidence; they are distinct from the final passing runs.
+- A fresh private custom-format main backup was restored into an owned scratch database, with all six table hashes and migrations 1/2/3 verified. App-only promotion preserved the PostgreSQL process, mounts and prior learner rows. All 58 selected live-preview checks passed without retries/flakies. Owned QA containers, disposable volume and network were removed; the stopped Grenadiers app was preserved.
+
+Native full-run attempts were interrupted by documented macOS sleep/dark-wake cycles. The first run’s 559 passes and 13 timeouts remain separate evidence; the corrected-source attempt also encountered long sleeps and a post-dark-wake page-loading cascade. Those attempts are not passing acceptance. Full local acceptance uses the unchanged pinned Linux runner with both browser projects and zero retries; the separately repeated native fast-navigation check passed all 40 cases. The first CI run contained one retried WebKit lesson-link test. Its trace identified a click during the 200ms accordion transition, so reference entries now expand immediately. Acceptance uses the subsequent clean runs rather than relabeling those earlier runs.
+
+The library’s targeted recognition/recall stage remains open under BL-067, and S14 remains paused. Source-backed/agent review does not replace Danish teaching review (BL-022).

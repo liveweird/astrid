@@ -160,3 +160,6 @@ adds six Places and journeys sessions and cumulative-review-3. All five
 passed. The [delivery record](vocabulary-places-journeys-activation.md#observed-runtime-delivery--14-november-2026)
 preserves the local interruption evidence and distinguishes it from the successful rerun.
 This documentation follow-up leaves the running image at the annotated release source.
+
+
+**Subsequent release — 14 November 2026:** App [0.24.0](https://github.com/liveweird/astrid/releases/tag/v0.24.0), tagged source `30a464e`, adds the passive vocabulary reference library and current-owner saved-teaching filter. All five [exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/43600221247), 572 local packaged and 572 CI packaged-Linux journeys passed without retries/flakies. Verified backup restoration preceded app-only preview promotion; all 58 selected live checks and owned QA cleanup passed. The [delivery record](vocabulary-library-plan.md#observed-delivery--14-november-2026) preserves meaning/form scope and distinguishes reference browsing from the remaining targeted-practice stage. This documentation follow-up leaves the running image at the annotated release source.

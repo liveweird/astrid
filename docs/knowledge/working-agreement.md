@@ -426,3 +426,6 @@ proposal](vocabulary-library-plan.md) preserves BL-067's accepted introduced-con
 scope and leaves Q29/Q30 open. Library implementation, another packet, BL-072 and resuming
 S14 remain separate selections. Learner review and Danish specialist approval remain open.
 This completion follow-up changes documentation only; the deployed image keeps the tagged source.
+
+
+**14 November 2026 — Vocabulary reference delivery:** App [0.24.0](https://github.com/liveweird/astrid/releases/tag/v0.24.0), source `30a464e`, delivers the selected browse-and-revise stage. Four implementation commits merged/pushed; all five exact-source CI jobs, 572 local packaged and 572 CI packaged-Linux journeys, actual backup restoration, app-only promotion, 58 live-preview checks and owned QA cleanup passed. The [delivery record](vocabulary-library-plan.md#observed-delivery--14-november-2026) keeps exact evidence and stage limits. BL-067’s targeted introduced-content recognition/recall remains open and unselected; S14 remains paused.

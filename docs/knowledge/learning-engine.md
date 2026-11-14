@@ -322,3 +322,8 @@ The [sixty-placement vocabulary plan](vocabulary-course-blueprint.md#selected-ex
 and its first eighteen authored placements are documented, including nine new form-checked
 candidates. They are not activated by this navigation release; Danish teaching review, Q27,
 the Vocabulary library (BL-067), cumulative review (BL-066) and S14 remain separate work.
+
+
+## Vocabulary reference delivered — 14 November 2026
+
+App [0.24.0](https://github.com/liveweird/astrid/releases/tag/v0.24.0), source `30a464e`, delivers passive reference browsing across all 79 entries and explicit current-owner saved-lesson-teaching status. The [delivery record](vocabulary-library-plan.md#observed-delivery--14-november-2026) supersedes the earlier implementation gaps for those two capabilities. Historical navigation-release statements above retain their original scope. Browsing records no teaching or cumulative eligibility. Targeted introduced-content recognition/recall remains open under BL-067; durable reveal events, mastery claims and resuming S14 remain unselected.

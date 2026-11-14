@@ -14,10 +14,10 @@ the scenario files are the record, and this directory plus the checker are the w
 
 Playwright runs `workers: 1` and `fullyParallel: false` (Chromium, then WebKit) against the assembled
 compose stack on `http://127.0.0.1:8088`, so no two tests ever overlap and files need no isolation
-between each other. There are no seed accounts and no login: the app opens a **development cookie
-session** on first load (`POST /api/v1/development-session`). Every test gets a fresh browser
-context, hence a fresh cookie and a fresh learner identity; `request`-only tests get their own API
-context the same way. Two kinds of state therefore exist:
+between each other. There are no seed accounts or login. Practice and playground flows establish a **development cookie
+session** when needed (`POST /api/v1/development-session`); saved practice recovery reuses its owner. Lessons and Vocabulary reference browsing stay passive. Every test gets a fresh browser
+context. Tests that need learner evidence explicitly establish their isolated owner; public reference tests may remain cookie-free.
+`request`-only tests get their own API context the same way. Two kinds of state therefore exist:
 
 - **Server-side, scoped to that test's development session**: generated exercises, graded attempts
   and practice sessions (with their attempts, support events and follow-ups). Nothing deletes them
