@@ -11,9 +11,17 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-Open **http://localhost:8088** for Lessons and its Review section. Browsing lessons starts no development session; explicitly starting a lesson or opening the developer playground establishes the browser's isolated session. PostgreSQL preserves exercises and attempts across ordinary restarts. `docker compose down` stops the stack; `docker compose down -v` also deletes its data.
+Open **http://localhost:8088** for Lessons, its Review section and Vocabulary. Browsing lessons starts no development session; explicitly starting a lesson or opening the developer playground establishes the browser's isolated session. PostgreSQL preserves exercises and attempts across ordinary restarts. `docker compose down` stops the stack; `docker compose down -v` also deletes its data.
 
 This is a private development tool. Ports bind to loopback, sessions require `ASTRID_DEVELOPMENT_MODE=true`, and there is no public account system. Keep this deployment private.
+
+## Vocabulary library
+
+Open **http://localhost:8088/vocabulary** to browse all 79 existing lexical records by situation or search Danish forms and English meanings. Entries keep article bundles, selected meanings, scoped uses, examples and source links together. Missing bilingual examples are identified explicitly; content remains a draft awaiting teaching review.
+
+**Load saved lesson teaching** reads the current browser session’s acknowledged lesson introductions. Its optional filter and detail badges identify the precise meanings and forms recorded; a reviewed finite form does not imply the infinitive or another meaning. This uses the existing fixed 24-hour development session.
+
+Browsing, searching, expanding details and following lesson links create no session or teaching evidence and do not change mixed-review eligibility. Targeted library recognition/recall practice remains a later stage.
 
 ## Develop locally
 
@@ -40,7 +48,7 @@ Native development binds to `127.0.0.1:8088`; `ASTRID_BIND_HOST` and `ASTRID_POR
 
 ## Use the playground
 
-Open **http://localhost:8088/playground** through Developer tools. The learner home lists twenty-six short lessons. Review keeps the three existing extra-practice profiles and offers cumulative mixed review over teaching saved in the current 24-hour development session. Explicit preparation checks eligibility; a review contains up to eight distinct activities, with honest empty or shorter pools. A saved-practice link returns to the existing runner without changing its stored operation identities.
+Open **http://localhost:8088/playground** through Developer tools. The learner home lists thirty-two short lessons. Review keeps the three existing extra-practice profiles and offers cumulative mixed review over teaching saved in the current 24-hour development session. Explicit preparation checks eligibility; a review contains up to eight distinct activities, with honest empty or shorter pools. A saved-practice link returns to the existing runner without changing its stored operation identities.
 
 - **Present form:** choose between related infinitive and present forms.
 - **En or et:** type an unstressed indefinite article.

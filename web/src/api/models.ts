@@ -2,6 +2,11 @@ import type { components } from "./schema";
 
 export type DevelopmentSession = components["schemas"]["DevelopmentSession"];
 export type Catalog = components["schemas"]["Catalog"];
+export type VocabularyEntries = components["schemas"]["VocabularyEntries"];
+export type VocabularyEntry = components["schemas"]["VocabularyEntry"];
+export type VocabularySense = components["schemas"]["VocabularySense"];
+export type VocabularyTeachingClaim = components["schemas"]["VocabularyTeachingClaim"];
+export type VocabularyContext = components["schemas"]["VocabularyContext"];
 
 export type Exercise = components["schemas"]["Exercise"];
 

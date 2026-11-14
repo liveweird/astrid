@@ -7,7 +7,7 @@ This is the repository record of the Danish learning app's requirements, design 
 - [Product direction](product-direction.md): confirmed scope, intended advantages, and product questions.
 - [Learning engine](learning-engine.md): proposed exercise model, variability, evaluation, and progress tracking.
 - [Cumulative mixed review](cumulative-review.md): selected cross-lesson review, taught-material eligibility, saved selection and per-item policy boundaries.
-- [Vocabulary library proposal](vocabulary-library-plan.md): a reference-only partial precursor, exact sense/form crosswalk and open practice/exposure choices; BL-067 remains open and implementation is unselected.
+- [Vocabulary library milestone](vocabulary-library-plan.md): selected browse-and-revise precursor, exact sense/form crosswalk and passive reference use; BL-067’s targeted recognition/recall practice remains open.
 - [Language foundations](language-foundations.md): requirements for the grammar curriculum, sentence structures, and vocabulary database.
 - [Research and sources](research-and-sources.md): reference material, potential reusable data, and validation needs.
 - [Working agreement](working-agreement.md): standing documentation rule, decision conventions, and backlog statuses.

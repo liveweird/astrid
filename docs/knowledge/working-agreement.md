@@ -44,6 +44,10 @@ verified backup restore and app-only preview promotion apply. Vocabulary library
 a proposed following milestone; S14 and other packets remain separate. Specialist teaching
 approval remains BL-022. The rebuilt main database is fresh; preserve its current evidence.
 
+## Vocabulary library first-stage selection
+
+**14 November 2026:** after the recommendation to build a browse-and-revise library before targeted practice, the user replied **“vocabulary library looks awesome”**. The assistant stated its interpretation as go-ahead for that first stage and proceeds with all 79 existing reference records, situation/search/details/lesson links, a current-owner saved-teaching filter, and passive untracked browsing. These bounded implementation defaults do not add mastery, new practice pools, durable reveal events or cumulative admission. BL-067’s recognition/recall stage stays open; S14 stays paused. The [library contract](vocabulary-library-plan.md) records the scope and acceptance. Standing review, complete gates, focused commits, merge/push, versioned release and backup-verified app-only preview workflow apply.
+
 ## Confirmed documentation rule
 
 From 6 November 2026 onward, continuously document project assumptions, requirements, constraints, open points, questions, decisions, rules, conventions, principles, and tenets. Maintain a separate work backlog with `[next]`, `[todo]`, `[new]`, `[parked]`, and `[blocked]` statuses. This is a standing user instruction, not an occasional documentation task.

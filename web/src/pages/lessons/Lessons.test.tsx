@@ -35,6 +35,10 @@ it("renders all lesson and bounded review choices without network or storage mut
   expect(screen.getByRole("heading", { level: 2, name: "Places and journeys" })).toBeVisible();
   expect(screen.getAllByRole("button", { name: /^Start / })).toHaveLength(35);
   expect(screen.getByRole("button", { name: "Start Words for things you read" })).toBeVisible();
+  expect(screen.getByRole("button", { name: "Start Talking to and about groups" }).closest("li"))
+    .toHaveAttribute("id", "lesson-module-one-groups");
+  expect(screen.getByRole("button", { name: "Start Two ways to travel" }).closest("li"))
+    .toHaveAttribute("id", "lesson-vocabulary-p3-s1");
   expect(screen.getAllByText("Vocabulary")).toHaveLength(18);
   expect(screen.getByRole("heading", { level: 2, name: "Review" })).toHaveAttribute("tabindex", "-1");
   expect(screen.getByText(/familiar words, sentence order, verb forms and articles/)).toBeVisible();

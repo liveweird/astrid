@@ -81,7 +81,7 @@ function ProfileRow({ profile, number, kind, busy, onStart }: {
   onStart: (profile: PracticeProfile) => void;
 }) {
   return (
-    <Paper component="li" withBorder p="md" className={classes.lessonRow}>
+    <Paper component="li" id={`lesson-${profile.focusId}`} tabIndex={-1} withBorder p="md" className={classes.lessonRow}>
       {number && <Text className={classes.lessonNumber} aria-hidden="true">{number}</Text>}
       <Box className={classes.lessonBody}>
         <Group gap="xs" align="center">

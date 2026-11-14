@@ -5,7 +5,7 @@ import {
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
   IconBook2, IconFlask, IconHistory, IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand, IconMoon,
-  IconRefresh, IconSun,
+  IconRefresh, IconSun, IconVocabulary,
 } from "@tabler/icons-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Link as RouterLink, Route, Routes, useLocation, useMatch, useNavigationType } from "react-router-dom";
@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import Lessons from "./pages/lessons/Lessons";
 import Playground from "./pages/playground/Playground";
 import Practice from "./pages/practice/Practice";
+import Vocabulary from "./pages/vocabulary/Vocabulary";
 import classes from "./theme.module.css";
 
 const Changelog = lazy(() => import("./pages/Changelog"));
@@ -45,9 +46,10 @@ interface NavigationProps {
   playground: boolean;
   review: boolean;
   rail: boolean;
+  vocabulary: boolean;
 }
 
-function PrimaryNavigation({ changelog, changelogUnseen, close, lessons, playground, review, rail }: NavigationProps) {
+function PrimaryNavigation({ changelog, changelogUnseen, close, lessons, playground, review, rail, vocabulary }: NavigationProps) {
   return (
     <>
       <AppShell.Section grow component={ScrollArea}>
@@ -69,6 +71,16 @@ function PrimaryNavigation({ changelog, changelogUnseen, close, lessons, playgro
           label={rail ? undefined : "Review"}
           leftSection={<IconRefresh size={19} stroke={1.6} />}
           aria-label="Review"
+          className={rail ? classes.railLink : undefined}
+          onClick={close}
+        />
+        <NavLink
+          component={RouterLink}
+          to="/vocabulary"
+          active={vocabulary}
+          label={rail ? undefined : "Vocabulary"}
+          leftSection={<IconVocabulary size={19} stroke={1.6} />}
+          aria-label="Vocabulary"
           className={rail ? classes.railLink : undefined}
           onClick={close}
         />
@@ -127,9 +139,10 @@ function useRouteChangeFocus() {
   const navigationType = useNavigationType();
   useEffect(() => {
     if (navigationType !== "PUSH") return;
-    const target = hash === "#review" ? document.getElementById("review") : document.getElementById("main-content");
+    const anchored = hash.startsWith("#lesson-") ? document.getElementById(hash.slice(1)) : null;
+    const target = hash === "#review" ? document.getElementById("review") : anchored ?? document.getElementById("main-content");
     target?.focus();
-    if (hash === "#review") target?.scrollIntoView({ block: "start" });
+    if (hash === "#review" || anchored) target?.scrollIntoView({ block: "start" });
   }, [hash, key, navigationType]);
 }
 
@@ -138,6 +151,7 @@ function RouteContent() {
     <Routes>
       <Route path="/" element={<Lessons />} />
       <Route path="/practice" element={<PracticeRoute />} />
+      <Route path="/vocabulary" element={<Vocabulary />} />
       <Route path="/playground" element={<Playground />} />
       <Route
         path="/changelog"
@@ -168,6 +182,7 @@ export default function App() {
   const learningExercise = useMatch("/practice") !== null || playground;
   const lessons = useMatch("/") !== null;
   const review = lessons && location.hash === "#review";
+  const vocabulary = useMatch("/vocabulary") !== null;
   const changelogUnseen = useChangelogUnseen();
   useEffect(() => {
     if (desktop) close();
@@ -236,6 +251,7 @@ export default function App() {
           playground={playground}
           review={review}
           rail={rail}
+          vocabulary={vocabulary}
         />
       </AppShell.Navbar>
 

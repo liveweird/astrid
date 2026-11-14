@@ -51,6 +51,7 @@
 }
 
 .lessonRow {
+  scroll-margin-block-start: calc(var(--app-shell-header-height, 3rem) + var(--mantine-spacing-md));
   align-items: center;
   display: grid;
   gap: var(--mantine-spacing-md);
@@ -100,6 +101,91 @@
 
 .reviewHeading {
   scroll-margin-block-start: calc(var(--app-shell-header-height, 3rem) + var(--mantine-spacing-md));
+}
+
+.vocabularyLibrary {
+  overflow-wrap: anywhere;
+  container-name: vocabulary;
+  container-type: inline-size;
+}
+
+.vocabularyToolbar > * {
+  min-width: min(15rem, 100%);
+}
+
+.vocabularyList,
+.vocabularyExampleList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vocabularyCard,
+.vocabularyCardHeading,
+.vocabularySense,
+.vocabularyForm {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.vocabularyCard :global(.mantine-Accordion-control) {
+  padding: var(--mantine-spacing-md);
+}
+
+.vocabularyCard :global(.mantine-Accordion-panel) {
+  border-block-start: 1px solid var(--astrid-border);
+}
+
+.vocabularyCard :global(.mantine-Accordion-content) {
+  padding: var(--mantine-spacing-md);
+}
+
+.vocabularyForm {
+  flex: 1 1 12rem;
+}
+
+@container vocabulary (max-width: 30rem) {
+  .vocabularyLibrary .lessonsIntro {
+    padding-inline-start: 12px;
+  }
+
+  .vocabularyLibrary h1 {
+    font-size: 1.4rem;
+  }
+
+  .vocabularyToolbar,
+  .vocabularyCardHeading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .vocabularyLibrary :global(.mantine-Badge-root) {
+    border-radius: var(--mantine-radius-sm);
+    height: auto;
+    min-height: var(--badge-height);
+    max-width: 100%;
+  }
+
+  .vocabularyCardHeading :global(.mantine-Badge-root) {
+    align-self: flex-start;
+  }
+
+  .vocabularyLibrary :global(.mantine-Button-root) {
+    height: auto;
+    min-height: var(--button-height);
+    max-width: 100%;
+  }
+
+  .vocabularyLibrary :global(.mantine-Badge-label),
+  .vocabularyLibrary :global(.mantine-Button-label),
+  .vocabularyLibrary :global(.mantine-Accordion-label) {
+    height: auto;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
 }
 
 @container lessons (max-width: 36rem) {

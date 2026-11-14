@@ -1,4 +1,7 @@
-import { ApiError, bootstrapPlayground, loadPracticeReviewContext, submitAttempt, UncertainResultError } from "./client";
+import {
+  ApiError, bootstrapPlayground, loadPracticeReviewContext, loadVocabularyContext, loadVocabularyEntries, submitAttempt,
+  UncertainResultError,
+} from "./client";
 import type { AttemptRequest } from "./models";
 
 const request: AttemptRequest = {
@@ -29,6 +32,36 @@ function responseWithStalledJson(status: number, signal: AbortSignal | null | un
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
+});
+
+describe("vocabulary library transport", () => {
+  it("reads the passive reference and personal context without creating a development session", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(Response.json({ libraryRevision: "vocabulary-library-1", items: [] }))
+      .mockResolvedValueOnce(Response.json({ libraryRevision: "vocabulary-library-1", items: [] }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await loadVocabularyEntries();
+    await loadVocabularyContext();
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls.map(([path]) => path)).toEqual([
+      "/api/v1/vocabulary-entries", "/api/v1/vocabulary-context",
+    ]);
+    for (const [, init] of fetchMock.mock.calls as unknown as [string, RequestInit][]) {
+      expect(init).toMatchObject({ credentials: "same-origin" });
+      expect(init.method).toBeUndefined();
+      expect(init.body).toBeUndefined();
+    }
+  });
+
+  it("preserves a missing personal context as an authenticated read error", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ detail: "No current saved teaching" }), {
+      status: 401, headers: { "Content-Type": "application/problem+json" },
+    })));
+
+    await expect(loadVocabularyContext()).rejects.toMatchObject({ status: 401, message: "No current saved teaching" });
+  });
 });
 
 describe("cumulative review context transport", () => {

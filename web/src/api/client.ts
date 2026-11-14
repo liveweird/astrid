@@ -1,6 +1,6 @@
 import type {
   Attempt, AttemptRequest, Catalog, DevelopmentSession, Exercise, InspectorDetails,
-  PracticeContext, PracticeReviewContext, PracticeProfiles, PracticeSession,
+  PracticeContext, PracticeReviewContext, PracticeProfiles, PracticeSession, VocabularyContext, VocabularyEntries,
 } from "./models";
 
 const CLIENT_HEADER = { "X-Astrid-Client": "playground" };
@@ -67,6 +67,10 @@ export const startDevelopmentSession = () =>
   readJson<DevelopmentSession>("/api/v1/development-session", jsonInit("POST", {}));
 
 export const loadCatalog = () => readJson<Catalog>("/api/v1/catalog");
+
+export const loadVocabularyEntries = () => readJson<VocabularyEntries>("/api/v1/vocabulary-entries");
+
+export const loadVocabularyContext = () => readJson<VocabularyContext>("/api/v1/vocabulary-context");
 
 export function createExercise(request: {
   formatId: string; targetSkillId?: string | null; seed: number; index: number;

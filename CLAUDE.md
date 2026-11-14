@@ -7,7 +7,7 @@ Codex reads `AGENTS.md`, which points here.
 
 Astrid is a Danish reading and writing engine for English-speaking complete beginners. Today it is a
 **private development preview**: a learner lesson directory (`/`), a standalone engine playground (`/playground`) and short guided practice sessions
-(`/practice`) over a connected beginner slice with 79 vocabulary entries, 109 licensed sentences in the
+(`/practice`), plus a passive vocabulary reference library (`/vocabulary`), over a connected beginner slice with 79 vocabulary entries, 109 licensed sentences in the
 catalogue and separate scoped task frames. The fifty-one exercise entries include grammar selection/supply/order/repair, vocabulary recognition/recall, constrained
 sentence writing, short reading comprehension, English→Danish word choice and all/spare word tiles,
 bilingual matching, verb/article gaps, and scoped subject reference, present-form practice and sentence assembly.
@@ -57,6 +57,8 @@ Existing format pools and all retained pairs/plans stay unchanged; the first-ste
 `docs/knowledge/module-one-activation.md`; S04 is specified in
 `docs/knowledge/inanimate-reference-activation.md`. S05–S13 are specified in `docs/knowledge/module-one-course-slice.md`.
 Next work: `BACKLOG.md`. Product scope and decisions: `docs/knowledge/product-direction.md`.
+
+The vocabulary library exposes a separate `vocabulary-library-1` read projection over the 79 existing records. It keeps exact sense/form scope and authored examples; missing examples stay explicit. Reference browsing creates no owner or teaching evidence. An explicit authenticated context read maps only acknowledged saved introductions to meaning/form claims; it never plans review, grades, or loads attempt history. See `docs/knowledge/vocabulary-library-plan.md`; targeted library practice remains BL-067.
 
 Brand: Danish red accent with separately labelled learning-feedback colours (`web/src/theme.ts`); the logo (a girl
 with plaits in shades of red) is `web/public/logo-{light,dark}.svg` plus the `favicon.svg` fallback; palette work remains BL-021.

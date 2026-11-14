@@ -6,8 +6,12 @@ import { renderWithProviders } from "./test/render";
 
 vi.mock("./pages/playground/Playground", () => ({ default: () => <div>Learning workspace</div> }));
 vi.mock("./pages/lessons/Lessons", () => ({ default: () => (
-  <div><h1>Learn Danish</h1><h2 id="review" tabIndex={-1}>Review</h2></div>
+  <div><h1>Learn Danish</h1><h2 id="review" tabIndex={-1}>Review</h2><div id="lesson-module-one-groups" tabIndex={-1}>Group lesson</div></div>
 ) }));
+vi.mock("./pages/vocabulary/Vocabulary", async () => {
+  const { Link } = await import("react-router-dom");
+  return { default: () => <div><h1>Vocabulary</h1><Link to="/#lesson-module-one-groups">Related group lesson</Link></div> };
+});
 const practiceTestState = vi.hoisted(() => ({ mounts: 0 }));
 vi.mock("./pages/practice/Practice", async () => {
   const { useState } = await import("react");
@@ -77,6 +81,7 @@ describe("App theme", () => {
     const burger = screen.getByLabelText("Toggle navigation");
     expect(navigation).toHaveAttribute("id", "primary-navigation");
     expect(screen.getByRole("link", { name: "Lessons" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Vocabulary" })).toHaveAttribute("href", "/vocabulary");
     expect(burger).toHaveAttribute("aria-controls", "primary-navigation");
     expect(burger).toHaveAttribute("aria-expanded", "false");
     const railToggle = screen.getByLabelText("Expand navigation");
@@ -246,5 +251,16 @@ describe("App routes", () => {
     await userEvent.click(screen.getByRole("link", { name: "Engine playground" }));
     await userEvent.click(screen.getByRole("link", { name: "Review" }));
     await waitFor(() => expect(screen.getByRole("heading", { name: "Review" })).toHaveFocus());
+  });
+
+  it("opens the vocabulary route and focuses an exact passive lesson anchor", async () => {
+    window.history.replaceState(null, "", "/vocabulary");
+    renderWithProviders(<App />);
+    expect(screen.getByRole("link", { name: "Vocabulary" })).toHaveAttribute("data-active", "true");
+
+    await userEvent.click(screen.getByRole("link", { name: "Related group lesson" }));
+
+    await waitFor(() => expect(document.getElementById("lesson-module-one-groups")).toHaveFocus());
+    expect(window.location.hash).toBe("#lesson-module-one-groups");
   });
 });
