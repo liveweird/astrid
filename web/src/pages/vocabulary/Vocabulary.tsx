@@ -93,7 +93,7 @@ function EntryCard({ entry, claims }: { entry: VocabularyEntry; claims: Vocabula
   const focalText = entry.senses[0]?.activeForms[0]?.text ?? entry.headword;
   return (
     <Paper component="li" withBorder className={classes.vocabularyCard}>
-      <Accordion variant="unstyled">
+      <Accordion variant="unstyled" transitionDuration={0}>
         <Accordion.Item value={entry.entryId}>
           <Accordion.Control>
             <Group justify="space-between" align="start" wrap="nowrap" className={classes.vocabularyCardHeading}>

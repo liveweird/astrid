@@ -1,5 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import App from "../../App";
 import type { VocabularyContext, VocabularyEntries } from "../../api/models";
 import { renderWithProviders } from "../../test/render";
 import Vocabulary from "./Vocabulary";
@@ -68,6 +69,7 @@ function response(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 }
 
+beforeEach(() => window.history.replaceState(null, "", "/vocabulary"));
 afterEach(() => vi.unstubAllGlobals());
 
 it("browses finite grouped references without loading or creating personal teaching", async () => {
@@ -147,6 +149,18 @@ it("shows authored detail metadata and an empty result state", async () => {
 
   await user.type(screen.getByRole("textbox", { name: "Search vocabulary" }), "not in the library");
   expect(screen.getByText("No vocabulary matches these filters.")).toBeVisible();
+});
+
+it("makes lesson links stationary and immediately activatable when details open", async () => {
+  vi.stubGlobal("fetch", vi.fn(async () => response(catalog)));
+  renderWithProviders(<App />);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole("button", { name: /^en cykel / }));
+  await user.click(screen.getByRole("link", { name: "Two ways to travel" }));
+
+  expect(window.location.pathname).toBe("/");
+  expect(window.location.hash).toBe("#lesson-vocabulary-p3-s1");
+  expect(document.getElementById("lesson-vocabulary-p3-s1")).toHaveFocus();
 });
 
 it("explains absent ownership and retries a failed reference load", async () => {
