@@ -1,5 +1,13 @@
 # P2/P3 Activation Readiness
 
+**Latest delivery — 14 November 2026:** both packets are active: P2 in app0.22.0 and P3
+in [app0.23.0](https://github.com/liveweird/astrid/releases/tag/v0.23.0). The
+[P3 observed evidence](vocabulary-places-journeys-activation.md#observed-runtime-delivery--14-november-2026)
+closes its selected implementation with new pair twenty and cumulative-review-3, while retaining
+all published plans. The dated selection/readiness analysis below is historical; its open
+runtime representation work was resolved by the activation contracts. Specialist review remains
+BL-022 and S14 is paused.
+
 **P3 selection — 13 November 2026:** P3 is now selected under its
 [activation contract](vocabulary-places-journeys-activation.md), starting from released
 app0.22.0/pair19. The original assessment below is historical; the next compatibility
@@ -9,7 +17,8 @@ in addition to preserving already-frozen earlier evidence. S14 stays paused.
 **Runtime delivery — 13 November 2026:** P2 is delivered in app 0.22.0; see the
 [activation and observed evidence](vocabulary-food-shopping-activation.md#observed-delivery--13-november-2026).
 The authoring/pre-selection statements below describe their recorded historical baseline;
-P3 remains unselected and specialist teaching approval remains outstanding.
+P3 was unselected at that historical point; its later selection/delivery is recorded above.
+Specialist teaching approval remains outstanding.
 
 **Subsequent selection — 12 November 2026:** P2 is selected under the
 [activation contract](vocabulary-food-shopping-activation.md); P3 stays unselected. The

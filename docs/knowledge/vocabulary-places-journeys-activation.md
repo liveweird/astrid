@@ -166,18 +166,18 @@ schema does not change. Restoring a backup is not an automatic rollback action.
   ownership-scoped QA cleanup. Remove regenerable scratch outputs after acceptance; retain
   unique recovery/release evidence compactly. No global Docker or volume pruning.
 
-## Current operational baseline
+## Operational baseline at selection
 
 At selection, clean master **844b88a** contains released app 0.22.0. After the user's rebuild,
 the main preview uses a fresh Compose PostgreSQL volume (migrations 1/2/3); the former volume
 and historical dump files were absent. New smoke-test evidence exists in that fresh database
 and must be preserved. Grenadiers is also running and is outside this deployment scope.
 
-An isolated ownership-labelled 0.22.0 QA stack holds ten saved runs: six P2 lessons, S05,
+The isolated ownership-labelled 0.22.0 QA stack held ten saved runs: six P2 lessons, S05,
 P1 and both retained cumulative versions. Nine current exercises await their first grade,
 and one confirmed attempt has an exact replay. Public responses, saved private plans and
 six-table hashes are captured privately for the future actual upgrade/restart checks.
-This is prepared baseline evidence, not a completed P3 delivery claim.
+These prepared records underpinned the actual upgrade/restart verification recorded below.
 
 ## Unchanged-baseline compatibility discovery
 
@@ -241,3 +241,85 @@ The authored paired home/station contrasts use the implementation IDs
 exposure, API and UI. These are the same paired activities described above; “paired”
 was the descriptive draft wording, not a published identifier. This unreleased naming
 choice is now explicit so the activation record and executable contract agree.
+
+
+## Observed runtime delivery — 14 November 2026
+
+Released app [0.23.0](https://github.com/liveweird/astrid/releases/tag/v0.23.0) at annotated
+tag `v0.23.0`, exact source `e015624884632d54bdc6a0aadbf933cec3601664`. The private preview
+runs that tagged source. Six independently enterable profiles deliver 23 activities on
+literal pair twenty; E045–E051, L064–L079, separate P3 policies and cumulative-review-3
+are active. The inventory is 79 lexical records, 51 formats, 109 unchanged catalogue
+sentences plus scoped tasks, and 32 lesson profiles plus three unchanged Review sets.
+Danish material remains a draft awaiting specialist review (BL-022).
+
+### Review and required checks
+
+Independent engine/content/exposure, API/UI and operational reviews closed their substantive
+findings. Actual browser verification caught and corrected missing P3 reading-summary metadata
+and bilingual button accessible-name mismatches. All 23 task cue/answer languages are explicitly
+covered; Danish recall/direction cues are separate from English instructions and context.
+
+The required gate passed with 481 engine tests in each default/Arabic-locale JVM, 326 server
+tests including actual Docker-backed cases, and 338 web tests. Coverage floors stayed unchanged:
+engine line/branch 98/86, server 98/83 and web statement/branch/function/line 95/90/98/98.
+All 129 protected golden/provenance/migration resources retained their hashes. Current and
+retained 20/19/18 review exports identify their literal snapshots correctly.
+
+All five [exact-source CI jobs](https://github.com/liveweird/astrid/actions/runs/43532768846)
+passed. Authenticated logs verify **558 packaged-Linux journeys** without retries/flakies;
+all **558 native Chromium/WebKit journeys** also passed without retries. The image job used
+1,810 seconds, leaving 1,190 seconds inside the unchanged 50-minute budget. Runtime package
+floors passed with networking disabled, and both local and CI image scans passed the existing
+HIGH/CRITICAL, ignore-unfixed release policy.
+
+### Actual compatibility and restart evidence
+
+The still-running released 0.22.0 image was inspected and all ten captured runs, inspectors,
+private plans and six-table baseline hashes were read back before upgrade. The candidate then
+replayed those creations/confirmed results and first-graded nine previously pending exercises
+under their original evaluators, with exact retries and unchanged plans/presentations/rows.
+
+After a genuine new QA application JVM, all **23 P3 activities**, **eight mixed items** and
+**four original pair-nineteen MAX-seed fallback items** received correct first grades and exact
+replays. Saved private plans/exercise rows remained unchanged. Distinct known recall reasons,
+one-word/unknown blocking, partial matching correction, whole-contrast ownership, empty/owner/
+teaching guards and literal old-version exclusions passed. Retained pair-ten `hedder` remained
+unknown in its narrow recall contract until a valid correction was supplied.
+
+Two fresh owners supplied 37 source witnesses covering all 32 normalized families in forward
+and reverse teaching order, including both retained/current P1 revisions. Old cumulative
+versions retained 20/26 families and excluded P3; version three passed MAX−4 through MAX in
+both orders with eight distinct selections and truthful original per-item revision tuples.
+The separately frozen P2 planning defect remains BL-072; no old branch was silently repaired.
+
+### Runtime interruption and preview promotion
+
+A shared local-runtime interruption caused Docker API and all observed app ports to time out;
+the first native run was interrupted and its failure evidence retained. A read-only GUI
+diagnostic also stalled beyond the planned overnight window. The cause was not established.
+On recovery the original main app/PostgreSQL containers and mounts remained, but their process
+start states had changed; QA and Grenadiers were stopped. Do not claim process continuity across
+that interruption. A reviewed guarded recovery recorded both states, resumed only the exact
+owned QA containers and preserved the current main processes and stopped Grenadiers. The
+complete native suite was then rerun successfully; the interrupted run was not counted as a pass.
+
+A fresh private **32,709-byte custom-format backup** was actually restored into an isolated QA
+scratch database. All six tables' captured rows and migrations 1/2/3 matched; the scratch database
+was removed. App-only promotion then preserved the current PostgreSQL process, mounts, all
+pre-existing rows and schema. All **262 live-preview checks** passed without retries/flakies,
+with earlier learner rows preserved. The main database remains the fresh preview database from
+the earlier rebuild; no missing historical volume or old learner backup was recovered.
+
+Only the owned QA containers, network and disposable volume were removed. Task-local Trivy
+cache and integrated UI staging were removed (about 3.1 GB of cache plus 23 MB of staging);
+one unused owned draft image and the QA candidate tag were removed while the deployed image
+and main processes were retained. Unique recovery/release evidence and the verified main
+backup remain private, compactly stored. No global Docker pruning, credential/proxy change,
+PostgreSQL restart during promotion or Grenadiers restart occurred.
+
+This closes BL-071. BL-035 learner review, BL-022 specialist review and BL-072 legacy repair
+remain open. The [variation audit](practice-variation-audit.md#p3-finite-inventory--14-november-2026)
+and [library proposal](vocabulary-library-plan.md) record next-step evidence; they select no
+further runtime feature. The completion follow-up changes documentation only; the preview
+keeps tagged feature source `e015624`.

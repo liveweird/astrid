@@ -150,3 +150,13 @@ passed without retries/flakies. [Delivery evidence](cumulative-review.md#observe
 records preservation and owned cleanup. Existing graders remain pinned per exercise;
 `per-item` is a composite-plan marker, not a new engine revision. Prior tags, notes,
 lesson plans and learner history remain unchanged.
+
+
+**Subsequent release — 14 November 2026:** App
+[0.23.0](https://github.com/liveweird/astrid/releases/tag/v0.23.0), tagged source `e015624`,
+adds six Places and journeys sessions and cumulative-review-3. All five
+[source CI jobs](https://github.com/liveweird/astrid/actions/runs/43532768846), 558 native and
+558 packaged-Linux journeys, restore-tested backup, app-only promotion and 262 live checks
+passed. The [delivery record](vocabulary-places-journeys-activation.md#observed-runtime-delivery--14-november-2026)
+preserves the local interruption evidence and distinguishes it from the successful rerun.
+This documentation follow-up leaves the running image at the annotated release source.

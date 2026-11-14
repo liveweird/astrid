@@ -89,3 +89,38 @@ The stored keys record **possible prior exposure**, not proof that a learner rea
 or independently produced a form. Recognition and recall outcomes remain separate. No new
 content, sampling weights, adaptive scheduler or repetition guarantee is introduced by this
 audit. Broader meaningful variation requires a separately selected plan/content revision.
+
+
+## P3 finite inventory — 14 November 2026
+
+Source [`e015624`](https://github.com/liveweird/astrid/tree/e015624884632d54bdc6a0aadbf933cec3601664)
+implements six Places and journeys profiles on literal pair twenty. This is a source inventory,
+not a claim of learning efficacy or new language generation.
+
+| Quantity | Meaning and boundary |
+| --- | --- |
+| Six sequences, 4/4/4/3/4/4 activities | Each profile forces its fixed authored subset on every run; the six subsets collectively contain 23 named task IDs. |
+| Seven formats, E045–E051 | Meaning selection, matching, recall, supplied order, explicit reading and spatial contrasts remain distinct operations. |
+| 17 authored support-fact IDs | Fixed packet propositions; not 17 new globally unique sentences or independently assessed meanings. |
+| 21 placements: 16 new and five reused | New records L064–L079 plus selected existing senses/chunks. Review/support appearances add no records. |
+| 79 source lexical records overall | Entry inventory, not 79 senses, 79 independently practisable words or a learner's knowledge count. |
+| 32 cumulative-three source families | Eligibility ceiling after the current owner's saved teaching; old versions retain 20/26 families. |
+
+The direct generator addresses authored candidates using widened `(seed + index)` modulo its
+format pool. The practice planner scans until it finds each named task. A session seed therefore
+does not change lesson membership: it controls supplied choice order, matching column order,
+tile order and opaque board identities. Different seeds can still produce the same ordering. Shuffling does not synthesize new sentences, meanings,
+lexical correspondences or word-order licenses.
+
+Evidence is in `VocabularyP3Exercises.kt` (task/fact pools and scalar shuffles),
+`VocabularyP3PracticePlanner.kt` (six fixed sequences), `VocabularyP3ExercisesTest.kt`
+(inventory/language/reproduction guards) and `CumulativeReviewPlannerTest.kt` (versioned
+admission/semantic identity). The [activation contract](vocabulary-places-journeys-activation.md)
+owns the reading, spatial and exposure restrictions.
+
+**Planning implication:** a [reference-library precursor](vocabulary-library-plan.md) improves
+content discovery but adds no semantic variety. More within-lesson variety needs separately
+reviewed alternative propositions/frames with the same explicit primary targets, selected senses
+and context restrictions. Do not substitute arbitrary dictionary words or describe new board
+layouts as unseen linguistic transfer. Broadening content or plan behavior requires a separately
+selected revision; BL-004 and BL-067 remain open.

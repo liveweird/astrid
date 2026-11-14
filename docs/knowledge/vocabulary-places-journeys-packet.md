@@ -1,12 +1,13 @@
 # P3 Vocabulary Authoring Packet: Places and a Simple Journey
 
-**13 November 2026 — Runtime activation selected:** see the [P3 activation contract](vocabulary-places-journeys-activation.md).
-The current implementation baseline is app0.22.0/pair19 with 63 lexical records; the
-0.20.1/pair18 statements below describe the historical authoring baseline. Freeze current
-pair nineteen, six P2 plans and cumulative-review-2 before production changes. The source
-ledger remains authoritative; no Danish specialist approval is implied.
+**Latest status — 14 November 2026:** six sessions and 23 activities are delivered in
+[app 0.23.0](https://github.com/liveweird/astrid/releases/tag/v0.23.0), with new L064–L079
+records on pair twenty and cumulative-review-3. The [activation and delivery contract](vocabulary-places-journeys-activation.md)
+owns stable identities, runtime boundaries and observed acceptance. The source ledger below
+retains its historical authoring labels and checks; it is not a fresh upstream recheck or
+specialist Danish approval. Existing recall/Q27 boundaries and paused S14 remain unchanged.
 
-## Status and boundary
+## Historical authoring status and boundary
 
 This is the bounded P3 continuation of the [selected vocabulary expansion
 plan](vocabulary-course-blueprint.md#selected-expansion-authoring-plan--11-november-2026). It proposes
@@ -15,10 +16,10 @@ batches of **`4 + 4 + 4 + 3 + 3 + 3`**. The intended transfer outcome is to read
 location/journey message, distinguish a destination from a static location, and assemble one
 constrained present-tense journey statement.
 
-This packet remains authoring material, not runtime activation. The running private preview is app
-0.20.1 on current learning pair eighteen with 49 lexical records; retained P1 revision-one plans remain
-on pair seventeen, and P3 itself remains unactivated. S14 remains paused. No stable lexical or sense IDs
-are allocated here, no current generator or grader is broadened, and no Danish specialist approval is claimed. Existing E007/E008
+At authoring time this packet did not activate runtime behavior. Its baseline was app 0.20.1,
+pair eighteen and 49 lexical records, with retained P1 plans on seventeen. Stable IDs and runtime
+behavior were subsequently allocated by the linked activation contract. The original draft below
+selects no additional construction permissions and confers no specialist approval. S14 stays paused. Existing E007/E008
 recall remains noun-only; count nouns are taught as article+noun bundles, but Q27 and any
 article-bundle assessment operation remain open.
 
@@ -30,10 +31,10 @@ frequency list or claim of comprehensive beginner coverage.
 
 The [complete session-script draft](vocabulary-places-journeys-scripts.md) expands these
 outlines into six sessions and 23 activities (`4/4/4/3/4/4`), with exact teaching, banks,
-spatial contrasts and direct-entry review. Paired-mapping choices remain authoring proposals;
-the placement/source ledger below stays authoritative. The separate
+spatial contrasts and direct-entry review. Paired-mapping choices began as authoring proposals and were later adopted by the activation
+contract; the placement/source ledger below retains its source authority. The separate
 [readiness assessment](vocabulary-p2-p3-activation-readiness.md) records conditional runtime
-gaps without selecting activation or resuming S14.
+historical pre-selection gaps; later activation does not resume S14.
 
 ## Placement ledger
 

@@ -7,6 +7,7 @@ This is the repository record of the Danish learning app's requirements, design 
 - [Product direction](product-direction.md): confirmed scope, intended advantages, and product questions.
 - [Learning engine](learning-engine.md): proposed exercise model, variability, evaluation, and progress tracking.
 - [Cumulative mixed review](cumulative-review.md): selected cross-lesson review, taught-material eligibility, saved selection and per-item policy boundaries.
+- [Vocabulary library proposal](vocabulary-library-plan.md): a reference-only partial precursor, exact sense/form crosswalk and open practice/exposure choices; BL-067 remains open and implementation is unselected.
 - [Language foundations](language-foundations.md): requirements for the grammar curriculum, sentence structures, and vocabulary database.
 - [Research and sources](research-and-sources.md): reference material, potential reusable data, and validation needs.
 - [Working agreement](working-agreement.md): standing documentation rule, decision conventions, and backlog statuses.
@@ -25,7 +26,7 @@ This is the repository record of the Danish learning app's requirements, design 
 - [Places/journey vocabulary outline](vocabulary-places-journeys-packet.md): 21-placement ledger, six session outlines, explicit static/directional limits and source/homograph checks; P3 activation is separately selected below. The [complete script draft](vocabulary-places-journeys-scripts.md) supplies 23 proposed activities.
 - [P2/P3 activation readiness](vocabulary-p2-p3-activation-readiness.md): conditional sense, reading-role, quantity, punctuation and persistence work packages; P2 delivery and selected P3 activation are recorded below; historical assessment statements retain their original baseline.
 - [Food/cafés/shopping activation](vocabulary-food-shopping-activation.md): delivered six-session/21-activity P2 implementation, sense/quantity boundaries, versioned cumulative admission and observed 0.22.0 release evidence.
-- [Places/journeys activation](vocabulary-places-journeys-activation.md): selected P3 scope, isolated revisions and spatial/reading boundaries, retained mixed-review versions and delivery acceptance.
+- [Places/journeys activation](vocabulary-places-journeys-activation.md): delivered six-session/23-activity P3 scope, isolated revisions, spatial/reading boundaries, retained mixed-review versions and observed 0.23.0 evidence.
 - [Module 1 course slice](module-one-course-slice.md): authorized short-session authoring plan, prerequisite reconciliation, learning evidence and dependency-ordered engine gaps. The [language pack](module-one-language-pack.md) and [worked exercises](module-one-worked-exercises.md) supply bounded source-checked material and grading cases.
 - [First Module 1 activation contract](module-one-activation.md): selected implementation of three six-item beginner sessions, explicit teaching/reference exposure, scoped pronoun/present-form evidence and compatibility acceptance; [0.9.0 runtime delivery](module-one-activation.md#observed-runtime-delivery--10-november-2026) is verified.
 - [Danish sentence catalogue](danish-sentence-catalogue.md): 30 phrase/clause constructions and generation constraints.

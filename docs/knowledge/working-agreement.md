@@ -398,3 +398,27 @@ variation checks and a reviewable Vocabulary library plan. Aim for a safe stoppi
 by **07:30**, leaving a buffer before 08:00. This continuation plan selects no additional
 runtime feature, library implementation, content packet, account or scheduler. Danish
 teaching approval remains separate; report actual completion and persist any remaining work.
+
+
+## P3 delivered and continuation resumed — 14 November 2026
+
+The shared local-runtime interruption and a stalled read-only UI diagnostic prevented the
+planned overnight stopping time. The user subsequently asked about closing/reopening, received
+a persisted handoff, and then said **“Keep going”**, resuming the selected remaining release work.
+No later feature was selected by that continuation.
+
+App [0.23.0](https://github.com/liveweird/astrid/releases/tag/v0.23.0), source `e015624`, passed
+independent review, the full Docker-backed gate, all five [source CI jobs](https://github.com/liveweird/astrid/actions/runs/43532768846),
+558 native and 558 packaged-Linux journeys without retries/flakies, actual old-run/new-JVM/
+first-grade/replay checks, isolated backup restoration, app-only promotion, 262 live checks
+and owned cleanup. The [delivery record](vocabulary-places-journeys-activation.md#observed-runtime-delivery--14-november-2026)
+closes BL-071 and records the interruption separately from successful acceptance.
+The current PostgreSQL process/mounts and existing rows survived promotion; no historical
+missing data was restored, and stopped Grenadiers stayed stopped.
+
+The saved [variation audit](practice-variation-audit.md#p3-finite-inventory--14-november-2026)
+distinguishes fixed lesson tasks from presentation shuffles. A [library partial-precursor
+proposal](vocabulary-library-plan.md) preserves BL-067's accepted introduced-content/practice
+scope and leaves Q29/Q30 open. Library implementation, another packet, BL-072 and resuming
+S14 remain separate selections. Learner review and Danish specialist approval remain open.
+This completion follow-up changes documentation only; the deployed image keeps the tagged source.

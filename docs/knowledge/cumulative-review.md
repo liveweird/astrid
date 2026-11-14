@@ -227,3 +227,16 @@ per-item graders, frozen creation replay while eligibility grows, retained versi
 exclusion, backup restoration, promotion and 234 live checks. New preparation admits 26
 taught lesson families; retained cumulative-review-1 stays at twenty. These are introduced
 material pools within the existing owner lifetime, not mastery or unrestricted generation.
+
+
+## Version-three delivery — 14 November 2026
+
+App [0.23.0](https://github.com/liveweird/astrid/releases/tag/v0.23.0) at `e015624` activates
+32 taught source families through cumulative-review-3. Saved and newly requested versions
+one/two retain 20/26 families. Actual upgrade/new-JVM grading and replay, frozen selection
+while eligibility grew, full-pool extreme seeds in both teaching orders, unknown/partial
+blocking, original per-item graders and scoped fallback passed. All 558 native and 558
+packaged-Linux journeys, 262 live checks, backup restore and app-only promotion passed.
+The [P3 delivery record](vocabulary-places-journeys-activation.md#observed-runtime-delivery--14-november-2026)
+owns the complete evidence and interruption qualifications. No scheduling, mastery claim,
+new cumulative lifetime, account or library-view eligibility was introduced.

@@ -1,17 +1,19 @@
 # P3 Places and Journeys: Complete Script Draft
 
-**13 November 2026 — Runtime activation selected:** the [activation contract](vocabulary-places-journeys-activation.md)
-owns app0.23.0/pair20, packet target scopes and cumulative-review-3. The pre-selection
-language below records the authoring baseline; specialist teaching approval is still pending.
-Matching partial submissions follow the existing accepted-partial-board contract, distinct
-from malformed duplicate endpoints or out-of-bank IDs.
+**Latest status — 14 November 2026:** the [activation and delivery contract](vocabulary-places-journeys-activation.md)
+records released app0.23.0/pair20, six profiles/23 activities and cumulative-review-3. The
+scripts below preserve the original authoring proposals and source-reviewed draft; their
+pre-selection statements are historical, not the current runtime status. Specialist teaching
+approval remains pending. Partial matching submissions are accepted incomplete boards;
+duplicate endpoints and out-of-bank IDs remain malformed.
 
-## Status, authority and proposed decisions
+## Historical authoring status, authority and proposals
 
 This is an **authoring draft for independent source/content and Danish-specialist review**. It expands the
 six reviewed P3 outlines in [places/journeys placement and source packet](vocabulary-places-journeys-packet.md); it is not a runtime
 contract, teacher approval, release selection or claim that the current engine supports every activity.
-P3 runtime activation remains unselected, S14 remains paused, and P1 release work is separate. This draft
+At authoring time P3 activation was unselected; the later runtime contract supersedes that
+status and adopts the bounded choices below. S14 remains paused, and P1 release work was separate. This draft
 allocates no stable lexical/sense IDs, activity IDs, profile revisions, generator/evaluator versions,
 learning pair, app version or persistence policy.
 
