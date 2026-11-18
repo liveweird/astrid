@@ -1,6 +1,6 @@
 # Vocabulary Library: Browse-and-Revise Milestone
 
-Status: browse-and-revise precursor delivered in app [0.24.0](https://github.com/liveweird/astrid/releases/tag/v0.24.0), source `30a464e`. The user selected the first stage on 14 November 2026 after the two-stage recommendation. All-entry reference browsing, the saved-lesson-teaching filter and untracked reference use are implemented. BL-067 remains open for separately selected introduced-content recognition/recall practice. Implementation began from app 0.23.0/source `6080df9`.
+Status: browse-and-revise precursor delivered in app [0.24.0](https://github.com/liveweird/astrid/releases/tag/v0.24.0), source `30a464e`. The user selected the first stage on 14 November 2026 after the two-stage recommendation. All-entry reference browsing, the saved-lesson-teaching filter and untracked reference use are implemented. The selected work-and-study practice was delivered in [v0.25.0](https://github.com/liveweird/astrid/releases/tag/v0.25.0). See the targeted practice contract and observed delivery below. Implementation began from app 0.23.0/source `6080df9`.
 
 ## Selected first-stage scope
 
@@ -124,3 +124,13 @@ Both the exact meaning and form must occur in mapped claims from acknowledged le
 The authenticated vocabulary context supplies counts and the new plan revision. Explicit starts recheck the owner before staging the existing request in the browser outbox. Creation under the owner lock reuses the stored request identity before any replanning, checks the current teaching snapshot for a new run and saves the exact chosen activities. Both operation IDs use `vocabulary-library-practice-1`; the library catalogue and other plan revisions keep their original pins. App version is 0.25.0. No library run provides teaching evidence or admission to cumulative review.
 
 Accept through exact and partial teaching, owner and expiry checks, empty selection, repeat/restart recovery, first and latest results, and packaged Chromium/WebKit checks. Keep vocabulary authored and marked as a draft until separate Danish teaching review. Future situations need populated, reviewed pools with their own eligibility evidence.
+
+
+## Observed targeted practice delivery — 19 November 2026
+
+App [v0.25.0](https://github.com/liveweird/astrid/releases/tag/v0.25.0), source `57548fb`, delivers the selected first BL-067 situation. Recognition offers up to four P1 activities and typed recall up to two. Their exact saved teaching requirements, introduction sources and outcome policies stay with the versioned run. Reference use stays passive, and eligibility, order and prior exposure for cumulative review exclude library runs. Other situations require independently populated pools.
+
+- Independent review and `scripts/check.sh` passed, including 495 engine tests in both locales, 340 server tests with PostgreSQL, and 368 web tests. Existing fixtures and migrations were unchanged.
+- All five [exact-source CI](https://github.com/liveweird/astrid/actions/runs/44412986193) jobs passed. Local native and CI packaged Linux Chromium/WebKit each passed all 576 journeys without test retries. The original CI image build timed out connecting to its Ubuntu mirror. The successful rerun used the same source and kept the other four passing jobs.
+- The 18 focused browser journeys covered partial teaching, written recall, unknown-response recovery, exact creation replay, and narrow light/dark controls. Rendered entry, saved-run choice, expiry and summary were inspected. The exact local candidate passed the pinned image scan.
+- An isolated app restart preserved exact saved creation and grading replay and allowed the first grade of a previously saved exercise. A private database backup was restored and checked before app-only promotion. The local Astrid preview's PostgreSQL process, mounts, schema migrations 1–3 and all six learner tables stayed intact. The preview served the Vocabulary route; the owned QA stack was removed.

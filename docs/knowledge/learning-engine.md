@@ -327,3 +327,6 @@ the Vocabulary library (BL-067), cumulative review (BL-066) and S14 remain separ
 ## Vocabulary reference delivered — 14 November 2026
 
 App [0.24.0](https://github.com/liveweird/astrid/releases/tag/v0.24.0), source `30a464e`, delivers passive reference browsing across all 79 entries and explicit current-owner saved-lesson-teaching status. The [delivery record](vocabulary-library-plan.md#observed-delivery--14-november-2026) supersedes the earlier implementation gaps for those two capabilities. Historical navigation-release statements above retain their original scope. Browsing records no teaching or cumulative eligibility. Targeted introduced-content recognition/recall remains open under BL-067; durable reveal events, mastery claims and resuming S14 remain unselected.
+
+
+**19 November 2026 — Targeted library practice:** App [v0.25.0](https://github.com/liveweird/astrid/releases/tag/v0.25.0) applies exact saved sense/form evidence to separate recognition and typed recall runs in one situation. The [delivery record](vocabulary-library-plan.md#observed-targeted-practice-delivery--19-november-2026) records pair-eighteen grading and the saved-run behavior. A library run does not add teaching or change cumulative review. Further situations are BL-073.

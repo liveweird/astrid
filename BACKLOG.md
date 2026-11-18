@@ -26,7 +26,7 @@ assistant's design proposals.
 
 
 
-- [next] **BL-067 — Add targeted recognition and recall to the vocabulary library.** The user selected a first situation using introduced material. The [selected contract](docs/knowledge/vocabulary-library-plan.md#selected-targeted-practice--18-november-2026) covers four recognition and two typed recall activities for work and study, admitted by exact meaning and form from saved lesson teaching. Preserve passive reference use, Q27's assessment boundary, existing saved runs and cumulative review. Complete with independent review, verified browser journeys and a versioned release.
+- [new] **BL-073 — Extend targeted vocabulary practice to more situations.** Build on the selected first [work-and-study practice](docs/knowledge/vocabulary-library-plan.md#observed-targeted-practice-delivery--19-november-2026). Food and shopping, and places and journeys, need separately reviewed recognition and written recall pools. Require exact teaching evidence for each meaning and form, retain the count-noun boundary in Q27, and preserve existing run and grading revisions. Choose a situation before implementing or releasing it.
 
 - [parked] **BL-063 — Activate S14 fronted time/place V2.** Paused at the user-requested stopping point; resume only when selected. After S13, request a supplied initial constituent and distinguish the structural target from the exact requested order. Preserve valid subject-first feedback and fingerprint all private grading inputs. An isolated implementation draft exists. Follow the [continuation contract](docs/knowledge/module-one-course-slice.md#prepared-s12s15-continuation--11-november-2026).
 
