@@ -60,7 +60,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Read saved lesson-teaching claims for the current development-session owner without creating or changing learning evidence. */
+        /** @description Read saved lesson-teaching claims and available work-and-study practice counts for the current development-session owner without creating or changing learning evidence. */
         get: operations["getVocabularyContext"];
         put?: never;
         post?: never;
@@ -192,6 +192,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description For vocabulary library practice, the server selects eligible activities from the current owner's exact saved lesson teaching. An empty pool returns 409 without creating a run. */
         post: operations["createPracticeSession"];
         delete?: never;
         options?: never;
@@ -379,6 +380,13 @@ export interface components {
             /** Format: int64 */
             sessionExpiresAt: number;
             items: components["schemas"]["VocabularyTeachingClaim"][];
+            practice?: components["schemas"]["VocabularyLibraryPracticeAvailability"];
+        };
+        VocabularyLibraryPracticeAvailability: {
+            /** @enum {string} */
+            planRevision: "vocabulary-library-practice-1";
+            recognitionCount: number;
+            recallCount: number;
         };
         VocabularyTeachingClaim: {
             entryId: string;
@@ -11809,6 +11817,14 @@ export interface components {
             /** Format: uuid */
             practiceSessionId: string;
             /** @enum {string} */
+            focusId: "vocabulary-library-recognition" | "vocabulary-library-recall";
+            /** @enum {string} */
+            planRevision: "vocabulary-library-practice-1";
+            seed: number;
+        } | {
+            /** Format: uuid */
+            practiceSessionId: string;
+            /** @enum {string} */
             focusId: "cumulative-review";
             /** @enum {string} */
             planRevision: "cumulative-review-1" | "cumulative-review-2" | "cumulative-review-3";
@@ -12958,6 +12974,44 @@ export interface components {
             introductionRequired: true;
             items?: components["schemas"]["PracticeItem"][];
             currentExercise?: components["schemas"]["PairTwentyExercise"];
+        } & {
+            [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            focusId: "vocabulary-library-recognition";
+            /** @enum {string} */
+            planRevision: "vocabulary-library-practice-1";
+            /** @enum {string} */
+            contentRevision: "pilot-18";
+            /** @enum {string} */
+            generatorRevision: "generator-18";
+            /** @enum {string} */
+            evaluationRevision: "evaluation-18";
+            itemCount: number;
+            /** @enum {boolean} */
+            introductionRequired?: false;
+            introduction?: components["schemas"]["Introduction"][];
+            items?: components["schemas"]["PracticeItem"][];
+            currentExercise?: components["schemas"]["PairEighteenMeaningDaEnExercise"] | components["schemas"]["PairEighteenMeaningEnDaExercise"];
+        } & {
+            [key: string]: unknown;
+        }) | ({
+            /** @enum {string} */
+            focusId: "vocabulary-library-recall";
+            /** @enum {string} */
+            planRevision: "vocabulary-library-practice-1";
+            /** @enum {string} */
+            contentRevision: "pilot-18";
+            /** @enum {string} */
+            generatorRevision: "generator-18";
+            /** @enum {string} */
+            evaluationRevision: "evaluation-18";
+            itemCount: number;
+            /** @enum {boolean} */
+            introductionRequired?: false;
+            introduction?: components["schemas"]["Introduction"][];
+            items?: components["schemas"]["PracticeItem"][];
+            currentExercise?: components["schemas"]["PairEighteenFixedChunkExercise"] | components["schemas"]["PairEighteenMassHeadwordExercise"];
         } & {
             [key: string]: unknown;
         }) | ({
@@ -14674,6 +14728,7 @@ export interface operations {
             400: components["responses"]["Problem"];
             401: components["responses"]["Problem"];
             403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
             409: components["responses"]["Problem"];
             413: components["responses"]["Problem"];
             415: components["responses"]["Problem"];

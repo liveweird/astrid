@@ -279,6 +279,16 @@ internal fun AttemptResponse.toCompletionObservation(teachingSaved: Boolean) = P
     matchingResults = matchingResults.orEmpty().map { it.toEngine() },
 )
 
+internal fun teachingSavedForCompletion(
+    focusId: String,
+    planRevision: String,
+    introductionOpened: Boolean,
+): Boolean = introductionOpened || isVocabularyLibraryPractice(focusId, planRevision)
+
+internal fun isVocabularyLibraryPractice(focusId: String, planRevision: String): Boolean =
+    planRevision == "vocabulary-library-practice-1" &&
+        focusId in setOf("vocabulary-library-recognition", "vocabulary-library-recall")
+
 private fun MatchingPairResultDto.toEngine() = app.astrid.engine.MatchingPairResult(
     leftId,
     rightId,

@@ -58,6 +58,14 @@ data class VocabularyContextResponse(
     val ownerSessionId: String,
     val sessionExpiresAt: Long,
     val items: List<VocabularyTeachingClaimDto>,
+    val practice: VocabularyLibraryPracticeAvailabilityDto,
+)
+
+@Serializable
+data class VocabularyLibraryPracticeAvailabilityDto(
+    val planRevision: String,
+    val recognitionCount: Int,
+    val recallCount: Int,
 )
 
 @Serializable

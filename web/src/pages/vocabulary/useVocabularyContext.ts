@@ -63,5 +63,9 @@ export function useVocabularyContext(libraryRevision?: string) {
     return () => document.removeEventListener("visibilitychange", revalidate);
   }, [context, load]);
 
-  return { context, load, loading: current.loading, message: current.message };
+  const invalidate = () => {
+    generation.current += 1;
+    setState(EMPTY);
+  };
+  return { context, load, invalidate, loading: current.loading, message: current.message };
 }

@@ -3,7 +3,12 @@
 package app.astrid.server.practice
 
 import app.astrid.engine.PilotEngine
+import app.astrid.engine.PracticePlan
 import app.astrid.engine.PracticePlanner
+import app.astrid.engine.VocabularyLibrary
+import app.astrid.engine.VocabularyLibraryPracticePlanner
+import app.astrid.engine.VocabularyTeachingMapper
+import app.astrid.server.exercises.PracticeCrossRunExposureDto
 import app.astrid.server.authz.Authenticator
 import app.astrid.server.authz.BadRequest
 import app.astrid.server.authz.Conflict
@@ -72,6 +77,8 @@ private val SUPPORTED_PRACTICE_PLANS = setOf(
     CUMULATIVE_REVIEW_FOCUS to CUMULATIVE_REVIEW_RETAINED_REVISION,
     CUMULATIVE_REVIEW_FOCUS to CUMULATIVE_REVIEW_TWO_RETAINED_REVISION,
     CUMULATIVE_REVIEW_FOCUS to CUMULATIVE_REVIEW_REVISION,
+    VocabularyLibraryPracticePlanner.FOCUS_RECOGNITION to VocabularyLibraryPracticePlanner.REVISION,
+    VocabularyLibraryPracticePlanner.FOCUS_RECALL to VocabularyLibraryPracticePlanner.REVISION,
 )
 
 internal fun Route.practiceRoutes(
@@ -152,12 +159,23 @@ private fun Route.practiceSessionCreationRoute(
         requirePracticeOwner(call, owner.id)
         val request = call.receive<PracticeSessionRequest>().validated()
         val requestPayload = wireJson.encodeToString(request)
-        val result = if (request.focusId == CUMULATIVE_REVIEW_FOCUS) {
-            practice.createCumulativeReview(owner, request, requestPayload) { history ->
+        val result = when (request.focusId) {
+            CUMULATIVE_REVIEW_FOCUS -> practice.createCumulativeReview(owner, request, requestPayload) { history ->
                 history.toCumulativeReview(request, owner.id, engine)
             }
-        } else {
-            practice.createPracticeSession(owner, request, requestPayload) {
+            VocabularyLibraryPracticePlanner.FOCUS_RECOGNITION,
+            VocabularyLibraryPracticePlanner.FOCUS_RECALL,
+            -> practice.createVocabularyLibraryPractice(owner, request, requestPayload) { history ->
+                val plan = VocabularyLibraryPracticePlanner.plan(
+                    engine,
+                    request.focusId,
+                    request.seed,
+                    VocabularyTeachingMapper.claims(history.witnesses),
+                ) ?: return@createVocabularyLibraryPractice null
+                val projectedExposure = projectVocabularyLibraryExposure(plan, history)
+                plan.toNewPracticeSession(owner.id).copy(sourceExposure = projectedExposure)
+            }
+            else -> practice.createPracticeSession(owner, request, requestPayload) {
                 val plan = try {
                     planner.plan(request.focusId, request.planRevision, request.seed)
                 } catch (cause: IllegalArgumentException) {
@@ -178,6 +196,37 @@ private fun Route.practiceSessionCreationRoute(
             PracticeCreateResult.OwnerExpired -> throw Unauthorized()
         }
     }
+}
+
+private fun projectVocabularyLibraryExposure(
+    plan: PracticePlan,
+    history: VocabularyTeachingHistory,
+): List<PracticeCrossRunExposureDto> {
+    val catalogue = VocabularyLibrary.catalog()
+    val witnessByKey = linkedMapOf<String, PracticeCrossRunExposureDto>()
+    history.witnesses.zip(history.sourceExposure).forEach { (witness, source) ->
+        val claims = VocabularyTeachingMapper.claims(listOf(witness))
+        val keys = plan.items.flatMap { item ->
+            val target = item.targetDescriptor.lexicalTarget ?: return@flatMap emptyList()
+            val claim = claims.singleOrNull { it.entryId == target.entryId && it.senseId == target.senseId }
+                ?: return@flatMap emptyList()
+            val answerKeys = item.answerExposureKeys.toSet()
+            val sense = catalogue.items.single { it.entryId == target.entryId }
+                .senses.single { it.senseId == target.senseId }
+            buildList {
+                if (claim.meaningRecorded) add("vocabulary-p1:meaning:${target.entryId}:${target.senseId}")
+                sense.activeForms.filter { it.formId in claim.formIds }.forEach { form ->
+                    add("vocabulary-p1:form:${target.entryId}:${form.text}")
+                    add("vocabulary-p1:bundle:${target.entryId}:${form.text}")
+                }
+            }.filter { it in answerKeys }
+        }.distinct()
+        keys.forEach { key -> witnessByKey.putIfAbsent(key, source.copy(keys = listOf(key))) }
+    }
+    return witnessByKey.values.groupBy { Triple(it.practiceSessionId, it.position, it.source) }
+        .map { (origin, witnesses) ->
+            PracticeCrossRunExposureDto(origin.first, origin.second, origin.third, witnesses.flatMap { it.keys })
+        }
 }
 
 private fun Route.practiceProfilesRoute(authenticator: Authenticator, planner: PracticePlanner) {

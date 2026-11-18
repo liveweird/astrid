@@ -105,3 +105,22 @@ App [0.24.0](https://github.com/liveweird/astrid/releases/tag/v0.24.0), tagged s
 Native full-run attempts were interrupted by documented macOS sleep/dark-wake cycles. The first run’s 559 passes and 13 timeouts remain separate evidence; the corrected-source attempt also encountered long sleeps and a post-dark-wake page-loading cascade. Those attempts are not passing acceptance. Full local acceptance uses the unchanged pinned Linux runner with both browser projects and zero retries; the separately repeated native fast-navigation check passed all 40 cases. The first CI run contained one retried WebKit lesson-link test. Its trace identified a click during the 200ms accordion transition, so reference entries now expand immediately. Acceptance uses the subsequent clean runs rather than relabeling those earlier runs.
 
 The library’s targeted recognition/recall stage remains open under BL-067, and S14 remains paused. Source-backed/agent review does not replace Danish teaching review (BL-022).
+
+## Selected targeted practice — 18 November 2026
+
+The user selected BL-067 after the recommendation to start with one situation and use the same words already taught in lessons. The implementation choice is **A day of work and study** with separate recognition and typed recall starts. Opening the library, loading teaching and changing search or filters remain read-only. Only a practice start creates a run. Eligibility concerns saved teaching, not mastery.
+
+| Operation | Published activity | Required selected sense and exact active form |
+| --- | --- | --- |
+| Recognition, Danish to English | P1-1.1, E031 | L027-S01, `arbejder` |
+| Recognition, Danish to English | P1-1.2, E031 | L014-S01, `en bog` |
+| Recognition, Danish to English | P1-1.3, E031 | L037-S01, `i dag` |
+| Recognition, English to Danish | P1-2.2, E032 | L015-S01, `en avis` |
+| Typed recall, fixed expression | P1-3.5, E035 | L038-S01, `nu` |
+| Typed recall, mass use | P1-4.5, E036 | L047-S01, `vand` |
+
+Both the exact meaning and form must occur in mapped claims from acknowledged lesson teaching in the current owner session. Equivalent claims across lesson versions qualify. A displayed distractor, similarly spelled word or unrelated form supplies no evidence. Count nouns are selected as complete bundles; the unresolved Q27 count-noun typed response policy and verb inflection assessments are outside this slice. The six activities use the shipped pair eighteen grading and support. Fresh seeds vary order and choice presentations within the finite pool; one eligible activity gives a one-part run, and zero gives no run.
+
+The authenticated vocabulary context supplies counts and the new plan revision. Explicit starts recheck the owner before staging the existing request in the browser outbox. Creation under the owner lock reuses the stored request identity before any replanning, checks the current teaching snapshot for a new run and saves the exact chosen activities. Both operation IDs use `vocabulary-library-practice-1`; the library catalogue and other plan revisions keep their original pins. App version is 0.25.0. No library run provides teaching evidence or admission to cumulative review.
+
+Accept through exact and partial teaching, owner and expiry checks, empty selection, repeat/restart recovery, first and latest results, and packaged Chromium/WebKit checks. Keep vocabulary authored and marked as a draft until separate Danish teaching review. Future situations need populated, reviewed pools with their own eligibility evidence.

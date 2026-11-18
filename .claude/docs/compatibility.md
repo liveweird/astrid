@@ -77,6 +77,10 @@ mapping row order are fingerprint inputs. Full teaching scenes stay separate fro
 New cumulative-review-3 admits 32 source families; retained one/two keep 20/26 and unchanged
 private selections. The narrow version-three-only legacy P2 extreme-seed fallback is defined
 in `docs/knowledge/vocabulary-places-journeys-activation.md`; never apply it to older versions.
+New library recognition and recall runs use `vocabulary-library-practice-1` with literal pair
+eighteen. Only creation consults current saved teaching. Exact stored selections, exercise
+fingerprints and the source-exposure snapshot survive recovery. Neither library focus enters
+cumulative review history.
 Gradle/npm package versions, `/api/v1` and the app version are separate numbers.
 
 ### Pair-seventeen matching exception

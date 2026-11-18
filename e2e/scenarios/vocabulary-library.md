@@ -4,6 +4,19 @@
 - **Actors**: a learner browsing reference material, an owner with saved lesson teaching and a separate owner
 - **Owns**: only development-session-scoped teaching runs created by this spec; browsing is read-only
 
+## Scenario: vocabulary practice offers only taught recognition and supports written recall
+
+1. Load saved teaching for a fresh owner and verify that there is no practice yet.
+2. Save work-and-study teaching and verify recognition and recall become available independently.
+3. Verify an unknown response cannot advance. Retry with the taught Danish expression, advance and verify the written recall summary.
+4. Return to Vocabulary. Verify the run added no saved teaching or eligibility, and scan the new entry and summary states for accessibility.
+
+## Scenario: vocabulary recognition replays the same creation after a lost response
+
+1. Save the first work-and-study lesson's teaching and start its three eligible recognition activities.
+2. Commit the creation while dropping its response. Reload the URL-bound run and verify that it retries the exact original body and returns the same items.
+3. Answer a meaning choice and continue without a duplicate introduction.
+
 ## Scenario: vocabulary reference is finite and passive without a learner cookie
 
 1. Read the unpaged reference endpoint without a cookie. Verify all 79 unique entries, separate request and possession senses, home-direction form and absence of private grading fields.
@@ -31,7 +44,7 @@
 
 ## Scenario: vocabulary details filters and empty state reflow at 200 percent text in ${theme}
 
-1. Use light and dark themes at 320px width with 200% text. Explicitly save a bicycle lesson’s teaching, load its recorded context, search for the article bundle and expand its example. Verify meaning/form badges remain readable without clipped labels.
+1. Use light and dark themes at 320px width with 200% text. Save bicycle and work-and-study teaching, and load the context to show the two practice actions. Search for the bicycle bundle and expand its example. Verify badges and practice controls remain readable without clipped labels.
 2. Select a situation that excludes the search result and verify the empty state.
 3. Open mobile navigation and verify Vocabulary is reachable. Scan all three states for accessibility and horizontal overflow.
 

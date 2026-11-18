@@ -8,6 +8,7 @@ import {
   EXISTING_PRACTICE_PROFILES, MODULE_ONE_PROFILES, VOCABULARY_P1_PROFILES, VOCABULARY_P2_PROFILES,
   VOCABULARY_P3_PROFILES, profileKey,
 } from "./practiceProfiles";
+import { isVocabularyPractice } from "./vocabularyPracticeRun";
 
 function ProfileChoices({ profiles, busy, selected, selectedRef }: {
   profiles: readonly PracticeProfile[];
@@ -78,11 +79,12 @@ export function PracticeHeading({ session, busy, onStartNew }: {
   busy: boolean;
   onStartNew: () => void;
 }) {
+  const knownAnswerRequired = session.introductionRequired || isVocabularyPractice(session);
   return (
     <Group justify="space-between" align="start">
       <Box>
         <Title order={1} size="h2">{session.title}</Title>
-        <Text c="dimmed">{session.followUp ? "A focused review" : "A short practice"} in {session.itemCount} {session.itemCount === 1 ? "part" : "parts"}. {session.introductionRequired ? "Continue after a saved answer with a known outcome." : "Continue after any saved answer."}</Text>
+        <Text c="dimmed">{session.followUp ? "A focused review" : "A short practice"} in {session.itemCount} {session.itemCount === 1 ? "part" : "parts"}. {knownAnswerRequired ? "Continue after a saved answer with a known outcome." : "Continue after any saved answer."}</Text>
         {session.followUp && <Button component="a" variant="subtle" px={0} href={`/practice?session=${encodeURIComponent(session.followUp.sourcePracticeSessionId)}`}>Source practice</Button>}
       </Box>
       <Button variant="subtle" color="gray" disabled={busy} onClick={onStartNew}>Start new practice</Button>

@@ -21,7 +21,7 @@ Open **http://localhost:8088/vocabulary** to browse all 79 existing lexical reco
 
 **Load saved lesson teaching** reads the current browser session’s acknowledged lesson introductions. Its optional filter and detail badges identify the precise meanings and forms recorded; a reviewed finite form does not imply the infinitive or another meaning. This uses the existing fixed 24-hour development session.
 
-Browsing, searching, expanding details and following lesson links create no session or teaching evidence and do not change mixed-review eligibility. Targeted library recognition/recall practice remains a later stage.
+Under **Practice work and study vocabulary**, choose **Recognize meanings** or **Write Danish** after loading teaching. Each button appears when at least one of its activities has a recorded lesson meaning and the exact form it uses. Opening, searching or following links in the reference library is read-only.
 
 ## Develop locally
 

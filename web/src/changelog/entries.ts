@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.25.0",
+    date: "2026-11-18",
+    body: `**Practice work and study vocabulary from the library.**
+
+- Load saved lesson teaching to see which recognition and written Danish activities are ready. Each activity needs the exact meaning and form taught in your current browser session.
+- Choose meanings and taught word bundles in recognition practice, or type Danish expressions and words such as *nu* and *vand* in writing practice.
+- Open Vocabulary to browse freely, and use the practice buttons when you want to start a saved run. Danish content remains a draft awaiting teaching review.`,
+  },
+  {
     version: "0.24.0",
     date: "2026-11-14",
     body: `**Revisit Danish words and phrases in the Vocabulary library.**

@@ -33,6 +33,8 @@ import app.astrid.server.practice.StoredPracticeItem
 import app.astrid.server.practice.StoredPracticeSession
 import app.astrid.server.practice.VocabularyTeachingHistory
 import app.astrid.server.practice.toCompletionObservation
+import app.astrid.server.practice.teachingSavedForCompletion
+import app.astrid.server.practice.isVocabularyLibraryPractice
 import app.astrid.server.practice.toEngineAssessment
 import app.astrid.server.practice.effectiveCompletionRule
 import app.astrid.server.practice.effectiveExposurePolicy
@@ -200,23 +202,9 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
 
         override suspend fun savedVocabularyTeaching(ownerSession: SessionPrincipal): VocabularyTeachingHistory = mutex.withLock {
             if (sessionRecords.values.none { it.id == ownerSession.id && it.expiresAt > clock() }) {
-                VocabularyTeachingHistory(emptyList(), false)
+                VocabularyTeachingHistory(emptyList(), ownerAvailable = false)
             } else {
-                VocabularyTeachingHistory(
-                    practiceSessions.values.filter {
-                        it.ownerSessionId == ownerSession.id && it.introductionOpened
-                    }.mapNotNull { stored ->
-                        stored.introductionExposureKeys?.let { keys ->
-                            VocabularyTeachingWitness(
-                                stored.focusId,
-                                stored.planRevision,
-                                stored.contentRevision,
-                                stored.generatorRevision,
-                                keys.toList(),
-                            )
-                        }
-                    },
-                )
+                vocabularyTeachingHistory(ownerSession)
             }
         }
 
@@ -253,6 +241,48 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                 completionRuleId = plan.completionRuleId,
                 exposurePolicyId = plan.exposurePolicyId,
                 cumulativeReview = plan.cumulativeReview,
+                createdAt = clock(),
+            )
+            plan.items.forEach { exerciseRecords[ownerSession.id to it.exercise.id] = it.exercise }
+            practiceRequests[key] = requestPayload
+            practiceSessions[key] = stored
+            PracticeCreateResult.Created(stored.snapshot())
+        }
+
+        override suspend fun createVocabularyLibraryPractice(
+            ownerSession: SessionPrincipal,
+            request: PracticeSessionRequest,
+            requestPayload: String,
+            create: suspend (VocabularyTeachingHistory) -> NewPracticeSession?,
+        ): PracticeCreateResult = mutex.withLock {
+            if (sessionRecords.values.none { it.id == ownerSession.id && it.expiresAt > clock() }) {
+                return@withLock PracticeCreateResult.OwnerExpired
+            }
+            val id = UUID.fromString(request.practiceSessionId)
+            val key = ownerSession.id to id
+            practiceSessions[key]?.let {
+                return@withLock if (practiceRequests.getValue(key) == requestPayload) {
+                    PracticeCreateResult.Existing(it.snapshot())
+                } else {
+                    PracticeCreateResult.RequestConflict
+                }
+            }
+            val plan = create(vocabularyTeachingHistory(ownerSession))
+                ?: return@withLock PracticeCreateResult.NoEligibleItems
+            if (ownerSession.expiresAt <= clock()) return@withLock PracticeCreateResult.OwnerExpired
+            require(plan.items.isNotEmpty() && plan.items.size <= 8)
+            require(plan.items.map { it.position } == plan.items.indices.toList())
+            val stored = MemoryPracticeSession(
+                id, ownerSession.id, ownerSession.expiresAt, request.focusId, plan.title, request.planRevision, request.seed,
+                plan.contentRevision, plan.generatorRevision, plan.evaluationRevision,
+                prerequisiteSkillIds = plan.prerequisiteSkillIds.toList(),
+                introduction = plan.introduction.toList(),
+                items = plan.items.sortedBy { it.position }.map { MemoryPracticeItem(it) }.toMutableList(),
+                sourceExposure = plan.sourceExposure.toList(),
+                introductionExposureKeys = plan.introductionExposureKeys?.toList(),
+                introductionRequired = plan.introductionRequired,
+                completionRuleId = plan.completionRuleId,
+                exposurePolicyId = plan.exposurePolicyId,
                 createdAt = clock(),
             )
             plan.items.forEach { exerciseRecords[ownerSession.id to it.exercise.id] = it.exercise }
@@ -354,8 +384,9 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
                 position > stored.cursor -> PracticeMutationResult.Conflict
                 !PracticeCompletionPolicy.canAdvance(
                     stored.items.single { it.position == position }.policy.effectiveCompletionRule(stored.completionRuleId),
-                    stored.items.single { it.position == position }.attempts.lastOrNull()?.response
-                        ?.toCompletionObservation(stored.introductionOpened),
+                    stored.items.single { it.position == position }.attempts.lastOrNull()?.response?.toCompletionObservation(
+                        teachingSavedForCompletion(stored.focusId, stored.planRevision, stored.introductionOpened),
+                    ),
                 ) -> PracticeMutationResult.Conflict
                 else -> {
                     stored.cursor += 1
@@ -369,9 +400,35 @@ class InMemoryStores(private val clock: () -> Long = System::currentTimeMillis) 
 
     private fun history(ownerSession: SessionPrincipal) = CumulativeReviewHistory(
         practiceSessions.values.filter {
-            it.ownerSessionId == ownerSession.id && it.createdAt >= ownerSession.expiresAt - SESSION_TTL_MILLIS
+            it.ownerSessionId == ownerSession.id && it.createdAt >= ownerSession.expiresAt - SESSION_TTL_MILLIS &&
+                !isVocabularyLibraryPractice(it.focusId, it.planRevision)
         }.sortedBy { it.id.toString() }.map(MemoryPracticeSession::snapshot),
     )
+
+    private fun vocabularyTeachingHistory(ownerSession: SessionPrincipal): VocabularyTeachingHistory {
+        val introduced = practiceSessions.values.filter {
+            it.ownerSessionId == ownerSession.id && it.introductionOpened && it.introductionExposureKeys != null
+        }
+        return VocabularyTeachingHistory(
+            introduced.map { stored ->
+                VocabularyTeachingWitness(
+                    stored.focusId,
+                    stored.planRevision,
+                    stored.contentRevision,
+                    stored.generatorRevision,
+                    requireNotNull(stored.introductionExposureKeys).toList(),
+                )
+            },
+            introduced.map { stored ->
+                PracticeCrossRunExposureDto(
+                    stored.id.toString(),
+                    -1,
+                    app.astrid.engine.PracticeExposureSource.INTRODUCTION.wireValue,
+                    requireNotNull(stored.introductionExposureKeys).toList(),
+                )
+            },
+        )
+    }
 
     suspend fun tamperFingerprint(exerciseId: UUID) = mutex.withLock {
         val entry = exerciseRecords.entries.single { it.key.second == exerciseId }

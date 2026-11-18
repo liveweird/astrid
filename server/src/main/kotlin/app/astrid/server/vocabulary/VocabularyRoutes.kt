@@ -1,6 +1,7 @@
 package app.astrid.server.vocabulary
 
 import app.astrid.engine.VocabularyLibrary
+import app.astrid.engine.VocabularyLibraryPracticePlanner
 import app.astrid.engine.VocabularyTeachingMapper
 import app.astrid.server.authz.Authenticator
 import app.astrid.server.authz.NotFound
@@ -26,12 +27,19 @@ internal fun Route.vocabularyRoutes(
         val history = practice.savedVocabularyTeaching(owner)
         if (!history.ownerAvailable) throw Unauthorized()
         val catalog = VocabularyLibrary.catalog()
+        val claims = VocabularyTeachingMapper.claims(history.witnesses)
+        val practiceCounts = VocabularyLibraryPracticePlanner.counts(claims)
         call.respond(
             VocabularyContextResponse(
                 catalog.libraryRevision,
                 owner.id.toString(),
                 owner.expiresAt,
-                VocabularyTeachingMapper.claims(history.witnesses).map { it.toDto() },
+                claims.map { it.toDto() },
+                VocabularyLibraryPracticeAvailabilityDto(
+                    VocabularyLibraryPracticePlanner.REVISION,
+                    practiceCounts.recognitionCount,
+                    practiceCounts.recallCount,
+                ),
             ),
         )
     }

@@ -1,6 +1,7 @@
 import { Box, Button, Checkbox, Divider, Group, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import type { RefObject } from "react";
 import type { PracticeSession, PracticeSummaryRow } from "../api/models";
+import { isVocabularyPractice } from "../pages/practice/vocabularyPracticeRun";
 import classes from "../theme.module.css";
 
 const OUTCOME_LABELS = [
@@ -111,6 +112,8 @@ export default function PracticeSummary({
   const sessionPlanRevision: string = session.planRevision;
   const cumulativeReview = sessionFocusId === "cumulative-review"
     && ["cumulative-review-1", "cumulative-review-2", "cumulative-review-3"].includes(sessionPlanRevision);
+  const vocabularyPractice = isVocabularyPractice(session);
+  const canSelectReview = !moduleOne && !cumulativeReview && !vocabularyPractice;
   return (
     <Stack gap="lg">
       <Box>
@@ -158,7 +161,7 @@ export default function PracticeSummary({
                     : "after teaching or earlier exposure in this run"
                   : "with possible earlier exposure"}
               </Text>
-              {!moduleOne && !cumulativeReview && <Checkbox
+              {canSelectReview && <Checkbox
                   label={`Review ${row.label}`}
                   checked={selectedTargets.has(practiceTargetKey(row))}
                   disabled={busy}
@@ -183,7 +186,10 @@ export default function PracticeSummary({
           <Box><Button variant="default" disabled={busy} onClick={onRepeat}>Prepare another mixed review</Button></Box>
         </Stack>
       )}
-      {!moduleOne && !cumulativeReview && <Box>
+      {vocabularyPractice && (
+        <Box><Button variant="default" disabled={busy} onClick={onRepeat}>Back to vocabulary</Button></Box>
+      )}
+      {canSelectReview && <Box>
         <Button disabled={selectedTargets.size === 0 || busy} loading={busy} onClick={onStartReview}>
           Start selected review
         </Button>

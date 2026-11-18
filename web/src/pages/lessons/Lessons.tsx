@@ -14,7 +14,7 @@ import {
   preparePracticeCreation, profileKey,
 } from "../practice/practiceProfiles";
 import {
-  latestRunRecoveryEntry, PracticePersistenceError, saveRunWithCreation,
+  PracticePersistenceError, savedPracticeId, saveRunWithCreation,
 } from "../practice/practiceRecovery";
 
 type LessonKind = "Grammar" | "Vocabulary" | "Combined";
@@ -36,20 +36,6 @@ const LESSON_KINDS: Record<string, LessonKind> = {
   "module-one-circumstances": "Grammar",
   "module-one-questions": "Grammar",
 };
-
-function savedPracticeId() {
-  try {
-    const entry = latestRunRecoveryEntry();
-    const run = entry?.run;
-    if (!run || typeof run.practiceSessionId !== "string" || typeof run.ownerSessionId !== "string" ||
-      typeof run.focusId !== "string" || typeof run.planRevision !== "string" ||
-      !Number.isSafeInteger(run.seed) || run.seed < 0 || entry.pointer !== run.practiceSessionId) return null;
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(run.practiceSessionId)
-      ? run.practiceSessionId : null;
-  } catch {
-    return null;
-  }
-}
 
 function startError(error: unknown) {
   if (error instanceof ApiError || error instanceof PracticeCatalogError || error instanceof PracticePersistenceError) {

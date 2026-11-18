@@ -1,5 +1,5 @@
 openapi: 3.0.3
-info: { title: Astrid pilot API, version: 0.24.0 }
+info: { title: Astrid pilot API, version: 0.25.0 }
 servers: [{ url: 'http://localhost:8088' }]
 # Every operation needs the development session cookie except the four that declare `security: []`.
 security:
@@ -41,7 +41,7 @@ paths:
   /api/v1/vocabulary-context:
     get:
       operationId: getVocabularyContext
-      description: Read saved lesson-teaching claims for the current development-session owner without creating or changing learning evidence.
+      description: Read saved lesson-teaching claims and available work-and-study practice counts for the current development-session owner without creating or changing learning evidence.
       responses:
         '200': { description: Current owner's saved vocabulary teaching, content: { application/json: { schema: { $ref: '#/components/schemas/VocabularyContext' } } } }
         '401': { $ref: '#/components/responses/Problem' }
@@ -139,6 +139,7 @@ paths:
   /api/v1/practice-sessions:
     post:
       operationId: createPracticeSession
+      description: For vocabulary library practice, the server selects eligible activities from the current owner's exact saved lesson teaching. An empty pool returns 409 without creating a run.
       parameters: [{ $ref: '#/components/parameters/Client' }, { $ref: '#/components/parameters/PracticeOwner' }]
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PracticeSessionRequest' } } } }
       responses:
@@ -152,6 +153,7 @@ paths:
         '400': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
         '409': { $ref: '#/components/responses/Problem' }
         '413': { $ref: '#/components/responses/Problem' }
         '415': { $ref: '#/components/responses/Problem' }
@@ -348,6 +350,15 @@ components:
         ownerSessionId: { type: string, format: uuid }
         sessionExpiresAt: { type: integer, format: int64, minimum: 0 }
         items: { type: array, items: { $ref: '#/components/schemas/VocabularyTeachingClaim' } }
+        practice: { $ref: '#/components/schemas/VocabularyLibraryPracticeAvailability' }
+    VocabularyLibraryPracticeAvailability:
+      type: object
+      additionalProperties: false
+      required: [planRevision, recognitionCount, recallCount]
+      properties:
+        planRevision: { type: string, enum: [vocabulary-library-practice-1] }
+        recognitionCount: { type: integer, minimum: 0, maximum: 4 }
+        recallCount: { type: integer, minimum: 0, maximum: 2 }
     VocabularyTeachingClaim:
       type: object
       additionalProperties: false
@@ -5734,6 +5745,14 @@ components:
           required: [practiceSessionId, focusId, planRevision, seed]
           properties:
             practiceSessionId: { type: string, format: uuid }
+            focusId: { type: string, enum: [vocabulary-library-recognition, vocabulary-library-recall] }
+            planRevision: { type: string, enum: [vocabulary-library-practice-1] }
+            seed: { type: integer, minimum: 0, maximum: 2147483647 }
+        - type: object
+          additionalProperties: false
+          required: [practiceSessionId, focusId, planRevision, seed]
+          properties:
+            practiceSessionId: { type: string, format: uuid }
             focusId: { type: string, enum: [cumulative-review] }
             planRevision: { type: string, enum: [cumulative-review-1, cumulative-review-2, cumulative-review-3] }
             seed: { type: integer, minimum: 0 }
@@ -6325,6 +6344,35 @@ components:
               properties: { <<: *VocabularyP3SessionProperties, focusId: { type: string, enum: [vocabulary-p3-s5] }, planRevision: { type: string, enum: [vocabulary-p3-s5-1] } }
             - <<: *VocabularyP3Session
               properties: { <<: *VocabularyP3SessionProperties, focusId: { type: string, enum: [vocabulary-p3-s6] }, planRevision: { type: string, enum: [vocabulary-p3-s6-1] } }
+            - &VocabularyLibraryPracticeSession
+              type: object
+              additionalProperties: true
+              required: [focusId, planRevision, contentRevision, generatorRevision, evaluationRevision, itemCount]
+              not: { anyOf: [{ required: [followUp] }, { required: [followUpPlanRevision] }] }
+              properties: &VocabularyLibraryPracticeSessionProperties
+                focusId: { type: string, enum: [vocabulary-library-recognition] }
+                planRevision: { type: string, enum: [vocabulary-library-practice-1] }
+                contentRevision: { type: string, enum: [pilot-18] }
+                generatorRevision: { type: string, enum: [generator-18] }
+                evaluationRevision: { type: string, enum: [evaluation-18] }
+                itemCount: { type: integer, minimum: 1, maximum: 4 }
+                introductionRequired: { type: boolean, enum: [false] }
+                introduction: { type: array, maxItems: 0, items: { $ref: '#/components/schemas/Introduction' } }
+                items: { type: array, minItems: 1, maxItems: 4, items: { $ref: '#/components/schemas/PracticeItem' } }
+                currentExercise:
+                  oneOf:
+                    - { $ref: '#/components/schemas/PairEighteenMeaningDaEnExercise' }
+                    - { $ref: '#/components/schemas/PairEighteenMeaningEnDaExercise' }
+            - <<: *VocabularyLibraryPracticeSession
+              properties:
+                <<: *VocabularyLibraryPracticeSessionProperties
+                focusId: { type: string, enum: [vocabulary-library-recall] }
+                itemCount: { type: integer, minimum: 1, maximum: 2 }
+                items: { type: array, minItems: 1, maxItems: 2, items: { $ref: '#/components/schemas/PracticeItem' } }
+                currentExercise:
+                  oneOf:
+                    - { $ref: '#/components/schemas/PairEighteenFixedChunkExercise' }
+                    - { $ref: '#/components/schemas/PairEighteenMassHeadwordExercise' }
             - type: object
               additionalProperties: true
               required: [focusId, planRevision, contentRevision, generatorRevision, evaluationRevision, itemCount, introductionRequired]

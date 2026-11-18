@@ -133,28 +133,11 @@ class PostgresPracticeStore(
             val ownerIsLive = Sessions.select(Sessions.id).where {
                 (Sessions.id eq ownerSession.id) and (Sessions.expiresAt greater clock())
             }.toList().isNotEmpty()
-            if (!ownerIsLive) return@suspendTransaction VocabularyTeachingHistory(emptyList(), false)
-
-            val witnesses = PracticeSessions.select(
-                PracticeSessions.focusId,
-                PracticeSessions.planRevision,
-                PracticeSessions.planPayload,
-            ).where {
-                (PracticeSessions.ownerSessionId eq ownerSession.id) and
-                    (PracticeSessions.introductionOpened eq true)
-            }.toList().mapNotNull { practice ->
-                val payload = json.decodeFromString<PracticePlanPayload>(practice[PracticeSessions.planPayload])
-                payload.introductionExposureKeys?.let { keys ->
-                    VocabularyTeachingWitness(
-                        practice[PracticeSessions.focusId],
-                        practice[PracticeSessions.planRevision],
-                        payload.contentRevision,
-                        payload.generatorRevision,
-                        keys,
-                    )
-                }
+            if (!ownerIsLive) {
+                return@suspendTransaction VocabularyTeachingHistory(emptyList(), ownerAvailable = false)
             }
-            VocabularyTeachingHistory(witnesses)
+
+            vocabularyTeachingHistory(ownerSession)
         }
 
     override suspend fun createCumulativeReview(
@@ -183,6 +166,45 @@ class PostgresPracticeStore(
             practiceId,
             requestPayload,
             CUMULATIVE_REVIEW_FOCUS,
+            request.planRevision,
+            request.seed,
+            plan,
+        )
+        PracticeCreateResult.Created(loadPracticeSession(ownerSession.id, practiceId))
+    }
+
+    override suspend fun createVocabularyLibraryPractice(
+        ownerSession: SessionPrincipal,
+        request: PracticeSessionRequest,
+        requestPayload: String,
+        create: suspend (VocabularyTeachingHistory) -> NewPracticeSession?,
+    ): PracticeCreateResult = suspendTransaction(database.r2dbc) {
+        if (!lockSession(ownerSession.id) || ownerSession.expiresAt <= clock()) {
+            return@suspendTransaction PracticeCreateResult.OwnerExpired
+        }
+        val practiceId = UUID.fromString(request.practiceSessionId)
+        val existing = findPracticeRow(ownerSession.id, practiceId)
+        if (existing != null) {
+            return@suspendTransaction if (existing[PracticeSessions.requestPayload] == requestPayload) {
+                PracticeCreateResult.Existing(loadPracticeSession(ownerSession.id, practiceId))
+            } else {
+                PracticeCreateResult.RequestConflict
+            }
+        }
+        val plan = create(vocabularyTeachingHistory(ownerSession))
+            ?: return@suspendTransaction PracticeCreateResult.NoEligibleItems
+        if (ownerSession.expiresAt <= clock()) return@suspendTransaction PracticeCreateResult.OwnerExpired
+        require(plan.items.isNotEmpty() && plan.items.size <= MAX_PRACTICE_ITEMS) {
+            "Invalid vocabulary-library practice item count"
+        }
+        require(plan.items.map { it.position } == plan.items.indices.toList()) {
+            "Practice positions must be contiguous"
+        }
+        insertPracticeSession(
+            ownerSession,
+            practiceId,
+            requestPayload,
+            request.focusId,
             request.planRevision,
             request.seed,
             plan,
@@ -256,8 +278,13 @@ class PostgresPracticeStore(
             position > cursor -> PracticeMutationResult.Conflict
             else -> {
                 val current = loadPracticeSession(ownerSessionId, practiceSessionId).items.single { it.position == position }
-                val latest = current.attempts.lastOrNull()?.response
-                    ?.toCompletionObservation(practice[PracticeSessions.introductionOpened])
+                val latest = current.attempts.lastOrNull()?.response?.toCompletionObservation(
+                    teachingSavedForCompletion(
+                        practice[PracticeSessions.focusId],
+                        practice[PracticeSessions.planRevision],
+                        practice[PracticeSessions.introductionOpened],
+                    ),
+                )
                 val itemPolicy = payload.items.single { it.position == position }.policy
                 if (!PracticeCompletionPolicy.canAdvance(itemPolicy.effectiveCompletionRule(payload.completionRuleId), latest)) {
                     return@suspendTransaction PracticeMutationResult.Conflict
@@ -360,11 +387,52 @@ class PostgresPracticeStore(
     }
 
     private suspend fun cumulativeHistory(ownerSession: SessionPrincipal): CumulativeReviewHistory {
-        val ids = PracticeSessions.select(PracticeSessions.practiceSessionId).where {
+        val ids = PracticeSessions.select(
+            PracticeSessions.practiceSessionId,
+            PracticeSessions.focusId,
+            PracticeSessions.planRevision,
+        ).where {
             (PracticeSessions.ownerSessionId eq ownerSession.id) and
                 (PracticeSessions.createdAt greaterEq ownerSession.expiresAt - SESSION_TTL_MILLIS)
-        }.toList().map { it[PracticeSessions.practiceSessionId] }
-        return CumulativeReviewHistory(ids.map { loadPracticeSession(ownerSession.id, it) })
+        }.toList().filterNot { row ->
+            isVocabularyLibraryPractice(row[PracticeSessions.focusId], row[PracticeSessions.planRevision])
+        }.map { it[PracticeSessions.practiceSessionId] }
+        return CumulativeReviewHistory(
+            ids.map { loadPracticeSession(ownerSession.id, it) },
+        )
+    }
+
+    private suspend fun vocabularyTeachingHistory(ownerSession: SessionPrincipal): VocabularyTeachingHistory {
+        val rows = PracticeSessions.select(
+            PracticeSessions.practiceSessionId,
+            PracticeSessions.focusId,
+            PracticeSessions.planRevision,
+            PracticeSessions.planPayload,
+        ).where {
+            (PracticeSessions.ownerSessionId eq ownerSession.id) and
+                (PracticeSessions.introductionOpened eq true)
+        }.toList()
+        val witnesses = mutableListOf<VocabularyTeachingWitness>()
+        val sourceExposure = mutableListOf<app.astrid.server.exercises.PracticeCrossRunExposureDto>()
+        rows.forEach { practice ->
+            val payload = json.decodeFromString<PracticePlanPayload>(practice[PracticeSessions.planPayload])
+            payload.introductionExposureKeys?.let { keys ->
+                witnesses += VocabularyTeachingWitness(
+                    practice[PracticeSessions.focusId],
+                    practice[PracticeSessions.planRevision],
+                    payload.contentRevision,
+                    payload.generatorRevision,
+                    keys,
+                )
+                sourceExposure += app.astrid.server.exercises.PracticeCrossRunExposureDto(
+                    practice[PracticeSessions.practiceSessionId].toString(),
+                    -1,
+                    app.astrid.engine.PracticeExposureSource.INTRODUCTION.wireValue,
+                    keys,
+                )
+            }
+        }
+        return VocabularyTeachingHistory(witnesses, sourceExposure)
     }
 
     private suspend fun insertPracticeSession(

@@ -20,6 +20,7 @@ import {
   type PracticeOutboxEntry, type PracticeRunRecovery, saveOutboxEntry, saveRunWithCreation,
 } from "./practiceRecovery";
 import { useInitialPracticeRecovery } from "./useInitialPracticeRecovery";
+import { isVocabularyPractice } from "./vocabularyPracticeRun";
 import { type PracticeFocusTarget, pendingFocus, reconciledFocus, usePracticeFocusQueue } from "./usePracticeFocusQueue";
 
 function restoreAnswer(
@@ -50,6 +51,12 @@ function selectedTargetSet(current: Set<string>, targetKey: string, selected: bo
 function isCumulativeReview(session: Pick<PracticeSession, "focusId" | "planRevision">) {
   return String(session.focusId) === "cumulative-review"
     && ["cumulative-review-1", "cumulative-review-2", "cumulative-review-3"].includes(String(session.planRevision));
+}
+
+function practiceReturnPath(session: PracticeSession) {
+  if (isCumulativeReview(session)) return "/#review";
+  if (isVocabularyPractice(session)) return "/vocabulary";
+  return null;
 }
 
 function PracticeProgress({ session }: { session: PracticeSession }) {
@@ -305,9 +312,9 @@ export default function Practice() {
         onToggleTarget={(targetKey, selected) => setSelectedTargets((current) => selectedTargetSet(current, targetKey, selected))}
         onStartReview={() => void startFollowUp()}
         onRepeat={() => {
-          if (isCumulativeReview(session)) { navigate("/#review"); return; }
-          const key = taughtProfileKey(session);
-          if (key) openPracticeChooser(key);
+          const path = practiceReturnPath(session), key = taughtProfileKey(session);
+          if (path) navigate(path);
+          else if (key) openPracticeChooser(key);
         }}
         nextProfile={nextProfile && nextProfileKey
           ? { title: nextProfile.title, onChoose: () => openPracticeChooser(nextProfileKey) }

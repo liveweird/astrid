@@ -107,11 +107,25 @@ export function latestRunRecovery(): PracticeRunRecovery | null {
   return latestRunRecoveryEntry()?.run ?? null;
 }
 
-export function latestRunRecoveryEntry(): { pointer: string; run: PracticeRunRecovery } | null {
+function latestRunRecoveryEntry(): { pointer: string; run: PracticeRunRecovery } | null {
   const id = safeGet(LATEST_KEY);
   if (!id) return null;
   const run = loadRunRecovery(id);
   return run ? { pointer: id, run } : null;
+}
+
+export function savedPracticeId() {
+  try {
+    const entry = latestRunRecoveryEntry();
+    const run = entry?.run;
+    if (!run || typeof run.practiceSessionId !== "string" || typeof run.ownerSessionId !== "string" ||
+      typeof run.focusId !== "string" || typeof run.planRevision !== "string" ||
+      !Number.isSafeInteger(run.seed) || run.seed < 0 || entry.pointer !== run.practiceSessionId) return null;
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(run.practiceSessionId)
+      ? run.practiceSessionId : null;
+  } catch {
+    return null;
+  }
 }
 
 export function saveOutboxEntry(entry: PracticeOutboxEntry) {

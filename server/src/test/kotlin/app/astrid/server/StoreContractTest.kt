@@ -11,6 +11,7 @@ import app.astrid.server.exercises.AttemptWriteResult
 import app.astrid.server.exercises.CreatedAttempt
 import app.astrid.server.exercises.IntroductionDto
 import app.astrid.server.exercises.PracticeAttemptContextDto
+import app.astrid.server.exercises.PracticeCrossRunExposureDto
 import app.astrid.server.exercises.StoredExercise
 import app.astrid.server.exercises.reproductionFingerprint
 import app.astrid.server.exercises.toResponse
@@ -183,6 +184,75 @@ abstract class StoreContractTest {
         assertIs<PracticeCreateResult.RequestConflict>(
             stores.practice.createCumulativeReview(owner, changed, wireJson.encodeToString(changed)) {
                 error("payload conflict must precede planning")
+            },
+        )
+    }
+
+    @Test
+    fun `vocabulary library practice is teaching bound empty aware and replay first`() = withStores { stores ->
+        val owner = stores.sessions.createSession(tokenHash(), System.currentTimeMillis() + SESSION_TTL_MILLIS)
+        val request = PracticeSessionRequest(
+            UUID.randomUUID().toString(),
+            "vocabulary-library-recognition",
+            "vocabulary-library-practice-1",
+            31,
+        )
+        val payload = wireJson.encodeToString(request)
+        assertIs<PracticeCreateResult.NoEligibleItems>(
+            stores.practice.createVocabularyLibraryPractice(owner, request, payload) { null },
+        )
+
+        val sourceRequest = practiceRequest()
+        val source = assertIs<PracticeCreateResult.Created>(
+            stores.practice.createPracticeSession(owner, sourceRequest, wireJson.encodeToString(sourceRequest)) {
+                plan(owner, sourceRequest).copy(introductionExposureKeys = listOf("meaning:entry", "form:surface"))
+            },
+        ).session
+        assertIs<PracticeMutationResult.Success>(
+            stores.practice.openPracticeSupport(owner.id, source.id, PracticeSupportRequest("introduction")),
+        )
+
+        val created = assertIs<PracticeCreateResult.Created>(
+            stores.practice.createVocabularyLibraryPractice(owner, request, payload) { history ->
+                assertEquals(1, history.witnesses.size)
+                assertEquals(
+                    listOf(
+                        PracticeCrossRunExposureDto(
+                            source.id.toString(), -1, "introduction", listOf("meaning:entry", "form:surface"),
+                        ),
+                    ),
+                    history.sourceExposure,
+                )
+                plan(owner, sourceRequest).copy(
+                    items = plan(owner, sourceRequest).items.take(1),
+                    sourceExposure = history.sourceExposure,
+                )
+            },
+        ).session
+        assertEquals(source.id.toString(), created.sourceExposure.single().practiceSessionId)
+        val cumulativeHistory = stores.practice.cumulativeReviewHistory(owner)
+        assertTrue(cumulativeHistory.sessions.any { it.id == source.id })
+        assertTrue(cumulativeHistory.sessions.none { it.id == created.id })
+        assertEquals(created, assertIs<PracticeCreateResult.Existing>(
+            stores.practice.createVocabularyLibraryPractice(owner, request, payload) {
+                error("replay must precede history and planning")
+            },
+        ).session)
+        val changed = request.copy(seed = request.seed + 1)
+        assertIs<PracticeCreateResult.RequestConflict>(
+            stores.practice.createVocabularyLibraryPractice(owner, changed, wireJson.encodeToString(changed)) {
+                error("payload conflict must precede planning")
+            },
+        )
+
+        val outsider = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
+        val outsiderRequest = request.copy(practiceSessionId = UUID.randomUUID().toString())
+        assertIs<PracticeCreateResult.NoEligibleItems>(
+            stores.practice.createVocabularyLibraryPractice(
+                outsider, outsiderRequest, wireJson.encodeToString(outsiderRequest),
+            ) { history ->
+                assertTrue(history.witnesses.isEmpty())
+                null
             },
         )
     }
@@ -394,6 +464,12 @@ abstract class StoreContractTest {
         assertEquals(opened.contentRevision, history.witnesses.single().contentRevision)
         assertEquals(opened.generatorRevision, history.witnesses.single().generatorRevision)
         assertEquals(listOf("meaning:entry", "form:surface"), history.witnesses.single().introductionExposureKeys)
+        assertEquals(
+            PracticeCrossRunExposureDto(
+                opened.id.toString(), -1, "introduction", listOf("meaning:entry", "form:surface"),
+            ),
+            history.sourceExposure.single(),
+        )
 
         val outsider = stores.sessions.createSession(tokenHash(), Long.MAX_VALUE)
         assertTrue(stores.practice.savedVocabularyTeaching(outsider).witnesses.isEmpty())
@@ -509,6 +585,7 @@ abstract class StoreContractTest {
     private companion object {
         const val EXPIRES_AT = 1_000_000L
         const val PRACTICE_ITEMS = 8
+        const val SESSION_TTL_MILLIS = 24 * 60 * 60 * 1_000L
     }
 }
 

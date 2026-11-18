@@ -2,6 +2,7 @@ package app.astrid.server.practice
 
 import app.astrid.engine.VocabularyTeachingWitness
 import app.astrid.server.authz.SessionPrincipal
+import app.astrid.server.exercises.PracticeCrossRunExposureDto
 import java.util.UUID
 
 sealed interface PracticeCreateResult {
@@ -18,6 +19,7 @@ data class CumulativeReviewHistory(val sessions: List<StoredPracticeSession>, va
 
 data class VocabularyTeachingHistory(
     val witnesses: List<VocabularyTeachingWitness>,
+    val sourceExposure: List<PracticeCrossRunExposureDto> = emptyList(),
     val ownerAvailable: Boolean = true,
 )
 
@@ -49,6 +51,12 @@ interface PracticeStore {
         request: PracticeSessionRequest,
         requestPayload: String,
         create: suspend (CumulativeReviewHistory) -> NewPracticeSession?,
+    ): PracticeCreateResult
+    suspend fun createVocabularyLibraryPractice(
+        ownerSession: SessionPrincipal,
+        request: PracticeSessionRequest,
+        requestPayload: String,
+        create: suspend (VocabularyTeachingHistory) -> NewPracticeSession?,
     ): PracticeCreateResult
     suspend fun findPracticeSession(ownerSessionId: UUID, practiceSessionId: UUID): StoredPracticeSession?
     suspend fun openPracticeSupport(

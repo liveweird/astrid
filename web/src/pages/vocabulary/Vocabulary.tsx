@@ -10,6 +10,7 @@ import classes from "../../theme.module.css";
 import { filterVocabulary, hasRecordedTeaching, SITUATIONS, type SituationId } from "./vocabularyFilters";
 import { useVocabularyContext } from "./useVocabularyContext";
 import { useVocabularyEntries } from "./useVocabularyEntries";
+import VocabularyPractice from "./VocabularyPractice";
 
 function claimFor(sense: VocabularySense, entry: VocabularyEntry, claims: VocabularyTeachingClaim[]) {
   return claims.find((claim) => claim.entryId === entry.entryId && claim.senseId === sense.senseId);
@@ -165,6 +166,8 @@ export default function Vocabulary() {
           {personal.message && <Alert color="blue" icon={<IconAlertCircle size={18} />} role="status">{personal.message}</Alert>}
         </Stack>
       </Paper>
+
+      {catalog.data && <VocabularyPractice context={personal.context} onInvalidate={personal.invalidate} />}
 
       {catalog.isPending && <Text role="status">Loading vocabulary…</Text>}
       {catalog.isError && (

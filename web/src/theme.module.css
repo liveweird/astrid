@@ -113,6 +113,10 @@
   min-width: min(15rem, 100%);
 }
 
+.vocabularyPracticeNotice {
+  scroll-margin-block-start: calc(var(--app-shell-header-height, 3rem) + var(--mantine-spacing-sm));
+}
+
 .vocabularyList,
 .vocabularyExampleList {
   list-style: none;

@@ -1731,6 +1731,51 @@ class OpenApiContractTest {
             cookie("astrid_session", cookie)
         }
         validate(HttpMethod.Get, "/api/v1/vocabulary-context", context)
+        val owner = context.bodyAsText().asObject().getValue("ownerSessionId").jsonPrimitive.content
+
+        val unavailableId = UUID.randomUUID()
+        val unavailable = moduleOnePost(
+            cookie,
+            owner,
+            "/api/v1/practice-sessions",
+            """
+            {"practiceSessionId":"$unavailableId","focusId":"vocabulary-library-recognition",
+            "planRevision":"vocabulary-library-practice-1","seed":0}
+            """.trimIndent(),
+        )
+        validate(HttpMethod.Post, "/api/v1/practice-sessions", unavailable)
+        assertEquals(409, unavailable.status.value)
+
+        val sourceId = UUID.randomUUID()
+        val source = moduleOnePost(
+            cookie,
+            owner,
+            "/api/v1/practice-sessions",
+            """{"practiceSessionId":"$sourceId","focusId":"vocabulary-p1-s1","planRevision":"vocabulary-p1-s1-2","seed":17}""",
+        )
+        validate(HttpMethod.Post, "/api/v1/practice-sessions", source)
+        assertEquals(201, source.status.value)
+        val introduction = moduleOnePost(
+            cookie,
+            owner,
+            "/api/v1/practice-sessions/$sourceId/support",
+            """{"kind":"introduction"}""",
+        )
+        validate(HttpMethod.Post, "/api/v1/practice-sessions/{practiceSessionId}/support", introduction)
+        assertEquals(200, introduction.status.value)
+
+        val practiceId = UUID.randomUUID()
+        val practice = moduleOnePost(
+            cookie,
+            owner,
+            "/api/v1/practice-sessions",
+            """
+            {"practiceSessionId":"$practiceId","focusId":"vocabulary-library-recognition",
+            "planRevision":"vocabulary-library-practice-1","seed":0}
+            """.trimIndent(),
+        )
+        validate(HttpMethod.Post, "/api/v1/practice-sessions", practice)
+        assertEquals(201, practice.status.value)
     }
 
     @Test

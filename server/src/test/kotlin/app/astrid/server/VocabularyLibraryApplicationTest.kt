@@ -92,11 +92,157 @@ class VocabularyLibraryApplicationTest {
         assertTrue(claims.all {
             it.jsonObject.keys == setOf("entryId", "senseId", "meaningRecorded", "formIds")
         })
+        val practice = ownerLibrary.getValue("practice").jsonObject
+        assertEquals("vocabulary-library-practice-1", practice.getValue("planRevision").jsonPrimitive.content)
+        assertEquals(3, practice.getValue("recognitionCount").jsonPrimitive.content.toInt())
+        assertEquals(0, practice.getValue("recallCount").jsonPrimitive.content.toInt())
 
         val outsiderCookie = createSession()
         val outsiderLibrary = vocabularyContext(outsiderCookie)
         assertTrue(outsiderLibrary.getValue("items").jsonArray.isEmpty())
         assertFalse(outsiderLibrary.getValue("ownerSessionId").jsonPrimitive.content == ownerId)
+        assertEquals(0, outsiderLibrary.getValue("practice").jsonObject
+            .getValue("recognitionCount").jsonPrimitive.content.toInt())
+    }
+
+    @Test
+    fun `library practice uses saved teaching supports both operations and preserves source exposure`() = testApplication {
+        application { astridModule(config(), InMemoryStores()) }
+        val ownerCookie = createSession()
+        val ownerId = ownerContext(ownerCookie).getValue("ownerSessionId").jsonPrimitive.content
+        val emptyId = UUID.randomUUID()
+        assertEquals(
+            HttpStatusCode.Conflict,
+            createLibraryPractice(ownerCookie, ownerId, emptyId, "vocabulary-library-recognition", 0).status,
+        )
+
+        val sourceOne = createAndOpenLesson(ownerCookie, ownerId, "vocabulary-p1-s1", 17)
+        val moduleSource = createAndOpenLesson(
+            ownerCookie, ownerId, "module-one-circumstances", 19, "module-one-circumstances-1",
+        )
+        createAndOpenLesson(ownerCookie, ownerId, "vocabulary-p1-s4", 23)
+        val context = vocabularyContext(ownerCookie).getValue("practice").jsonObject
+        assertEquals(3, context.getValue("recognitionCount").jsonPrimitive.content.toInt())
+        assertEquals(2, context.getValue("recallCount").jsonPrimitive.content.toInt())
+        val reviewBefore = client.get("/api/v1/practice-review-context") {
+            trustedHost()
+            cookie(SESSION_COOKIE, ownerCookie)
+        }.json()
+
+        val recognitionId = UUID.randomUUID()
+        val recognition = createLibraryPractice(
+            ownerCookie, ownerId, recognitionId, "vocabulary-library-recognition", 0,
+        )
+        assertEquals(HttpStatusCode.Created, recognition.status)
+        val recognitionBody = recognition.json()
+        assertEquals(3, recognitionBody.getValue("itemCount").jsonPrimitive.content.toInt())
+        assertEquals("pilot-18", recognitionBody.getValue("contentRevision").jsonPrimitive.content)
+        assertEquals("E031", recognitionBody.getValue("currentExercise").jsonObject
+            .getValue("formatId").jsonPrimitive.content)
+        val exerciseId = recognitionBody.getValue("currentExercise").jsonObject.getValue("id").jsonPrimitive.content
+        val attempted = client.post("/api/v1/attempts") {
+            trustedHost()
+            cookie(SESSION_COOKIE, ownerCookie)
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {"attemptId":"${UUID.randomUUID()}","exerciseId":"$exerciseId",
+                "answer":{"kind":"text","text":"works"},"hintUsed":false}
+                """.trimIndent(),
+            )
+        }
+        assertEquals(HttpStatusCode.OK, attempted.status)
+        val refreshed = client.get("/api/v1/practice-sessions/$recognitionId") {
+            trustedHost()
+            cookie(SESSION_COOKIE, ownerCookie)
+        }.json()
+        val firstItem = refreshed.getValue("items").jsonArray.first().jsonObject
+        assertTrue(firstItem.getValue("canAdvance").jsonPrimitive.content.toBoolean())
+        val exposure = firstItem.getValue("lastAttemptContext").jsonObject
+            .getValue("sourceExposure").jsonArray.single().jsonObject
+        assertEquals(sourceOne.toString(), exposure.getValue("practiceSessionId").jsonPrimitive.content)
+        assertEquals("introduction", exposure.getValue("source").jsonPrimitive.content)
+
+        val replay = createLibraryPractice(ownerCookie, ownerId, recognitionId, "vocabulary-library-recognition", 0)
+        assertEquals(HttpStatusCode.OK, replay.status)
+        val conflict = createLibraryPractice(ownerCookie, ownerId, recognitionId, "vocabulary-library-recognition", 1)
+        assertEquals(HttpStatusCode.Conflict, conflict.status)
+
+        val recallId = UUID.randomUUID()
+        val recall = createLibraryPractice(ownerCookie, ownerId, recallId, "vocabulary-library-recall", 0)
+        assertEquals(HttpStatusCode.Created, recall.status)
+        val recallBody = recall.json()
+        assertEquals(2, recallBody.getValue("itemCount").jsonPrimitive.content.toInt())
+        val recallExerciseId = recallBody.getValue("currentExercise").jsonObject.getValue("id").jsonPrimitive.content
+        val recallAttempt = client.post("/api/v1/attempts") {
+            trustedHost()
+            cookie(SESSION_COOKIE, ownerCookie)
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {"attemptId":"${UUID.randomUUID()}","exerciseId":"$recallExerciseId",
+                "answer":{"kind":"text","text":"nu"},"hintUsed":false}
+                """.trimIndent(),
+            )
+        }
+        assertEquals(HttpStatusCode.OK, recallAttempt.status)
+        val recalled = client.get("/api/v1/practice-sessions/$recallId") {
+            trustedHost()
+            cookie(SESSION_COOKIE, ownerCookie)
+        }.json()
+        val recallExposure = recalled.getValue("items").jsonArray.first().jsonObject
+            .getValue("lastAttemptContext").jsonObject.getValue("sourceExposure").jsonArray.single().jsonObject
+        assertEquals(moduleSource.toString(), recallExposure.getValue("practiceSessionId").jsonPrimitive.content)
+        val reviewAfter = client.get("/api/v1/practice-review-context") {
+            trustedHost()
+            cookie(SESSION_COOKIE, ownerCookie)
+        }.json()
+        assertEquals(reviewBefore, reviewAfter)
+
+        val outsiderCookie = createSession()
+        val outsiderId = ownerContext(outsiderCookie).getValue("ownerSessionId").jsonPrimitive.content
+        assertEquals(
+            HttpStatusCode.Conflict,
+            createLibraryPractice(
+                outsiderCookie,
+                outsiderId,
+                UUID.randomUUID(),
+                "vocabulary-library-recall",
+                0,
+            ).status,
+        )
+    }
+
+    @Test
+    fun `library practice keeps mutation authentication and owner guards`() = testApplication {
+        application { astridModule(config(), InMemoryStores()) }
+        val id = UUID.randomUUID()
+        val body = """
+            {"practiceSessionId":"$id","focusId":"vocabulary-library-recognition",
+            "planRevision":"vocabulary-library-practice-1","seed":0}
+        """.trimIndent()
+        val missingOwner = client.post("/api/v1/practice-sessions") {
+            trustedHost()
+            header("X-Astrid-Client", "playground")
+            contentType(ContentType.Application.Json)
+            setBody(body)
+        }
+        assertEquals(HttpStatusCode.Unauthorized, missingOwner.status)
+
+        val cookie = createSession()
+        val ownerId = ownerContext(cookie).getValue("ownerSessionId").jsonPrimitive.content
+        val wrongOwner = client.post("/api/v1/practice-sessions") {
+            trustedHost()
+            cookie(SESSION_COOKIE, cookie)
+            header("X-Astrid-Client", "playground")
+            header("X-Astrid-Practice-Owner", UUID.randomUUID().toString())
+            contentType(ContentType.Application.Json)
+            setBody(body)
+        }
+        assertEquals(HttpStatusCode.Conflict, wrongOwner.status)
+        assertTrue(ownerId.isNotBlank())
     }
 
     @Test
@@ -155,6 +301,54 @@ class VocabularyLibraryApplicationTest {
             assertEquals(HttpStatusCode.OK, response.status)
             response.json()
         }
+
+    private suspend fun ApplicationTestBuilder.createAndOpenLesson(
+        cookieValue: String,
+        ownerId: String,
+        focusId: String,
+        seed: Int,
+        planRevision: String = "$focusId-2",
+    ): UUID {
+        val id = UUID.randomUUID()
+        val created = client.post("/api/v1/practice-sessions") {
+            trustedHost()
+            cookie(SESSION_COOKIE, cookieValue)
+            header("X-Astrid-Client", "playground")
+            header("X-Astrid-Practice-Owner", ownerId)
+            contentType(ContentType.Application.Json)
+            setBody(
+                """{"practiceSessionId":"$id","focusId":"$focusId","planRevision":"$planRevision","seed":$seed}""",
+            )
+        }
+        assertEquals(HttpStatusCode.Created, created.status)
+        val opened = client.post("/api/v1/practice-sessions/$id/support") {
+            trustedHost()
+            cookie(SESSION_COOKIE, cookieValue)
+            header("X-Astrid-Client", "playground")
+            header("X-Astrid-Practice-Owner", ownerId)
+            contentType(ContentType.Application.Json)
+            setBody("""{"kind":"introduction"}""")
+        }
+        assertEquals(HttpStatusCode.OK, opened.status)
+        return id
+    }
+
+    private suspend fun ApplicationTestBuilder.createLibraryPractice(
+        cookieValue: String,
+        ownerId: String,
+        id: UUID,
+        focusId: String,
+        seed: Int,
+    ) = client.post("/api/v1/practice-sessions") {
+        trustedHost()
+        cookie(SESSION_COOKIE, cookieValue)
+        header("X-Astrid-Client", "playground")
+        header("X-Astrid-Practice-Owner", ownerId)
+        contentType(ContentType.Application.Json)
+        setBody(
+            """{"practiceSessionId":"$id","focusId":"$focusId","planRevision":"vocabulary-library-practice-1","seed":$seed}""",
+        )
+    }
 
     private suspend fun HttpResponse.json() = wireJson.parseToJsonElement(bodyAsText()).jsonObject
 

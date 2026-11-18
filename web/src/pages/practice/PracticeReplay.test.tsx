@@ -10,6 +10,30 @@ import { listOutbox, saveOutboxEntry, saveRunRecovery } from "./practiceRecovery
 
 beforeEach(resetPracticeBrowser);
 
+it("returns a completed library run to Vocabulary without offering a follow-up", async () => {
+  const run = {
+    ownerSessionId: owner, practiceSessionId: practiceId, focusId: "vocabulary-library-recall",
+    planRevision: "vocabulary-library-practice-1", seed: 47,
+  };
+  saveRunRecovery(run);
+  window.history.replaceState(null, "", `/practice?session=${practiceId}`);
+  vi.stubGlobal("fetch", vi.fn(async (path: string) => {
+    if (path.endsWith("practice-context")) return json(context());
+    if (path.includes(`/practice-sessions/${practiceId}`)) return json({
+      ...completedState(), ...run, introduction: [], introductionRequired: false, introductionOpened: false,
+    });
+    throw new Error(`Unexpected ${path}`);
+  }));
+  renderWithProviders(<Practice />);
+  expect(await screen.findByRole("heading", { name: "Practice complete" })).toBeVisible();
+  expect(screen.getByText(/Continue after a saved answer with a known outcome/)).toBeVisible();
+  expect(screen.queryByRole("checkbox")).toBeNull();
+  expect(screen.queryByRole("button", { name: "Start selected review" })).toBeNull();
+  await userEvent.click(screen.getByRole("button", { name: "Back to vocabulary" }));
+  expect(window.location.pathname).toBe("/vocabulary");
+  expect(listOutbox(practiceId)).toEqual([]);
+});
+
 it.each(["cumulative-review-1", "cumulative-review-2", "cumulative-review-3"] as const)(
   "routes completed %s back to a fresh preparation instead of offering unsupported follow-ups",
   async (planRevision) => {

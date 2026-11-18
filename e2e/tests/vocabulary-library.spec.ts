@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
-import { ownerHeaders, PRACTICE_HEADERS } from "../support/practice.js";
+import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
+import { ownerHeaders, PRACTICE_HEADERS, practiceOwner, readPractice } from "../support/practice.js";
 
 type LibraryForm = { formId: string; label: string; text: string };
 type LibrarySense = {
@@ -24,6 +24,84 @@ async function scan(page: Page) {
   expect(result.violations.map(({ id, nodes }) => ({ id, targets: nodes.map((node) => node.target) }))).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
 }
+
+async function teachWorkAndStudy(request: APIRequestContext, owner: string, lesson: 1 | 3) {
+  const practiceSessionId = crypto.randomUUID();
+  const focusId = `vocabulary-p1-s${lesson}`;
+  expect((await request.post("/api/v1/practice-sessions", {
+    headers: ownerHeaders(owner),
+    data: { practiceSessionId, focusId, planRevision: `${focusId}-2`, seed: 11 },
+  })).status()).toBe(201);
+  expect((await request.post(`/api/v1/practice-sessions/${practiceSessionId}/support`, {
+    headers: ownerHeaders(owner), data: { kind: "introduction" },
+  })).status()).toBe(200);
+}
+
+test("vocabulary practice offers only taught recognition and supports written recall", async ({ page }) => {
+  const owner = await practiceOwner(page.request);
+  await page.goto("/vocabulary");
+  const load = page.getByRole("button", { name: "Load saved lesson teaching", exact: true });
+  await load.click();
+  await expect(page.getByRole("link", { name: "Open the first work and study lesson" })).toBeVisible();
+  await teachWorkAndStudy(page.request, owner, 1);
+  await load.click();
+  await expect(page.getByRole("button", { name: "Recognize meanings (3)", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Write Danish/ })).toHaveCount(0);
+  await teachWorkAndStudy(page.request, owner, 3);
+  await load.click();
+  await expect(page.getByRole("button", { name: "Write Danish (1)", exact: true })).toBeVisible();
+  await scan(page);
+  const before = await (await page.request.get("/api/v1/vocabulary-context")).text();
+  await page.getByRole("button", { name: "Write Danish (1)", exact: true }).click();
+  await expect(page).toHaveURL(/\/practice\?session=/);
+  await expect(page.getByRole("button", { name: "Session introduction", exact: true })).toHaveCount(0);
+  await page.getByRole("textbox", { name: "Danish answer", exact: true }).fill("not a Danish expression");
+  await page.getByRole("button", { name: "Check answer", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeDisabled();
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await page.getByRole("textbox", { name: "Danish answer", exact: true }).fill("nu");
+  await page.getByRole("button", { name: "Check answer", exact: true }).click();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Practice complete", exact: true })).toBeFocused();
+  await expect(page.getByText("Written expression recall", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start selected review", exact: true })).toHaveCount(0);
+  await scan(page);
+  await page.getByRole("button", { name: "Back to vocabulary", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Vocabulary", exact: true })).toBeVisible();
+  expect(await (await page.request.get("/api/v1/vocabulary-context")).text()).toBe(before);
+});
+
+test("vocabulary recognition replays the same creation after a lost response", async ({ page }) => {
+  const owner = await practiceOwner(page.request);
+  await teachWorkAndStudy(page.request, owner, 1);
+  const creations: string[] = [];
+  await page.route("**/api/v1/practice-sessions", async (route) => {
+    creations.push(route.request().postData()!);
+    if (creations.length === 1) {
+      const created = await route.fetch();
+      expect(created.status()).toBe(201);
+      await route.abort("connectionfailed");
+    } else await route.continue();
+  });
+  await page.goto("/vocabulary");
+  await page.getByRole("button", { name: "Load saved lesson teaching", exact: true }).click();
+  await page.getByRole("button", { name: "Recognize meanings (3)", exact: true }).click();
+  await expect(page.getByRole("alert")).toBeVisible();
+  const id = new URL(page.url()).searchParams.get("session")!;
+  const committed = await readPractice(page.request, id);
+  await page.reload();
+  await expect(page.getByRole("group", { name: "Answer choices", exact: true })).toBeVisible();
+  expect(creations).toHaveLength(2);
+  expect(creations[1]).toBe(creations[0]);
+  expect(await readPractice(page.request, id)).toEqual(committed);
+  const meanings: Record<string, string> = { arbejder: "works", "en bog": "a book", "i dag": "today" };
+  const correct = meanings[committed.currentExercise?.prompt.cue ?? ""]!;
+  await page.getByRole("group", { name: "Answer choices", exact: true })
+    .getByRole("button", { name: correct, exact: true }).click();
+  await page.getByRole("button", { name: "Check answer", exact: true }).click();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await expect(page.getByText("Part 2 of 3", { exact: true })).toBeVisible();
+});
 
 test("vocabulary reference is finite and passive without a learner cookie", async ({ request }) => {
   const response = await request.get("/api/v1/vocabulary-entries");
@@ -172,8 +250,12 @@ for (const theme of ["light", "dark"] as const) {
     expect((await page.request.post(`/api/v1/practice-sessions/${runId}/support`, {
       headers: ownerHeaders(owner.ownerSessionId), data: { kind: "introduction" },
     })).status()).toBe(200);
+    await teachWorkAndStudy(page.request, owner.ownerSessionId, 1);
+    await teachWorkAndStudy(page.request, owner.ownerSessionId, 3);
     await page.getByRole("button", { name: "Load saved lesson teaching", exact: true }).click();
     await expect(page.getByText(/selected uses have recorded teaching/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Recognize meanings (3)", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Write Danish (1)", exact: true })).toBeVisible();
     const search = page.getByRole("textbox", { name: "Search vocabulary", exact: true });
     await search.fill("en cykel");
     await expect(page.getByText("1 of 79 entries shown", { exact: true })).toBeVisible();

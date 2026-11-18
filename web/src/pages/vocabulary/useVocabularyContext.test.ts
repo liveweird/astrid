@@ -110,3 +110,17 @@ it("hides already loaded claims immediately when the reference revision changes"
   expect(result.current.context).toBeNull();
   expect(result.current.message).toBe("");
 });
+
+it("discards an outstanding refresh when owner revalidation invalidates the teaching", async () => {
+  let finish!: (value: Response) => void;
+  const deferred = new Promise<Response>((resolve) => { finish = resolve; });
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(response(base)).mockReturnValueOnce(deferred));
+  const { result } = renderHook(() => useVocabularyContext(base.libraryRevision));
+  await act(async () => { await result.current.load(); });
+  let refresh!: Promise<void>;
+  await act(async () => { refresh = result.current.load(); });
+  act(() => { result.current.invalidate(); });
+  await act(async () => { finish(response(base)); await refresh; });
+  expect(result.current.context).toBeNull();
+  expect(result.current.loading).toBe(false);
+});

@@ -476,7 +476,8 @@ internal fun StoredPracticeSession.toResponse(): PracticeSessionResponse {
         summary.toDto(
             includeRows = cursor == items.size,
             includeVocabularyFields = focusId.startsWith("vocabulary-p1-") || focusId.startsWith("vocabulary-p2-") ||
-                focusId.startsWith("vocabulary-p3-") || focusId == CUMULATIVE_REVIEW_FOCUS,
+                focusId.startsWith("vocabulary-p3-") || focusId.startsWith("vocabulary-library-") ||
+                focusId == CUMULATIVE_REVIEW_FOCUS,
         ),
         followUp?.let { PracticeFollowUpDto(it.sourcePracticeSessionId.toString(), it.selectedTargetKeys) },
         followUpPlanRevision(),
@@ -534,7 +535,9 @@ private fun StoredPracticeSession.itemToDto(item: StoredPracticeItem): PracticeI
         if (item.position == cursor) {
             PracticeCompletionPolicy.canAdvance(
                 item.policy.effectiveCompletionRule(completionRuleId),
-                item.attempts.lastOrNull()?.response?.toCompletionObservation(introductionOpened),
+                item.attempts.lastOrNull()?.response?.toCompletionObservation(
+                    teachingSavedForCompletion(focusId, planRevision, introductionOpened),
+                ),
             )
         } else {
             null
