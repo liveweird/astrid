@@ -438,3 +438,5 @@ This completion follow-up changes documentation only; the deployed image keeps t
 ## Overnight review window — 19 November 2026
 
 The user asked to keep working until **07:30 Europe/Warsaw**, before the **08:00** laptop shutdown. The working queue is to finish the BL-067 release, review the delivered learner flows under BL-035, and prepare a reviewable next vocabulary situation under BL-073. No further decision is required for review or proposal work. Another runtime situation requires selection. Finish external writes and owned verification cleanup by 07:15 where possible, leaving a clean checkpoint by 07:30.
+
+The [software walkthrough](learner-flow-review.md) records released grammar, thematic and review flows with concrete corrections and reproduction steps. The [food-and-shopping proposal](vocabulary-library-next-situation.md) is ready for a selection decision. Backlog items BL-074 through BL-076 retain the proposed learner-facing presentation and teaching improvements. The walkthrough does not close BL-035 learner feedback or BL-022 specialist review.

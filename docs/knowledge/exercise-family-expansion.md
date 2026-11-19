@@ -100,3 +100,47 @@ for #10 only; guided integration, reverse translation and further grammar remain
 **Observed multiple-gap delivery:** item 10 is delivered at [0.7.0](https://github.com/liveweird/astrid/releases/tag/v0.7.0) under the
 [verified contract](multiple-gap-contract.md#observed-delivery--9-november-2026), superseding its earlier unimplemented/proposed status.
 It remains standalone; reversed translation, later grammar and guided integration are proposals.
+
+## User exercise inventory recheck — 19 November 2026
+
+This recheck describes app **0.25.0** and the two reproducible examples for each of the
+51 formats in the actual `pilot-20` export. “Implemented” means a bounded operation ships.
+Danish teaching approval remains BL-022. Later P1–P3 activities extend the examples without
+changing the original direction.
+
+| No. | Status in 0.25.0 | Exact delivered boundary and example |
+| --- | --- | --- |
+| 1 | Implemented | E011 and E032 provide four related Danish choices for an English meaning, for example `book → en bog`; E046 has three choices for its P3 train bundle. |
+| 2 | Implemented | E008 types an introduced singular headword; E035/E036 type an introduced fixed chunk or mass headword. The answer remains one licensed form, not arbitrary translation. |
+| 3 | Implemented | E031 supplies four English meanings for a Danish P1 cue, such as `arbejder`; E007, E040 and E045 use smaller reviewed banks in their own scopes. |
+| 4 | Implemented, bounded | E009 types a complete licensed subject-first Danish sentence from English. The operation grades introduced structures and meanings rather than unrestricted translation. |
+| 5 | Implemented | E012 uses all Danish word tiles. E024/E025, E037, E043 and E049 extend all-block assembly to scoped sentence and vocabulary tasks. E037 and the P3 E049 cue are still **English → Danish**. |
+| 6 | Implemented | E013 adds a related spare infinitive; P1 E038 similarly leaves one extra form. Both test a named form/order contrast rather than arbitrary noise. |
+| 7 | Absent | No Danish-sentence → English all-tile operation exists. Danish reading questions use supplied English choices, not translated sentence tiles. |
+| 8 | Absent | No Danish-sentence → English tile operation with spare English tiles exists. |
+| 9 | Implemented, bounded | E001 selects finite present versus infinitive in one Danish gap. E015 also renders individual selectable gaps, but belongs to the two-gap operation below. |
+| 10 | Implemented | E015 has two independently assessed gaps in one sentence: a primary finite-present verb and a supporting indefinite article, with per-slot feedback. |
+| 11 | Partly implemented | E014, E033, E042 and E047 match English on the left to Danish on the right with two to four pairs. Selectable reverse orientation is absent. |
+| 12 | Partly implemented | E030 rearranges the supplied statement `De har et brev.` into the neutral question `Har de et brev?`. It does **not** ask the learner to infer a suitable question from a supplied answer, typed or with tiles. |
+| 13 | Implemented | E003 reorders Danish blocks; E024 and later scoped tile tasks add constituent/word assembly from an English cue. |
+| 14 | Absent | No four-way sentence-beginning and continuation matching operation exists. |
+| 15 | Partly implemented | E001/E004/E005 and E022/E023/E034/E048 assess a requested present form against an infinitive or supplied frame. The learner does not choose among present, past and perfect tenses. |
+| 16 | Partly implemented | E002/E006 and the supporting E015 slot assess singular indefinite `en`/`et`. Definite articles, number-sensitive paradigms and broader determiner choice are outside the delivered scope. |
+
+Additional delivered operations include short-text comprehension, contextual modal-meaning
+choices, spatial-meaning contrasts and supplied circumstance/question transformations. They do
+not silently fill the absent translation directions or continuation matching above.
+
+### Next-family recommendation — assistant proposal
+
+The strongest new interaction is **#14, sentence beginnings and continuations**, after authoring
+a small reviewed bank. Each board needs four uniquely matchable logical and grammatical pairs,
+or an explicit accepted-many-to-many model; per-pair feedback, editable retry, keyboard operation,
+stable occurrence identity and saved replay need the same treatment as bilingual matching.
+
+Then consider the full **#12, question for a supplied answer**, once the intended question type and
+answer focus are taught. The prompt must identify enough information to avoid several equally valid
+questions, and grading must distinguish word order, requested meaning, response shape and unknown
+Danish. E030 can supply the neutral-question interaction and inversion evidence, but its statement
+transformation cannot be relabelled as answer-to-question evidence. Neither proposal is selected for
+implementation by this inventory update.

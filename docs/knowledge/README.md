@@ -8,6 +8,7 @@ This is the repository record of the Danish learning app's requirements, design 
 - [Learning engine](learning-engine.md): proposed exercise model, variability, evaluation, and progress tracking.
 - [Cumulative mixed review](cumulative-review.md): selected cross-lesson review, taught-material eligibility, saved selection and per-item policy boundaries.
 - [Vocabulary library](vocabulary-library-plan.md): passive reference browsing, exact sense/form crosswalk, and delivered work-and-study recognition and written recall.
+- [Next vocabulary practice situation](vocabulary-library-next-situation.md): proposed food-and-shopping recognition and recall pool, exact taught-form witnesses, and Places alternative.
 - [Language foundations](language-foundations.md): requirements for the grammar curriculum, sentence structures, and vocabulary database.
 - [Research and sources](research-and-sources.md): reference material, potential reusable data, and validation needs.
 - [Working agreement](working-agreement.md): standing documentation rule, decision conventions, and backlog statuses.
@@ -58,6 +59,7 @@ The broad language map and the small validation subset serve different purposes.
 - [Hardening delivery](hardening-delivery.md): observed compatibility, transaction, accessibility and local Kubernetes evidence.
 - [Foundation source review](foundation-source-review.md): consolidated later-map corrections, coverage boundaries and source limitations.
 - [Pilot review guide](pilot-review-guide.md): a short proposed walkthrough for evaluating the engine before expanding it.
+- [Learner flow review](learner-flow-review.md): v0.25.0 walkthroughs, observed usability issues, and open human teaching and pacing questions.
 - [Danish teaching review handoff](pilot-teaching-review.md): proposed specialist packet, full-inventory review, issue records and immutable-revision safeguards.
 - [Runtime database recovery](runtime-recovery.md): observed paused-database behavior, bounded browser waiting and exact attempt recovery.
 - [Server outage boundary](server-outage-boundary.md): proposed local/remote cleanup invariants, pinned-contract findings and future failure-matrix acceptance.

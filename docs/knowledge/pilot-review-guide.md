@@ -133,6 +133,22 @@ defines the separate plan and slot-specific exposure rules.
 
 Check whether selecting targets feels useful and whether source exposure is understandable. Refresh a review midway, complete it, and compare its first/latest outcomes with the unchanged source. Reviews retain possible earlier exposure rather than implying independent mastery. The [follow-up contract](targeted-follow-up.md) records the finite vocabulary pool and saved-lineage boundaries.
 
+## Try vocabulary library practice
+
+On **Vocabulary**, browse and search the entries, then use **Load saved lesson teaching**.
+In a fresh browser the library still shows reference entries, and the practice pool is empty.
+In **Lessons**, open and save the introductions for **Work, reading and today** and
+**Study, courses and Danish**. Return to **Vocabulary** and load saved teaching again.
+Under **Practice work and study vocabulary**, try **Recognize meanings** and **Write Danish**
+as separate runs. Other work-and-study introductions can increase those counts.
+
+Choose a wrong English meaning in recognition, and try an unreviewed form before the taught
+Danish response in written recall. Check the operation labels and review feedback, reload one
+saved activity, and return through **Back to vocabulary**. Record whether the library explains
+the difference between browsing a word, seeing a meaning choice, and producing the Danish form.
+See the [delivery record](vocabulary-library-plan.md#observed-targeted-practice-delivery--19-november-2026)
+for the bounded practice pool and the [learner-flow review](learner-flow-review.md) for the software walkthrough.
+
 ## Inspect variation
 
 Record the format, seed and index under “Generation controls.” Reusing those coordinates and revisions reproduces the exercise presentation; the API's persisted UUID is a separate identity. Change the index or use “Next exercise” to sample variation. The finite pools contain 99 sentences for present/order and 92 for articles, while E007/E008 each cycle through three selected senses and E011 cycles through four. Matching reuses those four E011 senses with independently shuffled columns; occasional correctly aligned rows are possible. Long-term variety needs more reviewed content.
@@ -141,7 +157,10 @@ The [first-step inventory](practice-variation-audit.md#first-step-finite-invento
 separately records the bounded one-person, group and `er` sequences. A new seed does not guarantee
 new content; the required teaching and answer banks make later recall potentially supported.
 
-For the current inventory, run `./gradlew :engine:exportPilotReview` and read `engine/build/review/pilot-19.md`. Use `:engine:exportPilotTenReview` for `pilot-10-retained.md` and `:engine:exportPilotNineReview` for `pilot-9-retained.md`. Retained revision eight is available with `:engine:exportPilotEightReview` at
+For the current inventory, run `./gradlew :engine:exportPilotReview` and read
+`engine/build/review/pilot-20.md`. For the retained P2 inventory,
+`:engine:exportPilotNineteenReview` writes `engine/build/review/pilot-19-retained.md`.
+Use `:engine:exportPilotTenReview` for `pilot-10-retained.md` and `:engine:exportPilotNineReview` for `pilot-9-retained.md`. Retained revision eight is available with `:engine:exportPilotEightReview` at
 `engine/build/review/pilot-8-retained.md`; revision seven is available with `:engine:exportPilotSevenReview` at `engine/build/review/pilot-7.md`; revision six is available with `:engine:exportPilotSixReview` at `engine/build/review/pilot-6.md`; revision five with `:engine:exportPilotFiveReview` at `engine/build/review/pilot-5.md`; revision four with `:engine:exportPilotFourReview` at `engine/build/review/pilot-4.md`; revision three with `:engine:exportPilotThreeReview` at `engine/build/review/pilot-3.md`.
 
 ## Record feedback

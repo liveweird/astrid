@@ -124,3 +124,24 @@ reviewed alternative propositions/frames with the same explicit primary targets,
 and context restrictions. Do not substitute arbitrary dictionary words or describe new board
 layouts as unseen linguistic transfer. Broadening content or plan behavior requires a separately
 selected revision; BL-004 and BL-067 remain open.
+
+## Work-and-study library and first-step choice positions — 19 November 2026
+
+Observed engineering audit of [v0.25.0](https://github.com/liveweird/astrid/releases/tag/v0.25.0), source `57548fb`. The public [library planner](../../engine/src/main/kotlin/app/astrid/engine/VocabularyLibraryPracticePlanner.kt) generates a run from every eligible task in one operation, rotating the ordered pool with the seed. This keeps six authored identities total. Opening a fresh run does not add a new word, meaning or sentence.
+
+For every one of the 64 exact teaching-claim subsets, the audit checked both availability counts and plan sizes for seeds 0–3 and `Int.MAX_VALUE`. It found no duplicates or padding. A nonempty pool of *k* tasks has *k* cyclic orders. One eligible task stays in one position on repeat. For full pools, two cohorts used 4,096 sequential seeds and 4,096 draws from `SplittableRandom(0x415354524944L)`, drawing within the nonnegative integer range. The displayed key comprised ordered authored task IDs, cues and choice banks. It omitted generated IDs, editing state, routes and theme.
+
+| Work-and-study operation | Authored tasks | Task orders with full teaching | Displayed orders in 8,192 seed evaluations |
+| --- | ---: | ---: | ---: |
+| Recognize meanings | 4 | 4 | 7,451 |
+| Write Danish | 2 | 2 | 2 |
+
+All four recognition tasks showed all 24 orders of their four choices somewhere in the sample. Each correct answer appeared at every position. There was no identical displayed order among adjacent sequential seeds in either mode. Choice ordering does not create new practice content, and these counts do not demonstrate uniform sampling or improved retention.
+
+An additional 1,024-seed sample (0–1023) compared selected first-step plans. The first two S03 items always put `er` in the same position within a run. Seed zero puts it first in both selection items, and seed one puts it second in both. Each of the four reachable E018 frames used one answer order in the sample. In [the generator](../../engine/src/main/kotlin/app/astrid/engine/ModuleOneExercises.kt), task position and reversing the choices depend on the same seed/index parity for an even task pool. The two E020 frames in S04 each used both answer positions 512 times in the same sample. A versioned S03 refresh can vary choice order independently of frame selection while keeping the `er` versus `være` contrast.
+
+### Later First steps
+
+The same release was sampled at seeds 0–1023 for all eleven plans from S05 to S13, including the three S11 modal rounds. The semantic sequence key was the ordered format, canonical sentence, cue, before/after text and context. The presentation key added the ordered available choices and ordered tile text. None of these keys uses generated exercise IDs. Each plan showed just one semantic sequence in the sample. Presentation still varied, from two for **Names, homes and languages** to 1,021 for **Words for things you read**. No consecutive seed repeated the complete presentation in these samples.
+
+The three S09 selection positions were either first/second/second or second/first/first, with 512 of each. In S07, both selection items put `har` on the same side in 614 of 1,024 runs, though each mixed-side order also appeared. S10 had three position sequences across the two choice items. The two written items still recalled the same `læse`. Treat these as practical bounds on what a direct repeat offers. More sentence variety requires additional licensed frames with the same primary target, rather than counting shuffles as new Danish content.
