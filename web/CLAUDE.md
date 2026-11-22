@@ -78,7 +78,7 @@ bundled Inter (`@fontsource-variable/inter`, same-origin for the CSP), a reduced
 - Prefer theme `extend`s and `theme.module.css` over per-component CSS. Scheme-dependent colours are `--astrid-*` tokens defined for light, dark and the first-paint `prefers-color-scheme` case in `index.css`; consume the token, don't re-derive hexes in components.
 - Brand mark: `components/BrandMark.tsx` picks `public/logo-light.svg` or `logo-dark.svg` from the computed colour scheme
   (decorative `alt=""`; the wordmark names the brand). `index.html` serves the same files as media-matched favicons, with
-  `favicon.svg` (a copy of the light logo) as the scheme-agnostic fallback. Edit the light and dark logos together.
+  `favicon.svg` as the scheme-agnostic fallback, with a slightly larger cheek flag and a thicker cross for small tabs. Edit the light and dark logos together.
 
 ## Language, accessibility, keyboard
 

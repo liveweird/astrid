@@ -10,6 +10,13 @@ export interface ChangelogEntry {
 // application does not fetch or reconstruct release notes at runtime.
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    version: "0.25.1",
+    date: "2026-11-22",
+    body: `**Meet Astrid's new portrait.**
+
+Astrid now wears a Danish flag on her cheek. Look for her in the header and browser tab in both light and dark themes.`,
+  },
+  {
     version: "0.25.0",
     date: "2026-11-18",
     body: `**Practice work and study vocabulary from the library.**

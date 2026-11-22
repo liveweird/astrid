@@ -60,8 +60,8 @@ Next work: `BACKLOG.md`. Product scope and decisions: `docs/knowledge/product-di
 
 The vocabulary library exposes a separate `vocabulary-library-1` read projection over the 79 existing records. It keeps exact sense/form scope and authored examples; missing examples stay explicit. Reference browsing creates no owner or teaching evidence. An authenticated context read maps acknowledged introductions to meaning/form claims and returns available work-and-study practice counts without loading attempts. Explicit recognition and written recall starts use `vocabulary-library-practice-1` and existing pair-eighteen activities; read the exact admission and replay contract in `docs/knowledge/vocabulary-library-plan.md`.
 
-Brand: Danish red accent with separately labelled learning-feedback colours (`web/src/theme.ts`); the logo (a girl
-with plaits in shades of red) is `web/public/logo-{light,dark}.svg` plus the `favicon.svg` fallback; palette work remains BL-021.
+Brand: Danish red accent with separately labelled learning-feedback colours (`web/src/theme.ts`); Astrid's profile
+with a Danish flag on her cheek is `web/public/logo-{light,dark}.svg` plus the `favicon.svg` fallback; palette work remains BL-021.
 
 ## Donors
 

@@ -26,7 +26,7 @@ Candidate directions for later exploration:
 
 These are proposals within the user's brief. No particular age, appearance, illustration style, or mascot behavior is implied by the character option. A portrait should carry its Danish connection through an intentional visual cue rather than an assumed appearance.
 
-## Selected logo — 8 November 2026
+## Previous logo — 8 November 2026
 
 **User-confirmed:** of three assistant-drawn concepts (A: a girl with a Dannebrog painted on her cheek, on a red disc;
 B: a girl drawn only in shades of red, no disc; C: B plus a Dannebrog hair clip), the user chose **B** and asked for it
@@ -37,6 +37,10 @@ fill a shade of red. `web/public/logo-light.svg` uses deep reds for the hair; `l
 reds so it stays visible on the dark shell, with the same face. `favicon.svg` copies the light variant as the fallback
 for browsers that ignore `media` on `rel="icon"`; `index.html` serves the two variants by `prefers-color-scheme`, and
 `BrandMark` follows the in-app colour scheme, as Flow does. Change the light and dark files together.
+
+## Selected logo — 22 November 2026
+
+The user approved Astrid's new profile portrait with a Danish flag on her cheek. The red and pink fills come from the existing `astrid` palette. The dark-theme version uses brighter hair tones to keep the silhouette visible. The fallback favicon simplifies the eye area and enlarges the flag and its cross for small browser tabs. This replaces the plaited portrait and uses the existing asset paths and theme selection.
 
 Still open under BL-021: a monochrome version, an app-icon (maskable/PNG) treatment if a mobile or installable shell
 needs one, and the final palette and feedback semantics (Q18).
